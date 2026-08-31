@@ -1,0 +1,108 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --canvas: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #f1efea;
+  --surface-3: #e9e6df;
+  --border: #e5e2da;
+  --border-strong: #d5d1c6;
+  --ink: #171613;
+  --ink-2: #5c5952;
+  --ink-3: #8a867c;
+  --inflow: #2a78d6;
+  --outflow: #eb6834;
+  --held: #1baf7a;
+  --accent-4: #eda100;
+}
+
+.dark {
+  --canvas: #0d0d0c;
+  --surface: #171715;
+  --surface-2: #1f1f1c;
+  --surface-3: #282824;
+  --border: #2e2e29;
+  --border-strong: #3d3d36;
+  --ink: #fafaf7;
+  --ink-2: #b8b5ab;
+  --ink-3: #85827a;
+  --inflow: #3987e5;
+  --outflow: #d95926;
+  --held: #199e70;
+  --accent-4: #c98500;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-inflow: var(--inflow);
+  --color-outflow: var(--outflow);
+  --color-held: var(--held);
+
+  --radius-control: 0.5rem;
+  --radius-card: 0.6875rem;
+  --radius-sheet: 1.125rem;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, 'Helvetica Neue', sans-serif;
+
+  --ease-out-quint: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    overscroll-behavior-y: none;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

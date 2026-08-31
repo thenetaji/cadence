@@ -41,7 +41,7 @@ function transactionId(accountId: string, draft: DraftTransaction, ordinal: numb
   )
 }
 
-function counterpartyId(name: string): string {
+export function counterpartyKey(name: string): string {
   return stableId('counterparty', normaliseName(name))
 }
 
@@ -69,7 +69,7 @@ export function mergeStatement(workspace: Workspace, statement: DraftStatement):
     existingIds.add(id)
 
     const name = draft.counterpartyName.trim() === '' ? 'Unnamed' : draft.counterpartyName.trim()
-    const partyId = counterpartyId(name)
+    const partyId = counterpartyKey(name)
     if (!counterparties.has(partyId)) {
       counterparties.set(partyId, {
         id: partyId,
@@ -77,6 +77,7 @@ export function mergeStatement(workspace: Workspace, statement: DraftStatement):
         role: 'unassigned',
         aliases: [],
         note: '',
+        dueDate: null,
       })
       newCounterparties.push(partyId)
     }
@@ -93,6 +94,9 @@ export function mergeStatement(workspace: Workspace, statement: DraftStatement):
       counterpartyId: partyId,
       description: draft.description,
       reference: draft.reference,
+      source: 'imported',
+      note: '',
+      transferId: null,
     })
   }
 
@@ -112,7 +116,7 @@ export function mergeStatement(workspace: Workspace, statement: DraftStatement):
   }
 }
 
-function nextSequence(transactions: readonly Transaction[], accountId: string): number {
+export function nextSequence(transactions: readonly Transaction[], accountId: string): number {
   let highest = -1
   for (const entry of transactions) {
     if (entry.accountId === accountId && entry.sequence > highest) highest = entry.sequence
@@ -123,7 +127,7 @@ function nextSequence(transactions: readonly Transaction[], accountId: string): 
 // Statements list same-day rows in a meaningful order, and the running balance
 // only reads correctly if that order survives. Sorting ties any other way puts
 // the wrong row last and takes the closing balance from it.
-function compareTransactions(left: Transaction, right: Transaction): number {
+export function compareTransactions(left: Transaction, right: Transaction): number {
   return (
     left.date.localeCompare(right.date) ||
     left.sequence - right.sequence ||

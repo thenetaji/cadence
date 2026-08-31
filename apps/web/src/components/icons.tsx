@@ -70,3 +70,17 @@ export const UploadIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
   </Glyph>
 )
+
+export const PlanIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Glyph {...props}>
+    <rect x="3" y="5" width="18" height="16" rx="2.5" />
+    <path d="M3 10h18M8 3v4M16 3v4" />
+  </Glyph>
+)
+
+export const UndoIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Glyph {...props}>
+    <path d="M4 9h11a5 5 0 0 1 0 10h-6" />
+    <path d="M7 5L3 9l4 4" />
+  </Glyph>
+)

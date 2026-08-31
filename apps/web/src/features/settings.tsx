@@ -1,4 +1,4 @@
-import { currencyNames, supportedCurrencies, type Workspace } from '@cadence/core'
+import { currencyNames, normaliseWorkspace, supportedCurrencies, toCsv, type Workspace } from '@cadence/core'
 import { useState } from 'react'
 import { Button, Note, Segmented } from '~/components/primitives'
 import { Sheet } from '~/components/shell'
@@ -19,12 +19,12 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const [theme, setTheme] = useState<ThemeChoice>(readThemeChoice)
   const [confirmingReset, setConfirmingReset] = useState(false)
 
-  const exportFile = () => {
-    const blob = new Blob([JSON.stringify(workspace, null, 2)], { type: 'application/json' })
+  const download = (contents: string, type: string, extension: string) => {
+    const blob = new Blob([contents], { type })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `cadence-${new Date().toISOString().slice(0, 10)}.json`
+    link.download = `cadence-${new Date().toISOString().slice(0, 10)}.${extension}`
     link.click()
     URL.revokeObjectURL(url)
   }
@@ -32,7 +32,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const importFile = async (file: File | undefined) => {
     if (!file) return
     const parsed: unknown = JSON.parse(await file.text())
-    if (isWorkspace(parsed)) replace(parsed)
+    if (isWorkspace(parsed)) replace(normaliseWorkspace(parsed))
   }
 
   return (
@@ -63,10 +63,24 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
       <div className="mb-4">
         <div className="mb-1.5 text-[12px] font-semibold">Your data</div>
         <p className="mb-2.5 text-[12px] text-ink-3">
-          Everything lives on this device. Export keeps a copy you control.
+          Everything lives on this device. The backup restores into Cadence; the CSV is for a
+          spreadsheet and does not come back in.
         </p>
-        <Button variant="ghost" className="w-full" onClick={exportFile}>
+        <Button
+          variant="ghost"
+          className="w-full"
+          onClick={() =>
+            download(JSON.stringify(workspace, null, 2), 'application/json', 'json')
+          }
+        >
           Export a backup
+        </Button>
+        <Button
+          variant="ghost"
+          className="mt-2 w-full"
+          onClick={() => download(toCsv(workspace), 'text/csv', 'csv')}
+        >
+          Export transactions as CSV
         </Button>
         <label className="mt-2 block">
           <input

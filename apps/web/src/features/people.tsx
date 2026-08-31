@@ -11,13 +11,13 @@ import { PageHeader } from '~/components/shell'
 import { useRouter } from '~/lib/router'
 import { useWorkspace } from '~/lib/workspace'
 
-const ROLE_OPTIONS = [
+const ROLE_OPTIONS: readonly { value: CounterpartyRole; label: string }[] = [
   { value: 'spending', label: 'Spending' },
   { value: 'account', label: 'Mine' },
   { value: 'lent', label: 'Lent' },
   { value: 'client', label: 'Client' },
   { value: 'support', label: 'Support' },
-] as const satisfies readonly { value: CounterpartyRole; label: string }[]
+]
 
 const GROUPS = [
   { role: 'lent', title: 'Money lent', hint: 'expected back' },
@@ -85,7 +85,7 @@ export function PeoplePage() {
                 <div className="mt-3">
                   <Segmented
                     options={ROLE_OPTIONS}
-                    value={'spending'}
+                    value={entry.counterparty.role}
                     onChange={(role) => assignRole(entry.counterparty.id, role)}
                   />
                 </div>

@@ -1,8 +1,17 @@
-import { daysBetween, fromMinor, partyTotals, type CounterpartyRole } from '@cadence/core'
+import {
+  daysBetween,
+  fromMinor,
+  partyTotals,
+  todayIso,
+  type CounterpartyRole,
+  type Transaction,
+} from '@cadence/core'
 import { useMemo, useState } from 'react'
+import { Field, TextArea, TextInput } from '~/components/form'
 import {
   Amount,
   Button,
+  Card,
   Hero,
   ListRow,
   Note,
@@ -14,19 +23,22 @@ import { PageHeader, Sheet } from '~/components/shell'
 import { useRouter } from '~/lib/router'
 import { useWorkspace } from '~/lib/workspace'
 import { roleLabel } from './activity'
+import { EntrySheet } from './entry'
 
-const ROLE_OPTIONS = [
+const ROLE_OPTIONS: readonly { value: CounterpartyRole; label: string }[] = [
   { value: 'spending', label: 'Spending' },
   { value: 'account', label: 'Mine' },
   { value: 'lent', label: 'Lent' },
   { value: 'client', label: 'Client' },
   { value: 'support', label: 'Support' },
-] as const satisfies readonly { value: CounterpartyRole; label: string }[]
+]
 
 export function PersonPage({ counterpartyId }: { counterpartyId: string }) {
-  const { workspace, money, day, assignRole, combine } = useWorkspace()
+  const { workspace, money, day, assignRole, combine, setDueDate, setPartyNote } = useWorkspace()
   const { navigate } = useRouter()
   const [merging, setMerging] = useState(false)
+  const [editing, setEditing] = useState<Transaction | null>(null)
+  const [noteDraft, setNoteDraft] = useState<string | null>(null)
 
   const totals = useMemo(
     () => partyTotals(workspace, workspace.displayCurrency),
@@ -103,11 +115,55 @@ export function PersonPage({ counterpartyId }: { counterpartyId: string }) {
         </div>
       ) : null}
 
+      {isLent ? (
+        <section className="mt-3">
+          <Card>
+            <Field
+              label="Expected back"
+              hint={
+                counterparty.dueDate === null
+                  ? 'A date puts this in the Plan screen and warns you once it passes.'
+                  : overdue(counterparty.dueDate)
+                    ? `${daysBetween(counterparty.dueDate, todayIso())} days past.`
+                    : `${daysBetween(todayIso(), counterparty.dueDate)} days away.`
+              }
+            >
+              <TextInput
+                type="date"
+                value={counterparty.dueDate ?? ''}
+                onChange={(event) =>
+                  setDueDate(counterparty.id, event.target.value === '' ? null : event.target.value)
+                }
+              />
+            </Field>
+          </Card>
+        </section>
+      ) : null}
+
+      <section className="mt-3">
+        <Card>
+          <Field label="Note" hint="Kept with this name, not with any one movement.">
+            <TextArea
+              rows={2}
+              value={noteDraft ?? counterparty.note}
+              placeholder="What this is, what was agreed"
+              onChange={(event) => setNoteDraft(event.target.value)}
+              onBlur={() => {
+                if (noteDraft !== null && noteDraft !== counterparty.note) {
+                  setPartyNote(counterparty.id, noteDraft)
+                }
+                setNoteDraft(null)
+              }}
+            />
+          </Field>
+        </Card>
+      </section>
+
       <section className="mt-5">
         <SectionHeading title="Label" aside="applies to every transaction with this name" />
         <Segmented
           options={ROLE_OPTIONS}
-          value={counterparty.role === 'unassigned' ? 'spending' : counterparty.role}
+          value={counterparty.role}
           onChange={(role) => assignRole(counterparty.id, role)}
         />
         <div className="mt-2.5">
@@ -123,7 +179,7 @@ export function PersonPage({ counterpartyId }: { counterpartyId: string }) {
       </section>
 
       <section className="mt-5">
-        <SectionHeading title="Movements" aside={`${transactions.length}`} />
+        <SectionHeading title="Movements" aside="tap one to change it" />
         {transactions.map((item) => (
           <ListRow
             key={item.id}
@@ -135,6 +191,7 @@ export function PersonPage({ counterpartyId }: { counterpartyId: string }) {
                 tone={item.direction === 'in' ? 'in' : 'out'}
               />
             }
+            onClick={() => setEditing(item)}
           />
         ))}
       </section>
@@ -162,10 +219,13 @@ export function PersonPage({ counterpartyId }: { counterpartyId: string }) {
           </ul>
         </Sheet>
       ) : null}
+
+      {editing ? <EntrySheet editing={editing} onClose={() => setEditing(null)} /> : null}
     </>
   )
 }
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
+function overdue(date: string): boolean {
+  return date < todayIso()
 }
+

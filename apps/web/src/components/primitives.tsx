@@ -220,3 +220,64 @@ export function EmptyState({
     </div>
   )
 }
+
+/** A bar that fills to `value` of `of`, and turns to the outflow colour once past it. */
+export function Progress({
+  value,
+  of,
+  tone,
+}: {
+  value: number
+  of: number
+  tone?: 'over' | undefined
+}) {
+  const share = of <= 0 ? 0 : Math.min(1, value / of)
+  return (
+    <div className="h-[6px] overflow-hidden rounded-full bg-surface-3">
+      <div
+        className={cx('h-full rounded-full', tone === 'over' ? 'bg-outflow' : 'bg-ink')}
+        style={{ width: `${Math.max(share * 100, value > 0 ? 2 : 0)}%` }}
+      />
+    </div>
+  )
+}
+
+export function Banner({
+  tone = 'neutral',
+  children,
+}: {
+  tone?: 'neutral' | 'warn' | undefined
+  children: ReactNode
+}) {
+  return (
+    <div
+      className={cx(
+        'rounded-[var(--radius-card)] border border-l-2 bg-surface px-3.5 py-3 text-[12.5px] text-ink-2',
+        tone === 'warn' ? 'border-border border-l-outflow' : 'border-border border-l-ink',
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+export function Chip({
+  children,
+  tone,
+}: {
+  children: ReactNode
+  tone?: 'in' | 'out' | 'flat' | undefined
+}) {
+  const colour =
+    tone === 'in' ? 'text-inflow' : tone === 'out' ? 'text-outflow' : 'text-ink-2'
+  return (
+    <span
+      className={cx(
+        'inline-flex items-center gap-1 rounded-full border border-border bg-surface-2 px-2 py-px text-[10px] font-semibold',
+        colour,
+      )}
+    >
+      {children}
+    </span>
+  )
+}

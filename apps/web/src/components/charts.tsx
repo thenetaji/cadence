@@ -155,3 +155,132 @@ export function RankedBars({
     </ul>
   )
 }
+
+export interface TrendPoint {
+  key: string
+  label: string
+  value: number
+  /** Days something committed lands on, drawn as a tick under the line. */
+  marked?: boolean
+}
+
+const TREND_HEIGHT = 96
+
+/**
+ * One series over time. A single line needs no legend — the heading names it — so
+ * the only colour here is the sign of the number: below zero is drawn as an outflow.
+ */
+export function TrendLine({
+  data,
+  format,
+  caption,
+}: {
+  data: readonly TrendPoint[]
+  format: (value: number) => string
+  caption?: string
+}) {
+  const [index, setIndex] = useState<number | null>(null)
+  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null)
+
+  if (data.length < 2) return null
+
+  const values = data.map((entry) => entry.value)
+  const high = Math.max(...values, 0)
+  const low = Math.min(...values, 0)
+  const span = high - low || 1
+
+  const x = (position: number) => (position / (data.length - 1)) * 100
+  const y = (value: number) => ((high - value) / span) * 100
+
+  const line = data.map((entry, position) => `${x(position)},${y(entry.value)}`).join(' ')
+  const area = `${line} ${x(data.length - 1)},${y(Math.max(low, 0))} 0,${y(Math.max(low, 0))}`
+  const zeroY = y(0)
+  const active = index === null ? null : data[index]
+  const negative = low < 0
+
+  const track = (event: { currentTarget: HTMLElement; clientX: number; clientY: number }) => {
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const share = (event.clientX - bounds.left) / bounds.width
+    const position = Math.round(share * (data.length - 1))
+    setIndex(Math.min(data.length - 1, Math.max(0, position)))
+    setPointer({ x: event.clientX, y: event.clientY })
+  }
+
+  return (
+    <figure className="m-0">
+      <figcaption className="sr-only">{caption ?? 'Projected balance over time'}</figcaption>
+      <div
+        className="relative"
+        style={{ height: TREND_HEIGHT }}
+        onMouseMove={track}
+        onMouseLeave={() => {
+          setIndex(null)
+          setPointer(null)
+        }}
+      >
+        <svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="absolute inset-0 h-full w-full overflow-visible"
+          aria-hidden="true"
+        >
+          <polygon points={area} className="fill-ink opacity-[0.06]" />
+          {negative ? (
+            <line
+              x1="0"
+              x2="100"
+              y1={zeroY}
+              y2={zeroY}
+              className="stroke-outflow"
+              strokeWidth={1}
+              strokeDasharray="3 3"
+              vectorEffect="non-scaling-stroke"
+            />
+          ) : null}
+          <polyline
+            points={line}
+            fill="none"
+            className={negative ? 'stroke-outflow' : 'stroke-ink'}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+          {data.map((entry, position) =>
+            entry.marked ? (
+              <line
+                key={entry.key}
+                x1={x(position)}
+                x2={x(position)}
+                y1={y(entry.value)}
+                y2="100"
+                className="stroke-border-strong"
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : null,
+          )}
+        </svg>
+
+        {active && index !== null ? (
+          <span
+            className="pointer-events-none absolute z-10 h-[9px] w-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-ink"
+            style={{ left: `${x(index)}%`, top: `${y(active.value)}%` }}
+          />
+        ) : null}
+      </div>
+
+      <div className="mt-1.5 flex justify-between text-[10px] text-ink-3">
+        <span>{data[0]?.label}</span>
+        <span>{data.at(-1)?.label}</span>
+      </div>
+
+      {pointer && active ? (
+        <Tooltip x={pointer.x} y={pointer.y}>
+          <div className="font-semibold">{format(active.value)}</div>
+          <div className="text-ink-2">{active.label}</div>
+        </Tooltip>
+      ) : null}
+    </figure>
+  )
+}

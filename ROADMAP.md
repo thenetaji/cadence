@@ -4,6 +4,10 @@ Ordered by what unblocks the most people, not by what is most interesting to bui
 
 ## Working now
 
+- Entries typed in by hand, edited and removed, with twenty-five steps of undo
+- Transfers between your own accounts, recorded as both halves at once
+- Things that repeat, on five rhythms, recorded or skipped one occurrence at a time
+- A ninety-day balance forecast, a monthly spending target and repayment dates on lending
 - CSV import with column detection, delimiter sniffing and locale-aware dates and amounts
 - PDF import plumbing: a `StatementParser` interface, a synthetic fixture generator and one
   reference parser
@@ -12,8 +16,8 @@ Ordered by what unblocks the most people, not by what is most interesting to bui
 - Several accounts, including ones you type a balance into by hand
 - Five-label counterparty model with automatic suggestions after import
 - Runway, monthly flow, income rhythm, lending ledger and larger-decision detection
-- Overview, Activity, People, Person and Income screens in light and dark
-- Local persistence, JSON export and restore
+- Overview, Activity, Plan, People, Person and Income screens in light and dark
+- Local persistence, JSON export and restore, CSV export
 - Installable as a web app with an offline shell
 
 ## Next
@@ -22,7 +26,7 @@ Ordered by what unblocks the most people, not by what is most interesting to bui
   file, one fixture and one test. Needed anywhere statements are only issued as PDFs.
 - **Accounts in different currencies at once.** The model carries currency per account; the
   interface still assumes a single display currency.
-- **Expected repayment dates on lending**, so money coming back appears in a forecast.
+- **Money expected back from lending inside the forecast**, now that repayment dates exist.
 
 ## Later
 

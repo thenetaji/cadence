@@ -114,3 +114,44 @@ export function daysBetween(from: IsoDate, to: IsoDate): number {
   const end = Date.parse(`${to}T00:00:00Z`)
   return Math.round((end - start) / 86_400_000)
 }
+
+export function todayIso(): IsoDate {
+  return new Date().toISOString().slice(0, 10)
+}
+
+export function addDays(date: IsoDate, days: number): IsoDate {
+  const value = new Date(`${date}T00:00:00Z`)
+  value.setUTCDate(value.getUTCDate() + days)
+  return value.toISOString().slice(0, 10)
+}
+
+/**
+ * Adds whole months, clamping to the end of a shorter month. A bill due on the 31st
+ * lands on the 28th in February and returns to the 31st afterwards only if the caller
+ * keeps the original day, which is why callers step from a stored date, not a count.
+ */
+export function addMonths(date: IsoDate, months: number): IsoDate {
+  const [year, month, day] = date.split('-').map(Number)
+  if (year === undefined || month === undefined || day === undefined) return date
+  const target = new Date(Date.UTC(year, month - 1 + months, 1))
+  const lastDay = new Date(
+    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
+  ).getUTCDate()
+  target.setUTCDate(Math.min(day, lastDay))
+  return target.toISOString().slice(0, 10)
+}
+
+export function startOfMonth(month: string): IsoDate {
+  return `${month}-01`
+}
+
+export function endOfMonth(month: string): IsoDate {
+  const [year, index] = month.split('-').map(Number)
+  if (year === undefined || index === undefined) return `${month}-28`
+  return new Date(Date.UTC(year, index, 0)).toISOString().slice(0, 10)
+}
+
+/** How many days are left in the month containing `date`, counting that day. */
+export function daysLeftInMonth(date: IsoDate): number {
+  return daysBetween(date, endOfMonth(monthKey(date))) + 1
+}

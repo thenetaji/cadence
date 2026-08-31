@@ -21,9 +21,9 @@ every number wrong.
 
 ## Status
 
-Early. CSV import, PDF import plumbing, the data model and the interface are working. Parsers for
-specific banks, cloud sync and mobile builds are planned but not written yet — see
-[ROADMAP.md](ROADMAP.md).
+Working: entries typed in by hand, CSV import, PDF import plumbing, transfers between your own
+accounts, things that repeat, a forecast, and the whole interface. Parsers for specific banks,
+cloud sync and mobile builds are planned but not written yet — see [ROADMAP.md](ROADMAP.md).
 
 Currencies: **USD, EUR and INR**. Adding another is a line in
 `packages/core/src/money/currencies.ts` plus its minor-unit exponent.
@@ -37,6 +37,38 @@ pnpm dev
 
 Open the app and choose **Use sample data instead** on the import screen. That loads ten months of
 generated transactions so you can see every screen without touching your own statements.
+
+## Recording by hand
+
+Nothing has to be imported. The **+** button on any screen opens one sheet for all three kinds of
+entry:
+
+- **Spent** and **Received** ask for an amount, a name and a date. A name it has not seen before
+  asks for its label there and then, so the entry lands in the right totals immediately.
+- **Moved** records a transfer between two of your own accounts as both halves at once. It never
+  reads as income on one side or spending on the other, and deleting one half deletes both.
+
+Every row is editable, whether you typed it or imported it — tap it in Activity. Editing an
+imported row drops the statement balance it carried, because that figure described the row as the
+bank wrote it; the account is then anchored on the rows before it. **Undo** on the Activity screen
+goes back through the last twenty-five changes.
+
+If you have no account yet, the sheet offers to make one called Cash. Balances for accounts you
+type in are read as the balance *now* — anything already recorded is worked backwards out of it.
+
+## Planning ahead
+
+The **Plan** screen is for money that has not moved yet.
+
+- **Things that repeat** — rent, a subscription, a retainer — each with a rhythm and a next date.
+  Recording one writes it into the ledger and moves it on; the amount can differ from the expected
+  one, because a bill rarely lands to the penny.
+- **A forecast** of the balance for the next ninety days: everything scheduled, plus ordinary
+  spending at the rate of your recent months. Bills already in the schedule are taken out of that
+  rate rather than counted twice. It names the lowest point and the day the money would run out.
+- **A monthly spending target**, if you want one, with what is left and what each remaining day can
+  hold.
+- **Repayment dates** on money you have lent, ordered by urgency, with anything overdue marked.
 
 ## Importing your own data
 
@@ -90,7 +122,8 @@ cannot be added together — the type system refuses.
 ## Privacy
 
 Statements are parsed in the browser. Your data is written to IndexedDB on the device and nowhere
-else. **Export a backup** in Settings writes a JSON file you control. Deleting the site data
+else. **Export a backup** in Settings writes a JSON file you control, and **Export transactions as
+CSV** writes one row per movement for a spreadsheet or an accountant. Deleting the site data
 deletes everything.
 
 ## Licence

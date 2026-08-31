@@ -62,7 +62,7 @@ function rolesOf(workspace: Workspace): Map<string, CounterpartyRole> {
   return new Map(workspace.counterparties.map((entry) => [entry.id, entry.role]))
 }
 
-function inCurrency(workspace: Workspace, currency: CurrencyCode): Transaction[] {
+export function inCurrency(workspace: Workspace, currency: CurrencyCode): Transaction[] {
   const accounts = new Set(
     workspace.accounts.filter((entry) => entry.currency === currency).map((entry) => entry.id),
   )
@@ -142,7 +142,7 @@ export function monthlyTotals(workspace: Workspace, currency: CurrencyCode): Mon
   return [...buckets.values()].sort((left, right) => left.month.localeCompare(right.month))
 }
 
-function spendingTransactions(workspace: Workspace, currency: CurrencyCode): Transaction[] {
+export function spendingTransactions(workspace: Workspace, currency: CurrencyCode): Transaction[] {
   const roles = rolesOf(workspace)
   return inCurrency(workspace, currency).filter((entry) => {
     if (entry.direction !== 'out') return false

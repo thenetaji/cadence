@@ -1,16 +1,17 @@
 import type { ReactNode } from 'react'
 import { useRouter } from '~/lib/router'
-import { ActivityIcon, IncomeIcon, OverviewIcon, PeopleIcon } from './icons'
+import { ActivityIcon, IncomeIcon, OverviewIcon, PeopleIcon, PlanIcon, PlusIcon } from './icons'
 import { cx } from './primitives'
 
 const TABS = [
   { name: 'overview', label: 'Overview', Icon: OverviewIcon },
   { name: 'activity', label: 'Activity', Icon: ActivityIcon },
+  { name: 'plan', label: 'Plan', Icon: PlanIcon },
   { name: 'people', label: 'People', Icon: PeopleIcon },
   { name: 'income', label: 'Income', Icon: IncomeIcon },
 ] as const
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, onAdd }: { children: ReactNode; onAdd: () => void }) {
   const { route, navigate } = useRouter()
   const current = route.name === 'person' ? 'people' : route.name
 
@@ -36,11 +37,29 @@ export function AppShell({ children }: { children: ReactNode }) {
             {tab.label}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={onAdd}
+          className="mt-3 flex items-center gap-2.5 rounded-[var(--radius-control)] border border-border-strong px-2.5 py-2 text-[13px] font-semibold text-ink hover:bg-surface-2"
+        >
+          <PlusIcon className="h-4 w-4" />
+          New entry
+        </button>
       </nav>
 
-      <main className="min-w-0 flex-1 px-4 pt-4 pb-24 md:px-0 md:pb-10">{children}</main>
+      <main className="min-w-0 flex-1 px-4 pt-4 pb-28 md:px-0 md:pb-10">{children}</main>
 
-      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-surface md:hidden">
+      <button
+        type="button"
+        onClick={onAdd}
+        aria-label="New entry"
+        className="fixed bottom-[74px] right-4 z-30 grid h-[52px] w-[52px] place-items-center rounded-full bg-ink text-canvas shadow-lg active:scale-95 md:hidden"
+        style={{ bottom: 'calc(74px + env(safe-area-inset-bottom))' }}
+      >
+        <PlusIcon className="h-[22px] w-[22px]" />
+      </button>
+
+      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-surface md:hidden">
         {TABS.map((tab) => (
           <button
             key={tab.name}
@@ -70,7 +89,7 @@ export function PageHeader({
   title: string
   subtitle?: ReactNode
   actions?: ReactNode
-  onBack?: () => void
+  onBack?: (() => void) | undefined
 }) {
   return (
     <header className="flex items-start justify-between gap-3 pb-3 pt-1">
@@ -125,7 +144,7 @@ export function Sheet({
   children,
 }: {
   title: string
-  description?: string
+  description?: string | undefined
   onClose: () => void
   children: ReactNode
 }) {

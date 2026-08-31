@@ -1,4 +1,5 @@
-import { CurrencyMismatchError, type CurrencyCode, type Money } from '../money'
+import { CurrencyMismatchError, subtract, type CurrencyCode, type Money } from '../money'
+import { recomputeBalances } from './balances'
 import { stableId } from './id'
 import type { Account, Workspace } from './types'
 
@@ -67,6 +68,11 @@ export function addManualAccount(workspace: Workspace, label: string, balance: M
   return { ...workspace, accounts: [...workspace.accounts, account] }
 }
 
+/**
+ * Takes the figure as the balance *now*. Anything already recorded against the account
+ * is worked backwards out of it, so typing today's balance never quietly rewrites the
+ * transactions that led to it.
+ */
 export function setManualBalance(
   workspace: Workspace,
   accountId: string,
@@ -76,28 +82,37 @@ export function setManualBalance(
   if (account.source !== 'manual') throw new NotAManualAccountError(accountId)
   assertDisplayCurrency(workspace, balance.currency)
 
-  return {
+  const movement = workspace.transactions
+    .filter((entry) => entry.accountId === accountId)
+    .reduce(
+      (total, entry) => total + (entry.direction === 'in' ? entry.amount.minor : -entry.amount.minor),
+      0,
+    )
+  const openingBalance = subtract(balance, { minor: movement, currency: balance.currency })
+
+  return recomputeBalances({
     ...workspace,
     accounts: workspace.accounts.map((entry) =>
-      entry.id === accountId
-        ? { ...entry, openingBalance: balance, closingBalance: balance }
-        : entry,
+      entry.id === accountId ? { ...entry, openingBalance, closingBalance: balance } : entry,
     ),
-  }
+  })
 }
 
 export function removeAccount(workspace: Workspace, accountId: string): Workspace {
   requireAccount(workspace, accountId)
 
   const transactions = workspace.transactions.filter((entry) => entry.accountId !== accountId)
-  const remainingCounterpartyIds = new Set(transactions.map((entry) => entry.counterpartyId))
+  const scheduled = workspace.scheduled.filter((entry) => entry.accountId !== accountId)
+  const stillReferenced = new Set([
+    ...transactions.map((entry) => entry.counterpartyId),
+    ...scheduled.map((entry) => entry.counterpartyId),
+  ])
 
   return {
     ...workspace,
     accounts: workspace.accounts.filter((entry) => entry.id !== accountId),
     transactions,
-    counterparties: workspace.counterparties.filter((entry) =>
-      remainingCounterpartyIds.has(entry.id),
-    ),
+    scheduled,
+    counterparties: workspace.counterparties.filter((entry) => stillReferenced.has(entry.id)),
   }
 }

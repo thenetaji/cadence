@@ -1,57 +1,74 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Pressable } from 'react-native';
+import * as React from 'react';
+import { ActivityIndicator } from 'react-native';
 
-import { TextClassContext } from '@/components/ui/text';
+import { Pressable, type PressableProps } from '@/components/ui/pressable';
+import { Text, TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
+import { useTokens } from '@/theme/use-tokens';
+import { pressOpacity, pressScale } from '@/theme/tokens';
 
-const buttonVariants = cva(
-  'flex-row items-center justify-center gap-2 rounded-md active:opacity-80 disabled:opacity-50',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary',
-        destructive: 'bg-destructive',
-        outline: 'border border-input bg-background',
-        secondary: 'bg-secondary',
-        ghost: 'active:bg-accent',
-      },
-      size: {
-        default: 'h-11 px-5',
-        sm: 'h-9 px-3',
-        lg: 'h-12 px-8',
-        icon: 'h-10 w-10',
-      },
-    },
-    defaultVariants: { variant: 'default', size: 'default' },
-  },
-);
-
-const buttonTextVariants = cva('text-sm font-medium', {
+const buttonVariants = cva('flex-row items-center justify-center gap-2 rounded-[12px]', {
   variants: {
     variant: {
-      default: 'text-primary-foreground',
-      destructive: 'text-white',
-      outline: 'text-foreground',
-      secondary: 'text-secondary-foreground',
-      ghost: 'text-foreground',
+      primary: 'bg-accent',
+      secondary: 'bg-fill',
+      ghost: 'bg-accent-soft',
+      destructiveText: '',
+      plainText: '',
+    },
+    size: {
+      sm: 'h-9 min-w-[44px] px-3',
+      md: 'h-11 px-4',
+      lg: 'h-[52px] px-6',
     },
   },
-  defaultVariants: { variant: 'default' },
+  defaultVariants: { variant: 'primary', size: 'md' },
 });
 
-type ButtonProps = React.ComponentProps<typeof Pressable> & VariantProps<typeof buttonVariants>;
+const buttonTextVariants = cva('', {
+  variants: {
+    variant: {
+      primary: 'text-primary-foreground',
+      secondary: 'text-foreground',
+      ghost: 'text-accent',
+      destructiveText: 'text-expense',
+      plainText: 'text-accent',
+    },
+  },
+  defaultVariants: { variant: 'primary' },
+});
 
-function Button({ className, variant, size, ...props }: ButtonProps) {
+type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>;
+
+type ButtonProps = Omit<PressableProps, 'children'> &
+  VariantProps<typeof buttonVariants> & {
+    loading?: boolean;
+    children?: React.ReactNode;
+  };
+
+function Button({ className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props }: ButtonProps) {
+  const { colors } = useTokens();
+  const isText = variant === 'destructiveText' || variant === 'plainText';
+  const spinner = variant === 'primary' ? colors.onAccent : colors.textSecondary;
+  const inactive = disabled || loading;
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant })}>
       <Pressable
         role="button"
-        className={cn(props.disabled && 'opacity-50', buttonVariants({ variant, size }), className)}
+        accessibilityState={{ disabled: !!inactive, busy: loading }}
+        disabled={inactive}
+        scale={isText ? 1 : pressScale.row}
+        dimTo={isText ? pressOpacity.text : undefined}
+        className={cn(buttonVariants({ variant, size }), disabled && 'opacity-40', className)}
         {...props}
-      />
+      >
+        {loading ? <ActivityIndicator size="small" color={spinner} /> : null}
+        {typeof children === 'string' ? <Text variant="headline">{children}</Text> : children}
+      </Pressable>
     </TextClassContext.Provider>
   );
 }
 
 export { Button, buttonTextVariants, buttonVariants };
-export type { ButtonProps };
+export type { ButtonProps, ButtonVariant };

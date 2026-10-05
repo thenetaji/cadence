@@ -1,1 +1,4 @@
-[{ "name": "home", "path": "/" }]
+[
+  { "name": "home", "path": "/" },
+  { "name": "gallery", "path": "/dev/gallery", "fullPage": true }
+]

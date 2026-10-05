@@ -628,4 +628,16 @@ Each phase is self-contained and handed to one engineer agent. Acceptance = all 
 ### Phase 6: Polish
 
 - Haptics audit against §5.6, motion audit against §5.5, Reduce Motion path, Dynamic Type at xxxLarge on every screen, VoiceOver pass on Home/Activity/Add, very-large-amount pass (₹99,99,99,999.99 everywhere), empty states on every screen, Android render pass (no crashes, symbols fall back, hairlines visible), launch time < 1 s warm, bundle of SF Symbol names verified to exist on iOS 17.
-- Accept: a checklist file `docs/QA.md` with every screen × state ticked, screenshots attached in the PR.
+- Accept: a checklist file `docs/QA.md` with every screen × state ticked; screenshots for every route in `.screenshots/`.
+
+## 9. Implementation notes (orchestrator, binding)
+
+- **Name**: working name **Farthing**. It lives in exactly two places: `app.json` `expo.name` and `APP_NAME` in `src/constants/app.ts`. Bundle id and scheme stay as they are.
+- **Expo Go only**: any dependency with native code must appear in `node_modules/expo/bundledNativeModules.json`; add it with `pnpm exec expo install`. Pure-JS libraries are fine. Available and preferred: `@react-native-segmented-control/segmented-control` (every segmented control), `@react-native-community/datetimepicker`, `expo-crypto` (UUIDs), `expo-symbols`, `@expo/vector-icons` (Android/web icon fallback), `@expo/ui` (SwiftUI menus/pickers on iOS, only where it stays simple and there is a non-iOS fallback), `expo-glass-effect`. Not available: zeego, `@react-native-menu/menu`.
+- **Styling**: Uniwind + Tailwind 4 (`src/global.css`). Replace the stock shadcn greys with the §5 tokens. Keep the shadcn variable names Reusables components expect and map them (`--background` = bg, `--card` = surface, `--primary` = accent, `--muted-foreground` = text-secondary, `--border`, `--destructive` = expense), then add our own (`surface`, `elevated`, `separator`, `text-tertiary`, `accent-soft`, `income`, `expense`, `warning`, `fill`, `overlay`, and the category palette). `src/theme/tokens.ts` mirrors the same values for Skia, Reanimated and any place that needs a raw colour.
+- **Theme setting**: System/Light/Dark is applied with `Uniwind.setTheme(...)` (check the Uniwind API) plus `Appearance.setColorScheme` so native tabs, sheets and pickers match.
+- **Web is a QA target only**: it is used to screenshot the UI. Native-only pieces get a `.web.tsx` fallback when needed (tabs, symbols, segmented control, sheets). Never degrade the native implementation for the web.
+- **Data access**: repositories are plain functions that take the Drizzle db as their first argument and are typed against the shared sqlite-core schema, so the same code runs on expo-sqlite (app) and better-sqlite3 (jest tests). UI reads data through small hooks in `src/data/hooks/*`, using `useLiveQuery` from `drizzle-orm/expo-sqlite` or a simple store invalidation, never ad-hoc SQL in screens.
+- **Pure logic lives in `src/lib`** (money, dates/periods, keypad reducer, recurring maths, CSV) and is unit-tested.
+- **Dev data**: `src/db/dev-seed.ts` builds about 6 months of realistic sample transactions in INR (salary, rent, groceries, Swiggy/Zomato, Uber, subscriptions, a split, a transfer, one USD account). It's reachable from Settings → About only in `__DEV__`, and `?seed=demo` on web auto-seeds for screenshots.
+- **Process**: agents never commit; the orchestrator verifies (`pnpm verify`, `pnpm screenshots`) and commits.

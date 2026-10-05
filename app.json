@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Cadence",
+    "name": "Farthing",
     "slug": "cadence",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -38,7 +38,8 @@
       ],
       "expo-sqlite",
       "expo-sharing",
-      "expo-localization"
+      "expo-localization",
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

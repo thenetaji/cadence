@@ -66,6 +66,13 @@ try {
       });
       await page.goto(base + route.path, { waitUntil: 'networkidle' });
       await page.waitForTimeout(Number(process.env.SHOT_DELAY ?? 1000));
+      if (route.fullPage === true) {
+        const height = await page.evaluate(() =>
+          Math.max(...Array.from(document.querySelectorAll('*'), (el) => el.scrollHeight)),
+        );
+        await page.setViewportSize({ width: 393, height: Math.min(Math.max(height, 852), 16000) });
+        await page.waitForTimeout(300);
+      }
       await page.screenshot({ path: join(outDir, `${tag}.png`) });
       console.log(`shot ${tag}`);
       await page.close();

@@ -7,12 +7,17 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const dist = join(root, '.export-web');
-const outDir = join(root, '.screenshots');
-const routes = JSON.parse(readFileSync(join(root, 'scripts/screenshot-routes.json'), 'utf8'));
+// SHOTS_EXPORT_DIR / SHOTS_OUT let parallel runs use separate folders; SHOTS_ONLY filters routes by name prefix.
+const exportDir = process.env.SHOTS_EXPORT_DIR ?? '.export-web';
+const dist = join(root, exportDir);
+const outDir = join(root, process.env.SHOTS_OUT ?? '.screenshots');
+const only = process.env.SHOTS_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
+const routes = JSON.parse(readFileSync(join(root, 'scripts/screenshot-routes.json'), 'utf8')).filter(
+  (r) => !only || only.some((prefix) => r.name.startsWith(prefix)),
+);
 
 if (!process.env.SKIP_EXPORT) {
-  execFileSync('pnpm', ['exec', 'expo', 'export', '--platform', 'web', '--output-dir', '.export-web'], {
+  execFileSync('pnpm', ['exec', 'expo', 'export', '--platform', 'web', '--output-dir', exportDir], {
     cwd: root,
     stdio: 'inherit',
   });
@@ -39,7 +44,7 @@ const server = createServer((req, res) => {
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const base = `http://127.0.0.1:${server.address().port}`;
 
-rmSync(outDir, { recursive: true, force: true });
+if (!only) rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
 
 const log = [];

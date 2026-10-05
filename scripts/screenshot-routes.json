@@ -1,4 +1,13 @@
 [
-  { "name": "home", "path": "/" },
+  { "name": "onboarding", "path": "/" },
+  { "name": "home-empty", "path": "/?seed=empty" },
+  { "name": "home", "path": "/?seed=demo" },
+  { "name": "activity-empty", "path": "/activity?seed=empty" },
+  { "name": "activity", "path": "/activity?seed=demo" },
+  { "name": "insights-empty", "path": "/insights?seed=empty" },
+  { "name": "insights", "path": "/insights?seed=demo" },
+  { "name": "budgets-empty", "path": "/budgets?seed=empty" },
+  { "name": "budgets", "path": "/budgets?seed=demo" },
+  { "name": "settings", "path": "/settings?seed=demo" },
   { "name": "gallery", "path": "/dev/gallery", "fullPage": true }
 ]

@@ -32,6 +32,7 @@ export const symbolFallbacks = {
   'delete.left.fill': 'backspace',
   'doc.on.doc': 'content-copy',
   'square.and.arrow.up': 'ios-share',
+  'square.and.arrow.down': 'file-download',
   'lock.fill': 'lock',
   'faceid': 'face',
   'bell.fill': 'notifications',

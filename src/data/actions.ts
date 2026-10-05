@@ -7,6 +7,7 @@ import * as recurring from '@/db/repos/recurring';
 import * as settings from '@/db/repos/settings';
 import * as transactions from '@/db/repos/transactions';
 import { useDb } from '@/db/context';
+import { seedDemoData } from '@/db/dev-seed';
 import type { Db } from '@/db/types';
 import { notifyChange } from './changes';
 
@@ -64,6 +65,9 @@ export function createActions(db: Db) {
     },
     settings: {
       set: write(settings.setSetting),
+    },
+    dev: {
+      seedDemo: write(seedDemoData),
     },
     fx: {
       setRate: write(fx.setRate),

@@ -47,14 +47,14 @@ let failed = false;
 const browser = await chromium.launch();
 try {
   for (const scheme of ['light', 'dark']) {
-    const context = await browser.newContext({
-      viewport: { width: 393, height: 852 },
-      deviceScaleFactor: 3,
-      isMobile: true,
-      hasTouch: true,
-      colorScheme: scheme,
-    });
     for (const route of routes) {
+      const context = await browser.newContext({
+        viewport: { width: 393, height: 852 },
+        deviceScaleFactor: 3,
+        isMobile: true,
+        hasTouch: true,
+        colorScheme: scheme,
+      });
       const page = await context.newPage();
       const tag = `${route.name}-${scheme}`;
       page.on('console', (m) => {
@@ -65,7 +65,7 @@ try {
         log.push(`[${tag}] PAGEERROR: ${e.stack ?? e.message}`);
       });
       await page.goto(base + route.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(Number(process.env.SHOT_DELAY ?? 1000));
+      await page.waitForTimeout(Number(process.env.SHOT_DELAY ?? 2500));
       if (route.fullPage === true) {
         const height = await page.evaluate(() =>
           Math.max(...Array.from(document.querySelectorAll('*'), (el) => el.scrollHeight)),
@@ -75,9 +75,8 @@ try {
       }
       await page.screenshot({ path: join(outDir, `${tag}.png`) });
       console.log(`shot ${tag}`);
-      await page.close();
+      await context.close();
     }
-    await context.close();
   }
 } finally {
   await browser.close();

@@ -1,0 +1,189 @@
+import { Canvas, DashPathEffect, Group, Line, RoundedRect, Text as SkText, vec } from '@shopify/react-native-skia';
+import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { GestureDetector } from 'react-native-gesture-handler';
+import { useDerivedValue } from 'react-native-reanimated';
+
+import { barSlots, clippedDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
+import { formatMoney } from '@/lib/money';
+import { withAlpha } from '@/theme/tokens';
+import { useTokens } from '@/theme/use-tokens';
+import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
+import { useChartFont } from './use-chart-font';
+
+export type BarDatum = { key: string; value: number };
+
+export type BarChartProps = {
+  /** One entry per bucket, `value` in minor units. */
+  data: readonly BarDatum[];
+  currency: string;
+  /** Labels under the plot; build with `axisLabels`. */
+  labels: readonly AxisLabel[];
+  /** Mean per bucket, minor units; draws the dotted line. */
+  average?: number;
+  /** Bar colour; defaults to the accent. */
+  color?: string;
+  selectedIndex: number | null;
+  onSelect: (index: number | null) => void;
+  /** Floating read-out for a bucket, e.g. "Tue 7 · ₹1,240". */
+  formatLabel: (index: number) => string;
+  accessibilityLabel: string;
+  /** Plot height; the chart adds a label lane above and axis labels below. */
+  height?: number;
+  locale?: string;
+};
+
+const LANE = 30;
+const AXIS = 24;
+const GUTTER = 44;
+const RADIUS = 4;
+const MIN_NUB = 2;
+
+function BarChart({
+  data,
+  currency,
+  labels,
+  average = 0,
+  color,
+  selectedIndex,
+  onSelect,
+  formatLabel,
+  accessibilityLabel,
+  height = 160,
+  locale,
+}: BarChartProps) {
+  const { colors } = useTokens();
+  const [width, onLayout] = useChartWidth();
+  const font = useChartFont(11, 'medium');
+  const labelFont = useChartFont(12, 'semibold');
+  const grow = useGrow();
+
+  const plotWidth = Math.max(0, width - GUTTER);
+  const baseline = LANE + height;
+  const count = data.length;
+  const peak = data.reduce((m, d) => Math.max(m, d.value), 0);
+  const hasData = peak > 0;
+  const domain = clippedDomain(data.map((d) => d.value), 3);
+  const top = domain.top;
+  const ticks = domain.ticks;
+  const slots = React.useMemo(() => barSlots(0, plotWidth, count, count > 20 ? 3 : 6, 36), [plotWidth, count]);
+  const tint = color ?? colors.accent;
+  const growTransform = useDerivedValue(() => [{ translateY: baseline }, { scaleY: grow.value }, { translateY: -baseline }]);
+
+  const gesture = useScrubGesture({
+    indexAt: (x) => (x > plotWidth ? -1 : slotIndex(x, 0, plotWidth, count)),
+    selected: selectedIndex,
+    onSelect,
+    minY: LANE - 6,
+  });
+
+  const compact = (value: number) => formatMoney(value, currency, { compact: true, locale });
+  const averageY = hasData && average > 0 ? valueToY(average, top, baseline, height) : null;
+  const guides = hasData ? ticks.map((t) => ({ value: t, y: valueToY(t, top, baseline, height) })) : [1, 2, 3].map((i) => ({ value: 0, y: baseline - (height * i) / 3 }));
+  const selected = selectedIndex !== null && selectedIndex < count ? selectedIndex : null;
+  const spoken = selected === null ? accessibilityLabel : `${accessibilityLabel}. ${formatLabel(selected)}`;
+
+  return (
+    <View
+      onLayout={onLayout}
+      style={{ height: LANE + height + AXIS }}
+      accessibilityLabel={accessibilityLabel}
+      {...adjustableProps(count, selectedIndex, onSelect, spoken)}
+    >
+      {width > 0 ? (
+        <GestureDetector gesture={gesture}>
+          <View collapsable={false}>
+            <Canvas style={{ width, height: LANE + height + AXIS }}>
+              {guides.map((g) => (
+                <Group key={g.y}>
+                  <Line p1={vec(0, g.y)} p2={vec(plotWidth, g.y)} color={colors.separator} strokeWidth={StyleSheet.hairlineWidth} />
+                  {font && g.value > 0 && !(averageY !== null && Math.abs(averageY - g.y) < 14) ? (
+                    <SkText
+                      x={width - font.getTextWidth(compact(g.value))}
+                      y={g.y + 4}
+                      text={compact(g.value)}
+                      font={font}
+                      color={colors.textTertiary}
+                    />
+                  ) : null}
+                </Group>
+              ))}
+              <Line p1={vec(0, baseline)} p2={vec(plotWidth, baseline)} color={colors.separator} strokeWidth={StyleSheet.hairlineWidth} />
+              {hasData ? (
+                <Group clip={{ x: 0, y: 0, width: plotWidth, height: baseline }}>
+                  <Group transform={growTransform}>
+                    {data.map((d, i) => {
+                      const slot = slots[i];
+                      if (!slot) return null;
+                      const h = d.value > 0 ? Math.max(MIN_NUB + RADIUS, baseline - valueToY(d.value, top, baseline, height)) : 0;
+                      if (h === 0) return null;
+                      const faded = selected !== null && selected !== i;
+                      return (
+                        <RoundedRect
+                          key={d.key}
+                          x={slot.x}
+                          y={baseline - h}
+                          width={slot.width}
+                          height={h + RADIUS}
+                          r={RADIUS}
+                          color={selected === i ? tint : withAlpha(tint, faded ? 0.45 : 0.7)}
+                        />
+                      );
+                    })}
+                  </Group>
+                </Group>
+              ) : null}
+              {hasData && domain.clipped
+                ? data.map((d, i) => {
+                    const slot = slots[i];
+                    if (!slot || d.value <= top || !font) return null;
+                    const text = compact(d.value);
+                    const w = font.getTextWidth(text);
+                    const x = Math.min(Math.max(slot.center - w / 2, 0), width - w);
+                    return (
+                      <Group key={`break-${d.key}`}>
+                        {[10, 17].map((dy) => (
+                          <Line key={dy} p1={vec(slot.x - 3, LANE + dy + 5)} p2={vec(slot.x + slot.width + 3, LANE + dy - 5)} color={colors.surface} strokeWidth={2.5} />
+                        ))}
+                        {selected === i ? null : <SkText x={x} y={LANE - 5} text={text} font={font} color={colors.textSecondary} />}
+                      </Group>
+                    );
+                  })
+                : null}
+              {averageY !== null ? (
+                <Group>
+                  <Line p1={vec(0, averageY)} p2={vec(plotWidth, averageY)} color={colors.textSecondary} strokeWidth={1.25}>
+                    <DashPathEffect intervals={[2, 4]} />
+                  </Line>
+                  {labelFont ? (
+                    <SkText
+                      x={width - labelFont.getTextWidth(compact(average))}
+                      y={averageY + 4}
+                      text={compact(average)}
+                      font={labelFont}
+                      color={colors.textSecondary}
+                    />
+                  ) : null}
+                </Group>
+              ) : null}
+              {font
+                ? labels.map((label) => {
+                    const slot = slots[label.index];
+                    if (!slot) return null;
+                    const w = font.getTextWidth(label.text);
+                    const x = Math.min(Math.max(slot.center - w / 2, 0), plotWidth - w);
+                    return <SkText key={label.index} x={x} y={baseline + 17} text={label.text} font={font} color={colors.textTertiary} />;
+                  })
+                : null}
+              {selected !== null && labelFont && slots[selected] ? (
+                <FloatingLabel text={formatLabel(selected)} font={labelFont} centerX={slots[selected]!.center} y={0} totalWidth={width} />
+              ) : null}
+            </Canvas>
+          </View>
+        </GestureDetector>
+      ) : null}
+    </View>
+  );
+}
+
+export { BarChart };

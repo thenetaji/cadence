@@ -1,3 +1,5 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { BudgetForm } from '@/features/budgets/form';
 
-export default BlankScreen;
+export default function NewBudget() {
+  return <BudgetForm mode="new" />;
+}

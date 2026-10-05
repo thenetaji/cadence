@@ -109,7 +109,7 @@ export default function Onboarding() {
         </Button>
       </View>
       {editingName ? null : (
-        <View className="bg-surface" style={{ paddingBottom: insets.bottom }}>
+        <View className="bg-bg" style={{ paddingBottom: insets.bottom }}>
           <Keypad
             showDecimal={digits > 0}
             onKey={(key) => dispatch({ type: 'key', key: toReducerKey(key) })}

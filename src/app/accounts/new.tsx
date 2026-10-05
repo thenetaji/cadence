@@ -1,3 +1,5 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { AccountForm } from '@/features/accounts/form';
 
-export default BlankScreen;
+export default function NewAccount() {
+  return <AccountForm mode="new" />;
+}

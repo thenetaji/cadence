@@ -1,3 +1,3 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import CurrencyScreen from '@/features/accounts/currency-screen';
 
-export default BlankScreen;
+export default CurrencyScreen;

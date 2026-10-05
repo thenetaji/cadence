@@ -1,11 +1,13 @@
-import { addDays, addMonths, keyToLocalMs, makeKey, parseKey, toDateKey, type DateKey } from '@/lib/dates';
+import { eq } from 'drizzle-orm';
+import { addDays, addMonths, keyToLocalMs, makeKey, parseKey, toDateKey, weekday, type DateKey } from '@/lib/dates';
 import { createAccount, type AccountInput } from './repos/accounts';
 import { listCategories } from './repos/categories';
 import { setRate } from './repos/fx';
-import { createRule, postDue } from './repos/recurring';
+import { createRule, postDue, setRulePaused } from './repos/recurring';
 import { setSetting } from './repos/settings';
-import { createBudget } from './repos/budgets';
-import { createTransaction, type TransactionInput } from './repos/transactions';
+import { budgetPeriodFor, budgetSpent, createBudget, deleteBudget, getBudget } from './repos/budgets';
+import { createTransaction, deleteTransaction, restoreTransaction, type TransactionInput } from './repos/transactions';
+import type { TransactionRow } from './schema';
 import {
   accounts,
   budgetCategories,
@@ -80,17 +82,33 @@ function populate(db: Db, now: number): void {
     return id;
   };
 
-  const open = (input: AccountInput) => createAccount(db, input, now);
-  const bank = open({ name: 'HDFC Savings', type: 'bank', currency: 'INR', openingBalance: rupees(85000), color: 'blue', isDefault: true });
-  const cash = open({ name: 'Cash', type: 'cash', currency: 'INR', openingBalance: rupees(6000), color: 'green' });
-  const card = open({ name: 'ICICI Credit Card', type: 'card', currency: 'INR', openingBalance: 0, color: 'orange' });
-  const usd = open({ name: 'Wise USD', type: 'bank', currency: 'USD', openingBalance: 120000, color: 'indigo' });
+  const open = (input: AccountInput, id: string) => {
+    const created = createAccount(db, input, now);
+    // Fixed ids let screenshots route straight to an account.
+    db.update(accounts).set({ id }).where(eq(accounts.id, created.id)).run();
+    if (created.isDefault) setSetting(db, 'default_account_id', id);
+    return { ...created, id };
+  };
+  const bank = open({ name: 'HDFC Savings', type: 'bank', currency: 'INR', openingBalance: rupees(85000), color: 'blue', isDefault: true }, 'demo-account-bank');
+  const cash = open({ name: 'Cash', type: 'cash', currency: 'INR', openingBalance: rupees(6000), color: 'green' }, 'demo-account-cash');
+  const card = open({ name: 'ICICI Credit Card', type: 'card', currency: 'INR', openingBalance: 0, color: 'orange' }, 'demo-account-card');
+  const usd = open({ name: 'Wise USD', type: 'bank', currency: 'USD', openingBalance: 120000, color: 'indigo' }, 'demo-account-usd');
 
   const stamp = (key: DateKey, hour: number, minute: number) => keyToLocalMs(key, hour, minute);
-  const add = (key: DateKey, input: Omit<TransactionInput, 'occurredAt'> & { hour?: number; minute?: number }) => {
-    if (key > today) return;
+  const add = (key: DateKey, input: Omit<TransactionInput, 'occurredAt'> & { hour?: number; minute?: number }): TransactionRow | undefined => {
+    if (key > today) return undefined;
     const { hour = rng.int(8, 21), minute = rng.int(0, 59), ...rest } = input;
-    createTransaction(db, { ...rest, occurredAt: stamp(key, hour, minute) }, now);
+    return createTransaction(db, { ...rest, occurredAt: stamp(key, hour, minute) }, now);
+  };
+  /** Gives a demo row a fixed id so screenshots can route to it. */
+  const pin = (row: TransactionRow | undefined, id: string) => {
+    if (!row) return;
+    const snapshot = deleteTransaction(db, row.id);
+    if (!snapshot) return;
+    restoreTransaction(db, {
+      transaction: { ...snapshot.transaction, id },
+      splits: snapshot.splits.map((line) => ({ ...line, transactionId: id })),
+    });
   };
 
   setSetting(db, 'display_currency', 'INR');
@@ -104,15 +122,37 @@ function populate(db: Db, now: number): void {
     ['Spotify', rupees(119), 12, 'Subscriptions', card.id, 9],
   ];
   for (const [title, amount, day, category, accountId] of rules) {
-    createRule(
+    const rule = createRule(
       db,
       { kind: 'expense', title, amount, accountId, categoryId: categoryOf(category), frequency: 'monthly', startDate: makeKey(parseKey(firstMonth).year, parseKey(firstMonth).month, day) },
       now,
     );
+    db.update(recurringRules).set({ id: `demo-rule-${title.toLowerCase()}` }).where(eq(recurringRules.id, rule.id)).run();
   }
   createRule(
     db,
     { kind: 'transfer', title: 'Cash top-up', amount: rupees(5000), accountId: bank.id, transferAccountId: cash.id, frequency: 'monthly', startDate: makeKey(parseKey(firstMonth).year, parseKey(firstMonth).month, 3) },
+    now,
+  );
+  const firstMonday = addDays(firstMonth, (8 - weekday(firstMonth)) % 7);
+  createRule(
+    db,
+    { kind: 'expense', title: 'House help', amount: rupees(1200), accountId: cash.id, categoryId: categoryOf('Housing'), frequency: 'weekly', interval: 2, startDate: firstMonday },
+    now,
+  );
+  createRule(
+    db,
+    { kind: 'expense', title: 'Cloud storage', amount: rupees(2900), accountId: card.id, categoryId: categoryOf('Subscriptions'), frequency: 'yearly', startDate: makeKey(parseKey(addDays(today, 20)).year - 1, parseKey(addDays(today, 20)).month, parseKey(addDays(today, 20)).day), nextDue: addDays(today, 20) },
+    now,
+  );
+  setRulePaused(
+    db,
+    createRule(
+      db,
+      { kind: 'expense', title: 'Gym', amount: rupees(1800), accountId: card.id, categoryId: categoryOf('Health'), frequency: 'monthly', startDate: makeKey(parseKey(firstMonth).year, parseKey(firstMonth).month, 20) },
+      now,
+    ).id,
+    true,
     now,
   );
   postDue(db, today, now);
@@ -162,15 +202,44 @@ function populate(db: Db, now: number): void {
   const splitDay = (monthIndex: number, day: number) => addDays(addMonths(firstMonth, monthIndex), day - 1);
   add(splitDay(1, 9), { kind: 'expense', title: 'Reliance Smart', memo: 'Monthly stock up', amount: rupees(3240), accountId: card.id, categoryId: null, splits: [{ categoryId: categoryOf('Groceries'), amount: rupees(2480) }, { categoryId: categoryOf('Personal'), amount: rupees(760) }] });
   add(splitDay(3, 16), { kind: 'expense', title: 'Barbeque Nation', memo: 'Anniversary', amount: rupees(4150), accountId: card.id, categoryId: null, splits: [{ categoryId: categoryOf('Food & Drink'), amount: rupees(3650) }, { categoryId: categoryOf('Entertainment'), amount: rupees(500) }] });
-  add(splitDay(MONTHS_OF_HISTORY - 1, 2), { kind: 'expense', title: 'Amazon', amount: rupees(5890), accountId: card.id, categoryId: null, splits: [{ categoryId: categoryOf('Shopping'), amount: rupees(3990) }, { categoryId: categoryOf('Education'), amount: rupees(1200) }, { categoryId: categoryOf('Personal'), amount: rupees(700) }] });
+  pin(add(splitDay(MONTHS_OF_HISTORY - 1, 2), { kind: 'expense', title: 'Amazon', amount: rupees(5890), accountId: card.id, categoryId: null, splits: [{ categoryId: categoryOf('Shopping'), amount: rupees(3990) }, { categoryId: categoryOf('Education'), amount: rupees(1200) }, { categoryId: categoryOf('Personal'), amount: rupees(700) }] }), 'demo-split');
 
-  add(addDays(firstMonth, 40), { kind: 'income', title: 'Client payment', memo: 'Invoice #1042', amount: 45000, accountId: usd.id, categoryId: categoryOf('Freelance') });
+  pin(add(addDays(firstMonth, 40), { kind: 'income', title: 'Client payment', memo: 'Invoice #1042', amount: 45000, accountId: usd.id, categoryId: categoryOf('Freelance') }), 'demo-usd');
   add(addDays(firstMonth, 95), { kind: 'income', title: 'Client payment', memo: 'Invoice #1057', amount: 38000, accountId: usd.id, categoryId: categoryOf('Freelance') });
   add(addDays(firstMonth, 62), { kind: 'expense', title: 'Notion', amount: 1000, accountId: usd.id, categoryId: categoryOf('Subscriptions') });
   add(addDays(firstMonth, 120), { kind: 'expense', title: 'Figma', amount: 1500, accountId: usd.id, categoryId: categoryOf('Subscriptions') });
-  add(addDays(firstMonth, 130), { kind: 'transfer', title: '', memo: 'Withdraw to India', amount: 20000, transferAmount: rupees(20000 * 0.845), accountId: usd.id, transferAccountId: bank.id });
+  pin(add(addDays(firstMonth, 130), { kind: 'transfer', title: '', memo: 'Withdraw to India', amount: 20000, transferAmount: rupees(20000 * 0.845), accountId: usd.id, transferAccountId: bank.id }), 'demo-transfer');
 
-  createBudget(db, { name: 'Monthly spending', amount: rupees(75000), currency: 'INR', period: 'monthly', startAnchor: 1, scope: 'all' }, now);
-  createBudget(db, { amount: rupees(12000), currency: 'INR', period: 'monthly', startAnchor: 1, scope: 'categories', categoryIds: [categoryOf('Food & Drink')] }, now);
-  createBudget(db, { amount: rupees(10000), currency: 'INR', period: 'monthly', startAnchor: 1, scope: 'categories', categoryIds: [categoryOf('Groceries')] }, now);
+  seedDemoBudgets(db, today, categoryOf, now);
+}
+
+/**
+ * One overall budget plus four category budgets with fixed ids (`demo-budget-*`), sized from what this
+ * month has actually spent so the list always shows one near the limit, one over and two on track.
+ */
+function seedDemoBudgets(db: Db, today: DateKey, categoryOf: (name: string) => string, now: number): void {
+  const pinned = (id: string, name: string | undefined, amount: (spent: number) => number, categoryNames: string[]) => {
+    const input = {
+      name,
+      amount: rupees(1000),
+      currency: 'INR',
+      period: 'monthly' as const,
+      startAnchor: 1,
+      scope: categoryNames.length === 0 ? ('all' as const) : ('categories' as const),
+      categoryIds: categoryNames.map(categoryOf),
+    };
+    const draft = createBudget(db, input, now);
+    const spent = budgetSpent(db, draft, budgetPeriodFor(draft, today)) / 100;
+    const row = getBudget(db, draft.id);
+    deleteBudget(db, draft.id);
+    if (!row) return;
+    db.insert(budgets).values({ ...row, id, amount: rupees(amount(spent)) }).run();
+    if (row.categoryIds.length > 0) db.insert(budgetCategories).values(row.categoryIds.map((categoryId) => ({ budgetId: id, categoryId }))).run();
+  };
+  const roundTo = (value: number, step: number) => Math.max(step, Math.ceil(value / step) * step);
+  pinned('demo-budget-overall', 'Monthly spending', () => 75000, []);
+  pinned('demo-budget-food', undefined, (spent) => Math.max(500, Math.floor((spent * 0.8) / 100) * 100), ['Food & Drink']);
+  pinned('demo-budget-groceries', undefined, (spent) => roundTo(spent * 2 + 3000, 500), ['Groceries']);
+  pinned('demo-budget-transport', undefined, (spent) => roundTo(spent / 0.95, 50), ['Transport']);
+  pinned('demo-budget-shopping', undefined, (spent) => roundTo(spent * 3 + 4000, 500), ['Shopping', 'Personal']);
 }

@@ -1,3 +1,8 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { useLocalSearchParams } from 'expo-router';
 
-export default BlankScreen;
+import { RuleForm } from '@/features/recurring/rule-form';
+
+export default function EditRule() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <RuleForm ruleId={id} />;
+}

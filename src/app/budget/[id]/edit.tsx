@@ -1,3 +1,8 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { useLocalSearchParams } from 'expo-router';
 
-export default BlankScreen;
+import { BudgetForm } from '@/features/budgets/form';
+
+export default function EditBudget() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <BudgetForm mode="edit" budgetId={id} />;
+}

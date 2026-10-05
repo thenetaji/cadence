@@ -1,3 +1,3 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { RecurringScreen } from '@/features/recurring/recurring-screen';
 
-export default BlankScreen;
+export default RecurringScreen;

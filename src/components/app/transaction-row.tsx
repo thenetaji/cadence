@@ -28,7 +28,15 @@ type TransactionRowProps = {
   onLongPress?: () => void;
   onDelete?: () => void;
   onDuplicate?: () => void;
+  /** Spoken label; defaults to the visible text joined with commas. */
+  accessibilityLabel?: string;
+  /** Replaces the default Delete action (revealed by swiping left). */
+  rightAction?: SwipeAction;
+  /** Replaces the default Duplicate action (revealed by swiping right). */
+  leftAction?: SwipeAction;
 };
+
+type SwipeAction = { label: string; symbol: string; tone?: 'accent' | 'destructive' | 'neutral'; onTrigger: () => void };
 
 const ACTION_WIDTH = 72;
 const FULL_SWIPE = 200;
@@ -36,10 +44,14 @@ const FULL_SWIPE = 200;
 type DeleteActionProps = {
   translation: SharedValue<number>;
   onFull: () => void;
+  label?: string;
+  symbol?: string;
+  tone?: NonNullable<SwipeAction['tone']>;
 };
 
-function DeleteAction({ translation, onFull }: DeleteActionProps) {
+function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.fill', tone = 'destructive' }: DeleteActionProps) {
   const { colors } = useTokens();
+  const background = tone === 'destructive' ? colors.expense : tone === 'accent' ? colors.accent : colors.textSecondary;
   useAnimatedReaction(
     () => translation.value,
     (value, previous) => {
@@ -49,23 +61,24 @@ function DeleteAction({ translation, onFull }: DeleteActionProps) {
   const style = useAnimatedStyle(() => ({ width: Math.max(ACTION_WIDTH, -translation.value) }));
   return (
     <View className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
-      <Animated.View style={[{ backgroundColor: colors.expense, minWidth: ACTION_WIDTH }, style]} className="items-center justify-center gap-1">
-        <SymbolIcon name="trash.fill" size={18} color="#FFFFFF" />
+      <Animated.View style={[{ backgroundColor: background, minWidth: ACTION_WIDTH }, style]} className="items-center justify-center gap-1">
+        <SymbolIcon name={symbol} size={18} color="#FFFFFF" />
         <Text variant="caption" className="text-white">
-          Delete
+          {label}
         </Text>
       </Animated.View>
     </View>
   );
 }
 
-function DuplicateAction() {
+function DuplicateAction({ label = 'Duplicate', symbol = 'doc.on.doc', tone = 'accent' }: { label?: string; symbol?: string; tone?: NonNullable<SwipeAction['tone']> }) {
   const { colors } = useTokens();
+  const background = tone === 'destructive' ? colors.expense : tone === 'neutral' ? colors.textSecondary : colors.accent;
   return (
-    <View style={{ width: ACTION_WIDTH, backgroundColor: colors.accent }} className="items-center justify-center gap-1">
-      <SymbolIcon name="doc.on.doc" size={18} color="#FFFFFF" />
+    <View style={{ width: ACTION_WIDTH, backgroundColor: background }} className="items-center justify-center gap-1">
+      <SymbolIcon name={symbol} size={18} color="#FFFFFF" />
       <Text variant="caption" className="text-white">
-        Duplicate
+        {label}
       </Text>
     </View>
   );
@@ -85,21 +98,26 @@ function TransactionRow({
   onLongPress,
   onDelete,
   onDuplicate,
+  accessibilityLabel,
+  rightAction,
+  leftAction,
 }: TransactionRowProps) {
   const { colors } = useTokens();
   const swipeRef = React.useRef<SwipeableMethods>(null);
   const tone = kind === 'income' ? 'income' : kind === 'transfer' ? 'secondary' : 'default';
-  const label = [title, subtitle, amount, trailing].filter(Boolean).join(', ');
+  const label = accessibilityLabel ?? [title, subtitle, amount, trailing].filter(Boolean).join(', ');
+  const triggerRight = rightAction?.onTrigger ?? onDelete;
+  const triggerLeft = leftAction?.onTrigger ?? onDuplicate;
 
   const handleFullDelete = React.useCallback(() => {
     haptic('medium');
     swipeRef.current?.close();
-    onDelete?.();
-  }, [onDelete]);
+    triggerRight?.();
+  }, [triggerRight]);
 
   const actions = [
-    ...(onDelete ? [{ name: 'delete', label: 'Delete' }] : []),
-    ...(onDuplicate ? [{ name: 'duplicate', label: 'Duplicate' }] : []),
+    ...(triggerRight ? [{ name: 'delete', label: rightAction?.label ?? 'Delete' }] : []),
+    ...(triggerLeft ? [{ name: 'duplicate', label: leftAction?.label ?? 'Duplicate' }] : []),
     ...(onLongPress ? [{ name: 'longpress', label: 'More' }] : []),
   ];
 
@@ -111,16 +129,24 @@ function TransactionRow({
       overshootRight={false}
       rightThreshold={ACTION_WIDTH / 2}
       leftThreshold={ACTION_WIDTH / 2}
-      renderRightActions={onDelete ? (_progress, translation) => <DeleteAction translation={translation} onFull={handleFullDelete} /> : undefined}
-      renderLeftActions={
-        onDuplicate
-          ? () => <DuplicateAction />
+      renderRightActions={
+        triggerRight
+          ? (_progress, translation) => (
+              <DeleteAction
+                translation={translation}
+                onFull={handleFullDelete}
+                label={rightAction?.label}
+                symbol={rightAction?.symbol}
+                tone={rightAction?.tone}
+              />
+            )
           : undefined
       }
+      renderLeftActions={triggerLeft ? () => <DuplicateAction label={leftAction?.label} symbol={leftAction?.symbol} tone={leftAction?.tone} /> : undefined}
       onSwipeableOpen={(direction) => {
         if (direction === 'left') {
           swipeRef.current?.close();
-          onDuplicate?.();
+          triggerLeft?.();
         }
       }}
     >
@@ -131,8 +157,8 @@ function TransactionRow({
         accessibilityActions={actions}
         onAccessibilityAction={(event) => {
           const name = event.nativeEvent.actionName;
-          if (name === 'delete') onDelete?.();
-          else if (name === 'duplicate') onDuplicate?.();
+          if (name === 'delete') triggerRight?.();
+          else if (name === 'duplicate') triggerLeft?.();
           else if (name === 'longpress') onLongPress?.();
         }}
         onPress={onPress}
@@ -170,4 +196,4 @@ function TransactionRow({
 }
 
 export { TransactionRow };
-export type { TransactionKind, TransactionRowProps };
+export type { SwipeAction, TransactionKind, TransactionRowProps };

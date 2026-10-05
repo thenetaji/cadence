@@ -1,3 +1,3 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { withSkia } from '@/components/charts/with-skia';
 
-export default BlankScreen;
+export default withSkia(() => import('@/features/budgets/detail-screen'));

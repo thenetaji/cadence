@@ -26,7 +26,10 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import { withSkia } from '@/components/charts/with-skia';
 import { categoryKeys, typeScale, type TypeVariant } from '@/theme/tokens';
+
+const ChartsGallery = withSkia(() => import('@/features/insights/charts-gallery'));
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -237,6 +240,8 @@ export default function Gallery() {
       <Block title="Empty state">
         <EmptyState message="No transactions yet" actionLabel="Add transaction" onAction={() => undefined} />
       </Block>
+
+      <ChartsGallery />
 
       <Block title="Toast">
         <View className="gap-3 px-4">

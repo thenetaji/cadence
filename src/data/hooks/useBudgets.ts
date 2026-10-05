@@ -10,3 +10,5 @@ export function useBudgets(ref?: string): BudgetSpent[] {
     listBudgetProgress(db, key),
   );
 }
+
+export type { BudgetSpent } from '@/db/repos/budgets';

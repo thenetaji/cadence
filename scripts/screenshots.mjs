@@ -1,7 +1,8 @@
 // Web screenshot harness: export web, serve with COOP/COEP, shoot each route in light + dark.
 import { execFileSync } from 'node:child_process';
-import { createReadStream, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { createRequire } from 'node:module';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -15,6 +16,13 @@ const only = process.env.SHOTS_ONLY?.split(',').map((s) => s.trim()).filter(Bool
 const routes = JSON.parse(readFileSync(join(root, 'scripts/screenshot-routes.json'), 'utf8')).filter(
   (r) => !only || only.some((prefix) => r.name.startsWith(prefix)),
 );
+
+// Skia on web needs canvaskit.wasm in public/ (gitignored; same file `setup-skia-web` copies).
+const wasmTarget = join(root, 'public/canvaskit.wasm');
+if (!existsSync(wasmTarget)) {
+  mkdirSync(join(root, 'public'), { recursive: true });
+  copyFileSync(createRequire(import.meta.url).resolve('canvaskit-wasm/bin/full/canvaskit.wasm'), wasmTarget);
+}
 
 if (!process.env.SKIP_EXPORT) {
   execFileSync('pnpm', ['exec', 'expo', 'export', '--platform', 'web', '--output-dir', exportDir], {
@@ -54,7 +62,7 @@ try {
   for (const scheme of ['light', 'dark']) {
     for (const route of routes) {
       const context = await browser.newContext({
-        viewport: { width: 393, height: 852 },
+        viewport: { width: 393, height: route.height ?? 852 },
         deviceScaleFactor: 3,
         isMobile: true,
         hasTouch: true,
@@ -70,6 +78,10 @@ try {
         log.push(`[${tag}] PAGEERROR: ${e.stack ?? e.message}`);
       });
       await page.goto(base + route.path, { waitUntil: 'networkidle' });
+      // Optional per-route text to wait for (slow Skia/CanvasKit screens).
+      if (route.waitFor) await page.waitForFunction((t) => document.body.innerText.includes(t), route.waitFor, { timeout: 30000 }).catch(() => undefined);
+      // Demo seeding blocks the main thread for a while on slow machines; wait until the app has rendered text.
+      await page.waitForFunction(() => document.body.innerText.trim().length > 10, null, { timeout: 180000 }).catch(() => undefined);
       await page.waitForTimeout(Number(process.env.SHOT_DELAY ?? 2500));
       if (route.fullPage === true) {
         const height = await page.evaluate(() =>
@@ -78,7 +90,7 @@ try {
         await page.setViewportSize({ width: 393, height: Math.min(Math.max(height, 852), 16000) });
         await page.waitForTimeout(300);
       }
-      await page.screenshot({ path: join(outDir, `${tag}.png`) });
+      await page.screenshot({ path: join(outDir, `${tag}.png`), timeout: 180000 });
       console.log(`shot ${tag}`);
       await context.close();
     }

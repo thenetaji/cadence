@@ -25,7 +25,7 @@ export const DEFAULT_SETTINGS: Readonly<SettingsMap> = {
   display_currency: 'USD',
   theme: 'system',
   haptics: true,
-  show_decimals: true,
+  show_decimals: false,
   week_start: 1,
   month_start: 1,
   default_account_id: null,

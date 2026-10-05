@@ -15,3 +15,5 @@ export function useTransaction(id: string | undefined): TransactionListItem | un
 export function useRecentTransactions(limit: number): TransactionListItem[] {
   return useLiveData(TX_TABLES, String(limit), (db) => recent(db, limit));
 }
+
+export type { PeriodFilter, TransactionListItem } from '@/db/repos/transactions';

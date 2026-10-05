@@ -1,3 +1,8 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { useLocalSearchParams } from 'expo-router';
 
-export default BlankScreen;
+import { TransactionForm, type FormParams } from '@/features/transaction-form/form';
+
+export default function NewTransaction() {
+  const params = useLocalSearchParams<FormParams>();
+  return <TransactionForm mode="new" params={params} />;
+}

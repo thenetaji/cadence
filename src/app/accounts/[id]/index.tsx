@@ -1,3 +1,3 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import AccountDetailScreen from '@/features/accounts/detail-screen';
 
-export default BlankScreen;
+export default AccountDetailScreen;

@@ -1,0 +1,36 @@
+import { periodFor } from '@/lib/dates';
+import { deltaLine, previousLabel, scrubLabel, trendLabel } from './labels';
+
+const october = periodFor('month', '2026-10-05');
+
+describe('deltaLine', () => {
+  it('marks a fall in spending as good, with a real minus', () => {
+    expect(deltaLine({ amount: -1, percent: -12 }, october, 'expense')).toEqual({ text: '−12% vs September', good: true });
+  });
+  it('keeps a rise in spending plain', () => {
+    expect(deltaLine({ amount: 1, percent: 8 }, october, 'expense')).toEqual({ text: '+8% vs September', good: false });
+  });
+  it('inverts for income', () => {
+    expect(deltaLine({ amount: 1, percent: 8 }, october, 'income')?.good).toBe(true);
+  });
+  it('is null without a baseline and says no change at zero', () => {
+    expect(deltaLine({ amount: 5, percent: null }, october, 'expense')).toBeNull();
+    expect(deltaLine({ amount: 0, percent: 0 }, october, 'expense')?.text).toBe('No change vs September');
+  });
+});
+
+describe('labels', () => {
+  it('names the comparison period', () => {
+    expect(previousLabel(periodFor('week', '2026-10-05'))).toBe('vs last week');
+    expect(previousLabel(periodFor('year', '2026-10-05'))).toBe('vs 2025');
+  });
+  it('formats scrub labels', () => {
+    expect(scrubLabel({ key: '2026-10-07', amount: 124000 }, 'day', 'INR', 'en-IN')).toBe('Wed 7 · ₹1,240');
+    expect(scrubLabel({ key: '2026-10-01', amount: 1240000 }, 'month', 'INR', 'en-IN')).toBe('Oct · ₹12,400');
+  });
+  it('labels trend bars', () => {
+    expect(trendLabel(october)).toBe('Oct');
+    expect(trendLabel(periodFor('week', '2026-10-05'))).toBe('5 Oct'.replace('5', '5'));
+    expect(trendLabel(periodFor('year', '2026-10-05'))).toBe('2026');
+  });
+});

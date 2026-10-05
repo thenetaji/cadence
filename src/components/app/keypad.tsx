@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { SymbolIcon } from '@/components/app/symbol';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { cn } from '@/lib/utils';
-import { dynamicType, pressScale } from '@/theme/tokens';
+import { dynamicType } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
 type KeypadKey = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '00' | '.' | '+' | '-' | 'backspace' | '=';
@@ -16,6 +15,8 @@ type KeypadProps = {
   showDecimal?: boolean;
   saveMode?: boolean;
   hapticsEnabled?: boolean;
+  /** Key height in pt, clamped to 52-64; the add sheet sizes it to the free space. */
+  keyHeight?: number;
 };
 
 const layout: readonly (readonly KeypadKey[])[] = [
@@ -36,51 +37,89 @@ const speech: Partial<Record<KeypadKey, string>> = {
   backspace: 'Delete',
 };
 
-function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, hapticsEnabled }: KeypadProps) {
-  const { colors } = useTokens();
+const KEY_GAP = 8;
+
+type KeyCellProps = {
+  keyName: KeypadKey;
+  height: number;
+  saveMode: boolean;
+  hapticsEnabled?: boolean;
+  onKey: (key: KeypadKey) => void;
+  onLongBackspace?: () => void;
+};
+
+function KeyCell({ keyName, height, saveMode, hapticsEnabled, onKey, onLongBackspace }: KeyCellProps) {
+  const { colors, isDark } = useTokens();
+  const [pressed, setPressed] = React.useState(false);
+  const isSave = keyName === '=' && saveMode;
+  const isOperator = keyName === '-' || keyName === '+' || keyName === '=';
+  const isDigit = !isOperator && keyName !== 'backspace' && keyName !== '.';
+  const base = isDark ? colors.fill : isDigit || keyName === '.' ? colors.surface : colors.fill;
+  const down = isDark ? '#3A3A3C' : isDigit || keyName === '.' ? '#E4E4E9' : '#DCDCE2';
+  const label = isSave ? 'Save' : (speech[keyName] ?? keyName);
   return (
-    <View style={{ backgroundColor: colors.separator, gap: StyleSheet.hairlineWidth }}>
+    <Pressable
+      role="button"
+      accessibilityLabel={label}
+      haptic="light"
+      hapticsEnabled={hapticsEnabled}
+      scale={0.94}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      onPress={() => onKey(keyName)}
+      onLongPress={keyName === 'backspace' ? onLongBackspace : undefined}
+      delayLongPress={400}
+      className="flex-1 items-center justify-center rounded-[12px]"
+      style={{ height, backgroundColor: isSave ? colors.accent : pressed ? down : base, opacity: isSave && pressed ? 0.85 : 1 }}
+    >
+      {keyName === 'backspace' ? (
+        <SymbolIcon name="delete.left" size={24} color={colors.text} weight="regular" />
+      ) : isSave ? (
+        <Text
+          variant="headline"
+          maxFontSizeMultiplier={dynamicType.keypad}
+          style={{ color: colors.onAccent }}
+          className="text-[19px] font-semibold"
+        >
+          Save
+        </Text>
+      ) : (
+        <Text
+          variant="title1"
+          tone={isOperator ? 'accent' : 'default'}
+          numeric
+          maxFontSizeMultiplier={dynamicType.keypad}
+          className="text-[28px] font-normal leading-[34px] tracking-normal"
+        >
+          {operatorLabels[keyName] ?? keyName}
+        </Text>
+      )}
+    </Pressable>
+  );
+}
+
+/** 4x4 grid of separate rounded keys on the page background. `keyHeight` is clamped to 52-64. */
+function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, hapticsEnabled, keyHeight = 56 }: KeypadProps) {
+  const height = Math.min(Math.max(keyHeight, 52), 64);
+  return (
+    <View className="bg-bg" style={{ padding: KEY_GAP, gap: KEY_GAP }}>
       {layout.map((row) => (
-        <View key={row[0]} className="flex-row" style={{ gap: StyleSheet.hairlineWidth }}>
-          {row.map((key) => {
-            if (key === '.' && !showDecimal) {
-              return <View key={key} className="h-14 flex-1 bg-surface" />;
-            }
-            const isSave = key === '=' && saveMode;
-            const isOperator = key === '-' || key === '+' || key === '=';
-            const label = isSave ? 'Save' : (speech[key] ?? key);
-            return (
-              <Pressable
+        <View key={row[0]} className="flex-row" style={{ gap: KEY_GAP }}>
+          {row.map((key) =>
+            key === '.' && !showDecimal ? (
+              <View key={key} className="flex-1" style={{ height }} />
+            ) : (
+              <KeyCell
                 key={key}
-                role="button"
-                accessibilityLabel={label}
-                haptic="light"
+                keyName={key}
+                height={height}
+                saveMode={saveMode}
                 hapticsEnabled={hapticsEnabled}
-                scale={pressScale.key}
-                onPress={() => onKey(key)}
-                onLongPress={key === 'backspace' ? onLongBackspace : undefined}
-                delayLongPress={400}
-                className={cn('h-14 flex-1 items-center justify-center', isSave ? 'bg-accent' : 'bg-surface active:bg-fill')}
-              >
-                {key === 'backspace' ? (
-                  <SymbolIcon name="delete.left" size={22} color={colors.text} />
-                ) : isSave ? (
-                  <Text variant="headline" maxFontSizeMultiplier={dynamicType.keypad} className="text-primary-foreground">
-                    Save
-                  </Text>
-                ) : (
-                  <Text
-                    variant="title2"
-                    tone={isOperator ? 'accent' : 'default'}
-                    maxFontSizeMultiplier={dynamicType.keypad}
-                    className="font-normal"
-                  >
-                    {operatorLabels[key] ?? key}
-                  </Text>
-                )}
-              </Pressable>
-            );
-          })}
+                onKey={onKey}
+                onLongBackspace={onLongBackspace}
+              />
+            ),
+          )}
         </View>
       ))}
     </View>

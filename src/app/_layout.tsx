@@ -51,6 +51,16 @@ const sheet = (title: string): NativeStackNavigationOptions => ({
   sheetCornerRadius: 24,
 });
 
+/** Detent sheets stacked over the add/edit sheet; they draw their own header. */
+const subSheet = (title: string, detents: number[]): NativeStackNavigationOptions => ({
+  title,
+  presentation: 'formSheet',
+  headerShown: false,
+  sheetAllowedDetents: detents,
+  sheetGrabberVisible: true,
+  sheetCornerRadius: 24,
+});
+
 const push = (title: string): NativeStackNavigationOptions => ({
   title,
   headerShown: true,
@@ -110,9 +120,12 @@ function Navigator() {
       </Stack.Protected>
       <Stack.Protected guard={onboardingDone}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="transaction/new" options={sheet('New transaction')} />
+        <Stack.Screen name="transaction/new" options={{ ...sheet('New transaction'), headerShown: false }} />
+        <Stack.Screen name="transaction/category" options={subSheet('Category', [0.6, 1])} />
+        <Stack.Screen name="transaction/date" options={subSheet('Date', [0.6])} />
+        <Stack.Screen name="transaction/repeat" options={subSheet('Repeat', [0.45])} />
         <Stack.Screen name="transaction/[id]/index" options={push('Transaction')} />
-        <Stack.Screen name="transaction/[id]/edit" options={sheet('Edit transaction')} />
+        <Stack.Screen name="transaction/[id]/edit" options={{ ...sheet('Edit transaction'), headerShown: false }} />
         <Stack.Screen name="category/[id]" options={push('Category')} />
         <Stack.Screen name="budget/new" options={sheet('New budget')} />
         <Stack.Screen name="budget/[id]/index" options={push('Budget')} />
@@ -124,6 +137,8 @@ function Navigator() {
         <Stack.Screen name="accounts/[id]/index" options={push('Account')} />
         <Stack.Screen name="accounts/[id]/edit" options={sheet('Edit account')} />
         <Stack.Screen name="search" options={sheet('Search')} />
+        <Stack.Screen name="insights-range" options={sheet('Custom range')} />
+        <Stack.Screen name="activity-filters" options={{ ...sheet('Filters'), sheetAllowedDetents: [0.6, 1] }} />
         <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
       </Stack.Protected>
       <Stack.Screen name="dev/gallery" />

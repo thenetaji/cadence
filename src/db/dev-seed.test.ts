@@ -29,11 +29,11 @@ describe('seedDemoData', () => {
 
     expect(first.tx).toBeGreaterThan(150);
     expect(db.select({ n: count() }).from(accounts).get()?.n).toBe(4);
-    expect(db.select({ n: count() }).from(budgets).get()?.n).toBe(3);
+    expect(db.select({ n: count() }).from(budgets).get()?.n).toBe(5);
     expect(db.select({ n: count() }).from(categories).get()?.n).toBe(19);
     expect(getSetting(db, 'display_currency')).toBe('INR');
     expect(listRates(db)).toHaveLength(1);
-    expect(listRules(db).map((r) => r.title).sort()).toEqual(['Cash top-up', 'Netflix', 'Rent', 'Spotify']);
+    expect(listRules(db).map((r) => r.title).sort()).toEqual(['Cash top-up', 'Cloud storage', 'Gym', 'House help', 'Netflix', 'Rent', 'Spotify']);
   });
 
   it('keeps data inside the window with valid splits and transfers', () => {

@@ -2,11 +2,11 @@ import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { EdgeFade } from '@/components/app/edge-fade';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 import { CategoryPill, FormChip } from '@/features/transaction-form/chips';
 import { ShakeView } from '@/features/transaction-form/shake-view';
 import type { CategoryRow } from '@/db/schema';
-import type { CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@studio/theme';
 
 const MAX_RECENTS = 6;
 

@@ -2,8 +2,8 @@ import { View } from 'react-native';
 
 import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
-import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { categoryKeys, type CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 /** The 12 chromatic palette keys; gray stays a seed-only colour. */
 export const CATEGORY_SWATCHES = categoryKeys.filter((key): key is Exclude<CategoryColorKey, 'gray'> => key !== 'gray');

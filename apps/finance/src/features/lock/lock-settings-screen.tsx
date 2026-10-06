@@ -5,7 +5,7 @@ import { ListGroup, ListRow } from '@/components/app/list-group';
 import { OptionPicker } from '@/components/app/option-picker';
 import { showToast } from '@/components/app/toast-store';
 import { useSetting } from '@/data/hooks';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 import { authenticate } from './authenticate';
 import { LOCK_TIMEOUT_OPTIONS, lockTimeoutLabel } from './timeout';

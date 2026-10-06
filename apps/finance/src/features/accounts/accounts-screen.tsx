@@ -14,7 +14,7 @@ import { useActions } from '@/data/actions';
 import { useAccounts, useRateLookup, useSetting } from '@/data/hooks';
 import { moneyLocale } from '@/features/transactions/use-money-context';
 import { formatMoney, formatMoneyForSpeech, maskLocale, minorDigits } from '@studio/money';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 import { AccountRow, ACCOUNT_ROW_HEIGHT } from './account-row';
 import { toAccountView, totalInDisplay } from './model';

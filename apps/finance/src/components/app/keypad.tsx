@@ -6,10 +6,8 @@ import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSprin
 
 import { Pressable } from '@/components/ui/pressable';
 import { motion } from '@/motion/tokens';
-import { haptic } from '@/theme/haptics';
+import { haptic , dynamicType , useTokens } from '@studio/theme';
 import { Text } from '@/components/ui/text';
-import { dynamicType } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
 
 type KeypadKey = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '00' | '.' | '+' | '-' | 'backspace' | '=';
 

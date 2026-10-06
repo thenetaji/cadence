@@ -3,7 +3,7 @@ import type { TransactionListItem } from '@/data/hooks';
 import { addDays, monthShort, parseKey } from '@studio/dates';
 import { isLendingKind } from '@/lib/ledger';
 import { convertWithRates, formatMoney, formatMoneyForSpeech, type RateLookup, type SignMode } from '@studio/money';
-import type { CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@studio/theme';
 
 export interface RowModelContext {
   displayCurrency: string;

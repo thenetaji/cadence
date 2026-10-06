@@ -4,8 +4,8 @@ import Animated, { useAnimatedStyle, useSharedValue, withDelay, withSpring, with
 
 import { usePopValue } from '@/motion/pop';
 
-import { haptic, type HapticKind } from '@/theme/haptics';
-import { durations, pressOpacity, pressScale, springs } from '@/theme/tokens';
+import { haptic, type HapticKind } from '@studio/theme';
+import { durations, pressOpacity, pressScale, springs } from '@studio/theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 

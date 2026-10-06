@@ -11,7 +11,7 @@ import { useSearchTransactions, useSetting } from '@/data/hooks';
 import { pushRecentSearch } from '@/features/search/recent-searches';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 const HIDDEN_HEADER = { headerShown: false } as const;
 const DEBOUNCE_MS = 150;

@@ -10,9 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAccounts, useCategories, usePeriodTransactions } from '@/data/hooks';
 import { activeFilterCount, useActivityFilters } from '@/features/activity/filter-store';
-import { haptic } from '@/theme/haptics';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
+import type { CategoryColorKey } from '@studio/theme';
 
 const KINDS = [
   { kind: 'expense', label: 'Expense' },

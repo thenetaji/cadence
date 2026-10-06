@@ -27,7 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import { withSkia } from '@/components/charts/with-skia';
-import { categoryKeys, typeScale, type TypeVariant } from '@/theme/tokens';
+import { categoryKeys, typeScale, type TypeVariant } from '@studio/theme';
 
 const ChartsGallery = withSkia(() => import('@/features/insights/charts-gallery'));
 

@@ -2,8 +2,7 @@ import * as React from 'react';
 import { StyleSheet, type LayoutChangeEvent } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
-import { useTokens } from '@/theme/use-tokens';
-import { withAlpha } from '@/theme/tokens';
+import { useTokens , withAlpha } from '@studio/theme';
 
 import { motion } from './tokens';
 

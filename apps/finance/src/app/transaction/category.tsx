@@ -10,9 +10,8 @@ import { Text } from '@/components/ui/text';
 import { useCategories } from '@/data/hooks';
 import { updateSplitLine } from '@/features/transaction-form/logic';
 import { useDraftStore } from '@/features/transaction-form/store';
-import { haptic } from '@/theme/haptics';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
+import type { CategoryColorKey } from '@studio/theme';
 
 /** Category grid sheet: 4 columns; writes to the draft (single category or the split line being picked). */
 export default function CategorySheet() {

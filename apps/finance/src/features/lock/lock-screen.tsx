@@ -3,7 +3,7 @@ import { Image, View } from 'react-native';
 import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type LockScreenProps = { onUnlock: () => void };
 

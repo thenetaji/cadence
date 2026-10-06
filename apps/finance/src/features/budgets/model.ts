@@ -2,7 +2,7 @@ import type { BudgetSpent } from '@/db/repos/budgets';
 import type { BudgetPeriod, CategoryRow } from '@/db/schema';
 import type { DateKey } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import type { CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@studio/theme';
 
 import { budgetRatio, budgetStatus, displayName, paceMarker, periodCaption, perDayLeft, type BudgetStatus } from './logic';
 

@@ -17,9 +17,7 @@ import { LockGate } from '@/features/lock/lock-gate';
 import { useSetting, usePostDueRecurring, useReminderSync } from '@/data/hooks';
 import { useIconPrefsSync } from '@/icons/prefs';
 import { DemoSeedGate } from '@/lib/demo-seed-gate';
-import { setHapticsEnabled } from '@/theme/haptics';
-import { applyThemePreference, followWebColorScheme } from '@/theme/theme';
-import { useTokens } from '@/theme/use-tokens';
+import { setHapticsEnabled , applyThemePreference, followWebColorScheme , useTokens } from '@studio/theme';
 
 // expo-sqlite on web opens synchronously with a short busy-wait, so the worker must be live first.
 const warmWorker = Platform.OS === 'web' && typeof window !== 'undefined' ? openDatabaseAsync(':memory:').then(() => undefined) : Promise.resolve();

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { TextInput, type TextInputProps } from 'react-native';
 
 import { cn } from '@/lib/utils';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 const inputVariants = cva('text-[17px] text-foreground', {
   variants: {

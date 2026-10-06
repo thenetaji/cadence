@@ -6,9 +6,7 @@ import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSprin
 
 import { barDomain, barSlots, slotIndex, valueToY, type AxisLabel, type FlowDatum } from '@/lib/charts';
 import { motion } from '@/motion/tokens';
-import { haptic } from '@/theme/haptics';
-import { withAlpha } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , withAlpha , useTokens } from '@studio/theme';
 import { FloatingLabel, useChartWidth } from './chart-kit';
 import { useChartFont } from './use-chart-font';
 

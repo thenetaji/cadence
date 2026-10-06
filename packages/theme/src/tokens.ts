@@ -102,6 +102,25 @@ export const colors: Record<Scheme, SemanticColors & { accentDeep: string }> = {
   dark: buildColors('dark'),
 };
 
+export type ThemeOverrides = {
+  /** Switch to another built-in accent preset. */
+  accentPreset?: AccentPresetKey;
+  /** Or supply the app's own accent group per scheme (wins over `accentPreset`). */
+  accent?: Record<Scheme, AccentColors>;
+};
+
+/**
+ * Per-app theme override: call once at startup, before the first render. Updates `colors` in place so every
+ * `useTokens()` consumer sees it. The category palette keys (`categoryKeys`) are stable and are not overridable,
+ * because stored data refers to them. The app's global.css `--tint*` variables must be changed to match.
+ */
+export function configureTheme(overrides: ThemeOverrides): void {
+  for (const scheme of ['light', 'dark'] as const) {
+    const accent = overrides.accent?.[scheme] ?? accentPresets[overrides.accentPreset ?? accentPreset][scheme];
+    Object.assign(colors[scheme], accent);
+  }
+}
+
 /** Mint income wash (pill backgrounds). */
 export const incomeSoft: Record<Scheme, string> = { light: 'rgba(4,139,86,0.10)', dark: 'rgba(100,216,164,0.12)' };
 

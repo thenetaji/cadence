@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { showToast } from '@/components/app/toast-store';
 import { CsvFormatError, IMPORT_FORMAT_LABELS, parseImport, type ImportFormat } from '@/lib/csv';
-import type { CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@studio/theme';
 
 import { pickTextFile } from './pick-text-file';
 import { useImportStore } from './store';

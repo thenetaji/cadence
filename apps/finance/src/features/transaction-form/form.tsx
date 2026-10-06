@@ -73,8 +73,7 @@ import { SplitList } from '@/features/transaction-form/split-list';
 import { selectDraft, useDraftStore } from '@/features/transaction-form/store';
 import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@studio/money';
 import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@studio/money';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 export type FormParams = {
   kind?: string;

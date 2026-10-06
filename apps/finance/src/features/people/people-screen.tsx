@@ -13,7 +13,7 @@ import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { AppIcon } from '@/icons/app-icon';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { Stagger } from '@/motion/stagger';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 import { balanceLine } from './model';
 import { PersonRowLine } from './person-row';

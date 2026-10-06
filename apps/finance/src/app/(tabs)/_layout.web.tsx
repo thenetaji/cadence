@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 import { AppIcon } from '@/icons/app-icon';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 const tabs = [
   { name: '(home)', title: 'Home', symbol: 'home' },

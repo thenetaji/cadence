@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, type ViewProps } from 'react-native';
 
 import { cn } from '@/lib/utils';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 const lightShadow = { shadowColor: '#14120E', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 2 } as const;
 

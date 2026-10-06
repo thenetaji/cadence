@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { OptionPicker, type Option } from '@/components/app/option-picker';
 import { ListRow } from '@/components/app/list-group';
 import { Text } from '@/components/ui/text';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type Injected = { showSeparator?: boolean };
 

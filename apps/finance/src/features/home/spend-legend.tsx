@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type FlowLegendProps = {
   moneyIn: number;

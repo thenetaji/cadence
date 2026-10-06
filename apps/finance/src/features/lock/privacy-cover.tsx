@@ -2,7 +2,7 @@ import { BlurView } from 'expo-blur';
 import * as React from 'react';
 import { AccessibilityInfo, Platform, StyleSheet, View } from 'react-native';
 
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 /** True when the user has turned on Reduce Transparency (iOS); always false elsewhere. */
 export function useReduceTransparency(): boolean {

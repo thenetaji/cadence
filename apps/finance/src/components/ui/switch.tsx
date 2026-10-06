@@ -1,7 +1,6 @@
 import { Platform, Switch as RNSwitch, type SwitchProps } from 'react-native';
 
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 const webThumb: object = Platform.OS === 'web' ? { activeThumbColor: '#FFFFFF' } : {};
 

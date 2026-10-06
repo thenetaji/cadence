@@ -8,7 +8,7 @@ import { Text } from '@/components/ui/text';
 import type { CashFlowData } from '@/data/hooks';
 import { axisLabels } from '@/lib/charts';
 import { formatMoneyForSpeech } from '@studio/money';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 import { flowAmount, flowScrub } from './labels';
 

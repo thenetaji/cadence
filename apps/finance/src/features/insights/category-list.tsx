@@ -6,8 +6,8 @@ import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { durations, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { durations, type CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 export type CategoryListItem = {
   /** Category id; null for uncategorised lines (not drillable). */

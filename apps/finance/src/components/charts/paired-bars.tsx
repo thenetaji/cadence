@@ -6,8 +6,7 @@ import { useDerivedValue } from 'react-native-reanimated';
 
 import { barDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
 import { formatMoney } from '@studio/money';
-import { withAlpha } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { withAlpha , useTokens } from '@studio/theme';
 import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
 import { useChartFont } from './use-chart-font';
 

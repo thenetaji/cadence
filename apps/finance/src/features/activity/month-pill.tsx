@@ -3,8 +3,7 @@ import { Platform } from 'react-native';
 import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 type MonthPillProps = { label: string; onPress: () => void; /** Jumps back to the current month. */ onLongPress?: () => void };
 

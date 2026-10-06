@@ -5,8 +5,7 @@ import { ActivityIndicator } from 'react-native';
 import { Pressable, type PressableProps } from '@/components/ui/pressable';
 import { Text, TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { useTokens } from '@/theme/use-tokens';
-import { pressOpacity, pressScale } from '@/theme/tokens';
+import { useTokens , pressOpacity, pressScale } from '@studio/theme';
 
 const buttonVariants = cva('flex-row items-center justify-center gap-2 rounded-[12px]', {
   variants: {

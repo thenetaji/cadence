@@ -9,8 +9,8 @@ import { Text } from '@/components/ui/text';
 import { useBudgets, useCategories, useUpcoming } from '@/data/hooks';
 import { dayLabel, diffDays } from '@studio/dates';
 import { formatMoney } from '@studio/money';
-import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { withAlpha, type CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 import { dueIn, frequencyLabel, percentUsed } from './curve';
 import { HomeSectionHeader } from './section-header';

@@ -5,8 +5,7 @@ import { OptionPicker } from '@/components/app/option-picker';
 import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 import type { InsightsKind } from './params';
 

@@ -14,8 +14,7 @@ import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { ALL_DATES } from '@studio/dates';
 import { convertWithRates, formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { Stagger } from '@/motion/stagger';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 import { categoryBreakdown, tagColorKey } from './model';
 import { TagPill } from './tag-pill';

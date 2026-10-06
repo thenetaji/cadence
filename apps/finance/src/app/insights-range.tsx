@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useRangeStore } from '@/features/insights/range-store';
 import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 function Row({ label, value, onChange, min, max }: { label: string; value: DateKey; onChange: (key: DateKey) => void; min?: DateKey; max?: DateKey }) {
   const { scheme } = useTokens();

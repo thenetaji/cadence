@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import type { SegmentedControlProps } from '@/components/ui/segmented-control.types';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 function SegmentedControl({ values, selectedIndex, onChange, accessibilityLabel, className, disabled = false, disabledIndexes }: SegmentedControlProps) {
   const { isDark } = useTokens();

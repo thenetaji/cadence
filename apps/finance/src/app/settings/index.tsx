@@ -11,7 +11,7 @@ import { ordinal } from '@/features/budgets/logic';
 import { moneyLocale } from '@/features/transactions/use-money-context';
 import { formatMoney } from '@studio/money';
 import { confirmErase } from '@/features/data-transfer/erase';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 type Picker = 'week' | 'month' | 'account' | null;
 

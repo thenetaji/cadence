@@ -1,6 +1,6 @@
 import type { NativeStackNavigationOptions } from 'expo-router';
 
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 /**
  * Header chrome shared by every stack: a solid `bg` header (true black in dark, paper in light),

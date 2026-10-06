@@ -9,8 +9,7 @@ import { useActions } from '@/data/actions';
 import { useAccounts, useRateLookup, useRates, useSetting } from '@/data/hooks';
 import { monthShort, parseKey, toDateKey } from '@studio/dates';
 import { currencySymbol } from '@studio/money';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 type RateRowProps = {
   base: string;

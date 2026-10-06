@@ -3,8 +3,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { pressScale, shadows } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { pressScale, shadows , useTokens } from '@studio/theme';
 
 type FloatingAddButtonProps = {
   onPress: () => void;

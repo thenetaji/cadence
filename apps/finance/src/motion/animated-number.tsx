@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { Text, type TextTone } from '@/components/ui/text';
-import { typeScale, type TypeVariant } from '@/theme/tokens';
+import { typeScale, type TypeVariant } from '@studio/theme';
 
 import { introDelay, splitNumber, type Align, type NumberToken } from './digits';
 import { motion } from './tokens';

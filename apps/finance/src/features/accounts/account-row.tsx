@@ -4,8 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { pressScale } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { pressScale , useTokens } from '@studio/theme';
 
 import type { AccountView } from './model';
 

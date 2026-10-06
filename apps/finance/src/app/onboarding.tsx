@@ -19,8 +19,7 @@ import {
   type KeypadState,
 } from '@studio/money';
 import { currencySymbol, minorDigits } from '@studio/money';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 type Action = { type: 'key'; key: ReducerKey } | { type: 'reset'; digits: number };
 

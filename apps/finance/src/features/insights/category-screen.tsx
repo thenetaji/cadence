@@ -16,8 +16,8 @@ import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { formatTime, toRowModel } from '@/features/transactions/row-model';
 import { useMoneyContext, type MoneyContext } from '@/features/transactions/use-money-context';
 import { useTransactionActions } from '@/features/transactions/use-transaction-actions';
-import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { categoryKeys, type CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 import { buildCategoryEntries, type CategoryEntry } from './category-entries';
 import { periodNoun, trendLabel } from './labels';

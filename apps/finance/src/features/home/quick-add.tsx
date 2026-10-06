@@ -6,8 +6,8 @@ import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { useCategories, useQuickAdd } from '@/data/hooks';
-import { useTokens } from '@/theme/use-tokens';
-import type { CategoryColorKey } from '@/theme/tokens';
+import { useTokens } from '@studio/theme';
+import type { CategoryColorKey } from '@studio/theme';
 
 const LIMIT = 8;
 

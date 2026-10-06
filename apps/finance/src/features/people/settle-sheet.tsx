@@ -15,7 +15,7 @@ import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@studio/money';
 import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@studio/money';
 import { Shimmer } from '@/motion/shimmer';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 import { Avatar } from './avatar';
 

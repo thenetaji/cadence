@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Text as RNText } from 'react-native';
 
 import { cn } from '@/lib/utils';
-import { dynamicType, type TypeVariant } from '@/theme/tokens';
+import { dynamicType, type TypeVariant } from '@studio/theme';
 
 const variantClass: Record<TypeVariant, string> = {
   display: 'text-[54px] leading-[60px] font-bold tracking-[-2.4px]',

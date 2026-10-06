@@ -8,7 +8,7 @@ import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useSetting } from '@/data/hooks';
 import { Stagger } from '@/motion/stagger';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 import { TimeField } from './time-field';
 

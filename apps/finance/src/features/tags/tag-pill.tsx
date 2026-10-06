@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 import { tagColorKey, tagPillColors } from './model';
 

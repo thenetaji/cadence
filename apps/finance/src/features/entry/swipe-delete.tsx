@@ -5,8 +5,7 @@ import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, use
 import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 const ACTION_WIDTH = 72;
 const FULL_SWIPE = 200;

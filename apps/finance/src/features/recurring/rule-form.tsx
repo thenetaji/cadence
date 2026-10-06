@@ -21,7 +21,7 @@ import { DatePicker } from '@/features/transaction-form/date-picker';
 import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
 import type { Frequency } from '@/lib/recurring';
 import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@studio/money';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 
 const FREQUENCIES: readonly Frequency[] = ['daily', 'weekly', 'monthly', 'yearly'];

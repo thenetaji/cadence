@@ -5,7 +5,7 @@ import Animated, { FadeInDown, FadeOutDown, ReduceMotion, runOnJS, useAnimatedSt
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { UndoToast } from '@/components/app/undo-toast';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 import { useToastStore } from '@/components/app/toast-store';
 import { motion } from '@/motion/tokens';
 

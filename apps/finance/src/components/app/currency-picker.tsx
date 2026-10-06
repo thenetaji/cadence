@@ -8,8 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { CURRENCIES, type CurrencyInfo } from '@studio/money';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 type CurrencyPickerProps = {
   visible: boolean;

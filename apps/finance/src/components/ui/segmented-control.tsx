@@ -3,8 +3,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import type { SegmentedControlProps } from '@/components/ui/segmented-control.types';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 function SegmentedControl({ values, selectedIndex, onChange, accessibilityLabel, className, disabled = false, disabledIndexes }: SegmentedControlProps) {
   const { scheme } = useTokens();

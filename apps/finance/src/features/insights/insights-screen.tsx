@@ -17,8 +17,7 @@ import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } 
 import { Stagger } from '@/motion/stagger';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 import { CashFlowCard } from './cash-flow-card';
 import { CategoryList, type CategoryListItem } from './category-list';

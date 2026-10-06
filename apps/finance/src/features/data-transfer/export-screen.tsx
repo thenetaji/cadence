@@ -12,9 +12,8 @@ import { FormRow } from '@/features/entry/form-row';
 import { DatePicker } from '@/features/transaction-form/date-picker';
 import { buildExportCsv } from '@/lib/csv';
 import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import type { CategoryColorKey } from '@studio/theme';
+import { haptic , useTokens } from '@studio/theme';
 
 import { exportBounds, type ExportRange } from './range';
 import { shareTextFile } from './share-file';

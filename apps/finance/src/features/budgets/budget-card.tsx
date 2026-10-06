@@ -5,7 +5,7 @@ import { ProgressBar } from '@/components/app/progress-bar';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { pressScale } from '@/theme/tokens';
+import { pressScale } from '@studio/theme';
 
 import type { BudgetView } from './model';
 

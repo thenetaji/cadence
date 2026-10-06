@@ -1,7 +1,7 @@
 import type { AccountWithBalance } from '@/data/hooks';
 import { convertWithRates, formatMoney, formatMoneyForSpeech, sumConverted, type RateLookup } from '@studio/money';
 import type { AccountType } from '@/db/schema';
-import type { CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@studio/theme';
 
 export const TYPE_LABELS: Record<AccountType, string> = { cash: 'Cash', bank: 'Bank', card: 'Card', other: 'Other' };
 export const TYPES: readonly AccountType[] = ['cash', 'bank', 'card', 'other'];

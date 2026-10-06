@@ -5,10 +5,8 @@ import { Gesture } from 'react-native-gesture-handler';
 import { type LayoutChangeEvent } from 'react-native';
 
 import { clampLabelX } from '@/lib/charts';
-import { haptic } from '@/theme/haptics';
+import { haptic , durations , useTokens } from '@studio/theme';
 import { motion } from '@/motion/tokens';
-import { durations } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
 
 /** Width of the container, measured once laid out. */
 export function useChartWidth(): readonly [number, (event: LayoutChangeEvent) => void] {

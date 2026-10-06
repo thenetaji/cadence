@@ -14,8 +14,7 @@ import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { nextPeriod, periodLabel, previousPeriod, type Period } from '@studio/dates';
 import { formatMoneyForSpeech } from '@studio/money';
 import { Stagger } from '@/motion/stagger';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 import { BudgetCard } from './budget-card';
 import { toBudgetView } from './model';

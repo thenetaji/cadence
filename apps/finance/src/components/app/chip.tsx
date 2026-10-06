@@ -5,8 +5,8 @@ import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import type { CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 type ChipProps = {
   label: string;

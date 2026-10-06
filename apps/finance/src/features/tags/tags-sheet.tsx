@@ -14,8 +14,7 @@ import { toggleId } from '@/features/transaction-form/logic';
 import { useDraftStore } from '@/features/transaction-form/store';
 import { AppIcon } from '@/icons/app-icon';
 import { Pop } from '@/motion/pop';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 import { canCreateTag, matchesQuery, nextTagColor, TAG_COLORS } from './model';
 import { TagPill } from './tag-pill';

@@ -6,8 +6,7 @@ import { Easing, useDerivedValue, useReducedMotion, withTiming } from 'react-nat
 
 import { Text } from '@/components/ui/text';
 import { donutSegments, hitTestDonut } from '@/lib/charts';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 import { useGrow } from './chart-kit';
 
 export type DonutDatum = {

@@ -8,9 +8,8 @@ import { useSetting } from '@/data/hooks';
 import { AppIcon } from '@/icons/app-icon';
 import { useIconPrefs } from '@/icons/prefs';
 import { ICON_BACKGROUND_LABELS, ICON_BACKGROUNDS, ICON_STYLE_LABELS, ICON_STYLES, type IconBackground, type IconStyle } from '@/icons/types';
-import { haptic } from '@/theme/haptics';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
+import type { CategoryColorKey } from '@studio/theme';
 
 const options = [
   { value: 'system', label: 'System' },

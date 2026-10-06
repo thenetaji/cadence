@@ -20,7 +20,7 @@ import { TransactionDayList } from '@/features/transactions/transaction-day-list
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { monthName, monthShort, parseKey, periodLabel, recentMonthPeriods, type Period } from '@studio/dates';
 import { formatMoney } from '@studio/money';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 const ALL = 'all';
 const ALL_TIME = { from: '0000-01-01', to: '9999-12-31' };

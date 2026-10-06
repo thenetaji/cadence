@@ -1,4 +1,4 @@
-import { categoryKeys, withAlpha, type CategoryColorKey } from '@/theme/tokens';
+import { categoryKeys, withAlpha, type CategoryColorKey } from '@studio/theme';
 
 /** Colours a new tag can take; gray is left for categories. */
 export const TAG_COLORS: readonly CategoryColorKey[] = categoryKeys.filter((key) => key !== 'gray' && key !== 'brown');

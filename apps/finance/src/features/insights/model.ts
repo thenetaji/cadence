@@ -1,8 +1,8 @@
 import type { DonutDatum } from '@/components/charts/donut';
 import type { Insights } from '@/data/hooks';
 import { formatMoney } from '@studio/money';
-import type { CategoryColorKey, Scheme } from '@/theme/tokens';
-import { categoryColors, categoryKeys } from '@/theme/tokens';
+import type { CategoryColorKey, Scheme } from '@studio/theme';
+import { categoryColors, categoryKeys } from '@studio/theme';
 
 import type { CategoryListItem } from './category-list';
 

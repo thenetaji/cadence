@@ -1,7 +1,7 @@
 import { Text, type TextTone } from '@/components/ui/text';
 import { AnimatedNumber } from '@/motion/animated-number';
 import { cn } from '@/lib/utils';
-import { dynamicType } from '@/theme/tokens';
+import { dynamicType } from '@studio/theme';
 
 type AmountVariant = 'row' | 'title' | 'hero' | 'entry';
 

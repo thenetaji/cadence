@@ -10,8 +10,7 @@ import type { BackupSummary } from '@/db/repos/backup';
 import { AppIcon } from '@/icons/app-icon';
 import { getSyncProvider, type SyncProviderId } from '@/lib/sync';
 import { Stagger } from '@/motion/stagger';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 import { backupTimeLabel, unavailableNote } from './format';
 import { RestoreSheet } from './restore-sheet';

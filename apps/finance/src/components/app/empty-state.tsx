@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { fadeIn } from '@/motion/entering';
 import { Float } from '@/motion/float';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type EmptyStateProps = { message: string; actionLabel?: string; onAction?: () => void; icon?: string };
 

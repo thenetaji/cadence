@@ -2,8 +2,7 @@ import { View } from 'react-native';
 
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { colors, pressOpacity, shadows } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { colors, pressOpacity, shadows , useTokens } from '@studio/theme';
 
 type UndoToastProps = { message: string; actionLabel?: string; onAction?: () => void };
 

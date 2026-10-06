@@ -14,8 +14,7 @@ import { AppIcon } from '@/icons/app-icon';
 import { ALL_DATES, periodFor, periodLabel } from '@studio/dates';
 import { formatMoney } from '@studio/money';
 import { Stagger } from '@/motion/stagger';
-import { pressScale } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { pressScale , useTokens } from '@studio/theme';
 
 import { tagColorKey } from './model';
 

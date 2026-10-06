@@ -20,7 +20,7 @@ import { FormRow, PickRow } from '@/features/entry/form-row';
 import { useSheetHeader } from '@/features/entry/sheet-header';
 import { useAmountEntry } from '@/features/entry/use-amount-entry';
 import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@studio/money';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 import { useCategoryRequest } from './category-store';
 import { anchorLabel, anchorOptions, defaultAnchor, editableName, PERIOD_LABELS, PERIOD_VALUES } from './logic';

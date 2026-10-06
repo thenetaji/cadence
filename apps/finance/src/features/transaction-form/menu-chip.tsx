@@ -3,7 +3,7 @@ import { ActionSheetIOS, Platform } from 'react-native';
 
 import { OptionPicker } from '@/components/app/option-picker';
 import { FormChip } from '@/features/transaction-form/chips';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type MenuOption = { value: string; label: string };
 

@@ -14,8 +14,7 @@ import { ValidationError } from '@/db/errors';
 import type { PersonRow } from '@/db/schema';
 import { titleAfterPerson } from '@/features/transaction-form/logic';
 import { useDraftStore } from '@/features/transaction-form/store';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 import { Avatar } from './avatar';
 

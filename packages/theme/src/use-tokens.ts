@@ -14,7 +14,7 @@ import {
   typeScale,
   type CategoryColorKey,
   type Scheme,
-} from '@/theme/tokens';
+} from './tokens';
 
 export function useTokens() {
   const { theme } = useUniwind();

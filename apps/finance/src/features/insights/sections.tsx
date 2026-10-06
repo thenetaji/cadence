@@ -13,8 +13,8 @@ import { AnimatedNumber } from '@/motion/animated-number';
 import type { InsightsExtras } from '@/data/hooks';
 import { monthShort, parseKey } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { categoryKeys, type CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 import { monthlyScrub, peakCaption, percentText, weekdayShort } from './labels';
 import type { InsightsKind } from './params';

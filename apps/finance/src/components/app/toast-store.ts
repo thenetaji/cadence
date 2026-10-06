@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-import { haptic, type HapticKind } from '@/theme/haptics';
-import { durations } from '@/theme/tokens';
+import { haptic, type HapticKind } from '@studio/theme';
+import { durations } from '@studio/theme';
 
 type ToastInput = {
   message: string;

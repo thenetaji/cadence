@@ -3,7 +3,7 @@ import { ActionSheetIOS, Alert, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FloatingAddButton } from '@/components/app/floating-add-button';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 type Kind = 'expense' | 'income' | 'transfer';
 

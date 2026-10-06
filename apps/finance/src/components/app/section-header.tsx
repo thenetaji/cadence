@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { pressOpacity } from '@/theme/tokens';
+import { pressOpacity } from '@studio/theme';
 
 type SectionHeaderProps = { title: string; actionLabel?: string; onAction?: () => void };
 

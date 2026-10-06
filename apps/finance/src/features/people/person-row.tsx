@@ -3,8 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { AppIcon } from '@/icons/app-icon';
-import { pressScale } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { pressScale , useTokens } from '@studio/theme';
 
 import { Avatar } from './avatar';
 

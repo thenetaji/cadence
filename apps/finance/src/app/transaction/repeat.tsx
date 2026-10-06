@@ -12,7 +12,7 @@ import { DatePicker } from '@/features/transaction-form/date-picker';
 import { useDraftStore } from '@/features/transaction-form/store';
 import { addDays, keyToLocalMs, toDateKey } from '@studio/dates';
 import type { Frequency } from '@/lib/recurring';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 const UNITS: readonly Frequency[] = ['daily', 'weekly', 'monthly', 'yearly'];
 const UNIT_LABELS = ['Days', 'Weeks', 'Months', 'Years'] as const;

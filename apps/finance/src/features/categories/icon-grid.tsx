@@ -7,8 +7,8 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { conceptFor, conceptLabel } from '@/icons/registry';
 import { tileRadius } from '@/icons/tile-styles';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import type { CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 import { iconSections } from './icons';
 

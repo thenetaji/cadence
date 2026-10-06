@@ -11,8 +11,8 @@ import { MAX_SPLIT_LINES, splitRemaining, type SplitDraftLine } from '@/features
 import { ShakeView } from '@/features/transaction-form/shake-view';
 import type { CategoryRow } from '@/db/schema';
 import { useAnimatedTextColor } from '@/motion/use-animated-color';
-import { durations, springs, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { durations, springs, type CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 type SplitListProps = {
   lines: readonly SplitDraftLine[];

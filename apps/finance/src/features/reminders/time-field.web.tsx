@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type TimeFieldProps = { value: string; onChange: (value: string) => void; disabled?: boolean };
 

@@ -5,8 +5,7 @@ import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import type { PeriodType } from '@studio/dates';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 const TYPES: readonly PeriodType[] = ['week', 'month', 'year', 'custom'];
 const VALUES = ['Week', 'Month', 'Year', 'Custom'] as const;

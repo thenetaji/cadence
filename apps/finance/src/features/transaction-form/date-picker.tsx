@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type DatePickerProps = {
   value: number;

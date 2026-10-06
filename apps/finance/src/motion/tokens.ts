@@ -1,4 +1,4 @@
-import { durations, springs } from '@/theme/tokens';
+import { durations, springs } from '@studio/theme';
 
 /** Motion constants shared by every primitive. Springs for anything that moves, timing for fades. */
 export const motion = {

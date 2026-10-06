@@ -16,7 +16,7 @@ import { CASHEW_SAMPLE, DIME_SAMPLE, NATIVE_SAMPLE, dimeFixture } from '@/lib/cs
 import { importBreakdown, parseImport, type ImportFormat, type ImportRow } from '@/lib/csv';
 import { dayLabel, toDateKey } from '@studio/dates';
 import { formatMoney } from '@studio/money';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 import { useImportStore } from './store';
 

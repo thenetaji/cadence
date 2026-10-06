@@ -3,7 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { headerChrome } from '@/components/app/tab-header';
 import { barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 export default function SettingsLayout() {
   const router = useRouter();

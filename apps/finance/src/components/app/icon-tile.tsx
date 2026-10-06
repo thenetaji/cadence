@@ -6,8 +6,8 @@ import { gradientStyle } from '@/icons/gradient';
 import { useIconPrefs } from '@/icons/prefs';
 import { tileRadius, tileSpec } from '@/icons/tile-styles';
 import type { IconBackground, IconStyle } from '@/icons/types';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import type { CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 type IconTileProps = {
   /** Concept id or a legacy SF Symbol name. */

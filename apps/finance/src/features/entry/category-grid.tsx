@@ -4,9 +4,8 @@ import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import type { CategoryRow } from '@/db/schema';
-import { haptic } from '@/theme/haptics';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
+import type { CategoryColorKey } from '@studio/theme';
 
 type CategoryGridProps = {
   categories: readonly CategoryRow[];

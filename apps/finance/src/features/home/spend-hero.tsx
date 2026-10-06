@@ -10,8 +10,7 @@ import { Text } from '@/components/ui/text';
 import type { HomeSpend } from '@/data/hooks';
 import { AnimatedNumber } from '@/motion/animated-number';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { withAlpha } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { withAlpha , useTokens } from '@studio/theme';
 
 import type { CumulativeDuoProps } from '@/components/charts/cumulative-duo';
 import { addDays, monthShort, parseKey } from '@studio/dates';

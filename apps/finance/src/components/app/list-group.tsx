@@ -6,8 +6,8 @@ import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
-import type { CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import type { CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 
 type ListRowInjectedProps = { showSeparator?: boolean };
 

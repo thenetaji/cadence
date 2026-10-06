@@ -2,7 +2,7 @@ import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 import { tabIcons } from '@/icons/generated/tabIcons';
 import { useIconPrefs } from '@/icons/prefs';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 const SF = { home: 'house.fill', activity: 'list.bullet.rectangle.fill', insights: 'chart.pie.fill', budgets: 'gauge.with.dots.needle.33percent' } as const;
 const MD = { home: 'home', activity: 'receipt_long', insights: 'pie_chart', budgets: 'speed' } as const;

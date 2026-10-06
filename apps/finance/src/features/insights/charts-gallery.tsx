@@ -10,8 +10,7 @@ import { Text } from '@/components/ui/text';
 import { axisLabels } from '@/lib/charts';
 import { addDays } from '@studio/dates';
 import { formatMoney } from '@studio/money';
-import { categoryColors } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { categoryColors , useTokens } from '@studio/theme';
 
 const rupees = (n: number) => Math.round(n * 100);
 const INR = { currency: 'INR', locale: 'en-IN' } as const;

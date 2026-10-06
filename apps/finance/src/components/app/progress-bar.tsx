@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring } from 'react-native-reanimated';
 
 import { motion } from '@/motion/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type ProgressBarProps = {
   value: number;

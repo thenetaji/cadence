@@ -12,9 +12,7 @@ import { TransactionListRow } from '@/features/transactions/transaction-list-row
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { dayLabel, monthName, parseKey } from '@studio/dates';
 import { formatMoney } from '@studio/money';
-import { haptic } from '@/theme/haptics';
-import { withAlpha } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , withAlpha , useTokens } from '@studio/theme';
 
 import { buildMonthGrid, heatOpacity, monthOf, weekdayLetters, type CalendarCell } from './grid';
 

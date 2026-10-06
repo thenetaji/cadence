@@ -7,8 +7,8 @@ import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import type { Insights } from '@/data/hooks';
 import { formatMoney } from '@studio/money';
-import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { withAlpha, type CategoryColorKey } from '@studio/theme';
+import { useTokens } from '@studio/theme';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
 import { shareWidth } from './curve';

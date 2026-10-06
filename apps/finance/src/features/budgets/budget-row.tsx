@@ -5,8 +5,7 @@ import { ProgressBar } from '@/components/app/progress-bar';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { SwipeDelete } from '@/features/entry/swipe-delete';
-import { pressScale } from '@/theme/tokens';
-import { useCategoryColor, useTokens } from '@/theme/use-tokens';
+import { pressScale , useCategoryColor, useTokens } from '@studio/theme';
 
 import type { BudgetView } from './model';
 

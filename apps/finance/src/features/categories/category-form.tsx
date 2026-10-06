@@ -15,8 +15,8 @@ import type { CategoryKind } from '@/db/schema';
 import { EntryLayout } from '@/features/entry/entry-layout';
 import { FormRow } from '@/features/entry/form-row';
 import { useSheetHeader } from '@/features/entry/sheet-header';
-import { haptic } from '@/theme/haptics';
-import type { CategoryColorKey } from '@/theme/tokens';
+import { haptic } from '@studio/theme';
+import type { CategoryColorKey } from '@studio/theme';
 
 import { IconGrid } from './icon-grid';
 import { CATEGORY_SWATCHES, Swatches } from './swatches';

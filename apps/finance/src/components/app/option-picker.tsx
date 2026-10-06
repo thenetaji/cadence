@@ -5,8 +5,7 @@ import { ListGroup, ListRow } from '@/components/app/list-group';
 import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { haptic } from '@/theme/haptics';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
 
 type Option<T extends string | number | null> = { value: T; label: string };
 

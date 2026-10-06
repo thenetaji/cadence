@@ -13,7 +13,7 @@ import { useActions } from '@/data/actions';
 import { useAccounts, useCategories, useRecurringRules, useTodayKey, useUpcoming } from '@/data/hooks';
 import { toUpcomingRow } from '@/features/home/upcoming-model';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { durations } from '@/theme/tokens';
+import { durations } from '@studio/theme';
 
 import { cadenceSummary } from './cadence';
 

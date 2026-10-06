@@ -23,9 +23,8 @@ import { useSheetHeader } from '@/features/entry/sheet-header';
 import { useAmountEntry } from '@/features/entry/use-amount-entry';
 import { FormChip } from '@/features/transaction-form/chips';
 import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@studio/money';
-import { haptic } from '@/theme/haptics';
-import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
-import { useTokens } from '@/theme/use-tokens';
+import { haptic , useTokens } from '@studio/theme';
+import { categoryKeys, type CategoryColorKey } from '@studio/theme';
 
 import { TYPE_LABELS, TYPES } from './model';
 

@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showToast } from '@/components/app/toast-store';
 import { Pressable } from '@/components/ui/pressable';
 import { AppIcon } from '@/icons/app-icon';
-import { haptic } from '@/theme/haptics';
+import { haptic } from '@studio/theme';
 
 const MAX_ZOOM = 5;
 const DISMISS_DISTANCE = 120;

@@ -2,7 +2,7 @@ import type { Occurrence } from '@/db/repos/recurring';
 import type { AccountRow, CategoryRow } from '@/db/schema';
 import { dayLabel, addDays } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech, type SignMode } from '@studio/money';
-import type { CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@studio/theme';
 
 export const UPCOMING_DAYS = 7;
 export const UPCOMING_ROWS = 3;

@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Amount } from '@/components/app/amount';
 import { Card } from '@/components/ui/card';
 import { Text, type TextTone } from '@/components/ui/text';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type SummaryItem = { label: string; value: string; tone?: TextTone };
 

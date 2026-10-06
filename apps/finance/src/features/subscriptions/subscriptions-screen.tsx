@@ -14,8 +14,8 @@ import { useCategories, useSubscriptions, useTodayKey } from '@/data/hooks';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { Stagger } from '@/motion/stagger';
-import { useTokens } from '@/theme/use-tokens';
-import type { CategoryColorKey } from '@/theme/tokens';
+import { useTokens } from '@studio/theme';
+import type { CategoryColorKey } from '@studio/theme';
 
 import { cadenceLabel, nextChargeLabel } from './labels';
 

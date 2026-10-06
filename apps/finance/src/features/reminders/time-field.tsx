@@ -1,7 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as React from 'react';
 
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 import { fromTime, toTime } from './time';
 

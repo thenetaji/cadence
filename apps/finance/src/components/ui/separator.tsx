@@ -1,6 +1,6 @@
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type SeparatorProps = ViewProps & { inset?: number };
 

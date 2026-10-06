@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
-import { useTokens } from '@/theme/use-tokens';
+import { useTokens } from '@studio/theme';
 
 type ReceiptThumbProps = {
   uri: string;

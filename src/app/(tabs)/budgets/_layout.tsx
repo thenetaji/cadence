@@ -1,6 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 
-import { HeaderButton } from '@/components/app/header-button';
+import { HeaderButton, barRight } from '@/components/app/header-button';
 import { useTabStackOptions } from '@/components/app/tab-header';
 
 export default function BudgetsLayout() {
@@ -12,7 +12,7 @@ export default function BudgetsLayout() {
         name="index"
         options={{
           title: 'Budgets',
-          headerRight: () => <HeaderButton symbol="plus" label="Add budget" onPress={() => router.push('/budget/new')} />,
+          ...barRight(<HeaderButton symbol="plus" label="Add budget" onPress={() => router.push('/budget/new')} />),
         }}
       />
     </Stack>

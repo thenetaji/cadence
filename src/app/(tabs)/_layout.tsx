@@ -24,19 +24,19 @@ export default function TabsLayout() {
   const style = useIconPrefs((s) => s.style);
   return (
     <NativeTabs tintColor={colors.accent}>
-      <NativeTabs.Trigger name="(home)">
+      <NativeTabs.Trigger name="(home)" contentStyle={{ backgroundColor: colors.bg }}>
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         {tabIcon(style, 'home')}
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="activity">
+      <NativeTabs.Trigger name="activity" contentStyle={{ backgroundColor: colors.bg }}>
         <NativeTabs.Trigger.Label>Activity</NativeTabs.Trigger.Label>
         {tabIcon(style, 'activity')}
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="insights">
+      <NativeTabs.Trigger name="insights" contentStyle={{ backgroundColor: colors.bg }}>
         <NativeTabs.Trigger.Label>Insights</NativeTabs.Trigger.Label>
         {tabIcon(style, 'insights')}
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="budgets">
+      <NativeTabs.Trigger name="budgets" contentStyle={{ backgroundColor: colors.bg }}>
         <NativeTabs.Trigger.Label>Budgets</NativeTabs.Trigger.Label>
         {tabIcon(style, 'budgets')}
       </NativeTabs.Trigger>

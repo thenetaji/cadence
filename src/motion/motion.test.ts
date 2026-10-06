@@ -1,6 +1,7 @@
 import { collapseThen, registerCollapse } from './collapse';
 import { addedKeys, changedDigits, introDelay, splitNumber } from './digits';
 import { EntryTracker } from './entry-tracker';
+import { claimEntrance, resetEntrances } from './session';
 import { buildPolyPath, pointAt } from './path-point';
 import { motionAmount, motionMs, scrollProgress, staggerDelay } from './timing';
 
@@ -126,5 +127,14 @@ describe('scrollProgress', () => {
     expect(scrollProgress(-10, 40, 100)).toBe(0);
     expect(scrollProgress(70, 40, 100)).toBe(0.5);
     expect(scrollProgress(500, 40, 100)).toBe(1);
+  });
+});
+
+describe('claimEntrance', () => {
+  it('allows each key once per session', () => {
+    resetEntrances();
+    expect(claimEntrance('/activity#0')).toBe(true);
+    expect(claimEntrance('/activity#0')).toBe(false);
+    expect(claimEntrance('/activity#1')).toBe(true);
   });
 });

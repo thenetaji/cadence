@@ -8,7 +8,6 @@ import { Card } from '@/components/ui/card';
 import { useActions } from '@/data/actions';
 import { useBudgets, useCategories, useTodayKey } from '@/data/hooks';
 import type { BudgetInput } from '@/db/repos/budgets';
-import { FocusFx } from '@/motion/focus-fx';
 import { Stagger } from '@/motion/stagger';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 
@@ -59,7 +58,7 @@ export function BudgetsScreen() {
   }
 
   return (
-    <FocusFx className="flex-1 bg-bg">
+    <View className="flex-1 bg-bg">
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 px-4 pb-10 pt-2">
         {overall.map((view, i) => (
           <Stagger key={view.id} index={i}>
@@ -76,6 +75,6 @@ export function BudgetsScreen() {
           </Stagger>
         ) : null}
       </ScrollView>
-    </FocusFx>
+    </View>
   );
 }

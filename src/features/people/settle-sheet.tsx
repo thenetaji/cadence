@@ -84,13 +84,13 @@ function SettleBody({ history, account, accounts, outstanding, onAccount }: { hi
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: Platform.OS === 'ios' ? 8 : 0 }}>
       <View className="h-12 flex-row items-center px-2">
-        <Button variant="plainText" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
+        <Button variant="barSecondary" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
           <Text variant="body">Cancel</Text>
         </Button>
         <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
           Settle up
         </Text>
-        <Button variant="plainText" size="sm" disabled={invalid} onPress={submit} accessibilityLabel="Save">
+        <Button variant="barPrimary" size="sm" disabled={invalid} onPress={submit} accessibilityLabel="Save">
           <Text variant="headline" style={invalid ? { opacity: 0.4 } : undefined}>
             Save
           </Text>

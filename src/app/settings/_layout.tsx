@@ -1,6 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 
 import { headerChrome } from '@/components/app/tab-header';
+import { barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { useTokens } from '@/theme/use-tokens';
 
@@ -20,9 +21,8 @@ export default function SettingsLayout() {
         options={{
           title: 'Settings',
           headerBackVisible: false,
-          headerLeft: () => null,
-          headerRight: () => (
-            <Button variant="plainText" size="sm" onPress={() => router.dismiss()}>
+          ...barRight(
+            <Button variant="barPrimary" size="sm" onPress={() => router.dismiss()}>
               Done
             </Button>
           ),

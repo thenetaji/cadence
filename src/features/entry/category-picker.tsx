@@ -27,7 +27,7 @@ function CategoryPicker({ visible, categories, selected, onSelect, onClose }: Ca
               Category
             </Text>
             <View className="w-16 items-end">
-              <Button variant="plainText" size="sm" onPress={onClose}>
+              <Button variant="barSecondary" size="sm" onPress={onClose}>
                 Cancel
               </Button>
             </View>

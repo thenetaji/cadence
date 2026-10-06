@@ -25,7 +25,7 @@ export default function DateSheet() {
           Date
         </Text>
         <View className="w-20 items-end">
-          <Button variant="plainText" size="sm" onPress={() => router.back()} accessibilityLabel="Done">
+          <Button variant="barPrimary" size="sm" onPress={() => router.back()} accessibilityLabel="Done">
             <Text variant="headline">Done</Text>
           </Button>
         </View>

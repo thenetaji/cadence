@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { DaySectionHeader } from '@/components/app/day-section-header';
 import { TransactionRow } from '@/components/app/transaction-row';
 import { MiniBars } from '@/components/charts/mini-bars';
+import { barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
@@ -176,8 +177,8 @@ export default function CategoryScreen() {
       <Stack.Screen
         options={{
           title: category?.name ?? 'Category',
-          headerRight: () => (
-            <Button variant="plainText" size="sm" onPress={() => router.push({ pathname: '/settings/categories/[id]', params: { id } })} accessibilityLabel="Edit category">
+          ...barRight(
+            <Button variant="barPrimary" size="sm" onPress={() => router.push({ pathname: '/settings/categories/[id]', params: { id } })} accessibilityLabel="Edit category">
               <Text variant="body">Edit</Text>
             </Button>
           ),

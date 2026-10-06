@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { AddFab } from '@/components/app/add-fab';
 import { EmptyState } from '@/components/app/empty-state';
@@ -18,7 +18,6 @@ import { TransactionListRow } from '@/features/transactions/transaction-list-row
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { diffDays, monthName, monthShort, parseKey, periodFor, previousPeriod, weekday } from '@/lib/dates';
 import { formatMoney, sumConverted } from '@/lib/money';
-import { FocusFx } from '@/motion/focus-fx';
 import { Stagger } from '@/motion/stagger';
 
 const RECENT_COUNT = 5;
@@ -51,7 +50,7 @@ export default function Home() {
   const empty = recent.length === 0;
 
   return (
-    <FocusFx className="flex-1 bg-bg">
+    <View className="flex-1 bg-bg">
       <HomeTopBar day={headerDay(weekday(today), now.day, monthShort(now.month))} remaining={daysLeftLabel(left)} />
       <ScrollView contentContainerClassName="px-4 pb-28" contentContainerStyle={empty ? { flexGrow: 1 } : undefined} showsVerticalScrollIndicator={false}>
         <SpendHero
@@ -96,6 +95,6 @@ export default function Home() {
         )}
       </ScrollView>
       <AddFab />
-    </FocusFx>
+    </View>
   );
 }

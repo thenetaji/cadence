@@ -31,7 +31,7 @@ function OptionPicker<T extends string | number | null>({ visible, title, option
               {title}
             </Text>
             <View className="w-16 items-end">
-              <Button variant="plainText" size="sm" onPress={onClose}>
+              <Button variant="barPrimary" size="sm" onPress={onClose}>
                 Done
               </Button>
             </View>

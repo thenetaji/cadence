@@ -31,3 +31,4 @@ export * from './useSubscriptions';
 export * from './useDailyTotals';
 export * from './useSyncStatus';
 export * from './useReminderSync';
+export * from './useCashFlow';

@@ -4,6 +4,7 @@ import { ScrollView, View } from 'react-native';
 
 import { IconTile } from '@/components/app/icon-tile';
 import { ListGroup, ListRow } from '@/components/app/list-group';
+import { barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useRecurringRule, useTransaction } from '@/data/hooks';
@@ -28,7 +29,7 @@ const LEND_CAPTION: Partial<Record<TransactionKind, string>> = { lent: 'Lent', b
 function EditButton({ id }: { id: string }) {
   const actions = useTransactionActions();
   return (
-    <Button variant="plainText" size="sm" onPress={() => actions.edit(id)}>
+    <Button variant="barPrimary" size="sm" onPress={() => actions.edit(id)}>
       Edit
     </Button>
   );
@@ -49,7 +50,7 @@ export default function TransactionDetail() {
   }, [item, router]);
 
   const itemId = item?.id;
-  const headerOptions = React.useMemo(() => ({ title: '', headerRight: () => (itemId ? <EditButton id={itemId} /> : null) }), [itemId]);
+  const headerOptions = React.useMemo(() => ({ title: '', ...barRight(itemId ? <EditButton id={itemId} /> : null) }), [itemId]);
 
   if (!item) return <View className="flex-1 bg-bg" />;
 

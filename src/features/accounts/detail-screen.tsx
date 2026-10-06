@@ -5,6 +5,7 @@ import { Platform, View } from 'react-native';
 import { Amount } from '@/components/app/amount';
 import { EmptyState } from '@/components/app/empty-state';
 import { OptionPicker, type Option } from '@/components/app/option-picker';
+import { barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAccounts, usePeriodTransactions, useSetting, useTodayKey } from '@/data/hooks';
@@ -94,8 +95,8 @@ export default function AccountDetailScreen() {
       <Stack.Screen
         options={{
           title: account.name,
-          headerRight: () => (
-            <Button variant="plainText" size="sm" onPress={() => router.push({ pathname: '/accounts/[id]/edit', params: { id: account.id } })} accessibilityLabel="Edit">
+          ...barRight(
+            <Button variant="barPrimary" size="sm" onPress={() => router.push({ pathname: '/accounts/[id]/edit', params: { id: account.id } })} accessibilityLabel="Edit">
               <Text variant="body">Edit</Text>
             </Button>
           ),

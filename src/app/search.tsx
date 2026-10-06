@@ -84,7 +84,7 @@ export default function Search() {
             className="h-10 flex-1 text-[17px] text-foreground"
           />
         </View>
-        <Button variant="plainText" size="sm" onPress={() => router.back()}>
+        <Button variant="barSecondary" size="sm" onPress={() => router.back()}>
           Cancel
         </Button>
       </View>

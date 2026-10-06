@@ -9,10 +9,14 @@ export interface HomeSpendPoint {
   actual: number | null;
   /** Cumulative spend last period at the same day. */
   pace: number;
+  /** Cumulative income this period in minor units; null after today. */
+  income: number | null;
 }
 
 export interface HomeSpend {
   currency: string;
+  /** First day of the period; series entry i is this plus i days. */
+  from: string;
   spent: number;
   earned: number;
   /** Last period's spend up to the same day-of-period. */
@@ -48,12 +52,18 @@ export function buildHomeSpend(
   current: readonly number[],
   previous: readonly number[],
   dayIndex: number,
+  income: readonly number[] = [],
 ): { series: HomeSpendPoint[]; spent: number; previousSameDay: number; deltaPercent: number | null; perDay: number } {
   const now = cumulative(current);
   const before = cumulative(previous);
   const last = (list: readonly number[], i: number) => (list.length === 0 ? 0 : (list[Math.min(i, list.length - 1)] ?? 0));
   const today = Math.min(Math.max(dayIndex, 0), Math.max(current.length - 1, 0));
-  const series = current.map((_, i) => ({ actual: i <= today ? (now[i] ?? 0) : null, pace: last(before, i) }));
+  const earnedNow = cumulative(current.map((_, i) => income[i] ?? 0));
+  const series = current.map((_, i) => ({
+    actual: i <= today ? (now[i] ?? 0) : null,
+    pace: last(before, i),
+    income: i <= today ? (earnedNow[i] ?? 0) : null,
+  }));
   const spent = now[today] ?? 0;
   const previousSameDay = last(before, today);
   return { series, spent, previousSameDay, deltaPercent: percentChange(spent, previousSameDay), perDay: perDayAverage(spent, today + 1) };
@@ -64,10 +74,12 @@ export function readHomeSpend(db: Db, period: Period, todayKey: string): HomeSpe
   const previous = previousPeriod(period);
   const lines: FlatLine[] = spendLines(db, { from: previous.from, to: period.to });
   const amounts = (p: Period) => buildSeries(lines, 'expense', p, ctx, { granularity: 'day' }).map((x) => x.amount);
+  const incomeDaily = buildSeries(lines, 'income', period, ctx, { granularity: 'day' }).map((x) => x.amount);
   const dayIndex = Math.max(diffDays(period.from, todayKey), 0);
-  const core = buildHomeSpend(amounts(period), amounts(previous), dayIndex);
+  const core = buildHomeSpend(amounts(period), amounts(previous), dayIndex, incomeDaily);
   return {
     currency: ctx.displayCurrency,
+    from: period.from,
     earned: sumLines(lines, 'income', period, ctx),
     dayIndex,
     ...core,

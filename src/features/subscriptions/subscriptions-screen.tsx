@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { Amount } from '@/components/app/amount';
 import { EmptyState } from '@/components/app/empty-state';
-import { HeaderButton } from '@/components/app/header-button';
+import { HeaderButton, barRight } from '@/components/app/header-button';
 import { IconTile } from '@/components/app/icon-tile';
 import { SectionHeader } from '@/components/app/section-header';
 import { Card } from '@/components/ui/card';
@@ -34,7 +34,7 @@ export function SubscriptionsScreen() {
   );
 
   const add = () => router.push({ pathname: '/transaction/new', params: { kind: 'expense' } });
-  const header = <Stack.Screen options={{ title: 'Subscriptions', headerRight: () => <HeaderButton symbol="plus" label="Add subscription" onPress={add} /> }} />;
+  const header = <Stack.Screen options={{ title: 'Subscriptions', ...barRight(<HeaderButton symbol="plus" label="Add subscription" onPress={add} />) }} />;
 
   if (items.length === 0) {
     return (

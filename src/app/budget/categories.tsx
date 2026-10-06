@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 
+import { SheetScroll } from '@/components/app/sheet-scroll';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useCategories } from '@/data/hooks';
@@ -27,23 +28,27 @@ export default function BudgetCategorySheet() {
   };
 
   return (
-    <View className="flex-1 bg-bg pt-2">
-      <View className="h-12 flex-row items-center px-2">
-        <View className="w-20" />
-        <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
-          Categories
-        </Text>
-        <View className="w-20 items-end">
-          <Button variant="plainText" size="sm" onPress={done} accessibilityLabel="Done">
-            <Text variant="body" className="font-semibold">
-              Done
+    <SheetScroll
+      header={
+        <>
+          <View className="h-12 flex-row items-center px-2">
+            <View className="w-20" />
+            <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
+              Categories
             </Text>
-          </Button>
-        </View>
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-8">
-        <CategoryGrid categories={categories} selected={selected} onToggle={toggle} />
-      </ScrollView>
-    </View>
+            <View className="w-20 items-end">
+              <Button variant="barPrimary" size="sm" onPress={done} accessibilityLabel="Done">
+                <Text variant="body" className="font-semibold">
+                  Done
+                </Text>
+              </Button>
+            </View>
+          </View>
+        </>
+      }
+      bodyClassName="pb-8"
+    >
+      <CategoryGrid categories={categories} selected={selected} onToggle={toggle} />
+    </SheetScroll>
   );
 }

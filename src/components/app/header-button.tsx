@@ -1,3 +1,5 @@
+import type { NativeStackNavigationOptions } from 'expo-router';
+import type * as React from 'react';
 import { View } from 'react-native';
 
 import { AppIcon } from '@/icons/app-icon';
@@ -38,3 +40,18 @@ function HeaderButton({ symbol, label, onPress }: HeaderButtonProps) {
 
 export { HeaderButton };
 export type { HeaderButtonProps };
+
+/**
+ * iOS 26 wraps every bar item in a shared Liquid Glass capsule, which turns a text button into a grey
+ * pill. Custom items with `hidesSharedBackground` render bare, so plain text and our own circles stay as drawn.
+ * Spread the result into screen options in place of `headerLeft` / `headerRight`.
+ */
+function barLeft(element: React.ReactElement): Pick<NativeStackNavigationOptions, 'headerLeft' | 'unstable_headerLeftItems'> {
+  // `headerLeft` serves web and Android; on iOS the items below take over.
+  return { headerLeft: () => element, unstable_headerLeftItems: () => [{ type: 'custom', element, hidesSharedBackground: true }] };
+}
+function barRight(element: React.ReactElement | null): Pick<NativeStackNavigationOptions, 'headerRight' | 'unstable_headerRightItems'> {
+  return { headerRight: () => element, unstable_headerRightItems: () => (element ? [{ type: 'custom', element, hidesSharedBackground: true }] : []) };
+}
+
+export { barLeft, barRight };

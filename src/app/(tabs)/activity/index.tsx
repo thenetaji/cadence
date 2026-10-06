@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { HeaderButton } from '@/components/app/header-button';
+import { barLeft, barRight, HeaderButton } from '@/components/app/header-button';
 import { CalendarView } from '@/features/calendar/calendar-view';
 import { monthOf, shiftMonth } from '@/features/calendar/grid';
 
@@ -13,13 +13,13 @@ import { SummaryStrip } from '@/components/app/summary-strip';
 import { usePeriodTransactions, useSetting, useTodayKey } from '@/data/hooks';
 import { FilterChips } from '@/features/activity/filter-chips';
 import { activeFilterCount, useActiveFilterCount, useActivityFilters } from '@/features/activity/filter-store';
+import { MonthlyCard } from '@/features/activity-chart/monthly-card';
 import { MonthPill } from '@/features/activity/month-pill';
 import { sumItems } from '@/features/transactions/day-groups';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { monthName, monthShort, parseKey, periodLabel, recentMonthPeriods, type Period } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
-import { FocusFx } from '@/motion/focus-fx';
 import { haptic } from '@/theme/haptics';
 
 const ALL = 'all';
@@ -124,8 +124,8 @@ export default function Activity() {
   const filterCount = useActiveFilterCount();
   const headerOptions = React.useMemo(
     () => ({
-      headerLeft: () => <MonthPill label={calendar ? calLabel : label} onPress={() => setPicking(true)} onLongPress={jumpToNow} />,
-      headerRight: () => (
+      ...barLeft(<MonthPill label={calendar ? calLabel : label} onPress={() => setPicking(true)} onLongPress={jumpToNow} />),
+      ...barRight(
         <View className="flex-row items-center">
           <HeaderButton symbol={calendar ? 'activity' : 'calendar'} label={calendar ? 'List' : 'Calendar'} onPress={() => setCalendar((v) => !v)} />
           {calendar ? null : (
@@ -144,6 +144,12 @@ export default function Activity() {
 
   const header = (
     <View className="gap-3 pb-1 pt-2">
+      <MonthlyCard
+        months={months}
+        viewedFrom={allTime ? null : (month?.from ?? null)}
+        onPick={(picked) => setChoice(picked.from === months[0]?.from ? null : picked.from)}
+        locale={money.locale}
+      />
       <FilterChips />
       {items.length > 0 && !transferOnly && summary.length > 0 ? (
         <View className="px-4">
@@ -164,7 +170,7 @@ export default function Activity() {
   );
 
   return (
-    <FocusFx className="flex-1 bg-bg">
+    <View className="flex-1 bg-bg">
       <Stack.Screen options={headerOptions} />
       {calendar ? (
         <CalendarView month={shownMonth} selected={calendarDay} onSelect={setCalDay} onStep={stepMonth} />
@@ -196,6 +202,6 @@ export default function Activity() {
         }}
         onClose={() => setPicking(false)}
       />
-    </FocusFx>
+    </View>
   );
 }

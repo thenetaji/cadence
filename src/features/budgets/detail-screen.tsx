@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { EmptyState } from '@/components/app/empty-state';
 import { PaceChart, paceLabel } from '@/components/charts/pace-chart';
+import { barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
@@ -120,8 +121,8 @@ export default function BudgetDetailScreen() {
       <Stack.Screen
         options={{
           title: view.name,
-          headerRight: () => (
-            <Button variant="plainText" size="sm" onPress={() => router.push({ pathname: '/budget/[id]/edit', params: { id: budget.id } })} accessibilityLabel="Edit">
+          ...barRight(
+            <Button variant="barPrimary" size="sm" onPress={() => router.push({ pathname: '/budget/[id]/edit', params: { id: budget.id } })} accessibilityLabel="Edit">
               <Text variant="body">Edit</Text>
             </Button>
           ),

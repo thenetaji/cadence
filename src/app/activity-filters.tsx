@@ -1,11 +1,11 @@
 import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, View } from 'react-native';
 
 import { Chip } from '@/components/app/chip';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { AppIcon } from '@/icons/app-icon';
+import { barLeft, barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAccounts, useCategories, usePeriodTransactions } from '@/data/hooks';
@@ -27,8 +27,6 @@ function Check() {
 
 export default function ActivityFilters() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const { colors } = useTokens();
   const kinds = useActivityFilters((s) => s.kinds);
   const categoryId = useActivityFilters((s) => s.categoryId);
   const accountId = useActivityFilters((s) => s.accountId);
@@ -50,79 +48,86 @@ export default function ActivityFilters() {
 
   const headerOptions = React.useMemo(
     () => ({
-      headerLeft: () => (
-        <Button variant="plainText" size="sm" disabled={!active} onPress={clear}>
+      ...barLeft(
+        <Button variant="barSecondary" size="sm" disabled={!active} onPress={clear}>
           Reset
-        </Button>
+        </Button>,
       ),
-      headerRight: () => (
-        <Button variant="plainText" size="sm" onPress={() => router.back()}>
+      ...barRight(
+        <Button variant="barPrimary" size="sm" onPress={() => router.back()}>
           Done
-        </Button>
+        </Button>,
       ),
     }),
     [active, clear, router],
   );
 
   return (
-    <View className="flex-1 bg-bg">
+    // The scroll view is the sheet's only root (see SheetScroll): no sibling footer, so the sheet can resize freely.
+    <ScrollView
+      className="flex-1 bg-bg"
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerClassName="gap-6 pb-10 pt-2"
+      showsVerticalScrollIndicator={false}
+    >
       <Stack.Screen options={headerOptions} />
-      <ScrollView className="flex-1" contentContainerClassName="gap-6 pb-6 pt-2" showsVerticalScrollIndicator={false}>
-        <View className="px-4">
-          <Text variant="footnote" tone="secondary" className="px-4 pb-2" accessibilityRole="header">
-            Type
-          </Text>
-          <View className="flex-row gap-2 px-4">
-            {KINDS.map(({ kind, label }) => (
-              <Chip
-                key={kind}
-                label={label}
-                selected={kinds.includes(kind)}
-                onPress={() => {
-                  haptic('selection');
-                  toggleKind(kind);
-                }}
-              />
-            ))}
-          </View>
+      <View className="px-4">
+        <Text variant="footnote" tone="secondary" className="px-4 pb-2" accessibilityRole="header">
+          Type
+        </Text>
+        <View className="flex-row gap-2 px-4">
+          {KINDS.map(({ kind, label }) => (
+            <Chip
+              key={kind}
+              label={label}
+              selected={kinds.includes(kind)}
+              onPress={() => {
+                haptic('selection');
+                toggleKind(kind);
+              }}
+            />
+          ))}
         </View>
-        <ListGroup header="Category">
-          {categories.map((category) => (
-            <ListRow
-              key={category.id}
-              label={category.name}
-              icon={{ name: category.icon, color: category.color as CategoryColorKey }}
-              trailing={categoryId === category.id ? <Check /> : undefined}
-              onPress={() => {
-                haptic('selection');
-                setCategory(categoryId === category.id ? null : category.id);
-              }}
-            />
-          ))}
-        </ListGroup>
-        <ListGroup header="Account">
-          {accounts.map((account) => (
-            <ListRow
-              key={account.id}
-              label={account.name}
-              icon={{ name: account.icon, color: account.color as CategoryColorKey }}
-              trailing={accountId === account.id ? <Check /> : undefined}
-              onPress={() => {
-                haptic('selection');
-                setAccount(accountId === account.id ? null : account.id);
-              }}
-            />
-          ))}
-        </ListGroup>
-      </ScrollView>
-      <View
-        className="bg-bg px-4 pt-3"
-        style={{ paddingBottom: Math.max(insets.bottom, 16), borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.separator }}
-      >
+      </View>
+      <ListGroup header="Category">
+        {categories.map((category) => (
+          <ListRow
+            key={category.id}
+            label={category.name}
+            icon={{
+              name: category.icon,
+              color: category.color as CategoryColorKey,
+            }}
+            trailing={categoryId === category.id ? <Check /> : undefined}
+            onPress={() => {
+              haptic('selection');
+              setCategory(categoryId === category.id ? null : category.id);
+            }}
+          />
+        ))}
+      </ListGroup>
+      <ListGroup header="Account">
+        {accounts.map((account) => (
+          <ListRow
+            key={account.id}
+            label={account.name}
+            icon={{
+              name: account.icon,
+              color: account.color as CategoryColorKey,
+            }}
+            trailing={accountId === account.id ? <Check /> : undefined}
+            onPress={() => {
+              haptic('selection');
+              setAccount(accountId === account.id ? null : account.id);
+            }}
+          />
+        ))}
+      </ListGroup>
+      <View className="px-4">
         <Button size="lg" onPress={() => router.back()} accessibilityLabel={`Show ${matches} transactions`}>
           {`Show ${matches} ${matches === 1 ? 'transaction' : 'transactions'}`}
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 }

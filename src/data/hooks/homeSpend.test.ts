@@ -35,6 +35,11 @@ describe('home spend maths', () => {
     expect(out.perDay).toBe(10);
   });
 
+  it('accumulates income alongside spend and blanks it after today', () => {
+    const out = buildHomeSpend([10, 0, 20, 0], [], 2, [0, 500, 0, 900]);
+    expect(out.series.map((p) => p.income)).toEqual([0, 500, 500, null]);
+  });
+
   it('clamps pace when last month was shorter', () => {
     const out = buildHomeSpend([1, 1, 1, 1], [2, 2], 3);
     expect(out.series.map((p) => p.pace)).toEqual([2, 4, 4, 4]);

@@ -2,7 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { HeaderButton } from '@/components/app/header-button';
+import { HeaderButton, barRight } from '@/components/app/header-button';
 import { OptionPicker } from '@/components/app/option-picker';
 import { showToast } from '@/components/app/toast-store';
 import { Button } from '@/components/ui/button';
@@ -87,9 +87,9 @@ export function CategoriesScreen() {
       <Stack.Screen
         options={{
           title: 'Categories',
-          headerRight: () => (
+          ...barRight(
             <View className="flex-row items-center">
-              <Button variant="plainText" size="sm" onPress={() => setEditing((v) => !v)} accessibilityLabel={editing ? 'Done' : 'Edit'}>
+              <Button variant="barPrimary" size="sm" onPress={() => setEditing((v) => !v)} accessibilityLabel={editing ? 'Done' : 'Edit'}>
                 <Text variant={editing ? 'headline' : 'body'}>{editing ? 'Done' : 'Edit'}</Text>
               </Button>
               <HeaderButton symbol="plus" label="Add category" onPress={add} />

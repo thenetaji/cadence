@@ -1,0 +1,18 @@
+import type { Period } from '@/lib/dates';
+import { useLiveData } from '../use-live-data';
+import { readCashFlow, readMonthlyTotals, type CashFlowData, type MonthlyTotalsData } from './cashFlow';
+
+export type { CashFlowData, MonthlyTotalsData } from './cashFlow';
+
+const TABLES = ['transactions', 'transaction_splits', 'fx_rates', 'settings'] as const;
+
+/** Income and spending per day or month for the selected period (Insights "Cash flow"). */
+export function useCashFlow(period: Period): CashFlowData {
+  return useLiveData([...TABLES], `${period.type}:${period.from}:${period.to}`, (db) => readCashFlow(db, period));
+}
+
+/** Income and spending for each month in `periods` (Activity month chart), oldest first. */
+export function useMonthlyTotals(periods: readonly Period[]): MonthlyTotalsData {
+  const key = periods.map((p) => p.from).join(',');
+  return useLiveData([...TABLES], `monthly:${key}`, (db) => readMonthlyTotals(db, periods));
+}

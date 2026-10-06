@@ -18,7 +18,7 @@ export function RestoreSheet({ summary, busy, onConfirm, onClose }: RestoreSheet
         <View className="flex-1 bg-bg">
           <View className="h-14 flex-row items-center justify-between px-4">
             <View className="w-16 items-start">
-              <Button variant="plainText" size="sm" onPress={onClose} disabled={busy}>
+              <Button variant="barSecondary" size="sm" onPress={onClose} disabled={busy}>
                 Cancel
               </Button>
             </View>

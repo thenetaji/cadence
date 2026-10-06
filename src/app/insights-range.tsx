@@ -3,6 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
+import { barLeft, barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useRangeStore } from '@/features/insights/range-store';
@@ -51,13 +52,13 @@ export default function InsightsRange() {
     <View className="flex-1 bg-bg pt-4">
       <Stack.Screen
         options={{
-          headerLeft: () => (
-            <Button variant="plainText" size="sm" onPress={dismiss}>
+          ...barLeft(
+            <Button variant="barSecondary" size="sm" onPress={dismiss}>
               Cancel
             </Button>
           ),
-          headerRight: () => (
-            <Button variant="plainText" size="sm" onPress={apply}>
+          ...barRight(
+            <Button variant="barPrimary" size="sm" onPress={apply}>
               Done
             </Button>
           ),

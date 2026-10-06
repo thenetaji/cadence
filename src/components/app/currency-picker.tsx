@@ -44,7 +44,7 @@ function CurrencyPicker({ visible, selected, onSelect, onClose }: CurrencyPicker
               Currency
             </Text>
             <View className="w-16 items-end">
-              <Button variant="plainText" size="sm" onPress={close}>
+              <Button variant="barPrimary" size="sm" onPress={close}>
                 Done
               </Button>
             </View>

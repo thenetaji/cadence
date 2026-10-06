@@ -1,8 +1,10 @@
+import { usePathname } from 'expo-router';
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import { enteringFor } from './entering';
+import { claimEntrance } from './session';
 import type { StaggerOptions } from './timing';
 
 type StaggerProps = StaggerOptions & {
@@ -19,7 +21,8 @@ type StaggerProps = StaggerOptions & {
  */
 function Stagger({ index, step, cap, base, children, style, className }: StaggerProps) {
   // Computed once: a re-render must never hand Reanimated a new `entering`.
-  const [entering] = React.useState(() => enteringFor(index, { step, cap, base }));
+  const pathname = usePathname();
+  const [entering] = React.useState(() => (claimEntrance(`${pathname}#${index}`) ? enteringFor(index, { step, cap, base }) : undefined));
   return (
     <Animated.View entering={entering} style={style} className={className}>
       {children}

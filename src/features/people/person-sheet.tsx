@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AppIcon } from '@/icons/app-icon';
+import { SheetScroll } from '@/components/app/sheet-scroll';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
@@ -23,7 +24,14 @@ const MAX_RECENT = 4;
 function PersonRowView({ person, selected, onPress, last }: { person: PersonRow; selected: boolean; onPress: () => void; last: boolean }) {
   const { colors } = useTokens();
   return (
-    <Pressable role="button" accessibilityLabel={person.name} accessibilityState={{ selected }} scale={1} onPress={onPress} className="min-h-[56px] flex-row items-center gap-3 bg-surface px-4 active:bg-fill">
+    <Pressable
+      role="button"
+      accessibilityLabel={person.name}
+      accessibilityState={{ selected }}
+      scale={1}
+      onPress={onPress}
+      className="min-h-[56px] flex-row items-center gap-3 bg-surface px-4 active:bg-fill"
+    >
       <Avatar name={person.name} size={36} />
       <Text variant="body" numberOfLines={1} className="flex-1">
         {person.name}
@@ -48,7 +56,12 @@ export function PersonSheet() {
   const clean = query.trim().replace(/\s+/g, ' ');
   const lower = clean.toLowerCase();
   const matches = clean ? people.filter((p) => p.name.toLowerCase().includes(lower)) : people;
-  const recent = clean ? [] : [...people].filter((p) => (activity.get(p.id) ?? 0) > 0).sort((a, b) => (activity.get(b.id) ?? 0) - (activity.get(a.id) ?? 0)).slice(0, MAX_RECENT);
+  const recent = clean
+    ? []
+    : [...people]
+        .filter((p) => (activity.get(p.id) ?? 0) > 0)
+        .sort((a, b) => (activity.get(b.id) ?? 0) - (activity.get(a.id) ?? 0))
+        .slice(0, MAX_RECENT);
   const recentIds = new Set(recent.map((p) => p.id));
   const rest = matches.filter((p) => !recentIds.has(p.id));
   const canCreate = clean !== '' && !people.some((p) => p.name.toLowerCase() === lower);
@@ -57,7 +70,11 @@ export function PersonSheet() {
     haptic('selection');
     const s = useDraftStore.getState();
     const previous = people.find((p) => p.id === s.personId)?.name;
-    s.patch({ personId: person.id, title: titleAfterPerson(s.title, previous, person.name), appliedTitleNorm: null });
+    s.patch({
+      personId: person.id,
+      title: titleAfterPerson(s.title, previous, person.name),
+      appliedTitleNorm: null,
+    });
     router.back();
   };
 
@@ -87,46 +104,65 @@ export function PersonSheet() {
     );
 
   return (
-    <View className="flex-1 bg-bg pt-2">
-      <View className="h-12 flex-row items-center px-2">
-        <View className="w-20 items-start">
-          <Button variant="plainText" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
-            <Text variant="body">Cancel</Text>
-          </Button>
-        </View>
-        <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
-          Person
-        </Text>
-        <View className="w-20" />
-      </View>
-      <View className="px-4 pb-3 pt-1">
-        <Input
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search or add a name"
-          accessibilityLabel="Search people"
-          autoCapitalize="words"
-          autoCorrect={false}
-          returnKeyType="done"
-          onSubmitEditing={canCreate ? create : undefined}
-        />
-      </View>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-6 pb-10" showsVerticalScrollIndicator={false}>
-        {canCreate ? (
-          <View className="mx-4 overflow-hidden rounded-[18px] bg-surface" style={{ borderWidth: 1, borderColor: colors.border }}>
-            <Pressable role="button" accessibilityLabel={`New person ${clean}`} scale={1} onPress={create} className="min-h-[56px] flex-row items-center gap-3 bg-surface px-4 active:bg-fill">
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.accentSoft }} className="items-center justify-center">
-                <AppIcon name="add" size={16} color={colors.accentText} />
-              </View>
-              <Text variant="body" tone="accent" numberOfLines={1} className="flex-1">
-                New person “{clean}”
-              </Text>
-            </Pressable>
+    <SheetScroll
+      header={
+        <>
+          <View className="h-12 flex-row items-center px-2">
+            <View className="w-20 items-start">
+              <Button variant="barSecondary" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
+                <Text variant="body">Cancel</Text>
+              </Button>
+            </View>
+            <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
+              Person
+            </Text>
+            <View className="w-20" />
           </View>
-        ) : null}
-        {group('Recent', recent)}
-        {group(recent.length > 0 ? 'Everyone' : clean ? 'Matches' : 'People', rest)}
-      </ScrollView>
-    </View>
+          <View className="px-4 pb-3 pt-1">
+            <Input
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search or add a name"
+              accessibilityLabel="Search people"
+              autoCapitalize="words"
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={canCreate ? create : undefined}
+            />
+          </View>
+        </>
+      }
+      bodyClassName="gap-6 pb-10"
+      keyboardShouldPersistTaps="handled"
+    >
+      {canCreate ? (
+        <View className="mx-4 overflow-hidden rounded-[18px] bg-surface" style={{ borderWidth: 1, borderColor: colors.border }}>
+          <Pressable
+            role="button"
+            accessibilityLabel={`New person ${clean}`}
+            scale={1}
+            onPress={create}
+            className="min-h-[56px] flex-row items-center gap-3 bg-surface px-4 active:bg-fill"
+          >
+            <View
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 18,
+                backgroundColor: colors.accentSoft,
+              }}
+              className="items-center justify-center"
+            >
+              <AppIcon name="add" size={16} color={colors.accentText} />
+            </View>
+            <Text variant="body" tone="accent" numberOfLines={1} className="flex-1">
+              New person “{clean}”
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
+      {group('Recent', recent)}
+      {group(recent.length > 0 ? 'Everyone' : clean ? 'Matches' : 'People', rest)}
+    </SheetScroll>
   );
 }

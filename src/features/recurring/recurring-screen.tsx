@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { EmptyState } from '@/components/app/empty-state';
-import { HeaderButton } from '@/components/app/header-button';
+import { HeaderButton, barRight } from '@/components/app/header-button';
 import { SectionHeader } from '@/components/app/section-header';
 import { showToast } from '@/components/app/toast-store';
 import { TransactionRow } from '@/components/app/transaction-row';
@@ -53,7 +53,7 @@ export function RecurringScreen() {
   const header = (
     <Stack.Screen options={{
         title: 'Recurring',
-        headerRight: () => (
+        ...barRight(
           <View className="flex-row items-center">
             <HeaderButton symbol="chart.pie.fill" label="Subscriptions" onPress={() => router.push('/subscriptions')} />
             <HeaderButton symbol="plus" label="Add recurring transaction" onPress={add} />

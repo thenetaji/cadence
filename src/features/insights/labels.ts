@@ -1,5 +1,5 @@
 import { monthName, monthShort, parseKey, periodLength, previousPeriod, type Period } from '@/lib/dates';
-import { MINUS, formatMoney } from '@/lib/money';
+import { MINUS, formatMoney, minorDigits } from '@/lib/money';
 import { shortDay } from '@/lib/charts';
 import type { Delta, Granularity, SeriesPoint } from '@/lib/insights';
 
@@ -83,8 +83,20 @@ export function percentText(rate: number | null): string {
   return `${rate < 0 ? MINUS : ''}${Math.abs(rate)}%`;
 }
 
-/** "Sep · In ₹1.45L · Out ₹57.6K · Saved ₹87.4K". */
+/** "Sep · In ₹1.45L · Out ₹57.6K · Net ₹87.4K". */
 export function monthlyScrub(pair: { key: string; income: number; spent: number }, currency: string, locale?: string): string {
   const compact = (value: number) => formatMoney(value, currency, { compact: true, locale });
-  return `${monthShort(parseKey(pair.key).month)} · In ${compact(pair.income)} · Out ${compact(pair.spent)} · Saved ${compact(pair.income - pair.spent)}`;
+  return `${monthShort(parseKey(pair.key).month)} · In ${compact(pair.income)} · Out ${compact(pair.spent)} · Net ${compact(pair.income - pair.spent)}`;
+}
+
+/** Full amount below 10,000 major units, compact above, so scrub labels stay short. */
+export function flowAmount(minor: number, currency: string, locale?: string, sign: 'none' | 'auto' = 'none'): string {
+  const big = Math.abs(minor) >= 10_000 * 10 ** minorDigits(currency);
+  return formatMoney(minor, currency, { locale, sign, compact: big, decimals: big ? undefined : 0 });
+}
+
+/** "Tue 7 · In ₹0 · Out ₹1,240 · Net −₹1,240". */
+export function flowScrub(point: { key: string; income: number; spent: number }, granularity: Granularity, currency: string, locale?: string): string {
+  const when = granularity === 'day' ? shortDay(point.key) : monthShort(parseKey(point.key).month);
+  return `${when} · In ${flowAmount(point.income, currency, locale)} · Out ${flowAmount(point.spent, currency, locale)} · Net ${flowAmount(point.income - point.spent, currency, locale, 'auto')}`;
 }

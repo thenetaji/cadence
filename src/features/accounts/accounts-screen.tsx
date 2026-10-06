@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 
 import { Amount } from '@/components/app/amount';
 import { EmptyState } from '@/components/app/empty-state';
-import { HeaderButton } from '@/components/app/header-button';
+import { HeaderButton, barRight } from '@/components/app/header-button';
 import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -54,10 +54,10 @@ export function AccountsScreen() {
     <Stack.Screen
       options={{
         title: 'Accounts',
-        headerRight: () => (
+        ...barRight(
           <View className="flex-row items-center">
             {active.length > 1 ? (
-              <Button variant="plainText" size="sm" onPress={() => setEditing((v) => !v)} accessibilityLabel={editing ? 'Done' : 'Edit'}>
+              <Button variant="barPrimary" size="sm" onPress={() => setEditing((v) => !v)} accessibilityLabel={editing ? 'Done' : 'Edit'}>
                 <Text variant={editing ? 'headline' : 'body'}>{editing ? 'Done' : 'Edit'}</Text>
               </Button>
             ) : null}

@@ -8,7 +8,7 @@ import { useTokens } from '@/theme/use-tokens';
 
 type MonthPillProps = { label: string; onPress: () => void; /** Jumps back to the current month. */ onLongPress?: () => void };
 
-/** Leading header control: "Oct 2026 ⌄". */
+/** Leading header control: plain headline text with a chevron, like an iOS title menu: "Oct 2026 ⌄". No pill. */
 function MonthPill({ label, onPress, onLongPress }: MonthPillProps) {
   const { colors } = useTokens();
   return (
@@ -30,12 +30,12 @@ function MonthPill({ label, onPress, onLongPress }: MonthPillProps) {
           : undefined
       }
       style={Platform.OS === 'web' ? { marginLeft: 16 } : undefined}
-      className="h-8 flex-row items-center gap-1.5 rounded-full bg-accent-soft px-3"
+      className="h-9 flex-row items-center gap-1 px-2"
     >
-      <Text variant="callout" tone="accent" numeric numberOfLines={1}>
+      <Text variant="headline" numeric numberOfLines={1}>
         {label}
       </Text>
-      <AppIcon name="chevron.down" size={10} color={colors.accent} />
+      <AppIcon name="chevron.down" size={11} color={colors.textSecondary} />
     </Pressable>
   );
 }

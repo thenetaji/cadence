@@ -4,6 +4,7 @@
   {"name": "home", "path": "/?seed=demo"},
   {"name": "activity-empty", "path": "/activity?seed=empty"},
   {"name": "activity", "path": "/activity?seed=demo"},
+  {"name": "activity-chart", "path": "/activity?seed=demo"},
   {"name": "insights-empty", "path": "/insights?seed=empty", "waitFor": "Spent", "height": 1100},
   {"name": "insights", "path": "/insights?seed=demo", "waitFor": "Spent"},
   {"name": "insights-full", "path": "/insights?seed=demo&offset=-1", "waitFor": "Spent", "height": 1700},

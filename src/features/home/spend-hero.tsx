@@ -13,10 +13,13 @@ import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
-import type { SpendCurveProps } from './spend-curve';
+import type { CumulativeDuoProps } from '@/components/charts/cumulative-duo';
+import { addDays, monthShort, parseKey } from '@/lib/dates';
+
+import { FlowLegend } from './spend-legend';
 
 /** Skia loads lazily (CanvasKit first on web), keeping chart code out of the initial graph. */
-const SpendCurve = withSkia<SpendCurveProps>(() => import('./spend-curve').then((m) => ({ default: m.SpendCurve })));
+const CumulativeDuo = withSkia<CumulativeDuoProps>(() => import('@/components/charts/cumulative-duo').then((m) => ({ default: m.CumulativeDuo })));
 
 type SpendHeroProps = {
   spend: HomeSpend;
@@ -58,7 +61,17 @@ function SpendHero({ spend, monthLabel, previousLabel, startLabel, endLabel, loc
   const digits = split?.[2] ?? formatted;
   const pace = spend.previousSameDay > 0 ? `${previousLabel} pace · ${formatMoney(spend.previousSameDay, spend.currency, { locale, sign: 'none', decimals: 0 })} by now` : null;
   const hasDelta = spend.deltaPercent !== null && spend.deltaPercent !== 0;
-  const hasChart = spend.series.some((d) => (d.actual ?? 0) > 0 || d.pace > 0);
+  const hasChart = spend.series.some((d) => (d.actual ?? 0) > 0 || (d.income ?? 0) > 0);
+  const duo = React.useMemo(() => spend.series.map((d) => ({ in: d.income, out: d.actual })), [spend.series]);
+  const last = [...duo].reverse().find((d) => d.out !== null);
+  const moneyIn = last?.in ?? 0;
+  const moneyOut = last?.out ?? 0;
+  const compact = (value: number) => formatMoney(value, spend.currency, { locale, sign: 'none', compact: true });
+  const formatLabel = (index: number) => {
+    const day = parseKey(addDays(spend.from, index));
+    const point = duo[index];
+    return `${day.day} ${monthShort(day.month)} · In ${compact(point?.in ?? 0)} · Out ${compact(point?.out ?? 0)}`;
+  };
 
   return (
     <View className="mt-[22px]">
@@ -95,10 +108,15 @@ function SpendHero({ spend, monthLabel, previousLabel, startLabel, endLabel, loc
       ) : null}
       {hasChart ? (
         <>
-          <View className="mt-[18px]" style={{ height: 128 }} pointerEvents="none">
-            <SpendCurve series={spend.series} height={128} accessibilityLabel={`Cumulative spending in ${monthLabel} against ${previousLabel}`} />
+          <View className="mt-1.5">
+            <CumulativeDuo
+              series={duo}
+              height={150}
+              formatLabel={formatLabel}
+              accessibilityLabel={`Cash flow in ${monthLabel}: in ${formatMoneyForSpeech(moneyIn, spend.currency, { sign: 'none' })}, out ${formatMoneyForSpeech(moneyOut, spend.currency, { sign: 'none' })}`}
+            />
           </View>
-          <View className="mt-2 flex-row justify-between" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <View className="mt-1.5 flex-row justify-between" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             <Text variant="caption" tone="tertiary">
               {startLabel}
             </Text>
@@ -106,6 +124,7 @@ function SpendHero({ spend, monthLabel, previousLabel, startLabel, endLabel, loc
               {endLabel}
             </Text>
           </View>
+          <FlowLegend moneyIn={moneyIn} moneyOut={moneyOut} currency={spend.currency} locale={locale} />
         </>
       ) : null}
     </View>

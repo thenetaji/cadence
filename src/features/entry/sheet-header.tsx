@@ -1,6 +1,7 @@
 import type { NativeStackNavigationOptions } from 'expo-router';
 import * as React from 'react';
 
+import { barLeft, barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 
@@ -17,13 +18,13 @@ function sheetHeader({ title, onCancel, onSave, saveDisabled = false, saveLabel 
   return {
     title,
     headerShown: true,
-    headerLeft: () => (
-      <Button variant="plainText" size="sm" onPress={onCancel} accessibilityLabel="Cancel">
+    ...barLeft(
+      <Button variant="barSecondary" size="sm" onPress={onCancel} accessibilityLabel="Cancel">
         <Text variant="body">Cancel</Text>
       </Button>
     ),
-    headerRight: () => (
-      <Button variant="plainText" size="sm" disabled={saveDisabled} onPress={onSave} accessibilityLabel={saveLabel}>
+    ...barRight(
+      <Button variant="barPrimary" size="sm" disabled={saveDisabled} onPress={onSave} accessibilityLabel={saveLabel}>
         <Text variant="headline">{saveLabel}</Text>
       </Button>
     ),

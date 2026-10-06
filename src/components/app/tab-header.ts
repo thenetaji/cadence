@@ -20,5 +20,5 @@ export function headerChrome(colors: { bg: string; accent: string; text: string 
 
 export function useTabStackOptions(): NativeStackNavigationOptions {
   const { colors } = useTokens();
-  return { ...headerChrome(colors), headerLargeTitleEnabled: false };
+  return { ...headerChrome(colors), headerLargeTitleEnabled: false, contentStyle: { backgroundColor: colors.bg } };
 }

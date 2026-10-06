@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 
 import { Amount } from '@/components/app/amount';
 import { EmptyState } from '@/components/app/empty-state';
-import { HeaderButton } from '@/components/app/header-button';
+import { HeaderButton, barRight } from '@/components/app/header-button';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
@@ -34,7 +34,7 @@ export function PeopleScreen() {
   const lend = () => router.push({ pathname: '/transaction/new', params: { kind: 'lent' } });
 
   const header = (
-    <Stack.Screen options={{ title: 'People', headerRight: () => <HeaderButton symbol="plus" label="Lend money" onPress={lend} /> }} />
+    <Stack.Screen options={{ title: 'People', ...barRight(<HeaderButton symbol="plus" label="Lend money" onPress={lend} />) }} />
   );
 
   if (everyone.length === 0) {

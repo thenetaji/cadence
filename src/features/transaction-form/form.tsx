@@ -461,7 +461,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: Platform.OS === 'ios' ? 8 : 0 }}>
       <View className="h-12 flex-row items-center px-2">
-        <Button variant="plainText" size="sm" onPress={close} accessibilityLabel="Cancel">
+        <Button variant="barSecondary" size="sm" onPress={close} accessibilityLabel="Cancel">
           <Text variant="body">Cancel</Text>
         </Button>
         <Text variant="headline" accessibilityRole="header" numberOfLines={1} className="mx-2 min-w-0 flex-1 text-center">
@@ -481,7 +481,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
         ) : null}
         {/* Opacity goes on the label: Button's text-variant press animation pins the button's own opacity to 1, overriding `opacity-40`. */}
         <Button
-          variant="plainText"
+          variant="barPrimary"
           size="sm"
           disabled={isSaveDisabled(block)}
           onPress={submit}
@@ -807,7 +807,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
       {Platform.OS === 'ios' ? (
         <InputAccessoryView nativeID={ACCESSORY_ID}>
           <View className="h-11 flex-row items-center justify-end border-t border-border bg-surface px-2">
-            <Button variant="plainText" size="sm" onPress={showDone} accessibilityLabel="Done">
+            <Button variant="barPrimary" size="sm" onPress={showDone} accessibilityLabel="Done">
               <Text variant="headline">Done</Text>
             </Button>
           </View>

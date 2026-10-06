@@ -39,6 +39,7 @@ const subscribeProvider = (listener: () => void) => {
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+SplashScreen.setOptions({ duration: 200, fade: true });
 followWebColorScheme();
 
 export const unstable_settings = { anchor: '(tabs)' };
@@ -150,7 +151,7 @@ function Navigator() {
         <Stack.Screen name="accounts/[id]/edit" options={sheet('Edit account')} />
         <Stack.Screen name="search" options={sheet('Search')} />
         <Stack.Screen name="insights-range" options={sheet('Custom range')} />
-        <Stack.Screen name="activity-filters" options={{ ...sheet('Filters'), sheetAllowedDetents: [0.6, 1] }} />
+        <Stack.Screen name="activity-filters" options={{ ...sheet('Filters'), sheetAllowedDetents: [0.6, 1], sheetInitialDetentIndex: 0, sheetExpandsWhenScrolledToEdge: true }} />
         <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
       </Stack.Protected>
       <Stack.Screen name="dev/gallery" />

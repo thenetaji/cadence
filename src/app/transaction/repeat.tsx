@@ -55,7 +55,7 @@ export default function RepeatSheet() {
     <View className="flex-1 bg-bg pt-2">
       <View className="h-12 flex-row items-center px-2">
         <View className="w-20 items-start">
-          <Button variant="plainText" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
+          <Button variant="barSecondary" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
             <Text variant="body">Cancel</Text>
           </Button>
         </View>
@@ -63,7 +63,7 @@ export default function RepeatSheet() {
           Repeat
         </Text>
         <View className="w-20 items-end">
-          <Button variant="plainText" size="sm" onPress={done} accessibilityLabel="Done">
+          <Button variant="barPrimary" size="sm" onPress={done} accessibilityLabel="Done">
             <Text variant="headline">Done</Text>
           </Button>
         </View>

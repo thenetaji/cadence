@@ -14,4 +14,3 @@ export { motion } from './tokens';
 export { useAnimatedTextColor } from './use-animated-color';
 export { CountUp } from './count-up';
 export { Pop, usePopValue } from './pop';
-export { FocusFx } from './focus-fx';

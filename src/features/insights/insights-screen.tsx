@@ -11,16 +11,16 @@ import { Donut } from '@/components/charts/donut';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
+import { useCashFlow, useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
 import { axisLabels } from '@/lib/charts';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@/lib/dates';
-import { FocusFx } from '@/motion/focus-fx';
 import { Stagger } from '@/motion/stagger';
 import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 
+import { CashFlowCard } from './cash-flow-card';
 import { CategoryList, type CategoryListItem } from './category-list';
 import { barsTitle, deltaLine, scrubLabel } from './labels';
 import { KindMenu } from './kind-menu';
@@ -49,6 +49,7 @@ export default function InsightsScreen() {
 
   const period = periodOf(view, periodSettings);
   const insights = useInsights(period, view.kind, today);
+  const cashFlow = useCashFlow(period);
   const extras = useInsightsExtras(period, view.kind, periodSettings, today);
   const { currency } = insights;
   const fmt = React.useMemo(() => ({ currency, locale: money.locale, showDecimals: money.showDecimals, scheme }), [currency, money.locale, money.showDecimals, scheme]);
@@ -145,7 +146,7 @@ export default function InsightsScreen() {
   const days = diffDays(period.from, period.to) + 1;
 
   return (
-    <FocusFx className="flex-1 bg-bg">
+    <View className="flex-1 bg-bg">
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         <PeriodControls
           type={view.type}
@@ -192,7 +193,12 @@ export default function InsightsScreen() {
                   <StatsGrid extras={extras} currency={currency} locale={money.locale} />
                 </Stagger>
               ) : null}
-              <Stagger index={2}>
+              {cashFlow.totalIn > 0 || cashFlow.totalOut > 0 ? (
+                <Stagger index={2}>
+                  <CashFlowCard flow={cashFlow} locale={money.locale} />
+                </Stagger>
+              ) : null}
+              <Stagger index={3} className={cashFlow.totalIn > 0 || cashFlow.totalOut > 0 ? 'pt-4' : undefined}>
               <Card className="mx-4 items-center p-3">
                 <Donut
                   data={donut}
@@ -254,7 +260,7 @@ export default function InsightsScreen() {
           ) : null}
         </Animated.View>
       </ScrollView>
-    </FocusFx>
+    </View>
   );
 }
 

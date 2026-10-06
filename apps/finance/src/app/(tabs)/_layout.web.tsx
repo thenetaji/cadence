@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { useTokens } from '@studio/theme';
 
 const tabs = [

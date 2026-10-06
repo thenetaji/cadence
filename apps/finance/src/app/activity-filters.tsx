@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 
 import { Chip } from '@/components/app/chip';
 import { ListGroup, ListRow } from '@/components/app/list-group';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { barLeft, barRight } from '@/components/app/header-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';

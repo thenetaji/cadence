@@ -6,7 +6,7 @@ import { type LayoutChangeEvent } from 'react-native';
 
 import { clampLabelX } from '@/lib/charts';
 import { haptic , durations , useTokens } from '@studio/theme';
-import { motion } from '@/motion/tokens';
+import { motion } from '@studio/motion';
 
 /** Width of the container, measured once laid out. */
 export function useChartWidth(): readonly [number, (event: LayoutChangeEvent) => void] {

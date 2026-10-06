@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { useSetting } from '@/data/hooks';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 
 /** Face ID lock and the Hide amounts switch. */
 export function PrivacyScreen() {

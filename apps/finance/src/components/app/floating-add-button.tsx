@@ -1,6 +1,6 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { pressScale, shadows , useTokens } from '@studio/theme';
@@ -9,15 +9,17 @@ type FloatingAddButtonProps = {
   onPress: () => void;
   onLongPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  /** Screen-reader label; apps say what is being added. */
+  accessibilityLabel?: string;
 };
 
 /** Extended pill: plus and "Add". */
-function FloatingAddButton({ onPress, onLongPress, style }: FloatingAddButtonProps) {
+function FloatingAddButton({ onPress, onLongPress, style, accessibilityLabel = 'Add' }: FloatingAddButtonProps) {
   const { colors } = useTokens();
   return (
     <Pressable
       role="button"
-      accessibilityLabel="Add transaction"
+      accessibilityLabel={accessibilityLabel}
       haptic="light"
       scale={pressScale.fab}
       holdScale={1.07}

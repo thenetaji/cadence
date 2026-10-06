@@ -13,7 +13,7 @@ import { Text } from '@/components/ui/text';
 import { useCategories, useSubscriptions, useTodayKey } from '@/data/hooks';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { useTokens } from '@studio/theme';
 import type { CategoryColorKey } from '@studio/theme';
 

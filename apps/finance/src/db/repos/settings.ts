@@ -2,12 +2,12 @@ import { eq } from 'drizzle-orm';
 import { settings } from '../schema';
 import type { Db } from '../types';
 
-export type IconStyle = 'phosphor-duotone' | 'phosphor-fill' | 'hugeicons' | 'solar' | 'lucide' | 'sf';
-export type IconBackground = 'graphite-glyph' | 'graphite-accent' | 'glass-glow' | 'glass-ice' | 'tonal' | 'glyph-only';
+import { ICON_BACKGROUNDS, ICON_STYLES, type IconBackground, type IconStyle } from '@studio/icons';
+
+export { ICON_BACKGROUNDS, ICON_STYLES };
+export type { IconBackground, IconStyle };
 export type SyncProviderId = 'none' | 'icloud' | 'gdrive';
 
-export const ICON_STYLES: readonly IconStyle[] = ['phosphor-duotone', 'phosphor-fill', 'hugeicons', 'solar', 'lucide', 'sf'];
-export const ICON_BACKGROUNDS: readonly IconBackground[] = ['graphite-glyph', 'graphite-accent', 'glass-glow', 'glass-ice', 'tonal', 'glyph-only'];
 export const SYNC_PROVIDER_IDS: readonly SyncProviderId[] = ['none', 'icloud', 'gdrive'];
 
 export interface SettingsMap {

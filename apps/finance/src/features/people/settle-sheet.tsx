@@ -14,7 +14,7 @@ import { MenuChip } from '@/features/transaction-form/menu-chip';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@studio/money';
 import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@studio/money';
-import { Shimmer } from '@/motion/shimmer';
+import { Shimmer } from '@studio/motion';
 import { haptic } from '@studio/theme';
 
 import { Avatar } from './avatar';

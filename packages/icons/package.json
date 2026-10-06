@@ -1,0 +1,28 @@
+{
+  "name": "@studio/icons",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Icon registry, styles, tile treatments and the AppIcon renderer (SVG packs and SF Symbols).",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@expo/vector-icons": "*",
+    "expo-symbols": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-svg": "*",
+    "zustand": "*"
+  },
+  "devDependencies": {
+    "@studio/config": "workspace:*"
+  }
+}

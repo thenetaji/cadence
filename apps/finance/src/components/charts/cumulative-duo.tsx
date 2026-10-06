@@ -6,7 +6,7 @@ import { Easing, useDerivedValue, useReducedMotion, useSharedValue, withDelay, w
 
 import { duoGeometry, gapSegments, sampleSmooth, type DuoPoint, type Pt } from '@/lib/charts';
 import { monotoneSegments } from '@/lib/charts/smooth';
-import { buildPolyPath, pointAt } from '@/motion/path-point';
+import { buildPolyPath, pointAt } from '@studio/motion';
 import { withAlpha , useTokens } from '@studio/theme';
 import { adjustableProps, FloatingLabel, useChartWidth, useScrubGesture } from './chart-kit';
 import { useChartFont } from './use-chart-font';

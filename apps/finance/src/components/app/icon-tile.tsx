@@ -1,11 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
-import { clear } from '@/icons/color';
-import { gradientStyle } from '@/icons/gradient';
-import { useIconPrefs } from '@/icons/prefs';
-import { tileRadius, tileSpec } from '@/icons/tile-styles';
-import type { IconBackground, IconStyle } from '@/icons/types';
+import { AppIcon , clear , gradientStyle , useIconPrefs , tileRadius, tileSpec } from '@studio/icons';
+import type { IconBackground, IconStyle } from '@studio/icons';
 import type { CategoryColorKey } from '@studio/theme';
 import { useTokens } from '@studio/theme';
 

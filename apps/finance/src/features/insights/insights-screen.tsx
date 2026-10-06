@@ -14,7 +14,7 @@ import { Text } from '@/components/ui/text';
 import { useCashFlow, useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
 import { axisLabels } from '@/lib/charts';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@studio/dates';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { haptic , useTokens } from '@studio/theme';

@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text, type TextTone } from '@/components/ui/text';
-import { AnimatedNumber } from '@/motion/animated-number';
+import { AnimatedNumber } from '@/components/app/animated-number';
 import { useTokens } from '@studio/theme';
 
 type StatProps = { label: string; value: string; tone?: TextTone; divider?: boolean; onPress?: () => void };

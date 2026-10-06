@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { IconTile } from '@/components/app/icon-tile';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';

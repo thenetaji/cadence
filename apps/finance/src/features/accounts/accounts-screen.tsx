@@ -5,7 +5,7 @@ import { ScrollView, View } from 'react-native';
 import { Amount } from '@/components/app/amount';
 import { EmptyState } from '@/components/app/empty-state';
 import { HeaderButton, barRight } from '@/components/app/header-button';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';

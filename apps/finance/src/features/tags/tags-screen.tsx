@@ -10,10 +10,10 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import { useSettings, useTagTotals, useTodayKey } from '@/data/hooks';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { ALL_DATES, periodFor, periodLabel } from '@studio/dates';
 import { formatMoney } from '@studio/money';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { pressScale , useTokens } from '@studio/theme';
 
 import { tagColorKey } from './model';

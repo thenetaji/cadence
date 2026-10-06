@@ -35,7 +35,7 @@ function AddFab() {
   return (
     <SafeAreaView edges={['bottom']} pointerEvents="box-none" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, justifyContent: 'flex-end' }}>
       <View pointerEvents="box-none" style={{ alignItems: 'flex-end', padding: 16 }}>
-        <FloatingAddButton onPress={() => router.push('/transaction/new')} onLongPress={showMenu} />
+        <FloatingAddButton accessibilityLabel="Add transaction" onPress={() => router.push('/transaction/new')} onLongPress={showMenu} />
       </View>
     </SafeAreaView>
   );

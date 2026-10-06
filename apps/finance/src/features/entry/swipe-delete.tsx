@@ -2,7 +2,7 @@ import * as React from 'react';
 import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { haptic , useTokens } from '@studio/theme';

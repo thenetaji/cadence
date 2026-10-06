@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { UndoToast } from '@/components/app/undo-toast';
 import { haptic } from '@studio/theme';
 import { useToastStore } from '@/components/app/toast-store';
-import { motion } from '@/motion/tokens';
+import { motion } from '@studio/motion';
 
 /** Spring up from the bottom with a slight overshoot. */
 const toastEntering = FadeInDown.springify()

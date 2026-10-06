@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { SheetScroll } from '@/components/app/sheet-scroll';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

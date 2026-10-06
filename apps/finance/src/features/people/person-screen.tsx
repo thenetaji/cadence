@@ -11,7 +11,7 @@ import { usePersonHistory } from '@/data/hooks';
 import { toRowModel } from '@/features/transactions/row-model';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 
 import { Avatar } from './avatar';
 

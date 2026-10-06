@@ -13,7 +13,7 @@ import { TransactionListRow } from '@/features/transactions/transaction-list-row
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { ALL_DATES } from '@studio/dates';
 import { convertWithRates, formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { haptic , useTokens } from '@studio/theme';
 
 import { categoryBreakdown, tagColorKey } from './model';

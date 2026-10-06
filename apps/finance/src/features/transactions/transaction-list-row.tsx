@@ -4,11 +4,8 @@ import Animated, { Easing, runOnJS, useAnimatedStyle, useReducedMotion, useShare
 
 import { TransactionRow } from '@/components/app/transaction-row';
 import type { TransactionListItem } from '@/data/hooks';
-import { registerCollapse } from '@/motion/collapse';
-import { enteringFor, insertedEntering } from '@/motion/entering';
-import type { EntryTracker } from '@/motion/entry-tracker';
-import { Shimmer } from '@/motion/shimmer';
-import { motion } from '@/motion/tokens';
+import { registerCollapse , enteringFor, insertedEntering , Shimmer , motion } from '@studio/motion';
+import type { EntryTracker } from '@studio/motion';
 
 import { toRowModel, type RowModelContext } from './row-model';
 import { useTransactionActions } from './use-transaction-actions';

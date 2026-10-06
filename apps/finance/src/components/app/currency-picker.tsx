@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FlatList, Modal, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';

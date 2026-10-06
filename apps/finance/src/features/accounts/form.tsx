@@ -6,7 +6,7 @@ import { AmountReadout } from '@/components/app/amount-readout';
 import { CurrencyPicker } from '@/components/app/currency-picker';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { OptionPicker } from '@/components/app/option-picker';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';

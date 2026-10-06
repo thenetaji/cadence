@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { useActions } from '@/data/actions';
 import { useBudgets, useCategories, useTodayKey } from '@/data/hooks';
 import type { BudgetInput } from '@/db/repos/budgets';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 
 import { BudgetCard } from './budget-card';

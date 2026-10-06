@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ActionSheetIOS, Platform, View } from 'react-native';
 
 import { OptionPicker } from '@/components/app/option-picker';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { haptic , useTokens } from '@studio/theme';

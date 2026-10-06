@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Button } from '@/components/ui/button';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
@@ -10,7 +10,7 @@ import { CategoryPill, FormChip, Hairline } from '@/features/transaction-form/ch
 import { MAX_SPLIT_LINES, splitRemaining, type SplitDraftLine } from '@/features/transaction-form/logic';
 import { ShakeView } from '@/features/transaction-form/shake-view';
 import type { CategoryRow } from '@/db/schema';
-import { useAnimatedTextColor } from '@/motion/use-animated-color';
+import { useAnimatedTextColor } from '@studio/motion';
 import { durations, springs, type CategoryColorKey } from '@studio/theme';
 import { useTokens } from '@studio/theme';
 

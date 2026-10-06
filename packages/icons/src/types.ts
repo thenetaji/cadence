@@ -1,7 +1,8 @@
-import type { IconBackground, IconStyle } from '@/db/repos/settings';
+export type IconStyle = 'phosphor-duotone' | 'phosphor-fill' | 'hugeicons' | 'solar' | 'lucide' | 'sf';
+export type IconBackground = 'graphite-glyph' | 'graphite-accent' | 'glass-glow' | 'glass-ice' | 'tonal' | 'glyph-only';
 
-export type { IconBackground, IconStyle };
-export { ICON_BACKGROUNDS, ICON_STYLES } from '@/db/repos/settings';
+export const ICON_STYLES: readonly IconStyle[] = ['phosphor-duotone', 'phosphor-fill', 'hugeicons', 'solar', 'lucide', 'sf'];
+export const ICON_BACKGROUNDS: readonly IconBackground[] = ['graphite-glyph', 'graphite-accent', 'glass-glow', 'glass-ice', 'tonal', 'glyph-only'];
 
 /** Styles drawn from bundled SVG data (every style except native SF Symbols). */
 export type SvgIconStyle = Exclude<IconStyle, 'sf'>;

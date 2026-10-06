@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { showToast } from '@/components/app/toast-store';
 import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/constants/app';

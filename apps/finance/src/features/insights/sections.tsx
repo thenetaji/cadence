@@ -9,7 +9,7 @@ import { PairedBars } from '@/components/charts/paired-bars';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { AnimatedNumber } from '@/motion/animated-number';
+import { AnimatedNumber } from '@/components/app/animated-number';
 import type { InsightsExtras } from '@/data/hooks';
 import { monthShort, parseKey } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';

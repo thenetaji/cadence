@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';

@@ -3,11 +3,10 @@ import { View, type LayoutChangeEvent } from 'react-native';
 
 import Animated from 'react-native-reanimated';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { fadeIn } from '@/motion/entering';
-import { Float } from '@/motion/float';
+import { fadeIn , Float } from '@studio/motion';
 import { useTokens } from '@studio/theme';
 
 type EmptyStateProps = { message: string; actionLabel?: string; onAction?: () => void; icon?: string };

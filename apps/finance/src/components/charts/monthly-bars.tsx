@@ -5,7 +5,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 
 import { barDomain, barSlots, slotIndex, valueToY, type AxisLabel, type FlowDatum } from '@/lib/charts';
-import { motion } from '@/motion/tokens';
+import { motion } from '@studio/motion';
 import { haptic , withAlpha , useTokens } from '@studio/theme';
 import { FloatingLabel, useChartWidth } from './chart-kit';
 import { useChartFont } from './use-chart-font';

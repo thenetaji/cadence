@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, type ViewStyle } from 'react-native';
 import { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { durations, type CategoryColorKey } from '@studio/theme';

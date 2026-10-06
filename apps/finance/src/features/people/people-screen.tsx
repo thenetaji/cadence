@@ -10,9 +10,9 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { useOutstanding, useOutstandingTotals } from '@/data/hooks';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { useTokens } from '@studio/theme';
 
 import { balanceLine } from './model';

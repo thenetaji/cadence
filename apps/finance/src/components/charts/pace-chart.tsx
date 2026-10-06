@@ -6,8 +6,7 @@ import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withTimin
 
 import { nearestPoint, niceTicks, pointX, valueToY } from '@/lib/charts';
 import { formatMoney } from '@studio/money';
-import { buildPolyPath, pointAt } from '@/motion/path-point';
-import { motion } from '@/motion/tokens';
+import { buildPolyPath, pointAt , motion } from '@studio/motion';
 import { withAlpha , useTokens } from '@studio/theme';
 import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
 import { useChartFont } from './use-chart-font';

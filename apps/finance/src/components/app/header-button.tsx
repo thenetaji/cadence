@@ -2,7 +2,7 @@ import type { NativeStackNavigationOptions } from 'expo-router';
 import type * as React from 'react';
 import { View } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { useTokens } from '@studio/theme';
 

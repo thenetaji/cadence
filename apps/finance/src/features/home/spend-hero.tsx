@@ -8,7 +8,7 @@ import { withSkia } from '@/components/charts/with-skia';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import type { HomeSpend } from '@/data/hooks';
-import { AnimatedNumber } from '@/motion/animated-number';
+import { AnimatedNumber } from '@/components/app/animated-number';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { withAlpha , useTokens } from '@studio/theme';
 

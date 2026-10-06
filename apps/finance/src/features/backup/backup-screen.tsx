@@ -7,9 +7,9 @@ import { APP_NAME } from '@/constants/app';
 import { useActions } from '@/data/actions';
 import { useSetting, useSyncStatus } from '@/data/hooks';
 import type { BackupSummary } from '@/db/repos/backup';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { getSyncProvider, type SyncProviderId } from '@/lib/sync';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { haptic , useTokens } from '@studio/theme';
 
 import { backupTimeLabel, unavailableNote } from './format';

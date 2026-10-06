@@ -5,9 +5,8 @@ import { ListGroup, ListRow } from '@/components/app/list-group';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { useSetting } from '@/data/hooks';
-import { AppIcon } from '@/icons/app-icon';
-import { useIconPrefs } from '@/icons/prefs';
-import { ICON_BACKGROUND_LABELS, ICON_BACKGROUNDS, ICON_STYLE_LABELS, ICON_STYLES, type IconBackground, type IconStyle } from '@/icons/types';
+import { AppIcon , useIconPrefs } from '@studio/icons';
+import { ICON_BACKGROUND_LABELS, ICON_BACKGROUNDS, ICON_STYLE_LABELS, ICON_STYLES, type IconBackground, type IconStyle } from '@studio/icons';
 import { haptic , useTokens } from '@studio/theme';
 import type { CategoryColorKey } from '@studio/theme';
 

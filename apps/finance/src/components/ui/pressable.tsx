@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Pressable as RNPressable, type GestureResponderEvent, type PressableProps as RNPressableProps, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 
-import { usePopValue } from '@/motion/pop';
+import { usePopValue } from '@studio/motion';
 
 import { haptic, type HapticKind } from '@studio/theme';
 import { durations, pressOpacity, pressScale, springs } from '@studio/theme';

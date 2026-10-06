@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { AmountReadout } from '@/components/app/amount-readout';
 import { Keypad, type KeypadKey } from '@/components/app/keypad';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { showToast } from '@/components/app/toast-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

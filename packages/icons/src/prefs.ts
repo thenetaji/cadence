@@ -1,8 +1,6 @@
-import { useEffect } from 'react';
 import { create } from 'zustand';
 
-import { useSetting } from '@/data/hooks';
-import type { IconBackground, IconStyle } from '@/db/repos/settings';
+import type { IconBackground, IconStyle } from './types';
 
 type IconPrefsState = {
   style: IconStyle;
@@ -21,12 +19,3 @@ export const useIconPrefs = create<IconPrefsState>((set) => ({
   setStyle: (style) => set({ style }),
   setBackground: (background) => set({ background }),
 }));
-
-/** Mount once near the root: keeps the store in step with the persisted settings. */
-export function useIconPrefsSync(): void {
-  const [style] = useSetting('icon_style');
-  const [background] = useSetting('icon_background');
-  useEffect(() => {
-    useIconPrefs.setState({ style, background });
-  }, [style, background]);
-}

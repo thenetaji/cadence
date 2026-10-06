@@ -4,7 +4,7 @@ import { ActionSheetIOS, Alert, Platform } from 'react-native';
 
 import { showToast } from '@/components/app/toast-store';
 import { useActions } from '@/data/actions';
-import { collapseThen } from '@/motion/collapse';
+import { collapseThen } from '@studio/motion';
 
 export interface TransactionActions {
   open: (id: string) => void;

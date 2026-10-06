@@ -1,4 +1,4 @@
-import { conceptFor, conceptMeta } from '@/icons/registry';
+import { conceptFor, conceptMeta } from '@studio/icons';
 
 export type IconSection = { title: string; ids: string[] };
 

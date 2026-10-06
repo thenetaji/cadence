@@ -6,7 +6,7 @@ import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSprin
 
 import { barSlots, barDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
 import { formatMoney } from '@studio/money';
-import { motion } from '@/motion/tokens';
+import { motion } from '@studio/motion';
 import { withAlpha , useTokens } from '@studio/theme';
 import { adjustableProps, FloatingLabel, useChartWidth, useScrubGesture } from './chart-kit';
 import { useChartFont } from './use-chart-font';

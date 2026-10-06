@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, type SharedValue } from 'react-native-reanimated';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { haptic , springs , useTokens } from '@studio/theme';
 
 import { moveItem, orderBySlots, reslot, slotFor } from './reorder';

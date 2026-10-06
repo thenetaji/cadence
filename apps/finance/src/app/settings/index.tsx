@@ -6,7 +6,7 @@ import { ListGroup, ListRow } from '@/components/app/list-group';
 import { OptionPicker, type Option } from '@/components/app/option-picker';
 import { useActions } from '@/data/actions';
 import { useAccounts, useSetting } from '@/data/hooks';
-import { ICON_STYLE_LABELS } from '@/icons/types';
+import { ICON_STYLE_LABELS } from '@studio/icons';
 import { ordinal } from '@/features/budgets/logic';
 import { moneyLocale } from '@/features/transactions/use-money-context';
 import { formatMoney } from '@studio/money';

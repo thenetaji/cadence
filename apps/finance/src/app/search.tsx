@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Platform, ScrollView, TextInput, View } from 'react-native';
 
 import { EmptyState } from '@/components/app/empty-state';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';

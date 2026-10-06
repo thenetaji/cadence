@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useSetting } from '@/data/hooks';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { haptic } from '@studio/theme';
 
 import { TimeField } from './time-field';

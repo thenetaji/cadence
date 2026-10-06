@@ -1,5 +1,5 @@
 import { Text, type TextTone } from '@/components/ui/text';
-import { AnimatedNumber } from '@/motion/animated-number';
+import { AnimatedNumber } from '@/components/app/animated-number';
 import { cn } from '@/lib/utils';
 import { dynamicType } from '@studio/theme';
 

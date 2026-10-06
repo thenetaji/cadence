@@ -13,7 +13,7 @@ import { TransactionDayList } from '@/features/transactions/transaction-day-list
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { nextPeriod, periodLabel, previousPeriod, type Period } from '@studio/dates';
 import { formatMoneyForSpeech } from '@studio/money';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 import { haptic , useTokens } from '@studio/theme';
 
 import { BudgetCard } from './budget-card';

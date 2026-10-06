@@ -12,8 +12,8 @@ import { useTags } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';
 import { toggleId } from '@/features/transaction-form/logic';
 import { useDraftStore } from '@/features/transaction-form/store';
-import { AppIcon } from '@/icons/app-icon';
-import { Pop } from '@/motion/pop';
+import { AppIcon } from '@studio/icons';
+import { Pop } from '@studio/motion';
 import { haptic , useTokens } from '@studio/theme';
 
 import { canCreateTag, matchesQuery, nextTagColor, TAG_COLORS } from './model';

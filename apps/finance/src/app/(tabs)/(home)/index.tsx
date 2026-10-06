@@ -18,7 +18,7 @@ import { TransactionListRow } from '@/features/transactions/transaction-list-row
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { diffDays, monthName, monthShort, parseKey, periodFor, previousPeriod, weekday } from '@studio/dates';
 import { formatMoney, sumConverted } from '@studio/money';
-import { Stagger } from '@/motion/stagger';
+import { Stagger } from '@studio/motion';
 
 const RECENT_COUNT = 5;
 const STAGGER = { base: 200, step: 55 } as const;

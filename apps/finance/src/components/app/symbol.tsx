@@ -1,4 +1,4 @@
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 
 type SymbolIconProps = {
   name: string;

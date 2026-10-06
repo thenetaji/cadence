@@ -4,7 +4,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { DaySectionHeader } from '@/components/app/day-section-header';
 import type { TransactionListItem } from '@/data/hooks';
-import { EntryTracker } from '@/motion/entry-tracker';
+import { EntryTracker } from '@studio/motion';
 
 import { buildDayEntries, headerIndices, type ListEntry } from './day-groups';
 import { TransactionListRow } from './transaction-list-row';

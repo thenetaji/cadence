@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { Pressable } from '@/components/ui/pressable';
-import { motion } from '@/motion/tokens';
+import { motion } from '@studio/motion';
 import { haptic , dynamicType , useTokens } from '@studio/theme';
 import { Text } from '@/components/ui/text';
 

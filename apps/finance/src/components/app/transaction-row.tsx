@@ -5,7 +5,7 @@ import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, use
 
 import { Amount } from '@/components/app/amount';
 import { IconTile } from '@/components/app/icon-tile';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { haptic , useTokens } from '@studio/theme';

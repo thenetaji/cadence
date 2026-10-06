@@ -2,7 +2,7 @@ import { Modal, ScrollView, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { haptic , useTokens } from '@studio/theme';

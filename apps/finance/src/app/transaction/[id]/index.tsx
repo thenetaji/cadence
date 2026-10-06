@@ -18,8 +18,8 @@ import { useTransactionActions } from '@/features/transactions/use-transaction-a
 import { fullDayLabel } from '@studio/dates';
 import { isLendingKind, type TransactionKind } from '@/lib/ledger';
 import { convertWithRates, formatMoney, formatMoneyForSpeech, type SignMode } from '@studio/money';
-import { AnimatedNumber } from '@/motion/animated-number';
-import { Stagger } from '@/motion/stagger';
+import { AnimatedNumber } from '@/components/app/animated-number';
+import { Stagger } from '@studio/motion';
 import type { CategoryColorKey } from '@studio/theme';
 
 const SIGN: Record<TransactionKind, SignMode> = { expense: 'minus', income: 'plus', transfer: 'none', lent: 'minus', borrowed: 'plus', repaid_to_me: 'plus', repaid_by_me: 'minus' };

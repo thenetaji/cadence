@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Switch } from '@/components/ui/switch';

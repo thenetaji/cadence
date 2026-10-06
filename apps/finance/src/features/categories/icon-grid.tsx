@@ -5,8 +5,7 @@ import { IconTile } from '@/components/app/icon-tile';
 import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { conceptFor, conceptLabel } from '@/icons/registry';
-import { tileRadius } from '@/icons/tile-styles';
+import { conceptFor, conceptLabel , tileRadius } from '@studio/icons';
 import type { CategoryColorKey } from '@studio/theme';
 import { useTokens } from '@studio/theme';
 

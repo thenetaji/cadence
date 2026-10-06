@@ -15,7 +15,7 @@ import { ToastHost } from '@/components/app/toast-host';
 import { Text } from '@/components/ui/text';
 import { LockGate } from '@/features/lock/lock-gate';
 import { useSetting, usePostDueRecurring, useReminderSync } from '@/data/hooks';
-import { useIconPrefsSync } from '@/icons/prefs';
+import { useIconPrefsSync } from '@/lib/icon-prefs-sync';
 import { DemoSeedGate } from '@/lib/demo-seed-gate';
 import { setHapticsEnabled , applyThemePreference, followWebColorScheme , useTokens } from '@studio/theme';
 

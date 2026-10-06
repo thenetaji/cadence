@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { AppIcon } from '@/icons/app-icon';
+import { AppIcon } from '@studio/icons';
 import { Button } from '@/components/ui/button';
 import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';

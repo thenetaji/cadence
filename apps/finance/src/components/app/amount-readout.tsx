@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { AnimatedNumber } from '@/motion/animated-number';
+import { AnimatedNumber } from '@/components/app/animated-number';
 
 type AmountReadoutProps = {
   symbol: string;

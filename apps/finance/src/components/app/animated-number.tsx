@@ -14,8 +14,8 @@ import Animated, {
 import { Text, type TextTone } from '@/components/ui/text';
 import { typeScale, type TypeVariant } from '@studio/theme';
 
-import { introDelay, splitNumber, type Align, type NumberToken } from './digits';
-import { motion } from './tokens';
+import { introDelay, splitNumber, type Align, type NumberToken } from '@studio/motion';
+import { motion } from '@studio/motion';
 
 type AnimatedNumberProps = {
   /** The already-formatted amount ("−₹1,24,500.00"); only the digits roll. */

@@ -1,4 +1,4 @@
-import { categoryIconNames, symbolFallbacks } from '@/components/app/symbolFallbacks';
+import { categoryIconNames, symbolFallbacks } from './symbolFallbacks';
 
 import { conceptMeta } from './generated/concepts';
 import { conceptFor, FALLBACK_CONCEPT, iconXml, isKnownIcon, sfSymbolFor } from './registry';

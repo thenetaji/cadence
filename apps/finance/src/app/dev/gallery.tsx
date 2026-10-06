@@ -254,7 +254,7 @@ export default function Gallery() {
 
       <Block title="Add button">
         <View className="items-end px-4">
-          <FloatingAddButton onPress={() => undefined} />
+          <FloatingAddButton accessibilityLabel="Add transaction" onPress={() => undefined} />
         </View>
       </Block>
     </ScrollView>

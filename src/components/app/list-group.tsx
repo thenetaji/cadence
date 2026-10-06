@@ -21,6 +21,8 @@ type ListRowProps = ListRowInjectedProps & {
   onSwitchChange?: (value: boolean) => void;
   trailing?: React.ReactNode;
   destructive?: boolean;
+  /** Centres the label; for a standalone action row such as "Delete rule" in its own group. */
+  centered?: boolean;
   onPress?: () => void;
 };
 
@@ -34,6 +36,7 @@ function ListRow({
   onSwitchChange,
   trailing,
   destructive = false,
+  centered = false,
   onPress,
   showSeparator = false,
 }: ListRowProps) {
@@ -55,7 +58,7 @@ function ListRow({
         </View>
       ) : null}
       <View className="flex-1 py-1">
-        <Text variant="body" tone={destructive ? 'expense' : 'default'} numberOfLines={1}>
+        <Text variant="body" tone={destructive ? 'expense' : 'default'} numberOfLines={1} className={centered ? 'text-center' : undefined}>
           {label}
         </Text>
         {subtitle ? (

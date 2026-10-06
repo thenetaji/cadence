@@ -3,7 +3,7 @@ import { createTransaction } from '@/db/repos/transactions';
 import { recordTitle } from '@/db/repos/titleMemory';
 import { at, categoryId, createTestDb, makeAccounts } from '@/db/test-helpers';
 import { periodFor } from '@studio/dates';
-import { buildHomeSpend, cumulative, percentChange, perDayAverage, readHomeSpend } from './homeSpend';
+import { buildHomeSpend, cumulative, percentChange, perDayAverage, readAllTime, readHomeSpend } from './homeSpend';
 import { frequentTitles } from './useFrequentTitles';
 
 describe('home spend maths', () => {
@@ -62,6 +62,21 @@ describe('readHomeSpend', () => {
     expect(result.deltaPercent).toBe(-50);
     expect(result.dayIndex).toBe(4);
     expect(result.series).toHaveLength(31);
+    expect(result.previousTotal).toBe(10000);
+  });
+
+  it('reads all time as monthly totals from the first transaction', () => {
+    const db = createTestDb();
+    const { cash } = makeAccounts(db);
+    const base = { kind: 'expense' as const, accountId: cash.id, categoryId: categoryId(db, 'Groceries') };
+    createTransaction(db, { ...base, amount: 1000, occurredAt: at('2026-08-02') });
+    createTransaction(db, { ...base, amount: 500, occurredAt: at('2026-10-01') });
+    createTransaction(db, { kind: 'income', accountId: cash.id, categoryId: categoryId(db, 'Salary'), amount: 7000, occurredAt: at('2026-09-02') });
+    const all = readAllTime(db, '2026-10-05');
+    expect(all.months.map((m) => [m.label, m.amount])).toEqual([['Aug', 1000], ['Sep', 0], ['Oct', 500]]);
+    expect(all.spent).toBe(1500);
+    expect(all.earned).toBe(7000);
+    expect(readAllTime(createTestDb(), '2026-10-05').months).toEqual([]);
   });
 });
 

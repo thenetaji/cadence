@@ -22,6 +22,8 @@ type AnimatedNumberProps = {
   value: string;
   variant?: TypeVariant;
   tone?: TextTone;
+  /** Explicit colour; wins over `tone`. */
+  color?: string;
   /** Roll up from zero on first appearance. */
   intro?: boolean;
   /** `left` for typing (appended digit adds a column), `right` for values that change period. */
@@ -42,13 +44,14 @@ type ColumnProps = {
   digit: number;
   variant: TypeVariant;
   tone?: TextTone;
+  color?: string;
   intro: boolean;
   delay: number;
   reduced: boolean;
   drop: boolean;
 };
 
-const DigitColumn = React.memo(function DigitColumn({ digit, variant, tone, intro, delay, reduced, drop }: ColumnProps) {
+const DigitColumn = React.memo(function DigitColumn({ digit, variant, tone, color, intro, delay, reduced, drop }: ColumnProps) {
   const [line, setLine] = React.useState<number>(typeScale[variant].line);
   const lineSv = useSharedValue<number>(typeScale[variant].line);
   const position = useSharedValue(intro && !reduced ? 0 : digit);
@@ -87,7 +90,7 @@ const DigitColumn = React.memo(function DigitColumn({ digit, variant, tone, intr
     <Animated.View entering={entering} style={{ height: line, overflow: 'hidden' }}>
       <Animated.View style={style}>
         {DIGITS.map((d) => (
-          <Text key={d} variant={variant} tone={tone} numeric numberOfLines={1} onLayout={d === 0 ? onLayout : undefined}>
+          <Text key={d} variant={variant} tone={tone} style={color ? { color } : undefined} numeric numberOfLines={1} onLayout={d === 0 ? onLayout : undefined}>
             {d}
           </Text>
         ))}
@@ -134,6 +137,7 @@ function AnimatedNumber({
   value,
   variant = 'body',
   tone,
+  color,
   intro = false,
   align = 'right',
   dropNew = false,
@@ -174,13 +178,14 @@ function AnimatedNumber({
               digit={token.digit}
               variant={variant}
               tone={tone}
+              color={color}
               intro={intro}
               delay={introDelay(digitOrder.get(token.key) ?? 0)}
               reduced={reduced}
               drop={dropNew && !initialKeys.has(token.key)}
             />
           ) : (
-            <Text key={token.key} variant={variant} tone={tone} numeric numberOfLines={1}>
+            <Text key={token.key} variant={variant} tone={tone} style={color ? { color } : undefined} numeric numberOfLines={1}>
               {token.char}
             </Text>
           ),

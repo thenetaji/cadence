@@ -1,4 +1,4 @@
-import { curveGeometry, dueIn, frequencyLabel, headerDay, monotoneSegments, percentUsed } from './curve';
+import { curveGeometry, dueIn, frequencyLabel, greetingFor, monotoneSegments, percentUsed } from './curve';
 
 describe('monotoneSegments', () => {
   it('yields one segment per gap, ending on the data points', () => {
@@ -35,7 +35,11 @@ describe('curveGeometry', () => {
 });
 
 describe('format helpers', () => {
-  it('formats the header day', () => expect(headerDay(5, 16, 'Oct')).toBe('Friday 16 Oct'));
+  it('greets by hour', () => {
+    expect([4, 5, 11, 12, 16, 17, 23, 0].map(greetingFor)).toEqual([
+      'Good evening', 'Good morning', 'Good morning', 'Good afternoon', 'Good afternoon', 'Good evening', 'Good evening', 'Good evening',
+    ]);
+  });
   it('percent used', () => {
     expect(percentUsed(16800, 35000)).toBe(48);
     expect(percentUsed(5, 0)).toBe(0);

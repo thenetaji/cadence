@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { IconTile , SectionHeader , Card , Pressable , Text , AnimatedNumber } from '@studio/ui';
 import { BarChart , PairedBars } from '@studio/charts/components';
-import type { InsightsExtras } from '@/data/hooks';
+import type { Insights, InsightsExtras } from '@/data/hooks';
 import { monthShort, parseKey } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { categoryKeys, type CategoryColorKey } from '@studio/theme';
@@ -61,10 +61,10 @@ function Tile({ label, value, caption, tone = 'default', onPress, accessibilityL
   );
 }
 
-type StatsGridProps = MoneyProps & { extras: InsightsExtras };
+type StatsGridProps = MoneyProps & { extras: InsightsExtras; both?: boolean };
 
 /** Daily average, biggest, count and savings rate as four compact tiles. */
-const StatsGrid = React.memo(function StatsGrid({ extras, currency, locale }: StatsGridProps) {
+const StatsGrid = React.memo(function StatsGrid({ extras, both = false, currency, locale }: StatsGridProps) {
   const router = useRouter();
   const money = (value: number) => formatMoney(value, currency, { locale, decimals: 0 });
   const speech = (value: number) => formatMoneyForSpeech(value, currency, { sign: 'none', locale });
@@ -74,25 +74,76 @@ const StatsGrid = React.memo(function StatsGrid({ extras, currency, locale }: St
   return (
     <View className="gap-3 px-4">
       <View className="flex-row gap-3">
-        <Tile label="Daily average" value={money(extras.dailyAverage)} accessibilityLabel={`Daily average, ${speech(extras.dailyAverage)}`} />
-        <Tile label="Transactions" value={String(extras.transactionCount)} accessibilityLabel={`${extras.transactionCount} transactions`} />
+        <Tile label={both ? 'Daily spend' : 'Daily average'} value={money(extras.dailyAverage)} accessibilityLabel={`${both ? 'Daily spend' : 'Daily average'}, ${speech(extras.dailyAverage)}`} />
+        {both ? (
+          <Tile
+            label="Savings rate"
+            value={rate}
+            tone={savingsRate !== null && savingsRate >= 0 ? 'income' : 'default'}
+            accessibilityLabel={savingsRate === null ? 'Savings rate, nothing earned' : `Savings rate, ${savingsRate} percent`}
+          />
+        ) : (
+          <Tile label="Transactions" value={String(extras.transactionCount)} accessibilityLabel={`${extras.transactionCount} transactions`} />
+        )}
       </View>
       <View className="flex-row gap-3">
         <Tile
-          label="Biggest"
+          label={both ? 'Biggest expense' : 'Biggest'}
           value={biggest ? money(biggest.amount) : '—'}
           caption={biggestName}
           accessibilityLabel={biggest ? `Biggest, ${biggestName}, ${speech(biggest.amount)}` : 'Biggest, none'}
           onPress={biggest ? () => router.push({ pathname: '/transaction/[id]', params: { id: biggest.transactionId } }) : undefined}
         />
-        <Tile
-          label="Savings rate"
-          value={rate}
-          tone={savingsRate !== null && savingsRate >= 0 ? 'income' : 'default'}
-          accessibilityLabel={savingsRate === null ? 'Savings rate, nothing earned' : `Savings rate, ${savingsRate} percent`}
-        />
+        {both ? (
+          <Tile label="Expenses" value={String(extras.transactionCount)} accessibilityLabel={`${extras.transactionCount} expenses`} />
+        ) : (
+          <Tile
+            label="Savings rate"
+            value={rate}
+            tone={savingsRate !== null && savingsRate >= 0 ? 'income' : 'default'}
+            accessibilityLabel={savingsRate === null ? 'Savings rate, nothing earned' : `Savings rate, ${savingsRate} percent`}
+          />
+        )}
       </View>
     </View>
+  );
+});
+
+type IncomeSourcesProps = MoneyProps & { insights: Insights };
+
+/** Both mode: where the money came from, as compact share bars in each source's colour. */
+const IncomeSourcesCard = React.memo(function IncomeSourcesCard({ insights, currency, locale }: IncomeSourcesProps) {
+  const { category } = useTokens();
+  const top = insights.categories.slice(0, 5);
+  if (top.length === 0) return null;
+  const largest = top[0]!.amount;
+  return (
+    <>
+      <SectionHeader title="Income by source" />
+      <Card className={`${CARD} gap-4`}>
+        {top.map((row) => {
+          const color = category[asColor(row.category?.color)];
+          const name = row.category?.name ?? 'Uncategorised';
+          return (
+            <View key={row.categoryId ?? 'none'} accessible accessibilityLabel={`${name}, ${formatMoneyForSpeech(row.amount, currency, { sign: 'none' })}, ${row.percent} percent`}>
+              <View className="flex-row items-center pb-1.5">
+                <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: color }} />
+                <Text variant="subhead" numberOfLines={1} className="ml-2 mr-3 flex-1 font-medium">
+                  {name}
+                </Text>
+                <Text variant="subhead" numeric className="font-medium">
+                  {formatMoney(row.amount, currency, { locale, decimals: 0 })}
+                </Text>
+                <Text variant="footnote" tone="tertiary" numeric className="w-10 text-right">
+                  {`${row.percent}%`}
+                </Text>
+              </View>
+              <ShareBar fraction={largest > 0 ? row.amount / largest : 0} color={color} height={6} />
+            </View>
+          );
+        })}
+      </Card>
+    </>
   );
 });
 
@@ -186,7 +237,7 @@ const MerchantsCard = React.memo(function MerchantsCard({ merchants, kind, curre
   const top = merchants[0]!.amount;
   return (
     <>
-      <SectionHeader title={kind === 'expense' ? 'Top merchants' : 'Top sources'} />
+      <SectionHeader title={kind === 'income' ? 'Top sources' : 'Top merchants'} />
       <Card className="mx-4 rounded-[16px] p-0">
         {merchants.map((m, index) => {
           const color = asColor(m.category?.color);
@@ -262,4 +313,4 @@ const AccountsCard = React.memo(function AccountsCard({ accounts, currency, loca
   );
 });
 
-export { AccountsCard, MerchantsCard, MonthlyCard, StatsGrid, WeekdayCard };
+export { AccountsCard, IncomeSourcesCard, MerchantsCard, MonthlyCard, StatsGrid, WeekdayCard };

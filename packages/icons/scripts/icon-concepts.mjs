@@ -172,6 +172,8 @@ activity|Activity|_UI|receipt|list.bullet.rectangle.fill|receipt,invoice-01,bill
 insights|Insights|_UI|chart-pie-slice|chart.pie.fill,chart.bar.fill|pie-chart,chart-pie,pie-chart-2,pie-chart-01
 budgets|Budgets|_UI|gauge|gauge.with.dots.needle.33percent|dashboard-speed-01,gauge,speedometer-middle,speedometer
 settings|Settings|_UI|gear-six|gearshape,gearshape.fill|settings-01,settings,settings-2
+eye|Eye|_UI|eye|eye|eye,eye-open,view
+eye-off|Eye off|_UI|eye-slash|eye.slash|eye-off,eye-closed,view-off,eye-slash
 search|Search|_UI|magnifying-glass|magnifyingglass|search-01,search,magnifer
 filter|Filter|_UI|funnel-simple|line.3.horizontal.decrease.circle|filter-horizontal,list-filter,filter,filter-01
 filter-active|Filter active|_UI|funnel|line.3.horizontal.decrease.circle.fill|filter-horizontal,list-filter,filter,filter-01

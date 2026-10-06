@@ -105,7 +105,7 @@ const get = () => useDraftStore.getState();
 function TransactionForm({ mode, transactionId, params = {} }: TransactionFormProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors } = useTokens();
+  const { colors, category } = useTokens();
   const actions = useActions();
   const settings = useSettings();
   const accountsAll = useAccounts({ includeArchived: true });
@@ -165,6 +165,8 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
   const toDigits = minorDigits(toCurrency);
   const isTransfer = draft.kind === 'transfer';
   const isLend = isLendingKind(draft.kind);
+  // The entry wears its kind: coral, mint, blue, brass.
+  const kindColor = draft.kind === 'expense' ? colors.expense : draft.kind === 'income' ? colors.income : isTransfer ? category.blue : colors.accent;
   const person = people.find((p) => p.id === draft.personId);
   const draftTags = allTags.filter((t) => draft.tagIds.includes(t.id));
   const crossCurrency = isTransfer && fromCurrency !== toCurrency;
@@ -490,6 +492,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
           selectedIndex={KIND_SEGMENTS.indexOf(segmentOf(draft.kind))}
           onChange={changeKind}
           accessibilityLabel="Transaction type"
+          tintColor={kindColor}
           className="w-full"
         />
       </View>
@@ -499,18 +502,16 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
         className="flex-1"
         onLayout={(event) => setAreaHeight(event.nativeEvent.layout.height)}
       >
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName="grow justify-center pb-3"
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View className="justify-center py-2" style={{ minHeight: crossCurrency ? 152 : 104, maxHeight: crossCurrency ? 200 : 160 }}>
+        {/* No ScrollView: everything fits by design, and a capped, centred readout zone overflowed upward into the
+            kind selector on device. The readout zone takes the free height and centres the amount instead. */}
+        <View className="flex-1 pb-3">
+          <View className="flex-1 justify-center py-2" style={{ minHeight: crossCurrency ? 152 : 96 }}>
             <View style={{ opacity: receivesFocused ? 0.45 : 1 }}>
               <AmountReadout
                 symbol={symbol}
                 value={mainFocused ? view.display : staticDisplay(draft.amount, fromDigits)}
                 expression={mainFocused ? view.expression : ''}
+                color={kindColor}
                 onPress={() => focusTarget('amount')}
                 accessibilityLabel={`Amount, ${formatMoneyForSpeech(draft.amount, fromCurrency, { sign: 'none' })}`}
               />
@@ -521,6 +522,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                   symbol={currencySymbol(toCurrency)}
                   value={receivesFocused ? view.display : staticDisplay(ctx.receivesAmount, toDigits)}
                   expression={receivesFocused && view.expression ? `Receives  ${view.expression}` : 'Receives'}
+                  color={kindColor}
                   onPress={() => focusTarget('receives')}
                   accessibilityLabel={`Receives, ${formatMoneyForSpeech(ctx.receivesAmount, toCurrency, { sign: 'none' })}`}
                 />
@@ -776,7 +778,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
               </>
             ) : null}
           </View>
-        </ScrollView>
+        </View>
 
         {showKeypad ? (
           <View className="bg-bg" style={{ paddingBottom: insets.bottom }}>
@@ -791,6 +793,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
               showDecimal={digitsOf(focus) > 0}
               saveMode={view.equalsIsSave}
               saveDisabled={isSaveDisabled(block)}
+              saveColor={kindColor}
             />
           </View>
         ) : null}

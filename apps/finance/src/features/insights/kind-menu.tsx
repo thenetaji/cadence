@@ -8,6 +8,7 @@ import { haptic , useTokens } from '@studio/theme';
 import type { InsightsKind } from './params';
 
 const OPTIONS = [
+  { value: 'both' as const, label: 'Both' },
   { value: 'expense' as const, label: 'Spent' },
   { value: 'income' as const, label: 'Earned' },
 ];
@@ -18,7 +19,7 @@ type KindMenuProps = { kind: InsightsKind; onChange: (kind: InsightsKind) => voi
 function KindMenu({ kind, onChange }: KindMenuProps) {
   const { colors, scheme } = useTokens();
   const [open, setOpen] = React.useState(false);
-  const label = kind === 'expense' ? 'Spent' : 'Earned';
+  const label = OPTIONS.find((o) => o.value === kind)?.label ?? 'Both';
   const present = () => {
     haptic('selection');
     if (Platform.OS === 'ios') {
@@ -37,7 +38,7 @@ function KindMenu({ kind, onChange }: KindMenuProps) {
     <>
       <Pressable
         role="button"
-        accessibilityLabel={`${label}, change between spent and earned`}
+        accessibilityLabel={`${label}, choose spent, earned or both`}
         scale={0.97}
         onPress={present}
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}

@@ -37,15 +37,11 @@ export function curveGeometry(series: readonly CurveInput[], width: number, heig
   return { line, ghost, end: line.length > 1 ? line[line.length - 1]! : null, peak };
 }
 
-const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-/** "Friday 16 Oct" for an ISO weekday (1 = Monday). */
-export function headerDay(isoWeekday: number, day: number, monthShort: string): string {
-  return `${WEEKDAYS[isoWeekday - 1] ?? ''} ${day} ${monthShort}`;
-}
-
-export function daysLeftLabel(left: number): string {
-  return `${left} ${left === 1 ? 'day' : 'days'} left`;
+/** "Good morning" 05:00-11:59, "Good afternoon" 12:00-16:59, otherwise "Good evening" (no "Good night"). */
+export function greetingFor(hour: number): string {
+  if (hour >= 5 && hour < 12) return 'Good morning';
+  if (hour >= 12 && hour < 17) return 'Good afternoon';
+  return 'Good evening';
 }
 
 /** Whole percent of a budget used, clamped at 0. */

@@ -5,10 +5,10 @@ const today = '2026-10-05';
 const settings = DEFAULT_PERIOD_SETTINGS;
 
 describe('parseInsightsParams', () => {
-  it('defaults to this month, expenses', () => {
+  it('defaults to this month, both kinds', () => {
     const { view, select } = parseInsightsParams({}, today, settings);
     expect(view.type).toBe('month');
-    expect(view.kind).toBe('expense');
+    expect(view.kind).toBe('both');
     expect(periodOf(view, settings)).toMatchObject({ from: '2026-10-01', to: '2026-10-31' });
     expect(select).toBeNull();
   });

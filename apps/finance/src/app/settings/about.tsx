@@ -30,10 +30,6 @@ export default function About() {
   return (
     <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 py-4 pb-12">
       <ListGroup>
-        <ListRow label="Name" value={APP_NAME} />
-        <ListRow label="Version" value={version} />
-      </ListGroup>
-      <ListGroup>
         {canRate ? (
           <ListRow
             label="Rate"

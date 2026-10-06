@@ -8,3 +8,5 @@ export * from './monthly-bars';
 export * from './pace-chart';
 export * from './paired-bars';
 export * from './use-chart-font';
+export * from './tide-bars';
+export * from './tide-chart';

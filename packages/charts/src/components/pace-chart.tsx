@@ -8,7 +8,8 @@ import { nearestPoint, niceTicks, pointX, valueToY } from '../lib';
 import { formatMoney } from '@studio/money';
 import { buildPolyPath, pointAt , motion } from '@studio/motion';
 import { withAlpha , useTokens } from '@studio/theme';
-import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
+import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture, useSelectionTimeout } from './chart-kit';
+import { useHeld } from './use-held';
 import { useChartFont } from './use-chart-font';
 
 export type PaceDatum = {
@@ -127,6 +128,8 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
   });
   const compact = (value: number) => formatMoney(value, currency, { compact: true, locale });
   const selected = selectedIndex !== null && selectedIndex < count ? selectedIndex : null;
+  useSelectionTimeout(selected, onSelect);
+  const heldIndex = useHeld(selected);
   const point = selected !== null ? data[selected] : undefined;
   const text = selected !== null && point ? paceLabel(selected, point, currency, locale) : '';
   const marker = point ? (point.actual ?? point.pace) : 0;
@@ -198,9 +201,9 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
                   <Line p1={vec(pointX(selected, 0, plotWidth, count), LANE)} p2={vec(pointX(selected, 0, plotWidth, count), baseline)} color={colors.separator} strokeWidth={1} />
                   <Circle cx={pointX(selected, 0, plotWidth, count)} cy={valueToY(marker, yMax, baseline, height)} r={5} color={colors.surface} />
                   <Circle cx={pointX(selected, 0, plotWidth, count)} cy={valueToY(marker, yMax, baseline, height)} r={3.5} color={glow} />
-                  {labelFont ? <FloatingLabel text={text} font={labelFont} centerX={pointX(selected, 0, plotWidth, count)} y={0} totalWidth={width} /> : null}
                 </Group>
               ) : null}
+              {labelFont ? <FloatingLabel text={text} font={labelFont} centerX={pointX(heldIndex, 0, plotWidth, count)} y={0} totalWidth={width} /> : null}
             </Canvas>
           </View>
         </GestureDetector>

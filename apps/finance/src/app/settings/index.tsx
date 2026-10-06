@@ -4,14 +4,13 @@ import { ScrollView } from 'react-native';
 
 import { ListGroup, ListRow } from '@studio/ui';
 import { OptionPicker, type Option } from '@studio/ui';
-import { useActions } from '@/data/actions';
 import { useAccounts, useSetting } from '@/data/hooks';
 import { ICON_STYLE_LABELS } from '@studio/icons';
 import { ordinal } from '@/features/budgets/logic';
 import { moneyLocale } from '@/features/transactions/use-money-context';
 import { formatMoney } from '@studio/money';
-import { confirmErase } from '@/features/data-transfer/erase';
-import { haptic } from '@studio/theme';
+import { Text } from '@studio/ui';
+import Constants from 'expo-constants';
 
 type Picker = 'week' | 'month' | 'account' | null;
 
@@ -24,7 +23,6 @@ const monthOptions: readonly Option<number>[] = Array.from({ length: 28 }, (_, i
 
 export default function Settings() {
   const router = useRouter();
-  const actions = useActions();
   const accounts = useAccounts();
   const [displayCurrency] = useSetting('display_currency');
   const [weekStart, setWeekStart] = useSetting('week_start');
@@ -38,13 +36,6 @@ export default function Settings() {
   const [hideAmounts] = useSetting('hide_amounts');
   const [picker, setPicker] = React.useState<Picker>(null);
   const close = () => setPicker(null);
-  // Onboarding is the unprotected route once `onboarding_done` resets, so the navigator moves there on its own.
-  const eraseAll = () =>
-    confirmErase(() => {
-      actions.data.eraseAll();
-      haptic('success');
-    });
-
   const defaultAccount = accounts.find((a) => a.id === defaultAccountId);
   const accountOptions = React.useMemo<readonly Option<string | null>[]>(
     () => accounts.map((a) => ({ value: a.id, label: a.name })),
@@ -125,13 +116,14 @@ export default function Settings() {
         <ListRow label="Recurring" icon={{ name: 'repeat', color: 'indigo' }} chevron onPress={() => router.push('/recurring')} />
         <ListRow label="Subscriptions" icon={{ name: 'subscriptions', color: 'purple' }} chevron onPress={() => router.push('/subscriptions')} />
         <ListRow label="Backup & sync" icon={{ name: 'cloud', color: 'cyan' }} chevron onPress={() => router.push('/settings/backup')} />
-        <ListRow label="Export" icon={{ name: 'square.and.arrow.up', color: 'indigo' }} chevron onPress={() => router.push('/settings/export')} />
-        <ListRow label="Import" icon={{ name: 'square.and.arrow.down', color: 'teal' }} chevron onPress={() => router.push('/settings/import')} />
-        <ListRow label="Erase all data" destructive onPress={eraseAll} />
+        <ListRow label="Import & export" icon={{ name: 'square.and.arrow.up', color: 'indigo' }} chevron onPress={() => router.push('/settings/transfer')} />
       </ListGroup>
       <ListGroup>
         <ListRow label="About" icon={{ name: 'info.circle', color: 'gray' }} chevron onPress={() => router.push('/settings/about')} />
       </ListGroup>
+      <Text variant="footnote" tone="tertiary" className="text-center">
+        {`Version ${Constants.expoConfig?.version ?? ''} · Made with love`}
+      </Text>
 
       <OptionPicker visible={picker === 'week'} title="Week starts on" options={weekOptions} selected={weekStart} onSelect={setWeekStart} onClose={close} />
       <OptionPicker visible={picker === 'month'} title="Month starts on" options={monthOptions} selected={monthStart} onSelect={setMonthStart} onClose={close} />

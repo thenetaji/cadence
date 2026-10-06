@@ -7,7 +7,8 @@ import { useDerivedValue } from 'react-native-reanimated';
 import { barDomain, slotIndex, valueToY, type AxisLabel } from '../lib';
 import { formatMoney } from '@studio/money';
 import { withAlpha , useTokens } from '@studio/theme';
-import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
+import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture, useSelectionTimeout } from './chart-kit';
+import { useHeld } from './use-held';
 import { useChartFont } from './use-chart-font';
 
 export type PairedDatum = { key: string; a: number; b: number };
@@ -71,6 +72,8 @@ function PairedBars({ data, currency, labels, colorA, colorB, selectedIndex, onS
   const compact = (value: number) => formatMoney(value, currency, { compact: true, locale });
   const guides = hasData ? domain.ticks.map((t) => ({ value: t, y: valueToY(t, top, baseline, height) })) : [];
   const selected = selectedIndex !== null && selectedIndex < count ? selectedIndex : null;
+  useSelectionTimeout(selected, onSelect);
+  const heldIndex = useHeld(selected);
   const spoken = selected === null ? accessibilityLabel : `${accessibilityLabel}. ${formatLabel(selected)}`;
   const center = (i: number) => slot * i + slot / 2;
 
@@ -134,7 +137,7 @@ function PairedBars({ data, currency, labels, colorA, colorB, selectedIndex, onS
                     return <SkText key={label.index} x={center(label.index) - w / 2} y={baseline + 17} text={label.text} font={font} color={selected === label.index ? colors.text : colors.textTertiary} />;
                   })
                 : null}
-              {selected !== null && labelFont ? <FloatingLabel text={formatLabel(selected)} font={labelFont} centerX={center(selected)} y={0} totalWidth={width} /> : null}
+              {labelFont ? <FloatingLabel text={selected !== null ? formatLabel(selected) : ''} font={labelFont} centerX={center(heldIndex)} y={0} totalWidth={width} /> : null}
             </Canvas>
           </View>
         </GestureDetector>

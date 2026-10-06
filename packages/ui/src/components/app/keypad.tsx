@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { AppIcon } from '@studio/icons';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 
+import { readableOn, useTweenedColor } from '../../lib/tint';
 import { Pressable } from '../ui/pressable';
 import { motion } from '@studio/motion';
 import { haptic , dynamicType , useTokens } from '@studio/theme';
@@ -21,6 +22,8 @@ type KeypadProps = {
   hapticsEnabled?: boolean;
   /** Key height in pt, clamped to 52-64; the add sheet sizes it to the free space. */
   keyHeight?: number;
+  /** Fill of the Save key (the entry's kind colour); defaults to the accent. Text on it stays readable. */
+  saveColor?: string;
 };
 
 const layout: readonly (readonly KeypadKey[])[] = [
@@ -48,12 +51,13 @@ type KeyCellProps = {
   height: number;
   saveMode: boolean;
   saveDisabled: boolean;
+  saveColor?: string;
   hapticsEnabled?: boolean;
   onKey: (key: KeypadKey) => void;
   onLongBackspace?: () => void;
 };
 
-function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKey, onLongBackspace }: KeyCellProps) {
+function KeyCell({ keyName, height, saveMode, saveDisabled, saveColor, hapticsEnabled, onKey, onLongBackspace }: KeyCellProps) {
   const { colors, isDark } = useTokens();
   const [pressed, setPressed] = React.useState(false);
   const isSave = keyName === '=' && saveMode;
@@ -63,6 +67,8 @@ function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKe
   // Digits on `elevated` with a rim so they read on true black; operators on the brass soft fill.
   const base = isOperator ? colors.accentSoft : isDark ? colors.elevated : isDigitLike ? colors.surface : colors.fill;
   const down = isDark ? (isOperator ? 'rgba(226,185,106,0.28)' : '#26262A') : isOperator ? 'rgba(201,162,79,0.28)' : '#E4E1DA';
+  const saveFill = useTweenedColor(saveColor ?? colors.accent);
+  const onSave = saveColor ? readableOn(saveFill, '#141210', '#FFFFFF') : colors.onAccent;
   const label = isSave ? 'Save' : (speech[keyName] ?? keyName);
 
   // Save key morphs into a check (scale + rotate spring) before the sheet dismisses.
@@ -101,19 +107,19 @@ function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKe
       onLongPress={keyName === 'backspace' ? onLongBackspace : undefined}
       delayLongPress={400}
       className="flex-1 items-center justify-center rounded-[12px]"
-      style={{ height, borderWidth: isSave ? 0 : 1, borderColor: colors.border, backgroundColor: isSave ? colors.accent : pressed ? down : base, opacity: isSave ? (saveDisabled ? 0.4 : pressed ? 0.85 : 1) : 1 }}
+      style={{ height, borderWidth: isSave ? 0 : 1, borderColor: colors.border, backgroundColor: isSave ? saveFill : pressed ? down : base, opacity: isSave ? (saveDisabled ? 0.4 : pressed ? 0.85 : 1) : 1 }}
     >
       {keyName === 'backspace' ? (
         <AppIcon name="delete.left" size={24} color={colors.text} />
       ) : isSave ? (
         <>
           <Animated.View style={labelStyle}>
-            <Text variant="headline" maxFontSizeMultiplier={dynamicType.keypad} style={{ color: colors.onAccent }} className="text-[19px] font-semibold">
+            <Text variant="headline" maxFontSizeMultiplier={dynamicType.keypad} style={{ color: onSave }} className="text-[19px] font-semibold">
               Save
             </Text>
           </Animated.View>
           <Animated.View pointerEvents="none" style={[{ position: 'absolute' }, checkStyle]}>
-            <AppIcon name="checkmark" size={26} color={colors.onAccent} />
+            <AppIcon name="checkmark" size={26} color={onSave} />
           </Animated.View>
         </>
       ) : (
@@ -132,7 +138,7 @@ function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKe
 }
 
 /** 4x4 grid of separate rounded keys on the page background. `keyHeight` is clamped to 52-64. */
-function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, saveDisabled = false, hapticsEnabled, keyHeight = 56 }: KeypadProps) {
+function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, saveDisabled = false, saveColor, hapticsEnabled, keyHeight = 56 }: KeypadProps) {
   const height = Math.min(Math.max(keyHeight, 52), 64);
   return (
     <View className="bg-bg" style={{ padding: KEY_GAP, gap: KEY_GAP }}>
@@ -148,6 +154,7 @@ function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, 
                 height={height}
                 saveMode={saveMode}
                 saveDisabled={saveDisabled}
+                saveColor={saveColor}
                 hapticsEnabled={hapticsEnabled}
                 onKey={onKey}
                 onLongBackspace={onLongBackspace}

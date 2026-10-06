@@ -34,7 +34,7 @@ export function deltaLine(delta: Delta, period: Period, kind: InsightsKind, mone
   const suffix = previousLabel(period);
   if (delta.percent === 0) return { text: `No change ${suffix}`, good: false };
   const sign = delta.percent < 0 ? MINUS : '+';
-  const good = kind === 'expense' ? delta.percent < 0 : delta.percent > 0;
+  const good = kind === 'income' ? delta.percent > 0 : delta.percent < 0;
   const alt = money ? `${sign}${formatMoney(Math.abs(delta.amount), money.currency, { locale: money.locale, decimals: 0 })} ${suffix}` : undefined;
   return { text: `${sign}${Math.abs(delta.percent)}% ${suffix}`, alt, good };
 }
@@ -48,7 +48,7 @@ export function scrubLabel(point: SeriesPoint, granularity: Granularity, currenc
 
 /** Heading for the bar card. */
 export function barsTitle(granularity: Granularity, kind: InsightsKind): string {
-  const noun = kind === 'expense' ? 'spending' : 'income';
+  const noun = kind === 'income' ? 'income' : 'spending';
   return granularity === 'day' ? `Daily ${noun}` : `Monthly ${noun}`;
 }
 

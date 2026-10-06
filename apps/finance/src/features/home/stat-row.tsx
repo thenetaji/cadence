@@ -25,14 +25,14 @@ function Stat({ label, value, tone, divider, onPress }: StatProps) {
   );
 }
 
-type StatRowProps = { earned: string; perDay: string; balance: string; balanceNegative: boolean };
+type StatRowProps = { earned: string; earnedZero?: boolean; perDay: string; balance: string; balanceNegative: boolean };
 
 /** One card, three columns split by hairlines: Earned, Daily avg, Balance. */
-function StatRow({ earned, perDay, balance, balanceNegative }: StatRowProps) {
+function StatRow({ earned, earnedZero, perDay, balance, balanceNegative }: StatRowProps) {
   const router = useRouter();
   return (
     <Card className="flex-row rounded-[20px] px-0 py-3.5">
-      <Stat label="Earned" value={earned} tone="income" />
+      <Stat label="Earned" value={earned} tone={earnedZero ? 'tertiary' : 'income'} />
       <Stat label="Daily avg" value={perDay} divider />
       <Stat label="Balance" value={balance} tone={balanceNegative ? 'expense' : 'default'} divider onPress={() => router.push('/accounts')} />
     </Card>

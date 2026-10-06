@@ -36,7 +36,7 @@ const toRateMinor = (rate: number | null) => (rate === null ? 0 : Math.round(rat
 const SWATCHES = categoryKeys.filter((key): key is Exclude<CategoryColorKey, 'gray'> => key !== 'gray');
 
 function Swatches({ value, onChange }: { value: string; onChange: (key: CategoryColorKey) => void }) {
-  const { category } = useTokens();
+  const { ink, colors } = useTokens();
   return (
     <View className="-mx-1 flex-row flex-wrap">
       {SWATCHES.map((key) => {
@@ -49,10 +49,12 @@ function Swatches({ value, onChange }: { value: string; onChange: (key: Category
               accessibilityState={{ selected: on }}
               haptic="selection"
               onPress={() => onChange(key)}
-              className="h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: category[key] }}
+              className="h-10 w-10 items-center justify-center rounded-full"
+              style={{ borderWidth: 2, borderColor: on ? colors.accent : 'transparent' }}
             >
-              {on ? <SymbolIcon name="checkmark" size={15} color="#FFFFFF" weight="bold" /> : null}
+              <View className="h-8 w-8 items-center justify-center rounded-full" style={{ backgroundColor: ink[key] }}>
+                {on ? <SymbolIcon name="checkmark" size={14} color="#FFFFFF" weight="bold" /> : null}
+              </View>
             </Pressable>
           </View>
         );

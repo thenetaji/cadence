@@ -28,6 +28,7 @@ export type SemanticColors = {
   textSecondary: string;
   textTertiary: string;
   accent: string;
+  accentText: string;
   accentSoft: string;
   onAccent: string;
   income: string;
@@ -40,87 +41,107 @@ export type SemanticColors = {
 
 export const colors: Record<Scheme, SemanticColors> = {
   light: {
-    bg: '#F2F2F7',
+    bg: '#F4F2EE',
     surface: '#FFFFFF',
     elevated: '#FFFFFF',
-    border: '#E3E3E8',
-    separator: 'rgba(60,60,67,0.12)',
-    text: '#111114',
-    textSecondary: '#6E6E76',
-    textTertiary: '#A5A5AD',
-    accent: '#2E5BFF',
-    accentSoft: 'rgba(46,91,255,0.12)',
-    onAccent: '#FFFFFF',
-    income: '#1E9E5A',
-    expense: '#D93A3A',
-    warning: '#D98A0B',
-    fill: '#E9E9EE',
-    overlay: '#1C1C1E',
-    overlayText: '#F5F5F7',
+    border: 'rgba(20,18,14,0.07)',
+    separator: 'rgba(20,18,14,0.07)',
+    text: '#141311',
+    textSecondary: '#6C6A66',
+    textTertiary: '#A3A09A',
+    accent: '#C9A24F',
+    accentText: '#9A7224',
+    accentSoft: 'rgba(201,162,79,0.14)',
+    onAccent: '#141311',
+    income: '#1F8A4D',
+    expense: '#C8352F',
+    warning: '#B8740E',
+    fill: '#ECEAE4',
+    overlay: '#141311',
+    overlayText: '#F4F2EE',
   },
   dark: {
     bg: '#000000',
-    surface: '#1C1C1E',
-    elevated: '#2C2C2E',
-    border: '#2A2A2E',
-    separator: 'rgba(84,84,88,0.40)',
-    text: '#F5F5F7',
-    textSecondary: '#A1A1AA',
-    textTertiary: '#6B6B72',
-    accent: '#6B8CFF',
-    accentSoft: 'rgba(107,140,255,0.18)',
-    onAccent: '#FFFFFF',
-    income: '#3DD68C',
-    expense: '#FF5C5C',
-    warning: '#FFB224',
-    fill: '#2C2C2E',
-    overlay: '#F2F2F7',
-    overlayText: '#1C1C1E',
+    surface: '#0E0E10',
+    elevated: '#161618',
+    border: 'rgba(255,255,255,0.07)',
+    separator: 'rgba(255,255,255,0.06)',
+    text: '#F7F6F2',
+    textSecondary: '#9D9CA3',
+    textTertiary: '#5F5F67',
+    accent: '#E2B96A',
+    accentText: '#E2B96A',
+    accentSoft: 'rgba(226,185,106,0.14)',
+    onAccent: '#141210',
+    income: '#4FD08A',
+    expense: '#F0625D',
+    warning: '#E8A33D',
+    fill: '#18181B',
+    overlay: '#F4F2EE',
+    overlayText: '#141311',
   },
 };
 
+/** Data colours for charts and swatches: `lit` on black, `light-data` on paper. */
 export const categoryColors: Record<Scheme, Record<CategoryColorKey, string>> = {
   light: {
-    red: '#E5484D',
-    orange: '#F76B15',
-    amber: '#E8A317',
-    lime: '#7CB342',
-    green: '#30A46C',
-    teal: '#12A594',
-    cyan: '#0AA2C0',
-    blue: '#3E63DD',
-    indigo: '#5B5BD6',
-    purple: '#8E4EC6',
-    pink: '#D6409F',
-    brown: '#AD7F58',
-    gray: '#8B8D98',
+    red: '#C2434A',
+    orange: '#CC6425',
+    amber: '#B98A1E',
+    lime: '#6F8F28',
+    green: '#2F8E5C',
+    teal: '#24897E',
+    cyan: '#277F9F',
+    blue: '#3764C4',
+    indigo: '#5150B9',
+    purple: '#7C47B0',
+    pink: '#B13E86',
+    brown: '#8C6749',
+    gray: '#6E6E76',
   },
   dark: {
-    red: '#F2555A',
-    orange: '#FF801F',
-    amber: '#FFB224',
-    lime: '#8FD14F',
-    green: '#3DD68C',
-    teal: '#0BD8B6',
-    cyan: '#23C4E0',
-    blue: '#5B8DEF',
-    indigo: '#7B7BF0',
-    purple: '#B06AE4',
-    pink: '#F065B8',
-    brown: '#C49A74',
-    gray: '#9A9CA6',
+    red: '#E0565E',
+    orange: '#E57A3A',
+    amber: '#DDA53A',
+    lime: '#9BBE43',
+    green: '#4FBF80',
+    teal: '#3FB8A9',
+    cyan: '#44A9CC',
+    blue: '#5B86E0',
+    indigo: '#7C7AE0',
+    purple: '#A46BD4',
+    pink: '#D45FA6',
+    brown: '#B48866',
+    gray: '#86868E',
   },
+};
+
+/** Solid tile fill (same in both schemes); white glyph on top. */
+export const categoryInk: Record<CategoryColorKey, string> = {
+  red: '#B83840',
+  orange: '#C45C22',
+  amber: '#B5841F',
+  lime: '#6A8C24',
+  green: '#2F8C5B',
+  teal: '#22877C',
+  cyan: '#237B9A',
+  blue: '#3562C6',
+  indigo: '#514FBE',
+  purple: '#7A44B0',
+  pink: '#B03C85',
+  brown: '#8A6648',
+  gray: '#56565E',
 };
 
 export const spacing = { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32, 10: 40, 12: 48 } as const;
 export const gutter = 16;
 
-export const radii = { key: 8, tile: 10, button: 12, card: 14, sheet: 20, pill: 999 } as const;
+export const radii = { key: 8, tile: 999, button: 12, card: 18, sheet: 20, pill: 999 } as const;
 
 export type TypeStyle = { size: number; line: number; weight: '400' | '500' | '600' | '700'; tracking: number };
 
 export const typeScale = {
-  hero: { size: 36, line: 44, weight: '600', tracking: -0.8 },
+  hero: { size: 44, line: 50, weight: '700', tracking: -2 },
   amountEntry: { size: 44, line: 52, weight: '600', tracking: -1 },
   largeTitle: { size: 34, line: 41, weight: '700', tracking: -0.4 },
   title1: { size: 28, line: 34, weight: '700', tracking: -0.3 },
@@ -147,7 +168,7 @@ export const pressScale = { row: 0.97, card: 0.97, key: 0.92, fab: 0.92 } as con
 export const pressOpacity = { text: 0.6 } as const;
 
 export const shadows = {
-  fab: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.16, shadowRadius: 12, elevation: 6 },
+  fab: { shadowColor: '#E2B96A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 14, elevation: 6 },
   toast: { shadowColor: '#000000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 10 },
 } as const;
 

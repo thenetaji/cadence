@@ -65,3 +65,26 @@ export function periodNoun(period: Period): string {
   if (period.type === 'custom') return `${periodLength(period)} days`;
   return period.type;
 }
+
+const WEEKDAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKDAY_PLURAL = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays'];
+
+/** "Sat" for weekday 6 (1 = Monday). */
+export const weekdayShort = (day: number): string => WEEKDAY_SHORT[day - 1] ?? '';
+
+/** "Most on Saturdays". */
+export function peakCaption(day: number): string {
+  return `Most on ${WEEKDAY_PLURAL[day - 1] ?? ''}`;
+}
+
+/** "61%", "−12%", or an em dash when there is no rate. */
+export function percentText(rate: number | null): string {
+  if (rate === null) return '—';
+  return `${rate < 0 ? MINUS : ''}${Math.abs(rate)}%`;
+}
+
+/** "Sep · In ₹1.45L · Out ₹57.6K · Saved ₹87.4K". */
+export function monthlyScrub(pair: { key: string; income: number; spent: number }, currency: string, locale?: string): string {
+  const compact = (value: number) => formatMoney(value, currency, { compact: true, locale });
+  return `${monthShort(parseKey(pair.key).month)} · In ${compact(pair.income)} · Out ${compact(pair.spent)} · Saved ${compact(pair.income - pair.spent)}`;
+}

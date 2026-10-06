@@ -82,7 +82,7 @@ export default function TransactionDetail() {
       <Stack.Screen options={headerOptions} />
       <View className="items-center gap-1 px-6 pb-6 pt-4">
         <View className="mb-3">
-          <IconTile icon={icon} color={color} size={64} radius={32} splitBadge={split} />
+          <IconTile icon={icon} color={color} size={64} splitBadge={split} />
         </View>
         <Text variant="title2" numberOfLines={2} className="text-center" accessibilityRole="header">
           {title}

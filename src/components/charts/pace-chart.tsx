@@ -1,8 +1,8 @@
-import { Canvas, Circle, DashPathEffect, Group, Line, LinearGradient, Path, Skia, Text as SkText, vec } from '@shopify/react-native-skia';
+import { BlurMask, Canvas, Circle, DashPathEffect, Group, Line, LinearGradient, Path, Skia, Text as SkText, vec } from '@shopify/react-native-skia';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { useDerivedValue } from 'react-native-reanimated';
+import { useDerivedValue, useReducedMotion } from 'react-native-reanimated';
 
 import { nearestPoint, niceTicks, pointX, valueToY } from '@/lib/charts';
 import { formatMoney } from '@/lib/money';
@@ -30,6 +30,8 @@ export type PaceChartProps = {
   accessibilityLabel: string;
   height?: number;
   locale?: string;
+  /** 'none' hides the y-axis amount labels and gridlines (and their gutter). Default 'full'. */
+  axis?: 'full' | 'none';
 };
 
 const LANE = 30;
@@ -77,16 +79,19 @@ function buildPaths(data: readonly PaceDatum[], plotWidth: number, baseline: num
     return { actualPath: line.build(), areaPath: area.build(), pacePath: even.build(), lastActual: last, yMax, ticks, peak };
 }
 
-function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color, accessibilityLabel, height = 160, locale }: PaceChartProps) {
+function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color, accessibilityLabel, height = 160, locale, axis = 'full' }: PaceChartProps) {
   const { colors } = useTokens();
   const [width, onLayout] = useChartWidth();
   const font = useChartFont(11, 'medium');
   const labelFont = useChartFont(12, 'semibold');
   const grow = useGrow();
-  const plotWidth = Math.max(0, width - GUTTER);
+  const showAxis = axis === 'full';
+  const plotWidth = Math.max(0, width - (showAxis ? GUTTER : 0));
   const baseline = LANE + height;
   const count = data.length;
-  const tint = color ?? colors.accent;
+  const tint = color ?? colors.text;
+  const glow = colors.accent;
+  const reduced = useReducedMotion();
 
   const { actualPath, areaPath, pacePath, lastActual, yMax, ticks, peak } = React.useMemo(
     () => buildPaths(data, plotWidth, baseline, height),
@@ -117,7 +122,7 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
         <GestureDetector gesture={gesture}>
           <View collapsable={false}>
             <Canvas style={{ width, height: LANE + height + AXIS }}>
-              {(ticks.length > 0 ? ticks : [0, 0, 0]).map((t, i) => {
+              {(showAxis ? (ticks.length > 0 ? ticks : [0, 0, 0]) : []).map((t, i) => {
                 const y = ticks.length > 0 ? valueToY(t, yMax, baseline, height) : baseline - (height * (i + 1)) / 3;
                 return (
                   <Group key={i}>
@@ -126,18 +131,25 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
                   </Group>
                 );
               })}
-              <Line p1={vec(0, baseline)} p2={vec(plotWidth, baseline)} color={colors.separator} strokeWidth={StyleSheet.hairlineWidth} />
+              {showAxis ? <Line p1={vec(0, baseline)} p2={vec(plotWidth, baseline)} color={colors.separator} strokeWidth={StyleSheet.hairlineWidth} /> : null}
               {count > 0 && peak > 0 ? (
                 <>
-                  <Path path={pacePath} style="stroke" strokeWidth={1.5} color={colors.textTertiary} strokeCap="round">
-                    <DashPathEffect intervals={[2, 5]} />
+                  <Path path={pacePath} style="stroke" strokeWidth={1.5} color={withAlpha(colors.text, 0.28)} strokeCap="round">
+                    <DashPathEffect intervals={[3, 4]} />
                   </Path>
                   {lastActual >= 0 ? (
                     <>
                       <Path path={areaPath} style="fill">
-                        <LinearGradient start={vec(0, LANE)} end={vec(0, baseline)} colors={[withAlpha(tint, 0.22), withAlpha(tint, 0)]} />
+                        <LinearGradient start={vec(0, LANE)} end={vec(0, baseline)} colors={[withAlpha(tint, 0.14), withAlpha(tint, 0)]} />
                       </Path>
+                      {reduced ? null : (
+                        <Path path={actualPath} style="stroke" strokeWidth={6} color={withAlpha(glow, 0.4)} strokeCap="round" strokeJoin="round" start={0} end={end}>
+                          <BlurMask blur={7} style="normal" />
+                        </Path>
+                      )}
                       <Path path={actualPath} style="stroke" strokeWidth={2.5} color={tint} strokeCap="round" strokeJoin="round" start={0} end={end} />
+                      <Circle cx={pointX(lastActual, 0, plotWidth, count)} cy={valueToY(data[lastActual]?.actual ?? 0, yMax, baseline, height)} r={6} color={withAlpha(glow, 0.3)} />
+                      <Circle cx={pointX(lastActual, 0, plotWidth, count)} cy={valueToY(data[lastActual]?.actual ?? 0, yMax, baseline, height)} r={3.5} color={glow} />
                     </>
                   ) : null}
                 </>
@@ -153,7 +165,7 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
                 <Group>
                   <Line p1={vec(pointX(selected, 0, plotWidth, count), LANE)} p2={vec(pointX(selected, 0, plotWidth, count), baseline)} color={colors.separator} strokeWidth={1} />
                   <Circle cx={pointX(selected, 0, plotWidth, count)} cy={valueToY(marker, yMax, baseline, height)} r={5} color={colors.surface} />
-                  <Circle cx={pointX(selected, 0, plotWidth, count)} cy={valueToY(marker, yMax, baseline, height)} r={3.5} color={tint} />
+                  <Circle cx={pointX(selected, 0, plotWidth, count)} cy={valueToY(marker, yMax, baseline, height)} r={3.5} color={glow} />
                   {labelFont ? <FloatingLabel text={text} font={labelFont} centerX={pointX(selected, 0, plotWidth, count)} y={0} totalWidth={width} /> : null}
                 </Group>
               ) : null}

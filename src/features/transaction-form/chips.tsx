@@ -5,7 +5,7 @@ import { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from '
 import { SymbolIcon } from '@/components/app/symbol';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { durations, withAlpha, type CategoryColorKey } from '@/theme/tokens';
+import { durations, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
 type FormChipProps = {
@@ -14,8 +14,8 @@ type FormChipProps = {
   trailingIcon?: string;
   hint?: string;
   selected?: boolean;
-  /** Icon colour and selected background; accent when omitted. */
-  tint?: string;
+  /** Solid tile colour for a mini category circle behind a white glyph. */
+  ink?: string;
   onPress?: () => void;
   accessibilityLabel?: string;
   /** Lets the chip truncate inside a row instead of overflowing. */
@@ -25,17 +25,17 @@ type FormChipProps = {
 };
 
 /** Pill chip whose selected state cross-fades over 200 ms. */
-function FormChip({ label, icon, trailingIcon, hint, selected = false, tint, onPress, accessibilityLabel, shrink = false, iconOnly = false }: FormChipProps) {
-  const { colors, isDark } = useTokens();
+function FormChip({ label, icon, trailingIcon, hint, selected = false, ink, onPress, accessibilityLabel, shrink = false, iconOnly = false }: FormChipProps) {
+  const { colors } = useTokens();
   const progress = useSharedValue(selected ? 1 : 0);
   React.useEffect(() => {
     progress.value = withTiming(selected ? 1 : 0, { duration: durations.chip });
   }, [selected, progress]);
-  const selectedBg = tint ? withAlpha(tint, isDark ? 0.22 : 0.15) : colors.accentSoft;
   const background = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(progress.value, [0, 1], [colors.fill, selectedBg]),
+    backgroundColor: interpolateColor(progress.value, [0, 1], [colors.fill, colors.accentSoft]),
+    borderColor: interpolateColor(progress.value, [0, 1], ['rgba(0,0,0,0)', colors.accent]),
   }));
-  const iconColor = tint ?? (selected ? colors.accent : colors.textSecondary);
+  const iconColor = selected ? colors.accentText : colors.textSecondary;
   return (
     <Pressable
       role="button"
@@ -47,6 +47,7 @@ function FormChip({ label, icon, trailingIcon, hint, selected = false, tint, onP
       style={[
         {
           height: 32,
+          borderWidth: 1,
           borderRadius: 16,
           paddingHorizontal: iconOnly ? 0 : 12,
           width: iconOnly ? 32 : undefined,
@@ -60,9 +61,15 @@ function FormChip({ label, icon, trailingIcon, hint, selected = false, tint, onP
         background as ViewStyle,
       ]}
     >
-      {icon ? <SymbolIcon name={icon} size={iconOnly ? 15 : 14} color={iconColor} /> : null}
+      {icon && ink ? (
+        <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: ink, alignItems: 'center', justifyContent: 'center', marginLeft: -6 }}>
+          <SymbolIcon name={icon} size={12} color="#FFFFFF" weight="semibold" />
+        </View>
+      ) : icon ? (
+        <SymbolIcon name={icon} size={iconOnly ? 15 : 14} color={iconColor} />
+      ) : null}
       {iconOnly ? null : (
-        <Text variant="callout" tone={selected && !tint ? 'accent' : 'default'} numberOfLines={1} className="shrink">
+        <Text variant="callout" tone={selected && !ink ? 'accent' : 'default'} numberOfLines={1} className="shrink">
           {label}
         </Text>
       )}
@@ -85,8 +92,8 @@ type CategoryPillProps = {
 };
 
 function CategoryPill({ name, icon, color, selected = false, onPress }: CategoryPillProps) {
-  const { category } = useTokens();
-  return <FormChip label={name} icon={icon} tint={category[color]} selected={selected} onPress={onPress} />;
+  const { ink } = useTokens();
+  return <FormChip label={name} icon={icon} ink={ink[color]} selected={selected} onPress={onPress} />;
 }
 
 function Hairline() {

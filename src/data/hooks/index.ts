@@ -20,3 +20,6 @@ export * from './useRecurringRules';
 export * from './useRates';
 export * from './useAccountUsage';
 export * from './useImportExport';
+export * from './useFrequentTitles';
+export * from './useHomeSpend';
+export * from './useInsightsExtras';

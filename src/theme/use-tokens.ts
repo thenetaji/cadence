@@ -3,6 +3,7 @@ import { useUniwind } from 'uniwind';
 
 import {
   categoryColors,
+  categoryInk,
   colors,
   durations,
   radii,
@@ -23,6 +24,7 @@ export function useTokens() {
       isDark: scheme === 'dark',
       colors: colors[scheme],
       category: categoryColors[scheme],
+      ink: categoryInk,
       spacing,
       radii,
       typeScale,

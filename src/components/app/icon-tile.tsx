@@ -1,32 +1,32 @@
 import { StyleSheet, View } from 'react-native';
 
 import { SymbolIcon } from '@/components/app/symbol';
-import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
 type IconTileProps = {
   icon: string;
   color: CategoryColorKey;
   size?: number;
+  /** Ignored: tiles are always circles. Kept so existing call sites compile. */
   radius?: number;
-  splitBadge?: boolean;
+    splitBadge?: boolean;
 };
 
-function IconTile({ icon, color, size = 36, radius = 10, splitBadge = false }: IconTileProps) {
-  const { category, colors, isDark } = useTokens();
-  const tint = category[color];
+function IconTile({ icon, color, size = 36, radius: _radius, splitBadge = false }: IconTileProps) {
+  const { ink, colors } = useTokens();
   return (
     <View style={{ width: size, height: size }}>
       <View
         style={{
           width: size,
           height: size,
-          borderRadius: radius,
-          backgroundColor: withAlpha(tint, isDark ? 0.22 : 0.15),
+          borderRadius: size / 2,
+          backgroundColor: ink[color],
         }}
         className="items-center justify-center"
       >
-        <SymbolIcon name={icon} size={Math.round(size * 0.5)} color={tint} />
+        <SymbolIcon name={icon} size={Math.round(size * 0.5)} color="#FFFFFF" weight="semibold" />
       </View>
       {splitBadge ? (
         <View

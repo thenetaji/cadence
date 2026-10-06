@@ -7,3 +7,5 @@ export type { MiniBarDatum, MiniBarsProps } from './mini-bars';
 export { PaceChart, paceLabel } from './pace-chart';
 export type { PaceChartProps, PaceDatum } from './pace-chart';
 export { withSkia } from './with-skia';
+export { PairedBars } from './paired-bars';
+export type { PairedBarsProps, PairedDatum } from './paired-bars';

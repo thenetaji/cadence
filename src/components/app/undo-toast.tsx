@@ -9,7 +9,7 @@ type UndoToastProps = { message: string; actionLabel?: string; onAction?: () => 
 
 function UndoToast({ message, actionLabel, onAction }: UndoToastProps) {
   const { isDark } = useTokens();
-  const actionColor = colors[isDark ? 'light' : 'dark'].accent;
+  const actionColor = colors[isDark ? 'light' : 'dark'].accentText;
   return (
     <View
       accessibilityRole="alert"

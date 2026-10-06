@@ -5,7 +5,7 @@ import { SymbolIcon } from '@/components/app/symbol';
 import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
 import { filterIcons } from './icons';
@@ -16,11 +16,11 @@ type IconGridProps = { value: string; color: CategoryColorKey; onChange: (icon: 
 
 /** Searchable grid of curated symbols as 44 pt circles in the chosen colour. */
 function IconGrid({ value, color, onChange }: IconGridProps) {
-  const { category, isDark } = useTokens();
+  const { ink, colors } = useTokens();
   const [query, setQuery] = React.useState('');
   const [initial] = React.useState(value);
   const icons = React.useMemo(() => filterIcons(query, initial), [query, initial]);
-  const tint = category[color];
+  const tint = ink[color];
   return (
     <View className="gap-3">
       <Input
@@ -50,9 +50,9 @@ function IconGrid({ value, color, onChange }: IconGridProps) {
                   haptic="selection"
                   onPress={() => onChange(name)}
                   className="items-center justify-center rounded-full"
-                  style={{ width: SIZE, height: SIZE, backgroundColor: on ? tint : withAlpha(tint, isDark ? 0.22 : 0.15) }}
+                  style={{ width: SIZE, height: SIZE, backgroundColor: on ? tint : colors.fill, borderWidth: 2, borderColor: on ? colors.accent : 'transparent' }}
                 >
-                  <SymbolIcon name={name} size={20} color={on ? '#FFFFFF' : tint} />
+                  <SymbolIcon name={name} size={20} color={on ? '#FFFFFF' : colors.textSecondary} weight="semibold" />
                 </Pressable>
               </View>
             );

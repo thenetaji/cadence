@@ -1,5 +1,5 @@
 import { periodFor } from '@/lib/dates';
-import { deltaLine, previousLabel, scrubLabel, trendLabel } from './labels';
+import { deltaLine, monthlyScrub, peakCaption, percentText, previousLabel, scrubLabel, trendLabel, weekdayShort } from './labels';
 
 const october = periodFor('month', '2026-10-05');
 
@@ -35,5 +35,20 @@ describe('labels', () => {
     expect(trendLabel(october)).toBe('Oct');
     expect(trendLabel(periodFor('week', '2026-10-05'))).toBe('5 Oct'.replace('5', '5'));
     expect(trendLabel(periodFor('year', '2026-10-05'))).toBe('2026');
+  });
+});
+
+describe('extras labels', () => {
+  it('names the peak weekday', () => {
+    expect(peakCaption(6)).toBe('Most on Saturdays');
+    expect(weekdayShort(1)).toBe('Mon');
+  });
+  it('formats rates', () => {
+    expect(percentText(null)).toBe('—');
+    expect(percentText(61)).toBe('61%');
+    expect(percentText(-12)).toBe('−12%');
+  });
+  it('writes the monthly scrub label', () => {
+    expect(monthlyScrub({ key: '2026-09-01', income: 14500000, spent: 5760000 }, 'INR', 'en-IN')).toBe('Sep · In ₹1.5L · Out ₹57.6K · Saved ₹87.4K');
   });
 });

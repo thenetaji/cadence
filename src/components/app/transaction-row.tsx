@@ -52,6 +52,7 @@ type DeleteActionProps = {
 function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.fill', tone = 'destructive' }: DeleteActionProps) {
   const { colors } = useTokens();
   const background = tone === 'destructive' ? colors.expense : tone === 'accent' ? colors.accent : colors.textSecondary;
+  const fg = tone === 'accent' ? colors.onAccent : '#FFFFFF';
   useAnimatedReaction(
     () => translation.value,
     (value, previous) => {
@@ -62,8 +63,8 @@ function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.f
   return (
     <Pressable role="button" accessibilityLabel={label} scale={1} onPress={onFull} className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
       <Animated.View style={[{ backgroundColor: background, minWidth: ACTION_WIDTH }, style]} className="items-center justify-center gap-1">
-        <SymbolIcon name={symbol} size={18} color="#FFFFFF" />
-        <Text variant="caption" className="text-white">
+        <SymbolIcon name={symbol} size={18} color={fg} />
+        <Text variant="caption" style={{ color: fg }}>
           {label}
         </Text>
       </Animated.View>
@@ -74,10 +75,11 @@ function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.f
 function DuplicateAction({ label = 'Duplicate', symbol = 'doc.on.doc', tone = 'accent' }: { label?: string; symbol?: string; tone?: NonNullable<SwipeAction['tone']> }) {
   const { colors } = useTokens();
   const background = tone === 'destructive' ? colors.expense : tone === 'neutral' ? colors.textSecondary : colors.accent;
+  const fg = tone === 'accent' ? colors.onAccent : '#FFFFFF';
   return (
     <View style={{ width: ACTION_WIDTH, backgroundColor: background }} className="items-center justify-center gap-1">
-      <SymbolIcon name={symbol} size={18} color="#FFFFFF" />
-      <Text variant="caption" className="text-white">
+      <SymbolIcon name={symbol} size={18} color={fg} />
+      <Text variant="caption" style={{ color: fg }}>
         {label}
       </Text>
     </View>

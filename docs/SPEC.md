@@ -450,49 +450,51 @@ Account icons by type: cash `banknote`, bank `building.columns.fill`, card `cred
 
 Implemented as CSS variables in `src/global.css` for Uniwind and mirrored in a `tokens.ts` for Skia charts and Reanimated.
 
-### 5.1 Colours, semantic
+### 5.1 Colours, semantic ("Obsidian": black, white, brass)
 
-| Token | Light | Dark |
+| Token | Light (warm paper) | Dark (true black) |
 |---|---|---|
-| `bg` | `#F2F2F7` | `#000000` |
-| `surface` | `#FFFFFF` | `#1C1C1E` |
-| `elevated` | `#FFFFFF` | `#2C2C2E` |
-| `border` | `#E3E3E8` | `#2A2A2E` |
-| `separator` | `rgba(60,60,67,0.12)` | `rgba(84,84,88,0.40)` |
-| `text` | `#111114` | `#F5F5F7` |
-| `text-secondary` | `#6E6E76` | `#A1A1AA` |
-| `text-tertiary` | `#A5A5AD` | `#6B6B72` |
-| `accent` | `#2E5BFF` | `#6B8CFF` |
-| `accent-soft` (chips, selected bg) | `rgba(46,91,255,0.12)` | `rgba(107,140,255,0.18)` |
-| `income` | `#1E9E5A` | `#3DD68C` |
-| `expense` (over budget, negative balance only) | `#D93A3A` | `#FF5C5C` |
-| `warning` | `#D98A0B` | `#FFB224` |
-| `fill` (keypad keys, inactive bars) | `#E9E9EE` | `#2C2C2E` |
-| `overlay` (toasts) | `#1C1C1E` | `#F2F2F7` (text inverted) |
+| `bg` | `#F4F2EE` | `#000000` |
+| `surface` | `#FFFFFF` | `#0E0E10` |
+| `elevated` | `#FFFFFF` | `#161618` |
+| `border` (1 px card rim) | `rgba(20,18,14,0.07)` | `rgba(255,255,255,0.07)` |
+| `separator` | `rgba(20,18,14,0.07)` | `rgba(255,255,255,0.06)` |
+| `text` | `#141311` | `#F7F6F2` |
+| `text-secondary` | `#6C6A66` | `#9D9CA3` |
+| `text-tertiary` | `#A3A09A` | `#5F5F67` |
+| `accent` (brass: fills, FAB, selection, tab tint) | `#C9A24F` | `#E2B96A` |
+| `accent-text` (links, text buttons) | `#9A7224` | `#E2B96A` |
+| `accent-soft` (selected chip bg, operator keys) | `rgba(201,162,79,0.14)` | `rgba(226,185,106,0.14)` |
+| `on-accent` | `#141311` | `#141210` |
+| `income` | `#1F8A4D` | `#4FD08A` |
+| `expense` (over budget, negative, destructive only) | `#C8352F` | `#F0625D` |
+| `warning` | `#B8740E` | `#E8A33D` |
+| `fill` (inactive chips, inputs, tracks) | `#ECEAE4` | `#18181B` |
+| `overlay` (toasts) | `#141311` | `#F4F2EE` (text inverted) |
 
-Expense amounts are rendered in `text`, not red. Only income is coloured. Pure `#000000` background in dark mode (OLED, matches Dime and Apple's own apps).
+Expense amounts are rendered in `text`, not red. Only income is coloured. Chrome is black, white and brass; colour is spent on category tiles and data. Brass is for primary actions, selected state, active tab tint, links and key data highlights. Pure `#000000` background in dark mode.
 
 ### 5.2 Category palette (12 + gray)
 
-Keys are what the DB stores. Light values sit on white; dark values are brightened for black.
+Keys are what the DB stores. `ink` is the solid tile fill (same in both schemes, white glyph on top). `lit` is for charts, swatches and text on black; `paper` is the data colour on warm paper.
 
-| Key | Light | Dark | Key | Light | Dark |
-|---|---|---|---|---|---|
-| red | `#E5484D` | `#F2555A` | cyan | `#0AA2C0` | `#23C4E0` |
-| orange | `#F76B15` | `#FF801F` | blue | `#3E63DD` | `#5B8DEF` |
-| amber | `#E8A317` | `#FFB224` | indigo | `#5B5BD6` | `#7B7BF0` |
-| lime | `#7CB342` | `#8FD14F` | purple | `#8E4EC6` | `#B06AE4` |
-| green | `#30A46C` | `#3DD68C` | pink | `#D6409F` | `#F065B8` |
-| teal | `#12A594` | `#0BD8B6` | brown | `#AD7F58` | `#C49A74` |
-| gray | `#8B8D98` | `#9A9CA6` | | | |
+| Key | ink | lit (dark) | paper (light) | Key | ink | lit (dark) | paper (light) |
+|---|---|---|---|---|---|---|---|
+| red | `#B83840` | `#E0565E` | `#C2434A` | cyan | `#237B9A` | `#44A9CC` | `#277F9F` |
+| orange | `#C45C22` | `#E57A3A` | `#CC6425` | blue | `#3562C6` | `#5B86E0` | `#3764C4` |
+| amber | `#B5841F` | `#DDA53A` | `#B98A1E` | indigo | `#514FBE` | `#7C7AE0` | `#5150B9` |
+| lime | `#6A8C24` | `#9BBE43` | `#6F8F28` | purple | `#7A44B0` | `#A46BD4` | `#7C47B0` |
+| green | `#2F8C5B` | `#4FBF80` | `#2F8E5C` | pink | `#B03C85` | `#D45FA6` | `#B13E86` |
+| teal | `#22877C` | `#3FB8A9` | `#24897E` | brown | `#8A6648` | `#B48866` | `#8C6749` |
+| gray | `#56565E` | `#86868E` | `#6E6E76` | | | | |
 
-Icon tiles: colour at 15% as background (dark: 22%), icon in the full colour. Donut and bars use the full colour.
+Icons: a 36 pt circle in solid `ink`, with a white SF Symbol (`type="monochrome"`, `weight="semibold"`, half the circle size). No tints, no gradients. Accounts use the same circle on `gray` ink; the selected swatch or icon gets a 2 pt brass ring. Chips show a 22 pt ink circle. Donut, bars and swatches use `lit`/`paper`, never `ink`.
 
 ### 5.3 Type scale (system font: SF Pro on iOS, Roboto on Android)
 
 | Style | Size/Line | Weight | Tracking | Use |
 |---|---|---|---|---|
-| hero | 36/44 | 600 | −0.8 | Home balance, Insights total |
+| hero | 44/50 | 700 | −2.0 | Home balance, Insights total |
 | amount-entry | 44/52 | 600 | −1.0 | Add sheet readout |
 | large-title | 34/41 | 700 | −0.4 | Tab screen titles (native) |
 | title1 | 28/34 | 700 | −0.3 | Detail amounts |
@@ -504,13 +506,13 @@ Icon tiles: colour at 15% as background (dark: 22%), icon in the full colour. Do
 | footnote | 13/18 | 400 | 0 | Section headers, meta |
 | caption | 12/16 | 500 | 0.1 | Chart labels, badges |
 
-All amounts: `fontVariant: ['tabular-nums']`, weight 500 in rows and 600 in heroes. Never use rounded or monospace fonts.
+All amounts: `fontVariant: ['tabular-nums']`, weight 500 in rows and 700 in heroes. Never use rounded or monospace fonts.
 
 ### 5.4 Spacing, radii, lines
 
 - 4 pt grid: 4, 8, 12, 16, 20, 24, 32, 40, 48. Screen gutter 16. Card padding 16. Row horizontal padding 16, vertical 12.
-- Radii: 8 (keypad keys, small tiles), 12 (chips are full pills; buttons), 14 (cards, icon tiles 36 pt use 10), 20 (sheet top corners, system), 999 (pills, + button).
-- Hairlines, not shadows: `StyleSheet.hairlineWidth` in `separator` between rows (inset 16 + icon width + 12 from leading). Cards have no border in dark mode and a `border` hairline in light mode. The only shadows: the + button (`0 4 12 rgba(0,0,0,0.16)`) and toasts (`0 6 20 rgba(0,0,0,0.20)`).
+- Radii: 8 (small elements), 12 (buttons, keypad keys, inputs; chips are full pills), 18 (cards and list groups), 999 (icon tiles are circles), 20 (sheet top corners, system), 999 (pills, + button).
+- Hairlines, not shadows: `StyleSheet.hairlineWidth` in `separator` between rows (inset 16 + icon width + 12 from leading). Cards carry a 1 px `border` rim in both schemes (light adds `0 1 2 rgba(20,18,14,0.04)`). The only other shadows: the + button (brass glow `0 4 14 rgba(226,185,106,0.25)`) and toasts (`0 6 20 rgba(0,0,0,0.20)`).
 
 ### 5.5 Motion
 
@@ -526,7 +528,7 @@ Light impact: + button, keypad keys, chip select. Selection: segment and donut s
 ### 5.7 Row anatomy (transaction row, 52 pt min height)
 
 ```
-[16] [36×36 icon tile, r10] [12] Title (body)                    −₹1,240 (body 500 tabular) [16]
+[16] [36×36 icon circle] [12] Title (body)                    −₹1,240 (body 500 tabular) [16]
                                  Category · Account (subhead, secondary)   14:32 (footnote, tertiary)
 ```
 Split: tile shows the first category icon with a 14 pt `square.split.2x1` badge bottom-right; subtitle "3 categories · Account". Transfer: tile icon `arrow.left.arrow.right` on gray; title "Cash → HDFC"; amount without sign in `text-secondary`. Foreign currency: amount line shows the original ("−$12.00") and the time slot shows the converted ("≈ ₹1,000"). Income: amount in `income` with "+". Title truncates to 1 line (tail), subtitle 1 line.

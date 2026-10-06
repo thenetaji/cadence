@@ -1,6 +1,6 @@
 import { useRouter, type Href } from 'expo-router';
 import * as React from 'react';
-import { InputAccessoryView, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { InputAccessoryView, Keyboard, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -68,6 +68,10 @@ export type FormParams = {
   accountId?: string;
   categoryId?: string;
   duplicateOf?: string;
+  /** Quick-add prefill: title, amount in minor units and the currency that amount is in. */
+  title?: string;
+  amount?: string;
+  currency?: string;
   ruleId?: string;
   dev?: string;
 };
@@ -97,7 +101,7 @@ const get = () => useDraftStore.getState();
 function TransactionForm({ mode, transactionId, params = {} }: TransactionFormProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useTokens();
+  const { colors } = useTokens();
   const actions = useActions();
   const settings = useSettings();
   const accountsAll = useAccounts({ includeArchived: true });
@@ -128,6 +132,14 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
       draft = draftFromTransaction({ ...rule, transferCurrency: null, occurredAt: now, splits: [] }, now);
       if (rule.kind === 'transfer') draft.receives = rule.transferAmount;
       draft.appliedTitleNorm = normalizeTitle(draft.title);
+    }
+    if (!source && !rule && params.title) {
+      draft.title = params.title;
+      draft.appliedTitleNorm = normalizeTitle(params.title);
+      const minor = Number(params.amount);
+      const account = activeAccounts.find((a) => a.id === draft.accountId);
+      const sameCurrency = !params.currency || account?.currency === params.currency;
+      if (draft.kind !== 'transfer' && Number.isInteger(minor) && minor > 0 && sameCurrency) draft.amount = minor;
     }
     if (devEnabled) draft = applyDevPreset(draft, params.dev, accountsAll, categoriesAll);
     useDraftStore.getState().init(draft);
@@ -392,7 +404,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
     Keyboard.dismiss();
     setKeypadOpen(true);
   };
-  const cardBorder = isDark ? undefined : { borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border };
+  const cardBorder = { borderWidth: 1, borderColor: colors.border };
 
   if (!booted) return null;
 

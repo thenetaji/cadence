@@ -1,10 +1,11 @@
 import * as React from 'react';
+import { View } from 'react-native';
 
 import { SymbolIcon } from '@/components/app/symbol';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
+import type { CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
 type ChipProps = {
@@ -19,7 +20,7 @@ type ChipProps = {
 
 function Chip({ label, selected = false, icon, trailingIcon, hint, onPress, accessibilityLabel }: ChipProps) {
   const { colors } = useTokens();
-  const iconColor = selected ? colors.accent : colors.textSecondary;
+  const iconColor = selected ? colors.accentText : colors.textSecondary;
   return (
     <Pressable
       role="button"
@@ -28,7 +29,7 @@ function Chip({ label, selected = false, icon, trailingIcon, hint, onPress, acce
       haptic="light"
       hitSlop={{ top: 6, bottom: 6 }}
       onPress={onPress}
-      className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full px-3', selected ? 'bg-accent-soft' : 'bg-fill')}
+      className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full border px-3', selected ? 'border-accent bg-accent-soft' : 'border-transparent bg-fill')}
     >
       {icon ? <SymbolIcon name={icon} size={14} color={iconColor} /> : null}
       <Text variant="callout" tone={selected ? 'accent' : 'default'} numberOfLines={1}>
@@ -53,8 +54,7 @@ type CategoryChipProps = {
 };
 
 function CategoryChip({ name, icon, color, selected = false, onPress }: CategoryChipProps) {
-  const { category, colors, isDark } = useTokens();
-  const tint = category[color];
+  const { ink, colors } = useTokens();
   return (
     <Pressable
       role="button"
@@ -63,11 +63,12 @@ function CategoryChip({ name, icon, color, selected = false, onPress }: Category
       haptic="light"
       hitSlop={{ top: 6, bottom: 6 }}
       onPress={onPress}
-      className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full px-3', !selected && 'bg-fill')}
-      style={selected ? { backgroundColor: withAlpha(tint, isDark ? 0.22 : 0.15) } : undefined}
+      className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full border pl-1.5 pr-3', selected ? 'border-accent bg-accent-soft' : 'border-transparent bg-fill')}
     >
-      <SymbolIcon name={icon} size={14} color={tint} />
-      <Text variant="callout" numberOfLines={1} style={selected ? undefined : { color: colors.text }}>
+      <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: ink[color], alignItems: 'center', justifyContent: 'center' }}>
+        <SymbolIcon name={icon} size={12} color="#FFFFFF" weight="semibold" />
+      </View>
+      <Text variant="callout" numberOfLines={1} style={selected ? { color: colors.accentText } : { color: colors.text }}>
         {name}
       </Text>
     </Pressable>

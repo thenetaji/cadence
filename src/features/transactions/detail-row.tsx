@@ -38,7 +38,7 @@ function DetailRow({ label, value, tile, leading, caption, stacked = false, nume
       onPress={onPress}
       className={`min-h-[48px] bg-surface px-4 py-3 active:bg-fill ${stacked ? 'gap-1' : 'flex-row items-center gap-3'}`}
     >
-      {leading ? <IconTile icon={leading.icon} color={leading.color} size={28} radius={8} /> : null}
+      {leading ? <IconTile icon={leading.icon} color={leading.color} size={28} /> : null}
       <Text
         variant={stacked ? 'footnote' : 'body'}
         tone={leading ? 'default' : 'secondary'}
@@ -48,7 +48,7 @@ function DetailRow({ label, value, tile, leading, caption, stacked = false, nume
         {label}
       </Text>
       <View className={stacked ? '' : leading ? 'items-end' : 'flex-1 flex-row items-center justify-end gap-2'}>
-        {tile ? <IconTile icon={tile.icon} color={tile.color} size={24} radius={7} /> : null}
+        {tile ? <IconTile icon={tile.icon} color={tile.color} size={24} /> : null}
         <View className={stacked ? '' : 'shrink items-end'}>
           <Text variant="body" numeric={numeric} numberOfLines={stacked ? undefined : 1} className={stacked ? '' : 'text-right'}>
             {value}

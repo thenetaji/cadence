@@ -20,6 +20,7 @@ function SymbolIcon({ name, size = 20, color, weight = 'medium', accessibilityLa
         name={name as React.ComponentProps<typeof SymbolView>['name']}
         size={size}
         tintColor={color}
+        type="monochrome"
         weight={weight}
         resizeMode="scaleAspectFit"
         style={{ width: size, height: size }}

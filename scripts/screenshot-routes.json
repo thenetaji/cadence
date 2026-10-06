@@ -7,6 +7,7 @@
   {"name": "insights-empty", "path": "/insights?seed=empty", "waitFor": "Spent", "height": 1100},
   {"name": "insights", "path": "/insights?seed=demo", "waitFor": "Spent"},
   {"name": "insights-full", "path": "/insights?seed=demo&offset=-1", "waitFor": "Spent", "height": 1700},
+  {"name": "insights-long", "path": "/insights?seed=demo&offset=-1", "waitFor": "Spent", "fullPage": true},
   {"name": "insights-week", "path": "/insights?seed=demo&period=week", "waitFor": "Spent"},
   {"name": "insights-year", "path": "/insights?seed=demo&period=year", "waitFor": "Spent"},
   {"name": "insights-income", "path": "/insights?seed=demo&kind=income&offset=-1", "waitFor": "Earned", "height": 1700},

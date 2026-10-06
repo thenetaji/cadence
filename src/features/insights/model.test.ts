@@ -27,7 +27,7 @@ describe('insights model', () => {
     const data = donutData(insights, { currency: 'INR', locale: 'en-IN', showDecimals: false, scheme: 'light' });
     expect(data.map((d) => d.name)).toEqual(['A', 'B', 'Other']);
     expect(data[0]?.amountLabel).toBe('₹5');
-    expect(data[2]?.color).toBe('#8B8D98');
+    expect(data[2]?.color).toBe('#6E6E76');
   });
   it('resolves names and summarises for accessibility', () => {
     expect(keyForName(insights, 'b')).toBe('b');

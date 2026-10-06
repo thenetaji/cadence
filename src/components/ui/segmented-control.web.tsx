@@ -27,7 +27,7 @@ function SegmentedControl({ values, selectedIndex, onChange, accessibilityLabel,
             onPress={() => onChange(index)}
             className={cn(
               'flex-1 items-center justify-center rounded-[7px]',
-              selected && (isDark ? 'bg-[#636366]' : 'bg-surface'),
+              selected && (isDark ? 'bg-[#2C2C30]' : 'bg-surface'),
             )}
             style={selected && !isDark ? { boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.08)' } : undefined}
           >

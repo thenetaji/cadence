@@ -31,7 +31,7 @@ function AccountRow({ view, separator = true, onPress, trailing }: AccountRowPro
       className="flex-row items-center bg-surface px-4"
       style={{ height: ACCOUNT_ROW_HEIGHT }}
     >
-      <IconTile icon={view.icon} color={view.color} size={40} radius={11} />
+      <IconTile icon={view.icon} color={view.color} size={40} />
       <View className="ml-3 mr-3 flex-1">
         <Text variant="body" numberOfLines={1}>
           {view.name}

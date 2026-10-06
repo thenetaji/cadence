@@ -22,7 +22,7 @@ function UpcomingSection({ todayKey, locale, showDecimals }: UpcomingSectionProp
   const categoryMap = React.useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const accountMap = React.useMemo(() => new Map(accounts.map((a) => [a.id, a])), [accounts]);
   const rows = React.useMemo(
-    () => nextPerRule(occurrences).map((o) => toUpcomingRow(o, { todayKey, locale, showDecimals, categories: categoryMap, accounts: accountMap })),
+    () => nextPerRule(occurrences).slice(0, 3).map((o) => toUpcomingRow(o, { todayKey, locale, showDecimals, categories: categoryMap, accounts: accountMap })),
     [occurrences, todayKey, locale, showDecimals, categoryMap, accountMap],
   );
   const rules = useRecurringRules();
@@ -34,7 +34,7 @@ function UpcomingSection({ todayKey, locale, showDecimals }: UpcomingSectionProp
     <>
       <SectionHeader title="Upcoming" actionLabel="All" onAction={() => router.push('/recurring')} />
       {rows.length > 0 ? (
-      <Card className="mx-4 p-0">
+      <Card className="mx-4 rounded-2xl p-0">
         {rows.map((row, index) => (
           <TransactionRow
             key={row.ruleId}

@@ -21,7 +21,7 @@ const badgeTextVariants = cva('', {
   variants: {
     variant: {
       default: 'text-secondary',
-      accent: 'text-accent',
+      accent: 'text-accent-text',
       income: 'text-income',
       warning: 'text-warning',
       expense: 'text-expense',

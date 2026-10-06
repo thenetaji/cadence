@@ -58,9 +58,9 @@ function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKe
   const isOperator = keyName === '-' || keyName === '+' || keyName === '=';
   const isDigit = !isOperator && keyName !== 'backspace' && keyName !== '.';
   const isDigitLike = isDigit || keyName === '.';
-  // Dark: digits sit on `surface`, operators and backspace on `elevated`, so the operator column reads against black.
-  const base = isDark ? (isDigitLike ? colors.surface : colors.elevated) : isDigitLike ? colors.surface : colors.fill;
-  const down = isDark ? (isDigitLike ? '#2C2C2E' : '#3A3A3C') : isDigitLike ? '#E4E4E9' : '#DCDCE2';
+  // Digits on `elevated` with a rim so they read on true black; operators on the brass soft fill.
+  const base = isOperator ? colors.accentSoft : isDark ? colors.elevated : isDigitLike ? colors.surface : colors.fill;
+  const down = isDark ? (isOperator ? 'rgba(226,185,106,0.28)' : '#26262A') : isOperator ? 'rgba(201,162,79,0.28)' : '#E4E1DA';
   const label = isSave ? 'Save' : (speech[keyName] ?? keyName);
   return (
     <Pressable
@@ -75,7 +75,7 @@ function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKe
       onLongPress={keyName === 'backspace' ? onLongBackspace : undefined}
       delayLongPress={400}
       className="flex-1 items-center justify-center rounded-[12px]"
-      style={{ height, backgroundColor: isSave ? colors.accent : pressed ? down : base, opacity: isSave ? (saveDisabled ? 0.4 : pressed ? 0.85 : 1) : 1 }}
+      style={{ height, borderWidth: isSave ? 0 : 1, borderColor: colors.border, backgroundColor: isSave ? colors.accent : pressed ? down : base, opacity: isSave ? (saveDisabled ? 0.4 : pressed ? 0.85 : 1) : 1 }}
     >
       {keyName === 'backspace' ? (
         <SymbolIcon name="delete.left" size={24} color={colors.text} weight="regular" />

@@ -31,9 +31,9 @@ const buttonTextVariants = cva('', {
     variant: {
       primary: 'text-primary-foreground',
       secondary: 'text-foreground',
-      ghost: 'text-accent',
+      ghost: 'text-accent-text',
       destructiveText: 'text-expense',
-      plainText: 'text-accent',
+      plainText: 'text-accent-text',
     },
   },
   defaultVariants: { variant: 'primary' },

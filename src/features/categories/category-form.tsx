@@ -75,7 +75,7 @@ export function CategoryForm({ id }: CategoryFormProps) {
       <Stack.Screen options={header} />
       <EntryLayout>
         <View className="items-center gap-3 pb-2 pt-2" accessibilityLabel={`Preview, ${name.trim() || 'Name'}`}>
-          <IconTile icon={icon} color={color} size={72} radius={20} />
+          <IconTile icon={icon} color={color} size={72} />
           <Text variant="title2" tone={name.trim() ? 'default' : 'tertiary'} numberOfLines={1} className="px-6">
             {name.trim() || 'Name'}
           </Text>

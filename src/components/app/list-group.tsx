@@ -97,7 +97,7 @@ type ListGroupProps = {
 };
 
 function ListGroup({ header, footer, children }: ListGroupProps) {
-  const { isDark, colors } = useTokens();
+  const { colors } = useTokens();
   const items = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<ListRowInjectedProps>[];
   return (
     <View className="px-4">
@@ -107,8 +107,8 @@ function ListGroup({ header, footer, children }: ListGroupProps) {
         </Text>
       ) : null}
       <View
-        className="overflow-hidden rounded-[14px] bg-surface"
-        style={isDark ? undefined : { borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border }}
+        className="overflow-hidden rounded-[18px] bg-surface"
+        style={{ borderWidth: 1, borderColor: colors.border }}
       >
         {items.map((item, index) => React.cloneElement(item, { showSeparator: index < items.length - 1 }))}
       </View>

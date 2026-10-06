@@ -2,7 +2,7 @@ import { listCategories } from '@/db/repos/categories';
 import { spendLines } from '@/db/repos/reports';
 import type { CategoryRow } from '@/db/schema';
 import type { Db } from '@/db/types';
-import { previousPeriod, type Period } from '@/lib/dates';
+import { previousPeriod, type DateKey, type Period } from '@/lib/dates';
 import {
   averageOf,
   buildSeries,
@@ -42,7 +42,7 @@ export interface Insights {
   average: number;
 }
 
-export function readInsights(db: Db, period: Period, kind: 'expense' | 'income'): Insights {
+export function readInsights(db: Db, period: Period, kind: 'expense' | 'income', todayKey?: DateKey): Insights {
   const ctx = conversionContext(db);
   const previous = previousPeriod(period);
   const lines = spendLines(db, { from: previous.from, to: period.to });
@@ -63,6 +63,7 @@ export function readInsights(db: Db, period: Period, kind: 'expense' | 'income')
     donut: groupTopCategories(totals, 8).map(attach),
     series,
     granularity: granularityFor(period),
-    average: averageOf(series),
+    // Days that have not happened yet would only drag the daily average down.
+    average: averageOf(granularityFor(period) === 'day' && todayKey && todayKey >= period.from && todayKey < period.to ? series.filter((p) => p.key <= todayKey) : series),
   };
 }

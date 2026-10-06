@@ -31,6 +31,8 @@ export type BarChartProps = {
   /** Plot height; the chart adds a label lane above and axis labels below. */
   height?: number;
   locale?: string;
+  /** Bar drawn at full strength (others dimmed) while nothing is scrubbed; e.g. the peak weekday. */
+  highlightIndex?: number | null;
 };
 
 const LANE = 30;
@@ -51,6 +53,7 @@ function BarChart({
   accessibilityLabel,
   height = 160,
   locale,
+  highlightIndex = null,
 }: BarChartProps) {
   const { colors } = useTokens();
   const [width, onLayout] = useChartWidth();
@@ -117,7 +120,7 @@ function BarChart({
                       if (!slot) return null;
                       const h = d.value > 0 ? Math.max(MIN_NUB + RADIUS, baseline - valueToY(d.value, top, baseline, height)) : 0;
                       if (h === 0) return null;
-                      const faded = selected !== null && selected !== i;
+                      const faded = selected !== null ? selected !== i : highlightIndex !== null && highlightIndex !== i;
                       return (
                         <RoundedRect
                           key={d.key}
@@ -126,7 +129,7 @@ function BarChart({
                           width={slot.width}
                           height={h + RADIUS}
                           r={RADIUS}
-                          color={selected === i ? tint : withAlpha(tint, faded ? 0.45 : 0.7)}
+                          color={selected === i || (selected === null && highlightIndex === i) ? tint : withAlpha(tint, faded ? 0.45 : 0.7)}
                         />
                       );
                     })}

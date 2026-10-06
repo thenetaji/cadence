@@ -11,7 +11,7 @@ import { Donut } from '@/components/charts/donut';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { useInsights, useSettings, useTodayKey } from '@/data/hooks';
+import { useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
 import { axisLabels } from '@/lib/charts';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@/lib/dates';
 import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
@@ -25,6 +25,7 @@ import { KindMenu } from './kind-menu';
 import { donutData, keyForName, listItems, summaryLabel } from './model';
 import { canStepForward, parseInsightsParams, periodOf, stepView, type InsightsKind, type InsightsParams, type InsightsView } from './params';
 import { PeriodControls } from './period-controls';
+import { AccountsCard, MerchantsCard, MonthlyCard, StatsGrid, WeekdayCard } from './sections';
 import { useRangeStore } from './range-store';
 
 type Selection = { key: string } | { name: string } | null;
@@ -45,7 +46,8 @@ export default function InsightsScreen() {
   const [scrub, setScrub] = React.useState<number | null>(null);
 
   const period = periodOf(view, periodSettings);
-  const insights = useInsights(period, view.kind);
+  const insights = useInsights(period, view.kind, today);
+  const extras = useInsightsExtras(period, view.kind, periodSettings, today);
   const { currency } = insights;
   const fmt = React.useMemo(() => ({ currency, locale: money.locale, showDecimals: money.showDecimals, scheme }), [currency, money.locale, money.showDecimals, scheme]);
 
@@ -183,6 +185,11 @@ export default function InsightsScreen() {
                   ) : null}
                 </View>
               </View>
+              {extras.transactionCount > 0 ? (
+                <View className="pb-4">
+                  <StatsGrid extras={extras} currency={currency} locale={money.locale} />
+                </View>
+              ) : null}
               <Card className="mx-4 items-center p-3">
                 <Donut
                   data={donut}
@@ -231,6 +238,14 @@ export default function InsightsScreen() {
             />
           </Card>
 
+          {insights.total > 0 ? (
+            <>
+              {extras.monthly.some((m) => m.income > 0 || m.spent > 0) ? <MonthlyCard monthly={extras.monthly} currency={currency} locale={money.locale} /> : null}
+              <WeekdayCard extras={extras} currency={currency} locale={money.locale} />
+              <MerchantsCard merchants={extras.merchants} kind={view.kind} currency={currency} locale={money.locale} />
+              <AccountsCard accounts={extras.accounts} currency={currency} locale={money.locale} />
+            </>
+          ) : null}
         </Animated.View>
       </ScrollView>
     </View>

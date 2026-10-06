@@ -97,9 +97,12 @@ export async function pickCategory(page, name) {
   await page.locator(`[aria-label="${name}"]`).last().tap();
 }
 
-export const rowLabel = (page, title) => page.locator(`[aria-label^="${title}, "]:visible`).first().getAttribute('aria-label');
+/** Transaction rows only: Quick add chips ("Coffee, $450") and budget rows share the title prefix, but rows speak "minus"/"plus". */
+export const rowSel = (title) => `[aria-label^="${title}, "]:is([aria-label*=", minus "],[aria-label*=", plus "]):not([aria-label*=", due "])`;
+export const isRowLabel = (l, title) => l?.startsWith(`${title}, `) && /, (minus|plus) /.test(l) && !l.includes(', due ');
+export const rowLabel = (page, title) => page.locator(`${rowSel(title)}:visible`).first().getAttribute('aria-label');
 export async function openRow(page, title) {
-  await page.locator(`[aria-label^="${title}, "]:visible`).first().tap();
+  await page.locator(`${rowSel(title)}:visible`).first().tap();
 }
 
 export const saveDisabled = (page) =>
@@ -115,6 +118,9 @@ export async function goClient(page, path) {
 
 /** Touch swipe from the right edge towards the left across the row containing `locator` (full swipe). */
 export async function swipeLeft(page, locator, { from = 365, to = 5 } = {}) {
+  // Centre the row first: the floating Add pill covers the right edge near the bottom of Home.
+  await locator.evaluate((e) => e.scrollIntoView({ block: 'center' }));
+  await page.waitForTimeout(200);
   const bb = await locator.boundingBox();
   const y = bb.y + bb.height / 2;
   const cdp = await page.context().newCDPSession(page);
@@ -150,7 +156,7 @@ export const flows = [
       await expectText(page, '€ EUR');
       await tap(page, 'Start');
       await expectText(page, 'No transactions yet');
-      await expectLabel(page, 'Balance, 0 euros');
+      await expectLabel(page, 'Balance, €0');
     },
   },
   {
@@ -205,7 +211,7 @@ export const flows = [
       // The remembered category is applied: saving works without picking one and lands in Groceries.
       await save(page);
       await sheetClosed(page);
-      const labels = (await labelsOf(page)).filter((l) => l?.startsWith('Coffee, '));
+      const labels = (await labelsOf(page)).filter((l) => isRowLabel(l, 'Coffee'));
       assert.equal(labels.length, 2, `expected two Coffee rows, got ${labels.length}`);
       assert.ok(labels.every((l) => l.includes('Groceries')), `rows: ${labels.join(' | ')}`);
     },
@@ -244,10 +250,11 @@ export const flows = [
       await openRow(page, 'Coffee');
       await page.getByRole('button', { name: 'Delete' }).last().tap();
       await expectText(page, 'Undo');
-      await expectNoText(page, 'Coffee');
+      // The Quick add chip (title memory) outlives the transaction, so check the row, not the text.
+      await page.locator(`${rowSel('Coffee')}:visible`).first().waitFor({ state: 'detached' });
       await expectText(page, 'No transactions yet');
       await tapText(page, 'Undo');
-      await expectText(page, 'Coffee');
+      await page.locator(`${rowSel('Coffee')}:visible`).first().waitFor();
       assert.equal(await rowLabel(page, 'Coffee'), before, 'restored row differs from the original');
       await openRow(page, 'Coffee');
       await expectText(page, '−$450.00');
@@ -261,7 +268,7 @@ export const flows = [
       await page.locator('[aria-label="Transaction type"]').waitFor();
       await keys(page, '1000');
       await typeTitle(page, 'Market');
-      await page.locator('[aria-label="Split between categories"]').tap();
+      await page.locator('[aria-label="Split"]').tap();
       await page.locator('[aria-label^="Line 2 amount"]').waitFor();
       await page.locator('[aria-label="Choose category for line 1"]').tap();
       await page.locator('[aria-label="Groceries"]').last().tap();
@@ -340,21 +347,22 @@ export const flows = [
     async run({ page, base }) {
       await seeded(page, base, 'demo');
       await tabTo(page, 'Activity');
-      await expectLabel(page, 'Earned +₹1,45,000');
-      await expectLabel(page, 'Spent −₹47,804');
+      await expectLabel(page, 'Earned ₹1,45,000');
+      await expectLabel(page, 'Spent ₹47,804');
       const all = await labelsOf(page);
       assert.ok(all.some((l) => /Salary, /.test(l)), 'demo data should include a Salary row');
       await page.locator('[aria-label="Filters"]:visible').tap();
       await page.getByText('Expense', { exact: true }).last().tap();
       await tapText(page, 'Done');
-      await expectLabel(page, 'Earned ₹0');
-      await expectLabel(page, 'Spent −₹47,804');
+      // The summary hides Earned when the type filter excludes income.
+      await expectLabel(page, 'Spent ₹47,804');
+      await page.locator('[aria-label^="Earned "]:visible').first().waitFor({ state: 'detached' });
       const filtered = await labelsOf(page);
       assert.ok(!filtered.some((l) => /, plus [\d,.]+ rupees/.test(l) && !l.startsWith('Earned')), 'income row visible under Expense filter');
       assert.ok(filtered.some((l) => l.startsWith('Swiggy, ')), 'expense rows should remain');
       assert.ok(!filtered.some((l) => l.startsWith('Salary, ')), 'Salary visible under Expense filter');
       await page.locator('[role=button]:visible', { hasText: /^Clear$/ }).first().tap();
-      await expectLabel(page, 'Earned +₹1,45,000');
+      await expectLabel(page, 'Earned ₹1,45,000');
       assert.ok((await labelsOf(page)).some((l) => l.startsWith('Salary, ')), 'Salary should return after Clear');
     },
   },
@@ -386,10 +394,15 @@ export const flows = [
       await tapText(page, 'Add budget');
       await page.locator('[aria-label="Period"]').waitFor();
       await keys(page, '2000');
-      await tapText(page, 'Categories', { nth: 1 }).catch(() => undefined);
+      await page.locator('[role=button]:visible', { hasText: /^Categories/ }).first().tap();
       await page.locator('[aria-label="Groceries"]:visible').last().tap();
+      // The sheet stays open after a pick until Done.
+      await page.waitForTimeout(500);
+      assert.ok(await page.locator('[aria-label="Done"]:visible').first().isVisible(), 'category sheet must stay open after the first pick');
+      await page.locator('[aria-label="Done"]:visible').first().tap();
+      await page.locator('[aria-label="Done"]:visible').first().waitFor({ state: 'detached' });
       await page.locator('[aria-label="Save"]:visible').first().tap();
-      const row = page.locator('[aria-label^="Groceries, "]:visible').first();
+      const row = page.locator('[aria-label^="Groceries, "][aria-label*=" of "]:visible').last();
       await row.waitFor();
       assert.equal(await row.getAttribute('aria-label'), 'Groceries, 450 US dollars of 2,000 US dollars, 1,550 US dollars left');
       await expectText(page, '$450 of $2,000');
@@ -406,7 +419,7 @@ export const flows = [
       await expectText(page, 'No budgets');
       await expectText(page, 'Undo');
       await tapText(page, 'Undo');
-      await page.locator('[aria-label^="Groceries, "]:visible').first().waitFor();
+      await page.locator('[aria-label^="Groceries, "][aria-label*=" of "]:visible').last().waitFor();
       await expectText(page, '$450 of $2,000');
     },
   },
@@ -444,7 +457,7 @@ export const flows = [
       await page.locator('[aria-label="Search currencies"]').fill('EUR');
       await page.locator('[aria-label^="EUR"]').first().tap();
       await tap(page, 'Start');
-      await expectLabel(page, 'Balance, 0 euros');
+      await expectLabel(page, 'Balance, €0');
       await page.locator('[aria-label^="Balance, "]:visible').first().tap();
       await page.locator('[aria-label="Add account"]:visible').tap();
       await page.locator('[aria-label="Name"]').waitFor();
@@ -455,21 +468,30 @@ export const flows = [
       await page.locator('[aria-label^="USD"]').first().tap();
       await page.locator('[aria-label^="Opening balance"]').tap();
       await keys(page, '100');
+      // A foreign account needs a rate (Rate row); Save stays disabled until one is entered.
+      await expectLabel(page, 'Rate, 1 USD equals … EUR');
+      assert.equal(await saveDisabled(page), true, 'Save must be disabled without a rate');
+      await page.locator('[aria-label^="Rate, "]').tap();
+      await keys(page, '0.9');
+      await expectLabel(page, 'Rate, 1 USD equals 0.9', { exact: false });
+      assert.equal(await saveDisabled(page), false, 'Save must be enabled once a rate is set');
       await save(page);
       await expectLabel(page, 'Dollars, Bank, 100 US dollars', { exact: false }).catch(async () => {
         throw new Error(`USD account missing on /accounts: ${(await labelsOf(page)).join(' | ')}`);
       });
-      // Without a rate the amount stays unconverted by design (convertWithRates), so the total reads 100 until one is set.
+      await expectLabel(page, 'Total, 90 euros');
+      await goClient(page, '/');
+      await expectLabel(page, 'Balance, €90');
+      // The rate lives in Settings > Currency too: changing it re-converts the total.
       await goClient(page, '/settings/currency');
       await expectText(page, 'Exchange rates');
       const rate = page.locator('input[aria-label="USD to EUR rate"]');
-      await rate.fill('0.9');
+      assert.equal(Number(await rate.inputValue()), 0.9, 'rate saved from the account form');
+      await rate.fill('0.5');
       await rate.press('Enter');
       await rate.blur();
-      await goClient(page, '/accounts');
-      await expectLabel(page, 'Total, 90 euros');
       await goClient(page, '/');
-      await expectLabel(page, 'Balance, 90 euros');
+      await expectLabel(page, 'Balance, €50');
     },
   },
   {
@@ -507,16 +529,16 @@ export const flows = [
     async run({ page, base }) {
       await seeded(page, base, 'demo');
       const bg = () => page.evaluate(() => getComputedStyle(document.querySelector('.bg-bg')).backgroundColor);
-      assert.equal(await bg(), 'rgb(242, 242, 247)', 'light theme expected before the change');
+      assert.equal(await bg(), 'rgb(244, 242, 238)', 'light theme expected before the change');
       assert.ok((await body(page)).includes('₹533'), 'Home rows should read ₹533');
       assert.ok(!(await body(page)).includes('₹533.00'), 'decimals should be off by default');
       await page.locator('[aria-label="Settings"]:visible').tap();
       await expectText(page, 'Show decimals');
       await tapText(page, 'Theme');
       await tapText(page, 'Dark');
-      await page.waitForFunction(() => getComputedStyle(document.querySelector('.bg-bg')).backgroundColor !== 'rgb(242, 242, 247)', null, { timeout: 15000 });
+      await page.waitForFunction(() => getComputedStyle(document.querySelector('.bg-bg')).backgroundColor !== 'rgb(244, 242, 238)', null, { timeout: 15000 });
       const dark = await bg();
-      assert.notEqual(dark, 'rgb(242, 242, 247)');
+      assert.notEqual(dark, 'rgb(244, 242, 238)');
       await page.goBack();
       await expectText(page, 'Show decimals');
       await page.locator('input[aria-label="Show decimals"]').dispatchEvent('click');
@@ -599,7 +621,9 @@ export const flows = [
         await sheetClosed(page);
       }
       // Half swipe reveals Delete (and must not trigger Duplicate); tapping it deletes.
-      const coffee = page.locator('[aria-label^="Coffee, "]:visible').first();
+      const coffeeRows = () => page.locator(`${rowSel('Coffee')}:visible`).first();
+      const teaRows = () => page.locator(`${rowSel('Tea')}:visible`).first();
+      const coffee = coffeeRows();
       await swipeLeft(page, coffee, { from: 365, to: 250 });
       await page.waitForTimeout(600);
       assert.equal(new URL(page.url()).pathname, '/', 'a half swipe must not navigate');
@@ -613,16 +637,16 @@ export const flows = [
         }
       }
       await expectText(page, 'Undo');
-      await expectNoText(page, 'Coffee');
+      await coffeeRows().waitFor({ state: 'detached' });
       await tapText(page, 'Undo');
-      await expectText(page, 'Coffee');
+      await coffeeRows().waitFor();
       // A full swipe deletes without a tap.
-      const tea = page.locator('[aria-label^="Tea, "]:visible').first();
+      const tea = teaRows();
       await swipeLeft(page, tea);
-      await expectNoText(page, 'Tea');
+      await teaRows().waitFor({ state: 'detached' });
       await expectText(page, 'Undo');
       await tapText(page, 'Undo');
-      await expectText(page, 'Tea');
+      await teaRows().waitFor();
     },
   },
   {
@@ -632,13 +656,13 @@ export const flows = [
       await addExpense(page, { amount: '450', title: 'Coffee', category: 'Food & Drink' });
       await save(page);
       await sheetClosed(page);
-      const row = page.locator('[aria-label^="Coffee, "]:visible').first();
+      const row = page.locator(`${rowSel('Coffee')}:visible`).first();
       await swipeLeft(page, row, { from: 30, to: 300 });
       await page.locator('[aria-label="Transaction type"]').waitFor();
       assert.equal(await page.locator('[aria-label="Title"]').inputValue(), 'Coffee');
       await save(page);
       await sheetClosed(page);
-      const rows = (await labelsOf(page)).filter((l) => l.startsWith('Coffee, '));
+      const rows = (await labelsOf(page)).filter((l) => isRowLabel(l, 'Coffee'));
       assert.equal(rows.length, 2, `expected the original and the duplicate, got ${rows.length}`);
     },
   },
@@ -653,14 +677,14 @@ export const flows = [
       await sheetClosed(page);
       await expectText(page, 'Upcoming');
       const due = () => page.locator('[aria-label^="Paper, "][aria-label*="due"]:visible').first();
-      const rowsOf = async () => (await labelsOf(page)).filter((l) => l.startsWith('Paper, ') && !l.includes(', due ')).length;
+      const rowsOf = async () => (await labelsOf(page)).filter((l) => isRowLabel(l, 'Paper')).length;
       await due().waitFor();
       assert.equal(await rowsOf(), 1);
       const firstDue = await due().getAttribute('aria-label');
       // Swipe right: Post now creates a transaction and the next occurrence moves on.
       await swipeLeft(page, due(), { from: 30, to: 300 });
       await expectText(page, 'Posted');
-      await page.waitForFunction(() => document.querySelectorAll('[aria-label^="Paper, "]').length >= 3, null, { timeout: 15000 });
+      await page.waitForFunction(() => [...document.querySelectorAll('[aria-label^="Paper, "]')].filter((e) => /, (minus|plus) /.test(e.getAttribute('aria-label')) && !e.getAttribute('aria-label').includes(', due ')).length >= 2, null, { timeout: 15000 });
       assert.equal(await rowsOf(), 2, 'Post now should add a Paper transaction');
       const secondDue = await due().getAttribute('aria-label');
       assert.notEqual(secondDue, firstDue, 'next due date should advance after posting');
@@ -672,6 +696,42 @@ export const flows = [
         return el && el.getAttribute('aria-label') !== prev;
       }, secondDue, { timeout: 15000 });
       assert.equal(await rowsOf(), 2, 'Skip must not add a transaction');
+    },
+  },
+  {
+    name: 'Quick add',
+    async run({ page, base }) {
+      await seeded(page, base, 'demo');
+      await expectText(page, 'Quick add');
+      const chip = page.locator('[aria-label="Uber, ₹404"]:visible').first();
+      await chip.tap();
+      await page.locator('[aria-label="Transaction type"]').waitFor();
+      // The sheet is prefilled from the chip: title, category, account and amount.
+      assert.equal(await page.locator('[aria-label="Title"]').inputValue(), 'Uber');
+      await expectLabel(page, 'Transport');
+      assert.equal(await saveDisabled(page), false, 'a prefilled sheet should be ready to save');
+      await save(page);
+      await sheetClosed(page);
+      // The new row appears in Recent (Home shows five), carrying the chip's title and amount.
+      const row = page.locator(`${rowSel('Uber')}:visible`).first();
+      await row.waitFor();
+      const text = await row.getAttribute('aria-label');
+      assert.match(text, /^Uber, Transport, .*minus 404 rupees/, `unexpected row: ${text}`);
+      // Demo data has a row later today, so the new one is not necessarily first: it must be within the five shown.
+      const recent = (await labelsOf(page)).filter((l) => /, (minus|plus) /.test(l) && !l.includes(', due '));
+      assert.equal(recent.length, 5, `Recent shows five rows: ${recent.join(' | ')}`);
+      assert.equal(recent.filter((l) => l.startsWith('Uber, ')).length, 1);
+    },
+  },
+  {
+    name: 'Settings to Recurring',
+    async run({ page, base }) {
+      await seeded(page, base, 'demo');
+      await page.locator('[aria-label="Settings"]:visible').tap();
+      await expectText(page, 'Show decimals');
+      await tapText(page, 'Recurring');
+      await page.waitForFunction(() => location.pathname === '/recurring', null, { timeout: 15000 });
+      await expectText(page, 'Rules');
     },
   },
 ];

@@ -8,7 +8,7 @@ import { useCategories } from '@/data/hooks';
 import { CategoryGrid } from '@/features/entry/category-grid';
 import { useCategoryRequest } from '@/features/budgets/category-store';
 
-/** Category grid sheet for a budget: multi-select, applied live; Done closes (so does the first pick of an empty selection). */
+/** Category grid sheet for a budget: multi-select, applied live; stays open until Done. */
 export default function BudgetCategorySheet() {
   const router = useRouter();
   const request = useCategoryRequest((s) => s.request);
@@ -16,13 +16,10 @@ export default function BudgetCategorySheet() {
   const categories = useCategories('expense');
   const [selected, setSelected] = React.useState<string[]>(() => [...(request?.selected ?? [])]);
 
-  const started = React.useRef(request?.selected.length ?? 0);
   const toggle = (id: string) => {
     const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
     setSelected(next);
     request?.onChange(next);
-    // Most budgets cover one category: the first pick on an empty selection closes the sheet.
-    if (started.current === 0 && next.length === 1) done();
   };
   const done = () => {
     close();

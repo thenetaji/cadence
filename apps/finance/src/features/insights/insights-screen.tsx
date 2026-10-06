@@ -6,7 +6,7 @@ import Animated, { FadeIn, useAnimatedStyle, useReducedMotion, useSharedValue, w
 
 import { Amount , SectionHeader , Card , Pressable , Text } from '@studio/ui';
 import { axisLabels } from '@studio/charts/lib';
-import { BarChart, Donut } from '@studio/charts/components';
+import { BarChart, Donut, DonutLegend } from '@studio/charts/components';
 import { useCashFlow, useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@studio/dates';
 import { Stagger } from '@studio/motion';
@@ -14,14 +14,15 @@ import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { haptic , useTokens } from '@studio/theme';
 
+import { BothHero } from './both-hero';
 import { CashFlowCard } from './cash-flow-card';
 import { CategoryList, type CategoryListItem } from './category-list';
 import { barsTitle, deltaLine, scrubLabel } from './labels';
 import { KindMenu } from './kind-menu';
 import { donutData, keyForName, listItems, summaryLabel } from './model';
-import { canStepForward, parseInsightsParams, periodOf, stepView, type InsightsKind, type InsightsParams, type InsightsView } from './params';
+import { canStepForward, parseInsightsParams, periodOf, singleKind, stepView, type InsightsKind, type InsightsParams, type InsightsView } from './params';
 import { PeriodControls } from './period-controls';
-import { AccountsCard, MerchantsCard, MonthlyCard, StatsGrid, WeekdayCard } from './sections';
+import { AccountsCard, IncomeSourcesCard, MerchantsCard, MonthlyCard, StatsGrid, WeekdayCard } from './sections';
 import { useRangeStore } from './range-store';
 
 type Selection = { key: string } | { name: string } | null;
@@ -42,9 +43,13 @@ export default function InsightsScreen() {
   const [scrub, setScrub] = React.useState<number | null>(null);
 
   const period = periodOf(view, periodSettings);
-  const insights = useInsights(period, view.kind, today);
+  const both = view.kind === 'both';
+  const kind = singleKind(view.kind);
+  const insights = useInsights(period, kind, today);
+  // Both mode shows where the income came from too.
+  const incomeInsights = useInsights(period, 'income', today);
   const cashFlow = useCashFlow(period);
-  const extras = useInsightsExtras(period, view.kind, periodSettings, today);
+  const extras = useInsightsExtras(period, kind, periodSettings, today);
   const { currency } = insights;
   const fmt = React.useMemo(() => ({ currency, locale: money.locale, showDecimals: money.showDecimals, scheme }), [currency, money.locale, money.showDecimals, scheme]);
 
@@ -53,18 +58,18 @@ export default function InsightsScreen() {
   const selectedKey = rawKey !== null && donut.some((d) => d.key === rawKey) ? rawKey : null;
   const rows = React.useMemo(() => listItems(insights, selectedKey), [insights, selectedKey]);
   const selectedColor = donut.find((d) => d.key === selectedKey)?.color;
-  const barColor = selectedColor ?? (view.kind === 'income' ? colors.income : undefined);
+  const barColor = selectedColor ?? (kind === 'income' ? colors.income : undefined);
 
   const bars = React.useMemo(() => insights.series.map((p) => ({ key: p.key, value: p.amount })), [insights.series]);
   const labels = React.useMemo(() => axisLabels(insights.series.map((p) => p.key), insights.granularity), [insights.series, insights.granularity]);
-  const delta = insights.previousTotal > 0 ? deltaLine(insights.delta, period, view.kind, { currency, locale: money.locale }) : null;
+  const delta = insights.previousTotal > 0 ? deltaLine(insights.delta, period, kind, { currency, locale: money.locale }) : null;
   const [deltaAsAmount, setDeltaAsAmount] = React.useState(false);
   const forward = canStepForward(view, today, periodSettings);
 
   // Period change crossfades 200 ms; the charts themselves do not replay their intro.
   const reduced = useReducedMotion();
   const fade = useSharedValue(1);
-  const dataKey = `${period.from}:${period.to}:${view.kind}`;
+  const dataKey = `${period.from}:${period.to}:${kind}`;
   React.useEffect(() => {
     if (reduced) return;
     fade.value = 0.3;
@@ -108,9 +113,9 @@ export default function InsightsScreen() {
     setView((current) => ({ ...current, type, anchor: current.type === 'custom' ? today : current.anchor }));
     reset();
   };
-  const changeKind = (kind: InsightsKind) => {
-    if (kind === view.kind) return;
-    setView((current) => ({ ...current, kind }));
+  const changeKind = (next: InsightsKind) => {
+    if (next === view.kind) return;
+    setView((current) => ({ ...current, kind: next }));
     reset();
   };
   const jumpToCurrent = () => {
@@ -130,7 +135,7 @@ export default function InsightsScreen() {
 
   const openCategory = (item: CategoryListItem) => {
     if (item.id === null) return;
-    router.push({ pathname: '/category/[id]', params: { id: item.id, from: period.from, to: period.to, type: period.type, kind: view.kind } });
+    router.push({ pathname: '/category/[id]', params: { id: item.id, from: period.from, to: period.to, type: period.type, kind } });
   };
 
   const decimals = money.showDecimals ? undefined : 0;
@@ -156,11 +161,15 @@ export default function InsightsScreen() {
             <View collapsable={false}>
               <View className="px-4 pb-4 pt-3">
                 <KindMenu kind={view.kind} onChange={changeKind} />
-                <View className="pt-1">
-                  <Amount value={total} variant="hero" animate="intro" accessibilityLabel={formatMoneyForSpeech(insights.total, currency, { sign: 'none', locale: money.locale })} />
-                </View>
+                {both ? (
+                  <BothHero spent={insights.total} earned={incomeInsights.total} currency={currency} locale={money.locale} decimals={decimals} />
+                ) : (
+                  <View className="pt-1">
+                    <Amount value={total} variant="hero" animate="intro" accessibilityLabel={formatMoneyForSpeech(insights.total, currency, { sign: 'none', locale: money.locale })} />
+                  </View>
+                )}
                 <View className="h-5">
-                  {delta ? (
+                  {delta && !both ? (
                     <Pressable
                       role="button"
                       accessibilityLabel={`${delta.text}, tap to show ${deltaAsAmount ? 'percent' : 'amount'}`}
@@ -182,9 +191,9 @@ export default function InsightsScreen() {
                   ) : null}
                 </View>
               </View>
-              {extras.transactionCount > 0 ? (
+              {extras.transactionCount > 0 || (both && extras.earned > 0) ? (
                 <Stagger index={1} className="pb-4">
-                  <StatsGrid extras={extras} currency={currency} locale={money.locale} />
+                  <StatsGrid extras={extras} both={both} currency={currency} locale={money.locale} />
                 </Stagger>
               ) : null}
               {cashFlow.totalIn > 0 || cashFlow.totalOut > 0 ? (
@@ -193,16 +202,19 @@ export default function InsightsScreen() {
                 </Stagger>
               ) : null}
               <Stagger index={3} className={cashFlow.totalIn > 0 || cashFlow.totalOut > 0 ? 'pt-4' : undefined}>
-              <Card className="mx-4 items-center p-3">
+              <SectionHeader title={kind === 'income' ? 'Income by source' : 'Spending by category'} />
+              <Card className="mx-4 items-center px-3 pb-2 pt-5">
                 <Donut
                   data={donut}
                   selectedKey={selectedKey}
                   onSelect={(key) => setSelection(key === null ? null : { key })}
-                  accessibilityLabel={summaryLabel(insights, view.kind)}
+                  accessibilityLabel={summaryLabel(insights, kind)}
                   emptyLabel="Nothing yet"
                 />
+                <DonutLegend data={donut} selectedKey={selectedKey} onSelect={(key) => setSelection(key === null ? null : { key })} />
               </Card>
               </Stagger>
+              {both && incomeInsights.total > 0 ? <IncomeSourcesCard insights={incomeInsights} currency={currency} locale={money.locale} /> : null}
             </View>
           </GestureDetector>
 
@@ -222,7 +234,7 @@ export default function InsightsScreen() {
             {insights.total > 0 ? (
               <View className="flex-row items-baseline justify-between">
                 <Text variant="footnote" tone="secondary">
-                  {barsTitle(insights.granularity, view.kind)}
+                  {barsTitle(insights.granularity, kind)}
                 </Text>
                 <Text variant="footnote" tone="tertiary" numeric>
                   {`Avg ${average}/${noun}`}
@@ -239,7 +251,7 @@ export default function InsightsScreen() {
               selectedIndex={scrub}
               onSelect={setScrub}
               formatLabel={(index) => scrubLabel(insights.series[index] ?? { key: period.from, amount: 0 }, insights.granularity, currency, money.locale)}
-              accessibilityLabel={`${barsTitle(insights.granularity, view.kind)}, ${days} days, average ${average} per ${noun}`}
+              accessibilityLabel={`${barsTitle(insights.granularity, kind)}, ${days} days, average ${average} per ${noun}`}
             />
           </Card>
           </Stagger>
@@ -248,7 +260,7 @@ export default function InsightsScreen() {
             <>
               {extras.monthly.some((m) => m.income > 0 || m.spent > 0) ? <MonthlyCard monthly={extras.monthly} currency={currency} locale={money.locale} /> : null}
               <WeekdayCard extras={extras} currency={currency} locale={money.locale} />
-              <MerchantsCard merchants={extras.merchants} kind={view.kind} currency={currency} locale={money.locale} />
+              <MerchantsCard merchants={extras.merchants} kind={kind} currency={currency} locale={money.locale} />
               <AccountsCard accounts={extras.accounts} currency={currency} locale={money.locale} />
             </>
           ) : null}

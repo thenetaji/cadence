@@ -415,6 +415,10 @@ export const flows = [
       await seeded(page, base, 'demo');
       await tabTo(page, 'Insights');
       await expectText(page, '₹47,804');
+      // Both is the default: Spent and Earned side by side with the net under them.
+      await expectLabel(page, 'Spent, ', { exact: false });
+      await expectLabel(page, 'Earned, ', { exact: false });
+      await expectText(page, 'Net');
       await expectLabel(page, 'Spending by category: Housing 69%', { exact: false });
       await expectLabel(page, 'Housing, ₹33,200, 69%');
       await page.locator('[aria-label="Housing, 33,200 rupees, 69 percent"]:visible').tap();

@@ -1,6 +1,10 @@
 import { customPeriod, nextPeriod, periodFor, previousPeriod, type DateKey, type Period, type PeriodSettings, type PeriodType } from '@studio/dates';
 
-export type InsightsKind = 'expense' | 'income';
+/** `both` shows spending and income together; it is the default. */
+export type InsightsKind = 'both' | 'expense' | 'income';
+
+/** The kind a single-kind read (hooks, category screens) uses: `both` reads spending. */
+export const singleKind = (kind: InsightsKind): 'expense' | 'income' => (kind === 'income' ? 'income' : 'expense');
 
 export interface InsightsView {
   type: PeriodType;
@@ -31,7 +35,7 @@ export function parseInsightsParams(params: InsightsParams, today: DateKey, sett
   const asType = PERIODS.find((p) => p === params.period);
   const hasRange = params.from !== undefined && params.to !== undefined && KEY.test(params.from) && KEY.test(params.to);
   const type: PeriodType = asType === 'custom' && !hasRange ? 'month' : (asType ?? 'month');
-  const kind: InsightsKind = params.kind === 'income' ? 'income' : 'expense';
+  const kind: InsightsKind = params.kind === 'income' ? 'income' : params.kind === 'expense' ? 'expense' : 'both';
   const offset = Math.max(-120, Math.min(0, Number.parseInt(params.offset ?? '0', 10) || 0));
   let anchor = today;
   if (type !== 'custom') {

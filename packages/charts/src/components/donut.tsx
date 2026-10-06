@@ -2,16 +2,17 @@ import { Canvas, Circle, Path, Skia, type SkPath } from '@shopify/react-native-s
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { Easing, useDerivedValue, useReducedMotion, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, useDerivedValue, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
-import { Text } from '@studio/ui';
+import { Pressable, Text } from '@studio/ui';
 import { donutSegments, hitTestDonut } from '../lib';
+import { motion } from '@studio/motion';
 import { haptic , useTokens } from '@studio/theme';
 import { useGrow } from './chart-kit';
 
 export type DonutDatum = {
   key: string;
-  /** Used for the centre label and the accessibility label. */
+  /** Used for the centre label, the legend and the accessibility label. */
   name: string;
   /** Minor units, drives the segment size. */
   value: number;
@@ -32,25 +33,38 @@ export type DonutProps = {
   size?: number;
 };
 
-const STROKE = 22;
-const GROW = 4;
-const GAP = 2;
+const STROKE = 30;
+/** How far the selected segment grows outward and inward. */
+const POP = 5;
+/** Visible gap between neighbouring segments, in points at the ring's mid radius. */
+const GAP_PT = 2;
+const SWEEP_MS = 700;
+const DIM = 0.3;
 
-type SegmentProps = { path: SkPath; color: string; stroke: number; startDeg: number; sweepDeg: number; dimmed: boolean; grow: ReturnType<typeof useGrow> };
+type SegmentProps = { path: SkPath; color: string; startDeg: number; sweepDeg: number; selected: boolean; dimmed: boolean; grow: ReturnType<typeof useGrow> };
 
-function Segment({ path, color, stroke, startDeg, sweepDeg, dimmed, grow }: SegmentProps) {
+function Segment({ path, color, startDeg, sweepDeg, selected, dimmed, grow }: SegmentProps) {
+  const reduced = useReducedMotion();
+  const pop = useSharedValue(0);
+  const dim = useSharedValue(0);
+  React.useEffect(() => {
+    pop.value = reduced ? (selected ? 1 : 0) : withSpring(selected ? 1 : 0, motion.springs.pop);
+    dim.value = reduced ? (dimmed ? 1 : 0) : withTiming(dimmed ? 1 : 0, { duration: 200 });
+  }, [selected, dimmed, reduced, pop, dim]);
   // Reveal clockwise: each segment's trim end follows the global sweep angle.
   const end = useDerivedValue(() => {
     if (sweepDeg <= 0) return 0;
     const visibleDeg = grow.value * 360 - (startDeg + 90);
     return Math.min(1, Math.max(0, visibleDeg / sweepDeg));
   });
-  return <Path path={path} style="stroke" strokeWidth={stroke} color={color} opacity={dimmed ? 0.35 : 1} start={0} end={end} />;
+  const strokeWidth = useDerivedValue(() => STROKE + POP * 2 * pop.value);
+  const opacity = useDerivedValue(() => 1 - (1 - DIM) * dim.value);
+  return <Path path={path} style="stroke" strokeWidth={strokeWidth} color={color} opacity={opacity} start={0} end={end} />;
 }
 
-function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, size = 180 }: DonutProps) {
+function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, size = 216 }: DonutProps) {
   const { colors } = useTokens();
-  const grow = useGrow();
+  const grow = useGrow(SWEEP_MS);
   const reduced = useReducedMotion();
   // Period change: same ring sweeps in again. Selection changes do not touch `signature`.
   const signature = data.map((d) => `${d.key}:${d.value}`).join('|');
@@ -60,35 +74,36 @@ function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, si
     seen.current = signature;
     if (reduced) return;
     grow.set(0.02);
-    grow.set(withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) }));
+    grow.set(withTiming(1, { duration: SWEEP_MS, easing: Easing.out(Easing.cubic) }));
   }, [signature, reduced, grow]);
   const half = size / 2;
-  const baseOuter = half - GROW;
-  const radius = baseOuter - STROKE / 2;
+  const outer = half - POP;
+  const radius = outer - STROKE / 2;
   const inner = radius - STROKE / 2;
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  const segments = React.useMemo(() => donutSegments(data.map((d) => d.value), GAP), [data]);
+  const gapDeg = ((GAP_PT / radius) * 180) / Math.PI;
+  const segments = React.useMemo(() => donutSegments(data.map((d) => d.value), gapDeg), [data, gapDeg]);
   const selectedIndex = selectedKey === null ? -1 : data.findIndex((d) => d.key === selectedKey);
   const selected = selectedIndex >= 0 ? data[selectedIndex] : undefined;
-  // Nothing selected: the centre names the biggest category; the total lives in the hero above.
+  // Nothing selected: the centre names the biggest category.
   const leader = React.useMemo(() => data.reduce<DonutDatum | undefined>((best, d) => (!best || d.value > best.value ? d : best), undefined), [data]);
+  const shown = selected ?? (total > 0 ? leader : undefined);
 
   const paths = React.useMemo(
     () =>
-      segments.map((segment, index) => {
-        const r = index === selectedIndex ? radius + GROW / 2 : radius;
+      segments.map((segment) => {
         const builder = Skia.PathBuilder.Make();
-        if (segment.sweep > 0) builder.addArc({ x: half - r, y: half - r, width: r * 2, height: r * 2 }, segment.start, segment.sweep);
+        if (segment.sweep > 0) builder.addArc({ x: half - radius, y: half - radius, width: radius * 2, height: radius * 2 }, segment.start, segment.sweep);
         return builder.build();
       }),
-    [segments, selectedIndex, radius, half],
+    [segments, radius, half],
   );
 
   const tap = Gesture.Tap()
     .runOnJS(true)
     .onEnd((event, success) => {
       if (!success) return;
-      const hit = hitTestDonut(event.x, event.y, half, half, inner, baseOuter + GROW, segments);
+      const hit = hitTestDonut(event.x, event.y, half, half, inner, outer, segments);
       const next = hit >= 0 ? data[hit]?.key : undefined;
       if (next === undefined || next === selectedKey) {
         if (selectedKey !== null) onSelect(null);
@@ -106,46 +121,35 @@ function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, si
             {total === 0 ? (
               <Circle cx={half} cy={half} r={radius} style="stroke" strokeWidth={StyleSheet.hairlineWidth * 2} color={colors.separator} />
             ) : (
-              <>
-                {data.map((d, i) => (
-                  <Segment
-                    key={d.key}
-                    path={paths[i]!}
-                    color={d.color}
-                    stroke={i === selectedIndex ? STROKE + GROW : STROKE}
-                    startDeg={segments[i]!.start}
-                    sweepDeg={segments[i]!.sweep}
-                    dimmed={selectedIndex >= 0 && i !== selectedIndex}
-                    grow={grow}
-                  />
-                ))}
-              </>
+              data.map((d, i) => (
+                <Segment
+                  key={d.key}
+                  path={paths[i]!}
+                  color={d.color}
+                  startDeg={segments[i]!.start}
+                  sweepDeg={segments[i]!.sweep}
+                  selected={i === selectedIndex}
+                  dimmed={selectedIndex >= 0 && i !== selectedIndex}
+                  grow={grow}
+                />
+              ))
             )}
           </Canvas>
         </View>
       </GestureDetector>
-      <View pointerEvents="none" className="absolute inset-0 items-center justify-center" style={{ paddingHorizontal: STROKE + GROW + 12 }}>
-        {selected ? (
-          <>
+      <View pointerEvents="none" className="absolute inset-0 items-center justify-center" style={{ paddingHorizontal: STROKE + POP + 8 }}>
+        {shown ? (
+          <Animated.View key={shown.key} entering={reduced ? undefined : FadeIn.duration(180)} className="items-center">
             <Text variant="footnote" tone="secondary" numberOfLines={1} className="text-center">
-              {selected.name}
+              {shown.name}
             </Text>
-            <Text variant="title2" numeric numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} className="text-center">
-              {selected.amountLabel}
+            <Text variant="title1" numeric numberOfLines={1} style={{ color: shown.color }}>
+              {shown.percentLabel}
             </Text>
-            <Text variant="footnote" tone="secondary" numeric>
-              {selected.percentLabel}
+            <Text variant="subhead" numeric numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} className="text-center">
+              {shown.amountLabel}
             </Text>
-          </>
-        ) : leader && total > 0 ? (
-          <>
-            <Text variant="footnote" tone="secondary" numberOfLines={1} className="text-center">
-              {leader.name}
-            </Text>
-            <Text variant="title2" numeric numberOfLines={1} className="text-center">
-              {leader.percentLabel}
-            </Text>
-          </>
+          </Animated.View>
         ) : emptyLabel ? (
           <Text variant="footnote" tone="tertiary">
             {emptyLabel}
@@ -176,4 +180,55 @@ function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, si
   );
 }
 
-export { Donut };
+type DonutLegendProps = {
+  data: readonly DonutDatum[];
+  selectedKey: string | null;
+  onSelect: (key: string | null) => void;
+};
+
+/** Two-column legend under the ring: colour dot, name, then share and amount. Tapping selects like the ring does. */
+function DonutLegend({ data, selectedKey, onSelect }: DonutLegendProps) {
+  const rows: DonutDatum[][] = [];
+  for (let i = 0; i < data.length; i += 2) rows.push(data.slice(i, i + 2));
+  return (
+    <View className="w-full gap-1 pt-3">
+      {rows.map((pair) => (
+        <View key={pair[0]!.key} className="flex-row gap-2">
+          {[0, 1].map((slot) => {
+            const d = pair[slot];
+            if (!d) return <View key={slot} className="flex-1" />;
+            const selected = d.key === selectedKey;
+            return (
+              <Pressable
+                key={d.key}
+                role="button"
+                accessibilityLabel={`${d.name}, ${d.amountLabel}, ${d.percentLabel}`}
+                accessibilityState={{ selected }}
+                scale={0.97}
+                popWhen={selected}
+                onPress={() => {
+                  haptic('selection');
+                  onSelect(selected ? null : d.key);
+                }}
+                className="min-w-0 flex-1 rounded-[10px] px-2 py-1.5"
+                style={{ opacity: selectedKey !== null && !selected ? 0.45 : 1 }}
+              >
+                <View className="flex-row items-center">
+                  <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.color }} />
+                  <Text variant="subhead" numberOfLines={1} className="ml-2 min-w-0 flex-1 font-medium">
+                    {d.name}
+                  </Text>
+                </View>
+                <Text variant="footnote" tone="secondary" numeric numberOfLines={1} className="ml-[18px]">
+                  {`${d.percentLabel} · ${d.amountLabel}`}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export { Donut, DonutLegend };

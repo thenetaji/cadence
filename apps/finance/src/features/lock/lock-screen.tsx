@@ -1,8 +1,7 @@
 import { Image, View } from 'react-native';
 
 import { AppIcon } from '@studio/icons';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { Button , Text } from '@studio/ui';
 import { useTokens } from '@studio/theme';
 
 type LockScreenProps = { onUnlock: () => void };

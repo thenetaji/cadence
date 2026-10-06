@@ -2,10 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, View } from 'react-native';
 
-import { AmountReadout } from '@/components/app/amount-readout';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { Input } from '@/components/ui/input';
-import { SegmentedControl } from '@/components/ui/segmented-control';
+import { AmountReadout , ListGroup, ListRow , Input , SegmentedControl } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useAccounts, useCategories, useFuturePostedCount, useRecurringRule, useTodayKey } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';

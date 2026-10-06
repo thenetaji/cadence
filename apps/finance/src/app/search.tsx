@@ -2,11 +2,8 @@ import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-rou
 import * as React from 'react';
 import { Platform, ScrollView, TextInput, View } from 'react-native';
 
-import { EmptyState } from '@/components/app/empty-state';
+import { EmptyState , ListGroup, ListRow , Button , Text } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
 import { useSearchTransactions, useSetting } from '@/data/hooks';
 import { pushRecentSearch } from '@/features/search/recent-searches';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Pressable , Text } from '@studio/ui';
 import { useTokens } from '@studio/theme';
 
 import { tagColorKey, tagPillColors } from './model';

@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { useTabStackOptions } from '@/components/app/tab-header';
+import { useTabStackOptions } from '@studio/ui';
 
 /** Home draws its own top row (month and settings), so the native header is hidden. */
 export default function HomeLayout() {

@@ -2,14 +2,12 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { barLeft, barRight, HeaderButton } from '@/components/app/header-button';
+import { barLeft, barRight, HeaderButton , EmptyState , SummaryStrip } from '@studio/ui';
 import { CalendarView } from '@/features/calendar/calendar-view';
 import { monthOf, shiftMonth } from '@/features/calendar/grid';
 
 import { AddFab } from '@/components/app/add-fab';
-import { EmptyState } from '@/components/app/empty-state';
-import { OptionPicker, type Option } from '@/components/app/option-picker';
-import { SummaryStrip } from '@/components/app/summary-strip';
+import { OptionPicker, type Option } from '@studio/ui';
 import { usePeriodTransactions, useSetting, useTodayKey } from '@/data/hooks';
 import { FilterChips } from '@/features/activity/filter-chips';
 import { activeFilterCount, useActiveFilterCount, useActivityFilters } from '@/features/activity/filter-store';

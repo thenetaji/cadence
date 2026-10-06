@@ -10,9 +10,7 @@ import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { headerChrome } from '@/components/app/tab-header';
-import { ToastHost } from '@/components/app/toast-host';
-import { Text } from '@/components/ui/text';
+import { headerChrome , ToastHost , Text } from '@studio/ui';
 import { LockGate } from '@/features/lock/lock-gate';
 import { useSetting, usePostDueRecurring, useReminderSync } from '@/data/hooks';
 import { useIconPrefsSync } from '@/lib/icon-prefs-sync';

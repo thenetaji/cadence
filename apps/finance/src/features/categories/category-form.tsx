@@ -2,12 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Platform, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { ListGroup } from '@/components/app/list-group';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Text } from '@/components/ui/text';
+import { IconTile , ListGroup , Card , Input , SegmentedControl , Text } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useCategories } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';

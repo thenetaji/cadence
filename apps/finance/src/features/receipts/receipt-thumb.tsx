@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { View } from 'react-native';
 
 import { AppIcon } from '@studio/icons';
-import { Pressable } from '@/components/ui/pressable';
+import { Pressable } from '@studio/ui';
 import { useTokens } from '@studio/theme';
 
 type ReceiptThumbProps = {

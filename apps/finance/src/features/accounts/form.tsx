@@ -2,15 +2,8 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, View } from 'react-native';
 
-import { AmountReadout } from '@/components/app/amount-readout';
-import { CurrencyPicker } from '@/components/app/currency-picker';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { OptionPicker } from '@/components/app/option-picker';
+import { AmountReadout , CurrencyPicker , ListGroup, ListRow , OptionPicker , Input , Pressable , SegmentedControl , Text } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
-import { Input } from '@/components/ui/input';
-import { Pressable } from '@/components/ui/pressable';
-import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useAccountUsage, useAccounts, useRateLookup, useSettings } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';

@@ -3,8 +3,7 @@ import * as StoreReview from 'expo-store-review';
 import * as React from 'react';
 import { Linking, ScrollView } from 'react-native';
 
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { showToast } from '@/components/app/toast-store';
+import { ListGroup, ListRow , showToast } from '@studio/ui';
 import { APP_NAME, FEEDBACK_EMAIL } from '@/constants/app';
 import { useActions } from '@/data/actions';
 import { LICENCES } from '@/features/about/licences';

@@ -3,10 +3,7 @@ import { ScrollView, View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { SectionHeader } from '@/components/app/section-header';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { SectionHeader , Card , Pressable , Text } from '@studio/ui';
 import { useDailyTotals, usePeriodTransactions, useSetting, useTodayKey } from '@/data/hooks';
 import { TransactionListRow } from '@/features/transactions/transaction-list-row';
 import { useMoneyContext } from '@/features/transactions/use-money-context';

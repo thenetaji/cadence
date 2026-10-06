@@ -1,3 +1,3 @@
-import { withSkia } from '@/components/charts/with-skia';
+import { withSkia } from '@studio/charts';
 
 export default withSkia(() => import('@/features/budgets/detail-screen'));

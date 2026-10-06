@@ -3,10 +3,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { AppIcon } from '@studio/icons';
-import { Button } from '@/components/ui/button';
-import { Pressable } from '@/components/ui/pressable';
-import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Text } from '@/components/ui/text';
+import { Button , Pressable , SegmentedControl , Text } from '@studio/ui';
 import { Hairline } from '@/features/transaction-form/chips';
 import { DatePicker } from '@/features/transaction-form/date-picker';
 import { useDraftStore } from '@/features/transaction-form/store';

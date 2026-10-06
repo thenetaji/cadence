@@ -1,8 +1,6 @@
 import { ScrollView } from 'react-native';
 
-import { Chip } from '@/components/app/chip';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Chip , Pressable , Text } from '@studio/ui';
 import { useAccounts, useCategories } from '@/data/hooks';
 import type { TransactionKind } from '@/db/schema';
 

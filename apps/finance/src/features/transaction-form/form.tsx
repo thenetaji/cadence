@@ -4,15 +4,9 @@ import { InputAccessoryView, Keyboard, KeyboardAvoidingView, Platform, ScrollVie
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
 
-import { AmountReadout } from '@/components/app/amount-readout';
-import { Keypad, type KeypadKey } from '@/components/app/keypad';
+import { AmountReadout , showToast , Button , Input , Pressable , SegmentedControl , Text , EdgeFade } from '@studio/ui';
+import { Keypad, type KeypadKey } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
-import { showToast } from '@/components/app/toast-store';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Pressable } from '@/components/ui/pressable';
-import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import {
   useAccounts,
@@ -32,7 +26,6 @@ import { normalizeTitle } from '@/db/repos/titleMemory';
 import type { TitleMemoryRow } from '@/db/schema';
 import { CategoryRowView } from '@/features/transaction-form/category-row';
 import { FormChip, Hairline } from '@/features/transaction-form/chips';
-import { EdgeFade } from '@/components/app/edge-fade';
 import { ShakeView } from '@/features/transaction-form/shake-view';
 import { pickReceipt, RECEIPT_OPTIONS, type ReceiptSource } from '@/features/receipts/pick';
 import { ReceiptThumb } from '@/features/receipts/receipt-thumb';

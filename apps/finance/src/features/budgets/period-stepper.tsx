@@ -1,8 +1,7 @@
 import { View } from 'react-native';
 
 import { AppIcon } from '@studio/icons';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Pressable , Text } from '@studio/ui';
 import { haptic , useTokens } from '@studio/theme';
 
 type StepButtonProps = { symbol: string; label: string; disabled?: boolean; onPress: () => void };

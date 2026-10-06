@@ -2,11 +2,7 @@ import { useRouter, type Href } from 'expo-router';
 import { View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { SheetScroll } from '@/components/app/sheet-scroll';
-import { Button } from '@/components/ui/button';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , SheetScroll , Button , Pressable , Text } from '@studio/ui';
 import { useCategories } from '@/data/hooks';
 import { updateSplitLine } from '@/features/transaction-form/logic';
 import { useDraftStore } from '@/features/transaction-form/store';

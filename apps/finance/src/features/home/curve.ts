@@ -1,6 +1,6 @@
 /** Pure geometry and formatting for the Home spend curve and header. */
 
-import { monotoneSegments, type Pt, type Segment } from '@/lib/charts/smooth';
+import { monotoneSegments, type Pt, type Segment } from '@studio/charts/lib';
 
 export { monotoneSegments };
 export type { Pt, Segment };

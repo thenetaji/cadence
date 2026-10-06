@@ -2,11 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, ScrollView, View } from 'react-native';
 
-import { Amount } from '@/components/app/amount';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { showToast } from '@/components/app/toast-store';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
+import { Amount , ListGroup, ListRow , showToast , Card , Text } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useRateLookup, useTagTotals, useTagTransactions, useTags } from '@/data/hooks';
 import { TransactionListRow } from '@/features/transactions/transaction-list-row';

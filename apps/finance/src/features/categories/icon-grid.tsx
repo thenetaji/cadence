@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { Input } from '@/components/ui/input';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , Input , Pressable , Text } from '@studio/ui';
 import { conceptFor, conceptLabel , tileRadius } from '@studio/icons';
 import type { CategoryColorKey } from '@studio/theme';
 import { useTokens } from '@studio/theme';

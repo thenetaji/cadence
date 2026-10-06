@@ -1,9 +1,7 @@
 import type { NativeStackNavigationOptions } from 'expo-router';
 import * as React from 'react';
 
-import { barLeft, barRight } from '@/components/app/header-button';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { barLeft, barRight , Button , Text } from '@studio/ui';
 
 type SheetHeaderOptions = {
   title: string;

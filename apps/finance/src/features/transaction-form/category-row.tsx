@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { EdgeFade } from '@/components/app/edge-fade';
+import { EdgeFade } from '@studio/ui';
 import { useTokens } from '@studio/theme';
 import { CategoryPill, FormChip } from '@/features/transaction-form/chips';
 import { ShakeView } from '@/features/transaction-form/shake-view';

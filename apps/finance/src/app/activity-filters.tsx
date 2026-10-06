@@ -2,12 +2,8 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { Chip } from '@/components/app/chip';
-import { ListGroup, ListRow } from '@/components/app/list-group';
+import { Chip , ListGroup, ListRow , barLeft, barRight , Button , Text } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
-import { barLeft, barRight } from '@/components/app/header-button';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
 import { useAccounts, useCategories, usePeriodTransactions } from '@/data/hooks';
 import { activeFilterCount, useActivityFilters } from '@/features/activity/filter-store';
 import { haptic , useTokens } from '@studio/theme';

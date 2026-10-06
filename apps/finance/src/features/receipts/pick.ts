@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Linking } from 'react-native';
 
-import { showToast } from '@/components/app/toast-store';
+import { showToast } from '@studio/ui';
 
 export type ReceiptSource = 'camera' | 'library';
 

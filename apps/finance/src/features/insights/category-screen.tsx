@@ -3,13 +3,9 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { DaySectionHeader } from '@/components/app/day-section-header';
+import { DaySectionHeader , barRight , Button , Card , Text } from '@studio/ui';
 import { TransactionRow } from '@/components/app/transaction-row';
-import { MiniBars } from '@/components/charts/mini-bars';
-import { barRight } from '@/components/app/header-button';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
+import { MiniBars } from '@studio/charts';
 import { useCategoryTrend, usePeriodTransactions, useSettings, useTodayKey, useTopCategoryId, type TransactionListItem } from '@/data/hooks';
 import { periodFor, periodLabel, previousPeriod, type Period, type PeriodType } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';

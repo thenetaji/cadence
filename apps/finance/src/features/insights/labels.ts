@@ -1,6 +1,6 @@
 import { monthName, monthShort, parseKey, periodLength, previousPeriod, type Period } from '@studio/dates';
 import { MINUS, formatMoney, minorDigits } from '@studio/money';
-import { shortDay } from '@/lib/charts';
+import { shortDay } from '@studio/charts/lib';
 import type { Delta, Granularity, SeriesPoint } from '@/lib/insights';
 
 import type { InsightsKind } from './params';

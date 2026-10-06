@@ -2,14 +2,8 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { SectionHeader } from '@/components/app/section-header';
-import { BarChart } from '@/components/charts/bar-chart';
-import { PairedBars } from '@/components/charts/paired-bars';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
-import { AnimatedNumber } from '@/components/app/animated-number';
+import { IconTile , SectionHeader , Card , Pressable , Text , AnimatedNumber } from '@studio/ui';
+import { BarChart , PairedBars } from '@studio/charts';
 import type { InsightsExtras } from '@/data/hooks';
 import { monthShort, parseKey } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';

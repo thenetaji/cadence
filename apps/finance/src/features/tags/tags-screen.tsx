@@ -2,12 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { EmptyState } from '@/components/app/empty-state';
-import { IconTile } from '@/components/app/icon-tile';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Text } from '@/components/ui/text';
+import { EmptyState , IconTile , Card , Pressable , SegmentedControl , Text } from '@studio/ui';
 import { useSettings, useTagTotals, useTodayKey } from '@/data/hooks';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { AppIcon } from '@studio/icons';

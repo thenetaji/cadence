@@ -3,9 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { barLeft, barRight } from '@/components/app/header-button';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { barLeft, barRight , Button , Text } from '@studio/ui';
 import { useRangeStore } from '@/features/insights/range-store';
 import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
 import { useTokens } from '@studio/theme';

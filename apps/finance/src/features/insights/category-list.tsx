@@ -2,9 +2,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , Pressable , Text } from '@studio/ui';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { durations, type CategoryColorKey } from '@studio/theme';
 import { useTokens } from '@studio/theme';

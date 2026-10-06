@@ -37,6 +37,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # pnpm skips react-native-skia's postinstall, and `pod install` aborts without its prebuilt binaries.
+      - name: Install Skia binaries
+        working-directory: apps/${{ env.APP }}
+        run: pnpm exec install-skia
+
       - name: Generate the native iOS project
         working-directory: apps/${{ env.APP }}
         run: pnpm exec expo prebuild -p ios --clean

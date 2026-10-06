@@ -3,11 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
-import { Amount } from '@/components/app/amount';
-import { IconTile } from '@/components/app/icon-tile';
+import { Amount , IconTile , Pressable , Text } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
 import { haptic , useTokens } from '@studio/theme';
 import { pressScale, type CategoryColorKey } from '@studio/theme';
 

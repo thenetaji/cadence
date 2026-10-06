@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { CurrencyPicker } from '@/components/app/currency-picker';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { Input } from '@/components/ui/input';
-import { Text } from '@/components/ui/text';
+import { CurrencyPicker , ListGroup, ListRow , Input , Text } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useAccounts, useRateLookup, useRates, useSetting } from '@/data/hooks';
 import { monthShort, parseKey, toDateKey } from '@studio/dates';

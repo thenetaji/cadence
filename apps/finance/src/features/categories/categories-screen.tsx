@@ -2,12 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { HeaderButton, barRight } from '@/components/app/header-button';
-import { OptionPicker } from '@/components/app/option-picker';
-import { showToast } from '@/components/app/toast-store';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
+import { HeaderButton, barRight , OptionPicker , showToast , Button , Card , Text } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useCategories } from '@/data/hooks';
 import type { CategoryKind, CategoryRow as CategoryData } from '@/db/schema';

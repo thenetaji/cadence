@@ -2,9 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { SheetScroll } from '@/components/app/sheet-scroll';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { SheetScroll , Button , Text } from '@studio/ui';
 import { useCategories } from '@/data/hooks';
 import { CategoryGrid } from '@/features/entry/category-grid';
 import { useCategoryRequest } from '@/features/budgets/category-store';

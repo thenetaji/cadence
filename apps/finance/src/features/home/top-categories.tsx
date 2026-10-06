@@ -2,9 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
+import { IconTile , Card , Text } from '@studio/ui';
 import type { Insights } from '@/data/hooks';
 import { formatMoney } from '@studio/money';
 import { withAlpha, type CategoryColorKey } from '@studio/theme';

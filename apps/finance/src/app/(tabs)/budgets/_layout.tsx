@@ -1,7 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 
-import { HeaderButton, barRight } from '@/components/app/header-button';
-import { useTabStackOptions } from '@/components/app/tab-header';
+import { HeaderButton, barRight , useTabStackOptions } from '@studio/ui';
 
 export default function BudgetsLayout() {
   const options = useTabStackOptions();

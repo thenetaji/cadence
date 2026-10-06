@@ -2,13 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Keyboard, View } from 'react-native';
 
-import { AmountReadout } from '@/components/app/amount-readout';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { showToast } from '@/components/app/toast-store';
-import { Input } from '@/components/ui/input';
-import { Text } from '@/components/ui/text';
-import { Pressable } from '@/components/ui/pressable';
-import { SegmentedControl } from '@/components/ui/segmented-control';
+import { AmountReadout , ListGroup, ListRow , showToast , Input , Text , Pressable , SegmentedControl } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useBudgets, useCategories, useSettings } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';

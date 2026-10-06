@@ -1,7 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Pressable , Text } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
 import { pressScale , useTokens } from '@studio/theme';
 

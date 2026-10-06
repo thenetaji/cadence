@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { Text } from '@/components/ui/text';
+import { Text } from '@studio/ui';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { useTokens } from '@studio/theme';
 

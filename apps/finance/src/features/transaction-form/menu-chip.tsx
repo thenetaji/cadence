@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActionSheetIOS, Platform } from 'react-native';
 
-import { OptionPicker } from '@/components/app/option-picker';
+import { OptionPicker } from '@studio/ui';
 import { FormChip } from '@/features/transaction-form/chips';
 import { useTokens } from '@studio/theme';
 

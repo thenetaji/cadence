@@ -1,9 +1,6 @@
 import { ScrollView, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , ListGroup, ListRow , Pressable , Text } from '@studio/ui';
 import { useSetting } from '@/data/hooks';
 import { AppIcon , useIconPrefs } from '@studio/icons';
 import { ICON_BACKGROUND_LABELS, ICON_BACKGROUNDS, ICON_STYLE_LABELS, ICON_STYLES, type IconBackground, type IconStyle } from '@studio/icons';

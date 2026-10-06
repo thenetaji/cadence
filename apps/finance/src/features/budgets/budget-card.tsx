@@ -1,10 +1,6 @@
 import { View } from 'react-native';
 
-import { Amount } from '@/components/app/amount';
-import { ProgressBar } from '@/components/app/progress-bar';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Amount , ProgressBar , Card , Pressable , Text } from '@studio/ui';
 import { pressScale } from '@studio/theme';
 
 import type { BudgetView } from './model';

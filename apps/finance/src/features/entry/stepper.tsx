@@ -1,8 +1,7 @@
 import { View } from 'react-native';
 
 import { AppIcon } from '@studio/icons';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Pressable , Text } from '@studio/ui';
 import { useTokens } from '@studio/theme';
 
 type StepperProps = { value: number; min?: number; max?: number; onChange: (value: number) => void; label?: string; /** Shown after the control, e.g. `month`. */ unit?: string };

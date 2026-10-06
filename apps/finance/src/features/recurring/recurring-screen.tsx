@@ -3,12 +3,8 @@ import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 
-import { EmptyState } from '@/components/app/empty-state';
-import { HeaderButton, barRight } from '@/components/app/header-button';
-import { SectionHeader } from '@/components/app/section-header';
-import { showToast } from '@/components/app/toast-store';
+import { EmptyState , HeaderButton, barRight , SectionHeader , showToast , Card } from '@studio/ui';
 import { TransactionRow } from '@/components/app/transaction-row';
-import { Card } from '@/components/ui/card';
 import { useActions } from '@/data/actions';
 import { useAccounts, useCategories, useRecurringRules, useTodayKey, useUpcoming } from '@/data/hooks';
 import { toUpcomingRow } from '@/features/home/upcoming-model';

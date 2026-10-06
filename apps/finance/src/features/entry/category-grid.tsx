@@ -1,8 +1,6 @@
 import { View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , Pressable , Text } from '@studio/ui';
 import type { CategoryRow } from '@/db/schema';
 import { haptic , useTokens } from '@studio/theme';
 import type { CategoryColorKey } from '@studio/theme';

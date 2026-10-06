@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 @import 'uniwind';
 
+/* Classes used inside the shared workspace packages must be generated too. */
+@source '../../../packages/*/src';
+
 @layer theme {
   :root {
     @variant light {

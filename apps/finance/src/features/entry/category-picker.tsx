@@ -1,8 +1,7 @@
 import { Modal, ScrollView, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { Button , Text } from '@studio/ui';
 import type { CategoryRow } from '@/db/schema';
 
 import { CategoryGrid } from './category-grid';

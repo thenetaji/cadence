@@ -2,12 +2,8 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { EmptyState } from '@/components/app/empty-state';
-import { PaceChart, paceLabel } from '@/components/charts/pace-chart';
-import { barRight } from '@/components/app/header-button';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
+import { EmptyState , barRight , Button , Card , Text } from '@studio/ui';
+import { PaceChart, paceLabel } from '@studio/charts';
 import { useBudgetDetail, useCategories, usePeriodTransactions, useTodayKey } from '@/data/hooks';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';
 import { useMoneyContext } from '@/features/transactions/use-money-context';

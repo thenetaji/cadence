@@ -3,9 +3,7 @@ import { View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { AppIcon } from '@studio/icons';
-import { Button } from '@/components/ui/button';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Button , Pressable , Text } from '@studio/ui';
 import { CategoryPill, FormChip, Hairline } from '@/features/transaction-form/chips';
 import { MAX_SPLIT_LINES, splitRemaining, type SplitDraftLine } from '@/features/transaction-form/logic';
 import { ShakeView } from '@/features/transaction-form/shake-view';

@@ -2,9 +2,7 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { SymbolIcon } from '@/components/app/symbol';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { SymbolIcon , Pressable , Text } from '@studio/ui';
 import { useTokens } from '@studio/theme';
 
 type HomeTopBarProps = { day: string; remaining: string };

@@ -2,10 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , Card , Pressable , Text } from '@studio/ui';
 import { useBudgets, useCategories, useUpcoming } from '@/data/hooks';
 import { dayLabel, diffDays } from '@studio/dates';
 import { formatMoney } from '@studio/money';

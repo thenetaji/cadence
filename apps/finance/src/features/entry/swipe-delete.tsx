@@ -3,8 +3,7 @@ import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture
 import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
 import { AppIcon } from '@studio/icons';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Pressable , Text } from '@studio/ui';
 import { haptic , useTokens } from '@studio/theme';
 
 const ACTION_WIDTH = 72;

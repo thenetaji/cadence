@@ -3,8 +3,7 @@ import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { AddFab } from '@/components/app/add-fab';
-import { EmptyState } from '@/components/app/empty-state';
-import { Card } from '@/components/ui/card';
+import { EmptyState , Card } from '@studio/ui';
 import { useAccounts, useHomeSpend, useInsights, useRecentTransactions, useSetting, useTodayKey } from '@/data/hooks';
 import { ComingUp } from '@/features/home/coming-up';
 import { daysLeftLabel, headerDay } from '@/features/home/curve';

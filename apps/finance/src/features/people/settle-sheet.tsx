@@ -3,10 +3,8 @@ import * as React from 'react';
 import { Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AmountReadout } from '@/components/app/amount-readout';
-import { Keypad, type KeypadKey } from '@/components/app/keypad';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { AmountReadout , Button , Text } from '@studio/ui';
+import { Keypad, type KeypadKey } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useAccounts, usePersonHistory } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';

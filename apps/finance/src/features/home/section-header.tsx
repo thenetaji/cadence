@@ -1,8 +1,6 @@
 import { View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { SymbolIcon , Pressable , Text } from '@studio/ui';
 import { pressOpacity , useTokens } from '@studio/theme';
 
 type HomeSectionHeaderProps = { title: string; actionLabel?: string; onAction?: () => void };

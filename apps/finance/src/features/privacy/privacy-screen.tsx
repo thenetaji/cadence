@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ScrollView } from 'react-native';
 
-import { ListGroup, ListRow } from '@/components/app/list-group';
+import { ListGroup, ListRow } from '@studio/ui';
 import { useSetting } from '@/data/hooks';
 import { Stagger } from '@studio/motion';
 

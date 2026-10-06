@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { ActionSheetIOS, Alert, Platform } from 'react-native';
 
-import { showToast } from '@/components/app/toast-store';
+import { showToast } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { collapseThen } from '@studio/motion';
 

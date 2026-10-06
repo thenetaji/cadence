@@ -4,15 +4,9 @@ import { ScrollView, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { FadeIn, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { Amount } from '@/components/app/amount';
-import { SectionHeader } from '@/components/app/section-header';
-import { BarChart } from '@/components/charts/bar-chart';
-import { Donut } from '@/components/charts/donut';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Amount , SectionHeader , Card , Pressable , Text } from '@studio/ui';
+import { BarChart , Donut , axisLabels } from '@studio/charts';
 import { useCashFlow, useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
-import { axisLabels } from '@/lib/charts';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@studio/dates';
 import { Stagger } from '@studio/motion';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';

@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , Pressable , Text } from '@studio/ui';
 import { pressScale , useTokens } from '@studio/theme';
 
 import type { AccountView } from './model';

@@ -1,9 +1,7 @@
 import { Modal, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { ListGroup, ListRow , Button , Text } from '@studio/ui';
 import type { BackupSummary } from '@/db/repos/backup';
 
 import { backupTimeLabel } from './format';

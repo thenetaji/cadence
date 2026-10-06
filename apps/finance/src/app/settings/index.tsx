@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView } from 'react-native';
 
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { OptionPicker, type Option } from '@/components/app/option-picker';
+import { ListGroup, ListRow } from '@studio/ui';
+import { OptionPicker, type Option } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useAccounts, useSetting } from '@/data/hooks';
 import { ICON_STYLE_LABELS } from '@studio/icons';

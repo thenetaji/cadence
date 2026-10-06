@@ -2,12 +2,8 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Platform, View } from 'react-native';
 
-import { Amount } from '@/components/app/amount';
-import { EmptyState } from '@/components/app/empty-state';
-import { OptionPicker, type Option } from '@/components/app/option-picker';
-import { barRight } from '@/components/app/header-button';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { Amount , EmptyState , barRight , Button , Text } from '@studio/ui';
+import { OptionPicker, type Option } from '@studio/ui';
 import { useAccounts, usePeriodTransactions, useSetting, useTodayKey } from '@/data/hooks';
 import { MonthPill } from '@/features/activity/month-pill';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';

@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { OptionPicker, type Option } from '@/components/app/option-picker';
-import { ListRow } from '@/components/app/list-group';
-import { Text } from '@/components/ui/text';
+import { OptionPicker, type Option } from '@studio/ui';
+import { ListRow , Text } from '@studio/ui';
 import { useTokens } from '@studio/theme';
 
 type Injected = { showSeparator?: boolean };

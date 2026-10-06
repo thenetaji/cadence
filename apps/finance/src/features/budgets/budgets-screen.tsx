@@ -2,9 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { EmptyState } from '@/components/app/empty-state';
-import { showToast } from '@/components/app/toast-store';
-import { Card } from '@/components/ui/card';
+import { EmptyState , showToast , Card } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useBudgets, useCategories, useTodayKey } from '@/data/hooks';
 import type { BudgetInput } from '@/db/repos/budgets';

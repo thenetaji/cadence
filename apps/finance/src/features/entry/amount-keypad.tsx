@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Keypad } from '@/components/app/keypad';
+import { Keypad } from '@studio/ui';
 
 import type { AmountEntry } from './use-amount-entry';
 

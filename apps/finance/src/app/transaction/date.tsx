@@ -2,8 +2,7 @@ import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 
 import { useTodayKey } from '@/data/hooks';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { Button , Text } from '@studio/ui';
 import { DatePicker } from '@/features/transaction-form/date-picker';
 import { withDateKey } from '@/features/transaction-form/logic';
 import { useDraftStore } from '@/features/transaction-form/store';

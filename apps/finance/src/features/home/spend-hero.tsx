@@ -3,22 +3,19 @@ import * as React from 'react';
 import { View } from 'react-native';
 import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
-import { SymbolIcon } from '@/components/app/symbol';
-import { withSkia } from '@/components/charts/with-skia';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { SymbolIcon , Pressable , Text , AnimatedNumber } from '@studio/ui';
+import { withSkia } from '@studio/charts';
 import type { HomeSpend } from '@/data/hooks';
-import { AnimatedNumber } from '@/components/app/animated-number';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { withAlpha , useTokens } from '@studio/theme';
 
-import type { CumulativeDuoProps } from '@/components/charts/cumulative-duo';
+import type { CumulativeDuoProps } from '@studio/charts';
 import { addDays, monthShort, parseKey } from '@studio/dates';
 
 import { FlowLegend } from './spend-legend';
 
 /** Skia loads lazily (CanvasKit first on web), keeping chart code out of the initial graph. */
-const CumulativeDuo = withSkia<CumulativeDuoProps>(() => import('@/components/charts/cumulative-duo').then((m) => ({ default: m.CumulativeDuo })));
+const CumulativeDuo = withSkia<CumulativeDuoProps>(() => import('@studio/charts').then((m) => ({ default: m.CumulativeDuo })));
 
 type SpendHeroProps = {
   spend: HomeSpend;

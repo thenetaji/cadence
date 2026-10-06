@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import { AppIcon } from '@studio/icons';
-import { Pressable } from '@/components/ui/pressable';
+import { Pressable } from '@studio/ui';
 import { categoryKeys, type CategoryColorKey } from '@studio/theme';
 import { useTokens } from '@studio/theme';
 

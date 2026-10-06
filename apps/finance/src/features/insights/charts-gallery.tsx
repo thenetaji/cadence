@@ -1,13 +1,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { BarChart } from '@/components/charts/bar-chart';
-import { Donut } from '@/components/charts/donut';
-import { MiniBars } from '@/components/charts/mini-bars';
-import { PaceChart, paceLabel } from '@/components/charts/pace-chart';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
-import { axisLabels } from '@/lib/charts';
+import { BarChart , Donut , MiniBars , PaceChart, paceLabel , axisLabels } from '@studio/charts';
+import { Card , Text } from '@studio/ui';
 import { addDays } from '@studio/dates';
 import { formatMoney } from '@studio/money';
 import { categoryColors , useTokens } from '@studio/theme';

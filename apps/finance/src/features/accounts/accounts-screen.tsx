@@ -2,14 +2,8 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { Amount } from '@/components/app/amount';
-import { EmptyState } from '@/components/app/empty-state';
-import { HeaderButton, barRight } from '@/components/app/header-button';
+import { Amount , EmptyState , HeaderButton, barRight , Button , Card , Pressable , Text } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useAccounts, useRateLookup, useSetting } from '@/data/hooks';
 import { moneyLocale } from '@/features/transactions/use-money-context';

@@ -2,11 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { SheetScroll } from '@/components/app/sheet-scroll';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { SheetScroll , Button , Input , Pressable , Text } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useTags } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';

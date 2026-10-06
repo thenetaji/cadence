@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { Linking, ScrollView, View } from 'react-native';
 
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
+import { ListGroup, ListRow , Button , Card , Text } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { useSetting } from '@/data/hooks';
 import { Stagger } from '@studio/motion';

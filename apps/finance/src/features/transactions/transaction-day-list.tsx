@@ -2,7 +2,7 @@ import { FlashList } from '@shopify/flash-list';
 import * as React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 
-import { DaySectionHeader } from '@/components/app/day-section-header';
+import { DaySectionHeader } from '@studio/ui';
 import type { TransactionListItem } from '@/data/hooks';
 import { EntryTracker } from '@studio/motion';
 

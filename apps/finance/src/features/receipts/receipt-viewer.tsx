@@ -6,8 +6,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { showToast } from '@/components/app/toast-store';
-import { Pressable } from '@/components/ui/pressable';
+import { showToast , Pressable } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
 import { haptic } from '@studio/theme';
 

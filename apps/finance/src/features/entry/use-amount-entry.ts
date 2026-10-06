@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import type { KeypadKey } from '@/components/app/keypad';
+import type { KeypadKey } from '@studio/ui';
 import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState, type KeypadView } from '@studio/money';
 
 export interface AmountEntry {

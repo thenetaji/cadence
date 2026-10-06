@@ -1,9 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { ProgressBar } from '@/components/app/progress-bar';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { IconTile , ProgressBar , Pressable , Text } from '@studio/ui';
 import { SwipeDelete } from '@/features/entry/swipe-delete';
 import { pressScale , useCategoryColor, useTokens } from '@studio/theme';
 

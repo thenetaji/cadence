@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { ScrollView } from 'react-native';
 
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { OptionPicker } from '@/components/app/option-picker';
-import { showToast } from '@/components/app/toast-store';
+import { ListGroup, ListRow , OptionPicker , showToast } from '@studio/ui';
 import { useSetting } from '@/data/hooks';
 import { haptic } from '@studio/theme';
 

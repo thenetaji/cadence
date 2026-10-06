@@ -2,12 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { Amount } from '@/components/app/amount';
-import { EmptyState } from '@/components/app/empty-state';
-import { HeaderButton, barRight } from '@/components/app/header-button';
-import { Card } from '@/components/ui/card';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Amount , EmptyState , HeaderButton, barRight , Card , Pressable , Text } from '@studio/ui';
 import { useOutstanding, useOutstandingTotals } from '@/data/hooks';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { AppIcon } from '@studio/icons';

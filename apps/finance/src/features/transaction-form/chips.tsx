@@ -3,8 +3,7 @@ import { View, type ViewStyle } from 'react-native';
 import { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { AppIcon } from '@studio/icons';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import { Pressable , Text } from '@studio/ui';
 import { durations, type CategoryColorKey } from '@studio/theme';
 import { useTokens } from '@studio/theme';
 

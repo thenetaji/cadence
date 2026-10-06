@@ -2,13 +2,8 @@ import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AmountReadout } from '@/components/app/amount-readout';
-import { CurrencyPicker } from '@/components/app/currency-picker';
-import { Keypad, type KeypadKey } from '@/components/app/keypad';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Text } from '@/components/ui/text';
+import { AmountReadout , CurrencyPicker , ListGroup, ListRow , Button , Input , Text } from '@studio/ui';
+import { Keypad, type KeypadKey } from '@studio/ui';
 import { useActions } from '@/data/actions';
 import { defaultCurrencyCode } from '@/lib/default-currency';
 import {

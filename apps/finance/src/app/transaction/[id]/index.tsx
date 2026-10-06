@@ -2,11 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { IconTile } from '@/components/app/icon-tile';
-import { ListGroup, ListRow } from '@/components/app/list-group';
-import { barRight } from '@/components/app/header-button';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { IconTile , ListGroup, ListRow , barRight , Button , Text , AnimatedNumber } from '@studio/ui';
 import { useRecurringRule, useTransaction } from '@/data/hooks';
 import { DetailRow } from '@/features/transactions/detail-row';
 import { repeatLabel } from '@/features/transactions/repeat-label';
@@ -18,7 +14,6 @@ import { useTransactionActions } from '@/features/transactions/use-transaction-a
 import { fullDayLabel } from '@studio/dates';
 import { isLendingKind, type TransactionKind } from '@/lib/ledger';
 import { convertWithRates, formatMoney, formatMoneyForSpeech, type SignMode } from '@studio/money';
-import { AnimatedNumber } from '@/components/app/animated-number';
 import { Stagger } from '@studio/motion';
 import type { CategoryColorKey } from '@studio/theme';
 

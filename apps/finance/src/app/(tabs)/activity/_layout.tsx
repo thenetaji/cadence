@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { useTabStackOptions } from '@/components/app/tab-header';
+import { useTabStackOptions } from '@studio/ui';
 
 export default function ActivityLayout() {
   const options = useTabStackOptions();

@@ -44,8 +44,7 @@ export default function SettingsLayout() {
           sheetCornerRadius: 24,
         }}
       />
-      <Stack.Screen name="export" options={{ title: 'Export' }} />
-      <Stack.Screen name="import" options={{ title: 'Import' }} />
+      <Stack.Screen name="transfer" options={{ title: 'Import & export' }} />
       <Stack.Screen name="import-preview" options={{ title: 'Preview' }} />
       <Stack.Screen name="about" options={{ title: 'About' }} />
     </Stack>

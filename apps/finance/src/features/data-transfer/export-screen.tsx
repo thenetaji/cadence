@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ListGroup, ListRow , showToast , Button , SegmentedControl } from '@studio/ui';
 import { AppIcon } from '@studio/icons';
@@ -31,8 +31,8 @@ function ControlRow({ children, showSeparator = false }: { children: React.React
   );
 }
 
-/** Range, accounts and the Export CSV button. */
-export function ExportScreen() {
+/** Range, accounts and the Export CSV button (groups only; the screen supplies the scroll view). */
+export function ExportSection() {
   const { colors } = useTokens();
   const settings = useSettings();
   const accounts = useAccounts({ includeArchived: true });
@@ -74,8 +74,8 @@ export function ExportScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 pb-12 pt-4">
-      <ListGroup header="Range">
+    <>
+      <ListGroup header="Export">
         <ControlRow showSeparator={range === 'custom'}>
           <SegmentedControl
             values={RANGES.map((r) => RANGE_LABELS[r])}
@@ -114,6 +114,6 @@ export function ExportScreen() {
           Export CSV
         </Button>
       </View>
-    </ScrollView>
+    </>
   );
 }

@@ -603,7 +603,7 @@ export const flows = [
     async run({ page, base, freshPage }) {
       // Install A: demo data, export everything to CSV through the web download fallback.
       const exportAll = async (p) => {
-        await goClient(p, '/settings/export');
+        await goClient(p, '/settings/transfer');
         await expectText(p, 'Export CSV');
         await p.getByRole('tab', { name: 'All' }).tap();
         const [download] = await Promise.all([p.waitForEvent('download', { timeout: 60000 }), tapText(p, 'Export CSV')]);
@@ -629,7 +629,7 @@ export const flows = [
       // (An existing account is matched by name and its currency wins, so B is onboarded in INR like the demo "Cash".)
       const b = await freshPage();
       await onboard(b, base, 'INR');
-      await goClient(b, '/settings/import');
+      await goClient(b, '/settings/transfer');
       await expectText(b, 'Finance CSV');
       const [chooser] = await Promise.all([b.waitForEvent('filechooser', { timeout: 30000 }), tapText(b, 'Finance CSV')]);
       await chooser.setFiles({ name: 'farthing.csv', mimeType: 'text/csv', buffer: Buffer.from(csvA) });
@@ -655,6 +655,8 @@ export const flows = [
     async run({ page, base }) {
       await seeded(page, base, 'demo');
       await page.locator('[aria-label="Settings"]:visible').tap();
+      await expectText(page, 'Import & export');
+      await tapText(page, 'Import & export');
       await expectText(page, 'Erase all data');
       const dialogs = [];
       page.on('dialog', (d) => {

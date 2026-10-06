@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { ScrollView } from 'react-native';
 
 import { ListGroup, ListRow , showToast } from '@studio/ui';
 import { CsvFormatError, IMPORT_FORMAT_LABELS, parseImport, type ImportFormat } from '@/lib/csv';
@@ -16,7 +15,7 @@ const FORMATS: readonly { format: ImportFormat; color: CategoryColorKey }[] = [
 ];
 
 /** One row per supported CSV format; picking a file parses it and opens the preview. */
-export function ImportScreen() {
+export function ImportSection() {
   const router = useRouter();
   const setPending = useImportStore((s) => s.set);
   const [busy, setBusy] = React.useState(false);
@@ -42,8 +41,7 @@ export function ImportScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="py-4">
-      <ListGroup>
+    <ListGroup header="Import">
         {FORMATS.map(({ format, color }) => (
           <ListRow
             key={format}
@@ -53,7 +51,6 @@ export function ImportScreen() {
             onPress={() => void choose(format)}
           />
         ))}
-      </ListGroup>
-    </ScrollView>
+    </ListGroup>
   );
 }

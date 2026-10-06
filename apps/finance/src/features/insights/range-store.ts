@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { DateKey } from '@/lib/dates';
+import type { DateKey } from '@studio/dates';
 
 export interface RangeRequest {
   initial: { from: DateKey; to: DateKey };

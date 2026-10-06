@@ -1,4 +1,4 @@
-import type { DateKey, Period } from '../dates';
+import type { DateKey, Period } from '@studio/dates';
 import { buildSeries, convertLine, granularityFor, type ConversionContext, type Granularity } from './aggregate';
 import type { MonthlyPair } from './extras';
 import type { FlatLine } from './types';

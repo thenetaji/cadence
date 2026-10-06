@@ -5,7 +5,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import { useDerivedValue } from 'react-native-reanimated';
 
 import { barDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
-import { formatMoney } from '@/lib/money';
+import { formatMoney } from '@studio/money';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';

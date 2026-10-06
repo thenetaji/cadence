@@ -6,7 +6,7 @@ import { IconTile } from '@/components/app/icon-tile';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import type { Insights } from '@/data/hooks';
-import { formatMoney } from '@/lib/money';
+import { formatMoney } from '@studio/money';
 import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';

@@ -11,7 +11,7 @@ import { Text } from '@/components/ui/text';
 import { useOutstanding, useOutstandingTotals } from '@/data/hooks';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { AppIcon } from '@/icons/app-icon';
-import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
+import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { Stagger } from '@/motion/stagger';
 import { useTokens } from '@/theme/use-tokens';
 

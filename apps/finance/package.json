@@ -11,6 +11,8 @@
     "@rn-primitives/slot": "^1.5.2",
     "@shopify/flash-list": "2.0.2",
     "@shopify/react-native-skia": "2.6.2",
+    "@studio/dates": "workspace:*",
+    "@studio/money": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",

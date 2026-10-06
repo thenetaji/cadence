@@ -1,4 +1,4 @@
-import { periodFor } from '@/lib/dates';
+import { periodFor } from '@studio/dates';
 import { deltaLine, flowAmount, flowScrub, monthlyScrub, peakCaption, percentText, previousLabel, scrubLabel, trendLabel, weekdayShort } from './labels';
 
 const october = periodFor('month', '2026-10-05');

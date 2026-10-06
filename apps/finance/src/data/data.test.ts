@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { periodFor } from '@/lib/dates';
+import { periodFor } from '@studio/dates';
 import { createRule, postDue } from '@/db/repos/recurring';
 import { setRate } from '@/db/repos/fx';
 import { setSetting } from '@/db/repos/settings';

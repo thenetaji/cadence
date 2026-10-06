@@ -1,4 +1,4 @@
-import { keyToLocalMs } from '@/lib/dates';
+import { keyToLocalMs } from '@studio/dates';
 import {
   addSplitLine,
   autoReceives,

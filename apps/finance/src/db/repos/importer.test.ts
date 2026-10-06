@@ -1,6 +1,6 @@
 import { buildExportCsv, parseNative, parseImport, type ExportRecord } from '@/lib/csv';
 import { CASHEW_SAMPLE, DIME_SAMPLE, NATIVE_SAMPLE } from '@/lib/csv/fixtures';
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 import { createAccount, listAccounts } from './accounts';
 import { listCategories } from './categories';
 import { createTransaction, listForPeriod } from './transactions';

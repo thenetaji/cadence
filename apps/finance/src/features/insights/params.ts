@@ -1,4 +1,4 @@
-import { customPeriod, nextPeriod, periodFor, previousPeriod, type DateKey, type Period, type PeriodSettings, type PeriodType } from '@/lib/dates';
+import { customPeriod, nextPeriod, periodFor, previousPeriod, type DateKey, type Period, type PeriodSettings, type PeriodType } from '@studio/dates';
 
 export type InsightsKind = 'expense' | 'income';
 

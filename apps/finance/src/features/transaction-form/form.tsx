@@ -71,8 +71,8 @@ import {
 import { MenuChip, type MenuOption } from '@/features/transaction-form/menu-chip';
 import { SplitList } from '@/features/transaction-form/split-list';
 import { selectDraft, useDraftStore } from '@/features/transaction-form/store';
-import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@/lib/keypad';
-import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@/lib/money';
+import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@studio/money';
+import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@studio/money';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 

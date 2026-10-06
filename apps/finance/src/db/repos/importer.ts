@@ -1,5 +1,5 @@
 import { and, asc, eq, gte, inArray, lte } from 'drizzle-orm';
-import { toDateKey, type DateKey } from '@/lib/dates';
+import { toDateKey, type DateKey } from '@studio/dates';
 import {
   IMPORT_CATEGORY_ICON,
   IMPORT_PALETTE,

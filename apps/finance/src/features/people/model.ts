@@ -1,4 +1,4 @@
-import { formatMoney } from '@/lib/money';
+import { formatMoney } from '@studio/money';
 
 /** Two-letter avatar initials: "Rahul Sharma" -> "RS", "rahul" -> "R", "" -> "?". */
 export function initials(name: string): string {

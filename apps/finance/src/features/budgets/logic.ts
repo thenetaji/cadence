@@ -1,4 +1,4 @@
-import { diffDays, parseKey, type DateKey, type Period } from '@/lib/dates';
+import { diffDays, parseKey, type DateKey, type Period } from '@studio/dates';
 import type { BudgetPeriod, BudgetRow } from '@/db/schema';
 
 export type BudgetStatus = 'ok' | 'warning' | 'over';

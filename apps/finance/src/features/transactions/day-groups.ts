@@ -1,6 +1,6 @@
 import type { TransactionListItem } from '@/data/hooks';
-import { dayLabel } from '@/lib/dates';
-import { convertWithRates, formatMoney, type RateLookup } from '@/lib/money';
+import { dayLabel } from '@studio/dates';
+import { convertWithRates, formatMoney, type RateLookup } from '@studio/money';
 
 export interface DayGroupContext {
   todayKey: string;

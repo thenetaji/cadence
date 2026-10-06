@@ -5,7 +5,7 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
+import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { durations, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 

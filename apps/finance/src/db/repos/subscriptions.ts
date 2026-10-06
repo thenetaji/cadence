@@ -1,5 +1,5 @@
 import { and, asc, isNull, eq } from 'drizzle-orm';
-import { convertWithRates } from '@/lib/money';
+import { convertWithRates } from '@studio/money';
 import { monthlyCost, yearlyCost } from '@/lib/recurring';
 import { recurringRules, type RecurringRuleRow } from '../schema';
 import type { Db } from '../types';

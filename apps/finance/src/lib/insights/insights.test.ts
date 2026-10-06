@@ -1,7 +1,7 @@
-import { makeRateLookup } from '../money';
+import { makeRateLookup } from '@studio/money';
 import { averageOf, buildSeries, categoryTotals, deltaVsPrevious, granularityFor, groupTopCategories, paceSeries, sumLines } from './aggregate';
 import type { FlatLine } from './types';
-import { customPeriod, periodFor } from '../dates';
+import { customPeriod, periodFor } from '@studio/dates';
 
 const ctx = { displayCurrency: 'INR', rates: makeRateLookup([{ base: 'USD', quote: 'INR', rate: 80 }]) };
 const line = (dateKey: string, amount: number, categoryId: string | null, over: Partial<FlatLine> = {}): FlatLine => ({

@@ -1,5 +1,5 @@
 import { and, desc, eq } from 'drizzle-orm';
-import { addDays, addMonths, keyToLocalMs, makeKey, parseKey, toDateKey, weekday, type DateKey } from '@/lib/dates';
+import { addDays, addMonths, keyToLocalMs, makeKey, parseKey, toDateKey, weekday, type DateKey } from '@studio/dates';
 import { createAccount, type AccountInput } from './repos/accounts';
 import { listCategories } from './repos/categories';
 import { setRate } from './repos/fx';

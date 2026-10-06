@@ -2,7 +2,7 @@ import { listBudgetProgress } from '@/db/repos/budgets';
 import { listRules } from '@/db/repos/recurring';
 import { getAllSettings, setSetting } from '@/db/repos/settings';
 import type { Db } from '@/db/types';
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 import { planReminders, type PlannedNotification } from './schedule';
 
 /** The slice of `expo-notifications` the scheduler uses; injectable for tests. */

@@ -4,7 +4,7 @@ import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { schema, type Schema } from './schema';
 import { seedDefaults } from './seed';
-import { keyToLocalMs } from '@/lib/dates';
+import { keyToLocalMs } from '@studio/dates';
 import { createAccount } from './repos/accounts';
 import { listCategories } from './repos/categories';
 

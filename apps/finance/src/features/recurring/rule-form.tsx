@@ -18,9 +18,9 @@ import { useSheetHeader } from '@/features/entry/sheet-header';
 import { Stepper } from '@/features/entry/stepper';
 import { useAmountEntry } from '@/features/entry/use-amount-entry';
 import { DatePicker } from '@/features/transaction-form/date-picker';
-import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@/lib/dates';
+import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
 import type { Frequency } from '@/lib/recurring';
-import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@/lib/money';
+import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@studio/money';
 import { haptic } from '@/theme/haptics';
 
 

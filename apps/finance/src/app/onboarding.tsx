@@ -17,8 +17,8 @@ import {
   keypadReducer,
   type KeypadKey as ReducerKey,
   type KeypadState,
-} from '@/lib/keypad';
-import { currencySymbol, minorDigits } from '@/lib/money';
+} from '@studio/money';
+import { currencySymbol, minorDigits } from '@studio/money';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 

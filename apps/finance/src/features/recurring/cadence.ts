@@ -1,4 +1,4 @@
-import { monthShort, parseKey, weekday, type DateKey } from '@/lib/dates';
+import { monthShort, parseKey, weekday, type DateKey } from '@studio/dates';
 import type { Frequency } from '@/lib/recurring';
 
 const WEEKDAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];

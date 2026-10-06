@@ -2,7 +2,7 @@ import { listCategories } from '@/db/repos/categories';
 import { spendLines } from '@/db/repos/reports';
 import type { CategoryRow } from '@/db/schema';
 import type { Db } from '@/db/types';
-import { previousPeriod, type DateKey, type Period } from '@/lib/dates';
+import { previousPeriod, type DateKey, type Period } from '@studio/dates';
 import {
   averageOf,
   buildSeries,

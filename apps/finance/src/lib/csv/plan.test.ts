@@ -1,7 +1,7 @@
 import { DIME_SAMPLE, NATIVE_SAMPLE } from './fixtures';
 import { parseDime, parseNative, type ImportRow } from './import';
 import { dedupeKey, importBreakdown, importSummary, planImport, type ExistingData } from './plan';
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 
 const empty: ExistingData = { accounts: [], categories: [], ids: new Set(), keys: new Map() };
 const defaults = { displayCurrency: 'USD', defaultAccountId: null };

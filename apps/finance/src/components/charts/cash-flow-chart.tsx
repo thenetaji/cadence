@@ -6,7 +6,7 @@ import { useDerivedValue } from 'react-native-reanimated';
 
 import { barSlots, flowScale, netOffsets, runningNet, slotIndex, type AxisLabel, type FlowDatum } from '@/lib/charts';
 import { monotoneSegments } from '@/lib/charts/smooth';
-import { formatMoney, MINUS } from '@/lib/money';
+import { formatMoney, MINUS } from '@studio/money';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';

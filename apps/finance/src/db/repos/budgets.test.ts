@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { periodFor } from '@/lib/dates';
+import { periodFor } from '@studio/dates';
 import { ValidationError } from '../errors';
 import { at, categoryId, createTestDb, makeAccounts } from '../test-helpers';
 import { budgetPeriodFor, budgetSpent, createBudget, deleteBudget, getBudget, listBudgetProgress, listBudgets, updateBudget } from './budgets';

@@ -1,5 +1,5 @@
-import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@/lib/dates';
-import { formatMoney } from '@/lib/money';
+import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
+import { formatMoney } from '@studio/money';
 import { occurrencesBetween, type Frequency } from '@/lib/recurring';
 
 export type ReminderTrigger = { type: 'daily'; hour: number; minute: number } | { type: 'date'; at: number };

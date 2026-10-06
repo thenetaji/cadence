@@ -1,7 +1,7 @@
 import { getLocales } from 'expo-localization';
 import { useMemo } from 'react';
 
-import { maskLocale } from '@/lib/money';
+import { maskLocale } from '@studio/money';
 import { useRateLookup, useSetting, useTodayKey } from '@/data/hooks';
 
 import type { DayGroupContext } from './day-groups';

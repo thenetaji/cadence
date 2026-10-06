@@ -1,5 +1,5 @@
 import type { AccountWithBalance } from '@/data/hooks';
-import { convertWithRates, formatMoney, formatMoneyForSpeech, sumConverted, type RateLookup } from '@/lib/money';
+import { convertWithRates, formatMoney, formatMoneyForSpeech, sumConverted, type RateLookup } from '@studio/money';
 import type { AccountType } from '@/db/schema';
 import type { CategoryColorKey } from '@/theme/tokens';
 

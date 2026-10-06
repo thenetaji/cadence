@@ -1,4 +1,4 @@
-import { endOfMonthKey, listDays, makeKey, parseKey, weekday } from '@/lib/dates';
+import { endOfMonthKey, listDays, makeKey, parseKey, weekday } from '@studio/dates';
 import { buildSeries, sumLines, type ConversionContext } from '@/lib/insights';
 import { getRateLookup } from './fx';
 import { spendLines } from './reports';

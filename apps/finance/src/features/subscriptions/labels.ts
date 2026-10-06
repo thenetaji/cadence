@@ -1,4 +1,4 @@
-import { diffDays, monthShort, parseKey, type DateKey } from '@/lib/dates';
+import { diffDays, monthShort, parseKey, type DateKey } from '@studio/dates';
 import type { Frequency } from '@/lib/recurring';
 
 const ADVERBS: Record<Frequency, string> = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' };

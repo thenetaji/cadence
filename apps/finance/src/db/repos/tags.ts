@@ -1,5 +1,5 @@
 import { and, asc, between, eq, inArray, sql } from 'drizzle-orm';
-import { convertWithRates } from '@/lib/money';
+import { convertWithRates } from '@studio/money';
 import { ValidationError } from '../errors';
 import { newId } from '../ids';
 import { tags, transactionTags, transactions, type TagRow } from '../schema';

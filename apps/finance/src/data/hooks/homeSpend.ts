@@ -1,6 +1,6 @@
 import { spendLines } from '@/db/repos/reports';
 import type { Db } from '@/db/types';
-import { diffDays, previousPeriod, type Period } from '@/lib/dates';
+import { diffDays, previousPeriod, type Period } from '@studio/dates';
 import { buildSeries, sumLines, type ConversionContext, type FlatLine } from '@/lib/insights';
 import { conversionContext } from './summary';
 

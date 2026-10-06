@@ -1,5 +1,5 @@
 import type { TransactionListItem } from '@/data/hooks';
-import { makeRateLookup } from '@/lib/money';
+import { makeRateLookup } from '@studio/money';
 
 import { buildDayEntries, headerIndices, sumItems, type DayGroupContext } from './day-groups';
 

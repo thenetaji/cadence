@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useAccounts, useRateLookup, useRates, useSetting } from '@/data/hooks';
-import { monthShort, parseKey, toDateKey } from '@/lib/dates';
-import { currencySymbol } from '@/lib/money';
+import { monthShort, parseKey, toDateKey } from '@studio/dates';
+import { currencySymbol } from '@studio/money';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 

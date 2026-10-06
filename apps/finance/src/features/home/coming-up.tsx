@@ -7,8 +7,8 @@ import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { useBudgets, useCategories, useUpcoming } from '@/data/hooks';
-import { dayLabel, diffDays } from '@/lib/dates';
-import { formatMoney } from '@/lib/money';
+import { dayLabel, diffDays } from '@studio/dates';
+import { formatMoney } from '@studio/money';
 import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 

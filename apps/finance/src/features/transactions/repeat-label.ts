@@ -1,4 +1,4 @@
-import { monthShort, parseKey, type DateKey } from '@/lib/dates';
+import { monthShort, parseKey, type DateKey } from '@studio/dates';
 
 const UNITS = { daily: ['day', 'days'], weekly: ['week', 'weeks'], monthly: ['month', 'months'], yearly: ['year', 'years'] } as const;
 const ADVERBS = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' } as const;

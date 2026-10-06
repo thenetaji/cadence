@@ -3,7 +3,7 @@ import { listCategories } from '@/db/repos/categories';
 import { detailedLines } from '@/db/repos/insight-lines';
 import type { AccountRow, CategoryRow } from '@/db/schema';
 import type { Db } from '@/db/types';
-import type { DateKey, Period, PeriodSettings } from '@/lib/dates';
+import type { DateKey, Period, PeriodSettings } from '@studio/dates';
 import {
   biggest,
   byAccount,

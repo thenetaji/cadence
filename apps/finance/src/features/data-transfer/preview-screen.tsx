@@ -14,8 +14,8 @@ import { ValidationError } from '@/db/errors';
 import { moneyLocale } from '@/features/transactions/use-money-context';
 import { CASHEW_SAMPLE, DIME_SAMPLE, NATIVE_SAMPLE, dimeFixture } from '@/lib/csv/fixtures';
 import { importBreakdown, parseImport, type ImportFormat, type ImportRow } from '@/lib/csv';
-import { dayLabel, toDateKey } from '@/lib/dates';
-import { formatMoney } from '@/lib/money';
+import { dayLabel, toDateKey } from '@studio/dates';
+import { formatMoney } from '@studio/money';
 import { haptic } from '@/theme/haptics';
 
 import { useImportStore } from './store';

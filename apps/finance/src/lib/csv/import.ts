@@ -1,5 +1,5 @@
 import { ALL_KINDS, isLendingKind, type TransactionKind } from '@/lib/ledger';
-import { fromMinor, toMinor } from '@/lib/money';
+import { fromMinor, toMinor } from '@studio/money';
 
 import { APP_NAME } from '@/constants/app';
 

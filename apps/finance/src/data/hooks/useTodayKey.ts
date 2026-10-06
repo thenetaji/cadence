@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 
 const MINUTE = 60_000;
 

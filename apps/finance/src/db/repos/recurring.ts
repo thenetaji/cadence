@@ -1,5 +1,5 @@
 import { and, asc, eq, gt, isNull, lte, or } from 'drizzle-orm';
-import { addDays, keyToLocalMs, weekday, type DateKey } from '@/lib/dates';
+import { addDays, keyToLocalMs, weekday, type DateKey } from '@studio/dates';
 import { defaultAnchorDay, nextDueDate, occurrencesBetween, type Frequency } from '@/lib/recurring';
 import { ValidationError } from '../errors';
 import { newId } from '../ids';

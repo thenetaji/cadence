@@ -1,4 +1,4 @@
-import type { Period } from '@/lib/dates';
+import type { Period } from '@studio/dates';
 import { useLiveData } from '../use-live-data';
 import { readHomeSpend, type HomeSpend } from './homeSpend';
 

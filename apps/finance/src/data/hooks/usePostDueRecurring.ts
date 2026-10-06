@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 import { useActions } from '../actions';
 
 /** Posts due recurring transactions on mount and every time the app returns to the foreground. */

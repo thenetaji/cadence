@@ -1,5 +1,5 @@
 import type { TransactionListItem } from '@/data/hooks';
-import { makeRateLookup } from '@/lib/money';
+import { makeRateLookup } from '@studio/money';
 
 import { repeatLabel } from './repeat-label';
 import { toRowModel, type RowModelContext } from './row-model';

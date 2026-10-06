@@ -5,7 +5,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
 import { nearestPoint, niceTicks, pointX, valueToY } from '@/lib/charts';
-import { formatMoney } from '@/lib/money';
+import { formatMoney } from '@studio/money';
 import { buildPolyPath, pointAt } from '@/motion/path-point';
 import { motion } from '@/motion/tokens';
 import { withAlpha } from '@/theme/tokens';

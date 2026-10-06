@@ -1,5 +1,5 @@
 import { nextDueDate, occurrencesBetween, defaultAnchorDay, type RecurrenceRule } from './next-due';
-import { weekday } from '../dates';
+import { weekday } from '@studio/dates';
 import { chargesPerYear, monthlyCost, yearlyCost } from './subscriptions';
 
 const rule = (over: Partial<RecurrenceRule>): RecurrenceRule => ({

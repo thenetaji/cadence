@@ -1,5 +1,5 @@
 import type { AccountWithBalance } from '@/data/hooks';
-import { makeRateLookup } from '@/lib/money';
+import { makeRateLookup } from '@studio/money';
 
 import { totalInDisplay } from './model';
 

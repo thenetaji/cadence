@@ -11,8 +11,8 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { AnimatedNumber } from '@/motion/animated-number';
 import type { InsightsExtras } from '@/data/hooks';
-import { monthShort, parseKey } from '@/lib/dates';
-import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
+import { monthShort, parseKey } from '@studio/dates';
+import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 

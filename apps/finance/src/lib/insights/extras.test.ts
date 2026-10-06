@@ -1,5 +1,5 @@
-import { periodFor } from '../dates';
-import { makeRateLookup } from '../money';
+import { periodFor } from '@studio/dates';
+import { makeRateLookup } from '@studio/money';
 import { biggest, byAccount, countWeekday, dailyAverage, normaliseTitle, pairedMonthly, peakIndex, savingsRate, topTitles, transactionTotals, weekdayAverages, type DetailedLine } from './extras';
 
 const ctx = { displayCurrency: 'INR', rates: makeRateLookup([{ base: 'USD', quote: 'INR', rate: 80 }]) };

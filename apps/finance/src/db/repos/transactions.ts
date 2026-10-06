@@ -1,5 +1,5 @@
 import { eq, inArray } from 'drizzle-orm';
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 import { isLendingKind } from '@/lib/ledger';
 import { ValidationError } from '../errors';
 import { newId } from '../ids';

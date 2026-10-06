@@ -16,8 +16,8 @@ import { HomeTopBar } from '@/features/home/top-bar';
 import { TopCategories } from '@/features/home/top-categories';
 import { TransactionListRow } from '@/features/transactions/transaction-list-row';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { diffDays, monthName, monthShort, parseKey, periodFor, previousPeriod, weekday } from '@/lib/dates';
-import { formatMoney, sumConverted } from '@/lib/money';
+import { diffDays, monthName, monthShort, parseKey, periodFor, previousPeriod, weekday } from '@studio/dates';
+import { formatMoney, sumConverted } from '@studio/money';
 import { Stagger } from '@/motion/stagger';
 
 const RECENT_COUNT = 5;

@@ -5,7 +5,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSpring } from 'react-native-reanimated';
 
 import { barSlots, barDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
-import { formatMoney } from '@/lib/money';
+import { formatMoney } from '@studio/money';
 import { motion } from '@/motion/tokens';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';

@@ -13,7 +13,7 @@ import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useAccounts, useRateLookup, useSetting } from '@/data/hooks';
 import { moneyLocale } from '@/features/transactions/use-money-context';
-import { formatMoney, formatMoneyForSpeech, maskLocale, minorDigits } from '@/lib/money';
+import { formatMoney, formatMoneyForSpeech, maskLocale, minorDigits } from '@studio/money';
 import { useTokens } from '@/theme/use-tokens';
 
 import { AccountRow, ACCOUNT_ROW_HEIGHT } from './account-row';

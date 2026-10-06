@@ -7,7 +7,7 @@ import { Text } from '@/components/ui/text';
 import { DatePicker } from '@/features/transaction-form/date-picker';
 import { withDateKey } from '@/features/transaction-form/logic';
 import { useDraftStore } from '@/features/transaction-form/store';
-import { toDateKey, addDays } from '@/lib/dates';
+import { toDateKey, addDays } from '@studio/dates';
 import { haptic } from '@/theme/haptics';
 
 /** Date sheet: Today/Yesterday quick buttons over an inline picker; edits the draft live. */

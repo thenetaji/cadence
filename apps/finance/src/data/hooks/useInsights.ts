@@ -1,4 +1,4 @@
-import type { DateKey, Period } from '@/lib/dates';
+import type { DateKey, Period } from '@studio/dates';
 import { useLiveData } from '../use-live-data';
 import { readInsights, type Insights } from './insights';
 

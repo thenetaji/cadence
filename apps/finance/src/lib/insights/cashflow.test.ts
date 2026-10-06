@@ -1,5 +1,5 @@
-import { periodFor } from '../dates';
-import { makeRateLookup } from '../money';
+import { periodFor } from '@studio/dates';
+import { makeRateLookup } from '@studio/money';
 import { cashFlowSeries, monthlyTotals } from './cashflow';
 import type { FlatLine } from './types';
 

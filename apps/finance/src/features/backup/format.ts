@@ -1,4 +1,4 @@
-import { monthShort } from '@/lib/dates';
+import { monthShort } from '@studio/dates';
 import type { UnavailableReason } from '@/lib/sync';
 
 const pad = (n: number) => String(n).padStart(2, '0');

@@ -1,6 +1,6 @@
 import { defaultAnchorDay, nextDueDate, type Frequency } from '@/lib/recurring';
-import { addDays, dayLabel, keyToLocalMs, toDateKey, weekday, type DateKey } from '@/lib/dates';
-import { convertMinor } from '@/lib/money';
+import { addDays, dayLabel, keyToLocalMs, toDateKey, weekday, type DateKey } from '@studio/dates';
+import { convertMinor } from '@studio/money';
 import type { RecurringInput } from '@/db/repos/recurring';
 import type { SplitInput, TransactionInput } from '@/db/repos/transactions';
 import { isLendingKind, type LendingKind, type TransactionKind } from '@/lib/ledger';

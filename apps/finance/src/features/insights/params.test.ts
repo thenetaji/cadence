@@ -1,4 +1,4 @@
-import { DEFAULT_PERIOD_SETTINGS } from '@/lib/dates';
+import { DEFAULT_PERIOD_SETTINGS } from '@studio/dates';
 import { canStepForward, parseInsightsParams, periodOf, stepView } from './params';
 
 const today = '2026-10-05';

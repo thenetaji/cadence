@@ -6,7 +6,7 @@ import { createPerson } from '@/db/repos/people';
 import { spendLines } from '@/db/repos/reports';
 import { createTransaction } from '@/db/repos/transactions';
 import { at, categoryId, createTestDb, makeAccounts } from '@/db/test-helpers';
-import { periodFor } from '@/lib/dates';
+import { periodFor } from '@studio/dates';
 import { LENDING_KINDS } from '@/lib/ledger';
 import { readCategoryTrend } from './hooks/categoryTrend';
 import { readHomeSpend } from './hooks/homeSpend';

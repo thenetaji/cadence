@@ -11,7 +11,7 @@ import { useAccounts, useExportReader, useSettings } from '@/data/hooks';
 import { FormRow } from '@/features/entry/form-row';
 import { DatePicker } from '@/features/transaction-form/date-picker';
 import { buildExportCsv } from '@/lib/csv';
-import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@/lib/dates';
+import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
 import type { CategoryColorKey } from '@/theme/tokens';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';

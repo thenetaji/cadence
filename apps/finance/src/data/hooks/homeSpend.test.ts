@@ -2,7 +2,7 @@
 import { createTransaction } from '@/db/repos/transactions';
 import { recordTitle } from '@/db/repos/titleMemory';
 import { at, categoryId, createTestDb, makeAccounts } from '@/db/test-helpers';
-import { periodFor } from '@/lib/dates';
+import { periodFor } from '@studio/dates';
 import { buildHomeSpend, cumulative, percentChange, perDayAverage, readHomeSpend } from './homeSpend';
 import { frequentTitles } from './useFrequentTitles';
 

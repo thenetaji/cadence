@@ -1,6 +1,6 @@
 import { getLocales } from 'expo-localization';
 
-import { getCurrency } from '@/lib/money';
+import { getCurrency } from '@studio/money';
 
 const EURO_REGIONS = new Set([
   'AT', 'BE', 'CY', 'DE', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PT', 'SI', 'SK',

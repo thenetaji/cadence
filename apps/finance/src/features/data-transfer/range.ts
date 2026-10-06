@@ -1,4 +1,4 @@
-import { customPeriod, periodFor, type DateKey, type PeriodSettings } from '@/lib/dates';
+import { customPeriod, periodFor, type DateKey, type PeriodSettings } from '@studio/dates';
 
 export type ExportRange = 'month' | 'year' | 'all' | 'custom';
 

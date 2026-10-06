@@ -1,7 +1,7 @@
 import { and, between, desc, eq, inArray, or, sql, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
-import { ALL_DATES } from '@/lib/dates';
-import { currencyCodesWithDigits, DISTINCT_DIGITS, parseAmountText } from '@/lib/money';
+import { ALL_DATES } from '@studio/dates';
+import { currencyCodesWithDigits, DISTINCT_DIGITS, parseAmountText } from '@studio/money';
 import {
   accounts,
   categories,

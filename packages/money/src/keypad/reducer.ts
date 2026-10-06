@@ -1,4 +1,4 @@
-import { groupInteger, resolveNumberLocale } from '../money/locales';
+import { groupInteger, resolveNumberLocale } from '../locales';
 
 export const MAX_INTEGER_DIGITS = 12;
 

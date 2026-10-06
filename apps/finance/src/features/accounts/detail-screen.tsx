@@ -12,8 +12,8 @@ import { useAccounts, usePeriodTransactions, useSetting, useTodayKey } from '@/d
 import { MonthPill } from '@/features/activity/month-pill';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { monthName, monthShort, parseKey, periodLabel, recentMonthPeriods } from '@/lib/dates';
-import { convertWithRates, formatMoney, formatMoneyForSpeech } from '@/lib/money';
+import { monthName, monthShort, parseKey, periodLabel, recentMonthPeriods } from '@studio/dates';
+import { convertWithRates, formatMoney, formatMoneyForSpeech } from '@studio/money';
 
 const ALL = 'all';
 const ALL_TIME = { from: '0000-01-01', to: '9999-12-31' };

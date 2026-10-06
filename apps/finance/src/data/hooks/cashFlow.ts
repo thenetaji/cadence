@@ -1,6 +1,6 @@
 import { spendLines } from '@/db/repos/reports';
 import type { Db } from '@/db/types';
-import type { Period } from '@/lib/dates';
+import type { Period } from '@studio/dates';
 import { cashFlowSeries, monthlyTotals, type CashFlow, type MonthlyPair } from '@/lib/insights';
 import { conversionContext } from './summary';
 

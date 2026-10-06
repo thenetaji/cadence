@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { eq } from 'drizzle-orm';
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 import { recurringRules, transactions } from '../schema';
 import { at, categoryId, createTestDb, makeAccounts } from '../test-helpers';
 import { getAccountBalance } from './accounts';

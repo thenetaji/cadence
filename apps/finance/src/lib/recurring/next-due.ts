@@ -1,4 +1,4 @@
-import { addDays, daysInMonth, makeKey, parseKey, type DateKey } from '../dates';
+import { addDays, daysInMonth, makeKey, parseKey, type DateKey } from '@studio/dates';
 
 export type Frequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
 

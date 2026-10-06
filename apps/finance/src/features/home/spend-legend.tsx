@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
-import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
+import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { useTokens } from '@/theme/use-tokens';
 
 type FlowLegendProps = {

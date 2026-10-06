@@ -1,5 +1,5 @@
-import { monthName, monthShort, parseKey, periodLength, previousPeriod, type Period } from '@/lib/dates';
-import { MINUS, formatMoney, minorDigits } from '@/lib/money';
+import { monthName, monthShort, parseKey, periodLength, previousPeriod, type Period } from '@studio/dates';
+import { MINUS, formatMoney, minorDigits } from '@studio/money';
 import { shortDay } from '@/lib/charts';
 import type { Delta, Granularity, SeriesPoint } from '@/lib/insights';
 

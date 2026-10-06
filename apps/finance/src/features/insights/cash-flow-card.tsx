@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import type { CashFlowData } from '@/data/hooks';
 import { axisLabels } from '@/lib/charts';
-import { formatMoneyForSpeech } from '@/lib/money';
+import { formatMoneyForSpeech } from '@studio/money';
 import { useTokens } from '@/theme/use-tokens';
 
 import { flowAmount, flowScrub } from './labels';

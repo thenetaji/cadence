@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import type { KeypadKey } from '@/components/app/keypad';
-import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState, type KeypadView } from '@/lib/keypad';
+import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState, type KeypadView } from '@studio/money';
 
 export interface AmountEntry {
   state: KeypadState;

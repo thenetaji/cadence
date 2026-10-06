@@ -1,6 +1,6 @@
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 import { isLendingKind } from '@/lib/ledger';
-import { getCurrency, toMinor } from '@/lib/money';
+import { getCurrency, toMinor } from '@studio/money';
 import { categoryKeys } from '@/theme/tokens';
 
 import type { ImportKind, ImportRow } from './import';

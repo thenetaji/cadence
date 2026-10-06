@@ -8,8 +8,8 @@ import { PaceChart, paceLabel } from '@/components/charts/pace-chart';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { axisLabels } from '@/lib/charts';
-import { addDays } from '@/lib/dates';
-import { formatMoney } from '@/lib/money';
+import { addDays } from '@studio/dates';
+import { formatMoney } from '@studio/money';
 import { categoryColors } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 

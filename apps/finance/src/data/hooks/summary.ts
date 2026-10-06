@@ -1,5 +1,5 @@
 import { sumLines, type ConversionContext } from '@/lib/insights';
-import { makeRateLookup } from '@/lib/money';
+import { makeRateLookup } from '@studio/money';
 import { listRates } from '@/db/repos/fx';
 import { spendLines } from '@/db/repos/reports';
 import { getSetting } from '@/db/repos/settings';

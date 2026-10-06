@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { convertWithRates, makeRateLookup, type RateLookup } from '@/lib/money';
+import { convertWithRates, makeRateLookup, type RateLookup } from '@studio/money';
 import { fxRates, type FxRateRow } from '../schema';
 import type { Db } from '../types';
 

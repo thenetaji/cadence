@@ -1,5 +1,5 @@
 import { asc, eq, inArray, isNull } from 'drizzle-orm';
-import { periodFor, weekRange, yearRange, toDateKey, type Period } from '@/lib/dates';
+import { periodFor, weekRange, yearRange, toDateKey, type Period } from '@studio/dates';
 import { sumLines, type ConversionContext } from '@/lib/insights';
 import { ValidationError } from '../errors';
 import { newId } from '../ids';

@@ -1,8 +1,8 @@
 /** @jest-environment node */
 import { count, eq } from 'drizzle-orm';
 import { categoryTotals, groupTopCategories } from '@/lib/insights';
-import { periodFor, toDateKey } from '@/lib/dates';
-import { makeRateLookup } from '@/lib/money';
+import { periodFor, toDateKey } from '@studio/dates';
+import { makeRateLookup } from '@studio/money';
 import { seedDemoData } from './dev-seed';
 import { listAccountsWithBalances } from './repos/accounts';
 import { listRates } from './repos/fx';

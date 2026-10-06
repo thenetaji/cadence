@@ -2,7 +2,7 @@ import { getCategory } from '@/db/repos/categories';
 import { spendLines } from '@/db/repos/reports';
 import type { CategoryRow } from '@/db/schema';
 import type { Db } from '@/db/types';
-import { previousPeriod, type Period } from '@/lib/dates';
+import { previousPeriod, type Period } from '@studio/dates';
 import { sumLines } from '@/lib/insights';
 import { conversionContext } from './summary';
 

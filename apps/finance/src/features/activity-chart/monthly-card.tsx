@@ -5,8 +5,8 @@ import { withSkia } from '@/components/charts/with-skia';
 import type { MonthlyBarsProps } from '@/components/charts/monthly-bars';
 import { Card } from '@/components/ui/card';
 import { useMonthlyTotals } from '@/data/hooks';
-import { monthShort, parseKey, type Period } from '@/lib/dates';
-import { formatMoneyForSpeech } from '@/lib/money';
+import { monthShort, parseKey, type Period } from '@studio/dates';
+import { formatMoneyForSpeech } from '@studio/money';
 
 import { monthScrub } from './labels';
 

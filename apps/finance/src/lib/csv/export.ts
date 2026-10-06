@@ -1,6 +1,6 @@
-import { toDateKey } from '@/lib/dates';
+import { toDateKey } from '@studio/dates';
 import type { TransactionKind } from '@/lib/ledger';
-import { fromMinor } from '@/lib/money';
+import { fromMinor } from '@studio/money';
 
 import { BOM, stringifyCsv } from './csv';
 

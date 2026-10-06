@@ -1,4 +1,4 @@
-import { monthShort, parseKey, weekday, type DateKey } from '@/lib/dates';
+import { monthShort, parseKey, weekday, type DateKey } from '@studio/dates';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 

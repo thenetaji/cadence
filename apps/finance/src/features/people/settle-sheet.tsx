@@ -12,8 +12,8 @@ import { useAccounts, usePersonHistory } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';
 import { MenuChip } from '@/features/transaction-form/menu-chip';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@/lib/keypad';
-import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@/lib/money';
+import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@studio/money';
+import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@studio/money';
 import { Shimmer } from '@/motion/shimmer';
 import { haptic } from '@/theme/haptics';
 

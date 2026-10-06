@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { createTransaction } from '@/db/repos/transactions';
 import { at, categoryId, createTestDb, makeAccounts } from '@/db/test-helpers';
-import { periodFor } from '@/lib/dates';
+import { periodFor } from '@studio/dates';
 import { readCategoryTrend, trailingPeriods } from './categoryTrend';
 
 describe('trailingPeriods', () => {

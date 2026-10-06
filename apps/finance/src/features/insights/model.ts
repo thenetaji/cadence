@@ -1,6 +1,6 @@
 import type { DonutDatum } from '@/components/charts/donut';
 import type { Insights } from '@/data/hooks';
-import { formatMoney } from '@/lib/money';
+import { formatMoney } from '@studio/money';
 import type { CategoryColorKey, Scheme } from '@/theme/tokens';
 import { categoryColors, categoryKeys } from '@/theme/tokens';
 

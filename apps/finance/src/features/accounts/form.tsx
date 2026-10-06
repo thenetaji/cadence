@@ -22,7 +22,7 @@ import { FormRow } from '@/features/entry/form-row';
 import { useSheetHeader } from '@/features/entry/sheet-header';
 import { useAmountEntry } from '@/features/entry/use-amount-entry';
 import { FormChip } from '@/features/transaction-form/chips';
-import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@/lib/money';
+import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@studio/money';
 import { haptic } from '@/theme/haptics';
 import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';

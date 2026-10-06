@@ -10,7 +10,7 @@ import { Text } from '@/components/ui/text';
 import { Hairline } from '@/features/transaction-form/chips';
 import { DatePicker } from '@/features/transaction-form/date-picker';
 import { useDraftStore } from '@/features/transaction-form/store';
-import { addDays, keyToLocalMs, toDateKey } from '@/lib/dates';
+import { addDays, keyToLocalMs, toDateKey } from '@studio/dates';
 import type { Frequency } from '@/lib/recurring';
 import { useTokens } from '@/theme/use-tokens';
 

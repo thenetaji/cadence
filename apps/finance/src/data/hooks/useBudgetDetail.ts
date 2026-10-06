@@ -1,7 +1,7 @@
 import { budgetPeriodFor, budgetSpent, getBudget, type Budget } from '@/db/repos/budgets';
 import { getRateLookup } from '@/db/repos/fx';
 import { spendLines } from '@/db/repos/reports';
-import type { Period } from '@/lib/dates';
+import type { Period } from '@studio/dates';
 import { paceSeries, type PacePoint } from '@/lib/insights';
 import { useLiveData } from '../use-live-data';
 import { useTodayKey } from './useTodayKey';

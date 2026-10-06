@@ -9,7 +9,7 @@ import { useAccounts, useSetting } from '@/data/hooks';
 import { ICON_STYLE_LABELS } from '@/icons/types';
 import { ordinal } from '@/features/budgets/logic';
 import { moneyLocale } from '@/features/transactions/use-money-context';
-import { formatMoney } from '@/lib/money';
+import { formatMoney } from '@studio/money';
 import { confirmErase } from '@/features/data-transfer/erase';
 import { haptic } from '@/theme/haptics';
 

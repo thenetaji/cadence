@@ -1,5 +1,5 @@
-import { addMonths, diffDays, listDays, makeKey, parseKey, type DateKey, type Period } from '../dates';
-import { convertWithRates, type RateLookup } from '../money';
+import { addMonths, diffDays, listDays, makeKey, parseKey, type DateKey, type Period } from '@studio/dates';
+import { convertWithRates, type RateLookup } from '@studio/money';
 import type { FlatLine } from './types';
 
 export interface ConversionContext {

@@ -1,4 +1,4 @@
-import { diffDays, periodFor, previousPeriod, weekday, type DateKey, type Period, type PeriodSettings } from '../dates';
+import { diffDays, periodFor, previousPeriod, weekday, type DateKey, type Period, type PeriodSettings } from '@studio/dates';
 import { convertLine, type ConversionContext } from './aggregate';
 import type { FlatLine } from './types';
 

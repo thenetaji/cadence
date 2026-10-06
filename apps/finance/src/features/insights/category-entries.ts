@@ -1,5 +1,5 @@
 import type { TransactionListItem } from '@/data/hooks';
-import { dayLabel } from '@/lib/dates';
+import { dayLabel } from '@studio/dates';
 
 export type CategoryEntry =
   | { type: 'header'; key: string; label: string }

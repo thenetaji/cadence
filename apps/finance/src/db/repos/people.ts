@@ -1,7 +1,7 @@
 import { asc, count, eq, sql } from 'drizzle-orm';
-import { ALL_DATES } from '@/lib/dates';
+import { ALL_DATES } from '@studio/dates';
 import { owedDelta } from '@/lib/ledger';
-import { convertWithRates } from '@/lib/money';
+import { convertWithRates } from '@studio/money';
 import { ValidationError } from '../errors';
 import { newId } from '../ids';
 import { accounts, people, transactions, type PersonRow, type TransactionKind } from '../schema';

@@ -19,7 +19,7 @@ import { EntryLayout } from '@/features/entry/entry-layout';
 import { FormRow, PickRow } from '@/features/entry/form-row';
 import { useSheetHeader } from '@/features/entry/sheet-header';
 import { useAmountEntry } from '@/features/entry/use-amount-entry';
-import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@/lib/money';
+import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@studio/money';
 import { haptic } from '@/theme/haptics';
 
 import { useCategoryRequest } from './category-store';

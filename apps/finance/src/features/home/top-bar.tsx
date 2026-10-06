@@ -1,40 +1,89 @@
-import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from "expo-router";
+import * as React from "react";
+import { AppState, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { SymbolIcon , Pressable , Text } from '@studio/ui';
-import { useTokens } from '@studio/theme';
+import { useSetting } from "@/data/hooks";
+import { SymbolIcon, Pressable, Text } from "@studio/ui";
+import { useTokens } from "@studio/theme";
 
-type HomeTopBarProps = { day: string; remaining: string };
+import { greetingFor } from "./curve";
 
-/** One footnote line ("Friday 16 Oct · 15 days left") and the settings circle; no title. */
-function HomeTopBar({ day, remaining }: HomeTopBarProps) {
-  const router = useRouter();
+/** Time-aware greeting; recomputed whenever the app returns to the foreground. */
+function useGreeting(): string {
+  const [greeting, setGreeting] = React.useState(() =>
+    greetingFor(new Date().getHours()),
+  );
+  React.useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") setGreeting(greetingFor(new Date().getHours()));
+    });
+    return () => sub.remove();
+  }, []);
+  return greeting;
+}
+
+function CircleButton({
+  label,
+  icon,
+  onPress,
+}: {
+  label: string;
+  icon: string;
+  onPress: () => void;
+}) {
   const { colors } = useTokens();
   return (
-    <SafeAreaView edges={['top']} className="bg-bg">
+    <Pressable
+      role="button"
+      accessibilityLabel={label}
+      hitSlop={6}
+      haptic="light"
+      scale={0.92}
+      onPress={onPress}
+      className="h-[34px] w-[34px] items-center justify-center rounded-full bg-surface"
+      style={{
+        borderWidth: StyleSheet.hairlineWidth * 2,
+        borderColor: colors.border,
+      }}
+    >
+      <SymbolIcon
+        name={icon}
+        size={17}
+        color={colors.textSecondary}
+        weight="medium"
+      />
+    </Pressable>
+  );
+}
+
+/** Greeting on the left; hide-amounts eye and settings circle on the right. */
+function HomeTopBar() {
+  const router = useRouter();
+  const greeting = useGreeting();
+  const [hidden, setHidden] = useSetting("hide_amounts");
+  return (
+    <SafeAreaView edges={["top"]} className="bg-bg">
       <View className="h-11 flex-row items-center justify-between px-4">
-        <View className="flex-row items-center" accessible accessibilityRole="header" accessibilityLabel={`${day}, ${remaining}`}>
-          <Text variant="footnote" className="font-semibold">
-            {day}
-          </Text>
-          <View style={{ width: 3, height: 3, borderRadius: 2, marginHorizontal: 7, backgroundColor: colors.textTertiary }} />
-          <Text variant="footnote" tone="secondary" className="font-medium">
-            {remaining}
-          </Text>
-        </View>
-        <Pressable
-          role="button"
-          accessibilityLabel="Settings"
-          hitSlop={6}
-          haptic="light"
-          scale={0.92}
-          onPress={() => router.push('/settings')}
-          className="h-[34px] w-[34px] items-center justify-center rounded-full bg-surface"
-          style={{ borderWidth: StyleSheet.hairlineWidth * 2, borderColor: colors.border }}
+        <Text
+          variant="subhead"
+          accessibilityRole="header"
+          className="font-semibold"
         >
-          <SymbolIcon name="gearshape" size={17} color={colors.textSecondary} weight="medium" />
-        </Pressable>
+          {greeting}
+        </Text>
+        <View className="flex-row items-center gap-2">
+          <CircleButton
+            label={hidden ? "Show amounts" : "Hide amounts"}
+            icon={hidden ? "eye-off" : "eye"}
+            onPress={() => setHidden(!hidden)}
+          />
+          <CircleButton
+            label="Settings"
+            icon="gearshape"
+            onPress={() => router.push("/settings")}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );

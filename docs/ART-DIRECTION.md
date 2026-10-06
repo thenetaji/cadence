@@ -258,3 +258,80 @@ Layout B, Bento:
 6. Quick add and Recent as in A.
 
 Elsewhere in the app (to hit "every part"): sheet open uses `settle` with a 6 pt overshoot; keypad keys scale 0.92 with `snappy` and the amount digits roll in from below (120 ms); list rows animate layout on insert/delete (`LinearTransition.springify()`); tab switch cross-fades the icon fill (150 ms); toasts slide up with `settle`; segmented controls move the thumb with `snappy`; Insights donut sweeps 700 ms and bars grow 500 ms with 40 ms stagger.
+
+## 6. Home hero v4
+
+Owner feedback after a month of use: the hero has too much text (date line, "25 days left", In/Out legend that the stats strip already repeats), the chart "is not looking great", and the owner wants a short greeting, a water-like chart, and a way to see all time from Home. Three variants are mocked in `.review/hero/` (`v1-dark`, `v2-dark`, `v3-dark`, `v1-light`, `v1-alltime-dark`, `motion-strip`, `compare`); sources in `.review/hero/src/` (`mock.html?v=1|2|3&mode=dark|light&period=month|all&t=<s>&rm=1`, `render.mjs`, `compare.mjs`). No app code changed. Owner's live numbers were used throughout.
+
+| | V1 "Tide" (recommended) | V2 "Glow" | V3 "Breathe" |
+|---|---|---|---|
+| Period switch | Tappable label with chevron | Two-segment pill, right of label | Swipe pager, two dots |
+| Supporting line | None | Pace pill | None |
+| Chart | Water basin, 120 pt | Drifting light under a line, 112 pt + axis labels | Compact 88 pt band over elapsed days |
+| Text in hero | greeting · label · number | + pill + 2 axis labels | greeting · number · label |
+
+**Pick: V1.** It is the lowest word count (three lines), the chart is the only one that reads at a glance as "how full is the month" without an axis, and the label-as-control keeps the hero one column wide. V3 is the fallback if the owner wants the number as the very first thing; V2 only if the pace pill proves to be something they miss.
+
+### 6.1 Layout (V1)
+
+Top to bottom, 16 pt gutters, 361 pt content, bare black (no card):
+
+| # | Element | Spec |
+|---|---|---|
+| 1 | Header, 44 pt | Left: greeting, 15 pt/600 `text`. Right: 34 pt settings circle, unchanged. The date line and "N days left" are gone. |
+| 2 | Period label, +22 pt | "Spent in October" / "Spent all time", 15 pt/500 `text-secondary`, followed by Phosphor `caret-down` bold 11 pt in `text-tertiary`, gap 4 pt. Hit target 44 pt tall, extends 8 pt past the caret. |
+| 3 | Amount, +4 pt | 54/60 weight 700 tracking −0.045 em, `₹` 44 pt/600; **proportional** figures at rest (tabular only while counting up). No pill, no second line. |
+| 4 | Chart, +20 pt | 120 pt tall (88 pt for the all-time bars + 11 pt month labels). No axis labels, gridlines or legend. |
+| 5 | Quick add, +22 pt | unchanged |
+| 6 | Stats strip, +20 pt | unchanged, but follows the period (see 6.3). Earned shows `₹0` in `text-tertiary`/600 when zero, never `+₹0` in mint. |
+
+Everything below the strip is unchanged from Home v3.
+
+### 6.2 Greeting
+
+- 05:00–11:59 "Good morning", 12:00–16:59 "Good afternoon", 17:00–04:59 "Good evening". No "Good night" (it reads as a sign-off) and no date: the period label already names the month, and the chart shows how far into it we are.
+- Recomputed on foreground; never animates when it changes.
+- Optional name: add a single "Your name" field in Settings (first name, 20 characters, empty by default) and render "Good evening, Himesh" with the name in the same weight. Worth doing but low priority: it is the only personal touch available in an app with no account, and one field costs nothing. Without a name the greeting stands alone; never show a placeholder.
+
+### 6.3 Period switch
+
+- Default is always **this month**; the choice is not persisted across launches (the owner asked for month by default).
+- Tap the label: a 2-row menu (iOS context-menu style, `UIMenu` via `expo-menu`/Zeego, or a plain anchored popover) with "This month" and "All time", check mark on the current one. Tapping the amount does the same.
+- On switch: amount re-counts old → new (350 ms `easeOutQuint`), label cross-fades (150 ms), chart cross-fades (200 ms) then the new chart performs its entrance. Haptic `selection`.
+- All time changes the label to "Spent all time", the amount to the all-time total, the chart to monthly bars, and the strip's Earned and Daily avg to all-time values; Balance is already all-time and does not change. Quick add and the sections below are unaffected.
+- Light mode is the same control; the caret uses `text-tertiary` on paper.
+
+### 6.4 Chart: "Tide"
+
+Geometry (month view). Frame is the whole month: x = 0 on 1 Oct, x = W at the end of 31 Oct. y-max = `max(spent so far, last month's total, monthly budget) × 1.25`, so the water surface sits at ≈ 80 % height when this month is the highest reference and lower when there is a bigger month or a budget above it; y-min is the baseline. Two regions:
+
+- **Shore** (1 Oct → today): the exact cumulative line, monotone-cubic smoothed through end-of-day values. This edge is data and never moves.
+- **Pool** (today → month end): still water at today's level. Its surface carries the wave; amplitude ramps 0 → 1 with a smoothstep over the first 28 pt after today so the join with the shore is exact.
+
+Paint (Skia, one `Path` per layer, all cheap):
+
+1. Back wave: same shore + a second surface 2.5 pt higher, phase offset 0.37 of a cycle, amplitude × 1.25, filled accent at 10 % (12 % light). Gives depth behind the main body.
+2. Body: shore + surface, closed to the baseline, vertical gradient from the surface down: accent 46 % → 23 % at 20 % of depth → 9 % at 60 % → 3 % at the baseline (light: 42 % → 21 % → 8 % → 3 %).
+3. Caustic: a radial highlight (`#FFF1D2` 22 % → 0 over r = 0.34 W, squashed 2:1 vertically) centred on the surface, clipped to the body. Light: white 55 %.
+4. Surface glow: the top edge stroked 6 pt accent 50 % under a 4 pt blur (`BlurMask`, off under Reduce Motion and on low-power).
+5. Surface line: 1.75 pt, accent along the shore, fading to `#FFF1D2` 90 % at the far right (brass 70 % in light).
+6. Today dot: 4.5 pt accent disc with a 2.5 pt `bg` ring at the shore/pool join. No halo.
+
+Motion. Two travelling sines, summed, sampled every 3 pt (120 points, one path rebuild per frame on the UI thread):
+
+| Parameter | Value |
+|---|---|
+| Wave 1 | wavelength 150 pt, amplitude 1.6 pt, period 7 s, travels left |
+| Wave 2 | wavelength 92 pt, amplitude 0.9 pt, period 11 s, travels right, phase +1.3 rad |
+| Back wave | same sines, amplitude × 1.25, phase +0.37 cycle |
+| Caustic drift | x = pool centre ± 38 % of pool width, sine, 14 s period |
+| Breath | body top-stop opacity ± 6 %, 9 s period |
+| Load | fill rises from the baseline to level over 900 ms `easeOutQuint` (shore drawn with it); the surface overshoots 3 pt and settles with `settle = { damping 20, stiffness 180 }`; wave amplitude fades in over the last 400 ms |
+| Reduce Motion | static frame: wave amplitude 0 (flat pool), caustic centred, breath off, blur glow off, entrance replaced by a 150 ms fade |
+| Backgrounded / off-screen | animation paused; resumes at the same phase |
+
+Nothing in the loop is faster than 7 s per cycle and the largest displacement is 2.5 pt, so the chart reads as calm water rather than an animation. The motion strip (`.review/hero/motion-strip.png`) shows t = 0 / 2.3 / 4.6 s and the Reduce Motion frame.
+
+All-time view: one bar per month since the first transaction (max 12; older months fold into the leftmost bar), 40 pt wide, 5 pt radius on the data end, 2 pt gap minimum, baseline hairline `separator`. Current month: vertical gradient accent 100 % → 45 %; earlier months: `rgba(255,255,255,0.22)` (`rgba(22,19,16,0.22)` light). Month initials 11 pt `text-tertiary` under each bar, the current one `text-secondary`. Entrance: bars grow from the baseline 500 ms `easeOutQuint`, 40 ms stagger, current bar last. Under Reduce Motion they appear with the 150 ms fade.
+
+Alternatives, for the record. V2 "Glow": cumulative line 2.25 pt with a 7 pt blurred under-stroke breathing 35 ↔ 55 % over 6 s, and two blurred brass blobs drifting under the line (18 s and 25 s loops, ± 30 % of the drawn width) clipped to the area; `1 Oct` / `31 Oct` labels; a dotted baseline for the rest of the month. V3 "Breathe": the elapsed days fill the full width, area opacity breathes 14 ↔ 22 % over 5 s, end-dot halo 40 ↔ 55 %, a single 2 pt ripple runs along the line on load (600 ms); two 5 pt page dots at the right of the label.

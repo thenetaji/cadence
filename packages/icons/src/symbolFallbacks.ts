@@ -53,6 +53,8 @@ export const symbolFallbacks = {
   'arrow.triangle.2.circlepath': 'autorenew',
   'arrow.uturn.backward.circle.fill': 'undo',
   'chevron.down': 'expand-more',
+  'eye': 'visibility',
+  'eye.slash': 'visibility-off',
   'chevron.up': 'expand-less',
   'chevron.left': 'chevron-left',
   'chevron.right': 'chevron-right',

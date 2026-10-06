@@ -1,6 +1,6 @@
 import { spendLines } from '@/db/repos/reports';
 import type { Db } from '@/db/types';
-import { diffDays, previousPeriod, type Period } from '@studio/dates';
+import { diffDays, monthShort, parseKey, previousPeriod, type DateKey, type Period } from '@studio/dates';
 import { buildSeries, sumLines, type ConversionContext, type FlatLine } from '@/lib/insights';
 import { conversionContext } from './summary';
 
@@ -21,6 +21,8 @@ export interface HomeSpend {
   earned: number;
   /** Last period's spend up to the same day-of-period. */
   previousSameDay: number;
+  /** Last period's full total (the Tide chart's water-level reference). */
+  previousTotal: number;
   /** Whole-percent change vs the same day last period; null when there was nothing to compare. */
   deltaPercent: number | null;
   /** Average spend per elapsed day. */
@@ -81,7 +83,47 @@ export function readHomeSpend(db: Db, period: Period, todayKey: string): HomeSpe
     currency: ctx.displayCurrency,
     from: period.from,
     earned: sumLines(lines, 'income', period, ctx),
+    previousTotal: sumLines(lines, 'expense', previous, ctx),
     dayIndex,
     ...core,
   };
+}
+
+export interface AllTimeMonth {
+  /** First day of the month. */
+  key: DateKey;
+  /** Three-letter month name. */
+  label: string;
+  amount: number;
+}
+
+export interface AllTimeSpend {
+  currency: string;
+  spent: number;
+  earned: number;
+  /** Average spend per day since the first transaction. */
+  perDay: number;
+  /** One entry per calendar month from the first transaction to today, oldest first. */
+  months: AllTimeMonth[];
+}
+
+/** Pure core: monthly expense totals between the first dated line and today. */
+export function buildAllTime(lines: readonly FlatLine[], todayKey: string, ctx: ConversionContext): AllTimeSpend {
+  const dated = lines.filter((l) => l.dateKey <= todayKey);
+  const first = dated.reduce<string | null>((m, l) => (m === null || l.dateKey < m ? l.dateKey : m), null);
+  if (first === null) return { currency: ctx.displayCurrency, spent: 0, earned: 0, perDay: 0, months: [] };
+  const period: Period = { type: 'custom', from: first, to: todayKey };
+  const months = buildSeries(dated, 'expense', period, ctx, { granularity: 'month' }).map((p) => ({
+    key: p.key,
+    label: monthShort(parseKey(p.key).month),
+    amount: p.amount,
+  }));
+  const spent = months.reduce((s, m) => s + m.amount, 0);
+  const days = diffDays(first, todayKey) + 1;
+  return { currency: ctx.displayCurrency, spent, earned: sumLines(dated, 'income', period, ctx), perDay: perDayAverage(spent, days), months };
+}
+
+export function readAllTime(db: Db, todayKey: string): AllTimeSpend {
+  const ctx = conversionContext(db);
+  return buildAllTime(spendLines(db, { from: '0000-01-01', to: todayKey }), todayKey, ctx);
 }

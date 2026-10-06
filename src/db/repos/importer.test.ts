@@ -44,6 +44,19 @@ describe('importTransactions', () => {
     expect(db.select().from(transactions).all()).toHaveLength(4);
   });
 
+  it('keeps a same-name, different-currency account separate and stores each amount in its own currency', () => {
+    const db = createTestDb();
+    createAccount(db, { name: 'Cash', type: 'cash', currency: 'USD', color: 'blue' });
+    const rows = parseImport('dime', DIME_SAMPLE).rows.slice(0, 2).map((r) => ({ ...r, account: 'Cash', currency: 'INR' }));
+    importTransactions(db, rows, defaults);
+    const list = listAccounts(db);
+    expect(list.map((a) => a.name + ':' + a.currency).sort()).toEqual(['Cash (INR):INR', 'Cash:USD']);
+    const inr = list.find((a) => a.currency === 'INR');
+    const stored = db.select().from(transactions).all();
+    expect(stored).toHaveLength(2);
+    expect(stored.every((t) => t.accountId === inr?.id && t.currency === 'INR')).toBe(true);
+  });
+
   it('writes in a single transaction: a failure rolls everything back', () => {
     const db = createTestDb();
     const cats = listCategories(db).length;

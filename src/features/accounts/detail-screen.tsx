@@ -1,6 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { Amount } from '@/components/app/amount';
 import { EmptyState } from '@/components/app/empty-state';
@@ -49,20 +49,21 @@ export default function AccountDetailScreen() {
     );
   }
 
+  const decimals = money.showDecimals ? undefined : 0;
   const label = allTime || !month ? 'All time' : `${monthShort(parseKey(month.to).month)} ${parseKey(month.to).year}`;
   const foreign = account.currency !== money.displayCurrency && money.rates(account.currency, money.displayCurrency) !== null;
   const converted = foreign
-    ? `≈ ${formatMoney(convertWithRates(account.balance, account.currency, money.displayCurrency, money.rates), money.displayCurrency, { locale: money.locale })}`
+    ? `≈ ${formatMoney(convertWithRates(account.balance, account.currency, money.displayCurrency, money.rates), money.displayCurrency, { locale: money.locale, decimals })}`
     : null;
 
   const header = (
     <View className="gap-4 pb-1 pt-2">
-      <View className="px-5">
+      <View className="px-4">
         <Text variant="footnote" tone="secondary">
           Balance
         </Text>
         <Amount
-          value={formatMoney(account.balance, account.currency, { locale: money.locale })}
+          value={formatMoney(account.balance, account.currency, { locale: money.locale, decimals })}
           variant="hero"
           tone={account.balance < 0 ? 'expense' : 'default'}
           accessibilityLabel={`Balance, ${formatMoneyForSpeech(account.balance, account.currency)}`}
@@ -73,19 +74,15 @@ export default function AccountDetailScreen() {
           </Text>
         ) : null}
       </View>
-      <View className="flex-row gap-3 px-4">
+      <View className="px-4">
         <Button
           variant="secondary"
-          className="flex-1"
           onPress={() => router.push({ pathname: '/transaction/new', params: { kind: 'transfer', accountId: account.id } })}
         >
           Transfer
         </Button>
-        <Button variant="secondary" className="flex-1" onPress={() => router.push({ pathname: '/accounts/[id]/edit', params: { id: account.id } })}>
-          Edit
-        </Button>
       </View>
-      <View className="flex-row items-center px-4 pt-1">
+      <View className="flex-row items-center px-4 pt-1" style={Platform.OS === 'web' ? { marginLeft: -16 } : undefined}>
         <MonthPill label={label} onPress={() => setPicking(true)} />
       </View>
     </View>
@@ -93,7 +90,16 @@ export default function AccountDetailScreen() {
 
   return (
     <View className="flex-1 bg-bg">
-      <Stack.Screen options={{ title: account.name }} />
+      <Stack.Screen
+        options={{
+          title: account.name,
+          headerRight: () => (
+            <Button variant="plainText" size="sm" onPress={() => router.push({ pathname: '/accounts/[id]/edit', params: { id: account.id } })} accessibilityLabel="Edit">
+              <Text variant="body">Edit</Text>
+            </Button>
+          ),
+        }}
+      />
       <TransactionDayList
         items={items}
         context={money}

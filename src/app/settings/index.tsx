@@ -6,6 +6,9 @@ import { ListGroup, ListRow } from '@/components/app/list-group';
 import { OptionPicker, type Option } from '@/components/app/option-picker';
 import { useActions } from '@/data/actions';
 import { useAccounts, useSetting } from '@/data/hooks';
+import { ordinal } from '@/features/budgets/logic';
+import { moneyLocale } from '@/features/transactions/use-money-context';
+import { formatMoney } from '@/lib/money';
 import { confirmErase } from '@/features/data-transfer/erase';
 import { haptic } from '@/theme/haptics';
 
@@ -16,7 +19,7 @@ const weekOptions: readonly Option<1 | 7>[] = [
   { value: 7, label: 'Sunday' },
 ];
 
-const monthOptions: readonly Option<number>[] = Array.from({ length: 28 }, (_, i) => ({ value: i + 1, label: String(i + 1) }));
+const monthOptions: readonly Option<number>[] = Array.from({ length: 28 }, (_, i) => ({ value: i + 1, label: ordinal(i + 1) }));
 
 export default function Settings() {
   const router = useRouter();
@@ -65,7 +68,7 @@ export default function Settings() {
         <ListRow
           label="Month starts on"
           icon={{ name: 'calendar', color: 'orange' }}
-          value={String(monthStart)}
+          value={ordinal(monthStart)}
           chevron
           onPress={() => setPicker('month')}
         />
@@ -86,7 +89,13 @@ export default function Settings() {
           onPress={() => router.push('/settings/appearance')}
         />
         <ListRow label="Haptics" icon={{ name: 'iphone', color: 'pink' }} switchValue={haptics} onSwitchChange={setHaptics} />
-        <ListRow label="Show decimals" icon={{ name: 'percent', color: 'gray' }} switchValue={showDecimals} onSwitchChange={setShowDecimals} />
+        <ListRow
+          label="Show decimals"
+          icon={{ name: 'percent', color: 'gray' }}
+          value={formatMoney(124000, displayCurrency, { locale: moneyLocale(displayCurrency), decimals: showDecimals ? undefined : 0 })}
+          switchValue={showDecimals}
+          onSwitchChange={setShowDecimals}
+        />
       </ListGroup>
       <ListGroup>
         <ListRow
@@ -100,6 +109,7 @@ export default function Settings() {
       <ListGroup>
         <ListRow label="Categories" icon={{ name: 'tag.fill', color: 'orange' }} chevron onPress={() => router.push('/settings/categories')} />
         <ListRow label="Accounts" icon={{ name: 'building.columns.fill', color: 'blue' }} chevron onPress={() => router.push('/accounts')} />
+        <ListRow label="Recurring" icon={{ name: 'repeat', color: 'indigo' }} chevron onPress={() => router.push('/recurring')} />
         <ListRow label="Export" icon={{ name: 'square.and.arrow.up', color: 'indigo' }} chevron onPress={() => router.push('/settings/export')} />
         <ListRow label="Import" icon={{ name: 'square.and.arrow.down', color: 'teal' }} chevron onPress={() => router.push('/settings/import')} />
         <ListRow label="Erase all data" destructive onPress={eraseAll} />

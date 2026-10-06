@@ -2,7 +2,6 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { AddFab } from '@/components/app/add-fab';
 import { EmptyState } from '@/components/app/empty-state';
 import { showToast } from '@/components/app/toast-store';
 import { Card } from '@/components/ui/card';
@@ -51,16 +50,15 @@ export function BudgetsScreen() {
 
   if (views.length === 0) {
     return (
-      <View className="flex-1 justify-center bg-bg pb-24">
+      <View className="flex-1 bg-bg">
         <EmptyState message="No budgets" actionLabel="Add budget" onAction={() => router.push('/budget/new')} />
-        <AddFab />
       </View>
     );
   }
 
   return (
     <View className="flex-1 bg-bg">
-      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 px-4 pb-28 pt-2">
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 px-4 pb-10 pt-2">
         {overall.map((view) => (
           <BudgetCard key={view.id} view={view} onPress={() => open(view.id)} />
         ))}
@@ -72,7 +70,6 @@ export function BudgetsScreen() {
           </Card>
         ) : null}
       </ScrollView>
-      <AddFab />
     </View>
   );
 }

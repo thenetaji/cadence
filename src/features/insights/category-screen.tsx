@@ -4,16 +4,15 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { DaySectionHeader } from '@/components/app/day-section-header';
-import { HeaderButton } from '@/components/app/header-button';
 import { TransactionRow } from '@/components/app/transaction-row';
 import { MiniBars } from '@/components/charts/mini-bars';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
-import { useCategoryTrend, usePeriodTransactions, useSettings, useTodayKey, useTopCategoryId } from '@/data/hooks';
+import { useCategoryTrend, usePeriodTransactions, useSettings, useTodayKey, useTopCategoryId, type TransactionListItem } from '@/data/hooks';
 import { periodFor, periodLabel, previousPeriod, type Period, type PeriodType } from '@/lib/dates';
 import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
-import { formatTime } from '@/features/transactions/row-model';
-import { TransactionListRow } from '@/features/transactions/transaction-list-row';
+import { formatTime, toRowModel } from '@/features/transactions/row-model';
 import { useMoneyContext, type MoneyContext } from '@/features/transactions/use-money-context';
 import { useTransactionActions } from '@/features/transactions/use-transaction-actions';
 import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
@@ -51,6 +50,31 @@ function SplitLineRow({ entry, context }: { entry: Extract<CategoryEntry, { type
     />
   );
 }
+
+/** Ledger row for this screen: the subtitle is the account only, the title already says the category. */
+const CategoryTransactionRow = React.memo(function CategoryTransactionRow({ item, context, separator }: { item: TransactionListItem; context: MoneyContext; separator: boolean }) {
+  const actions = useTransactionActions();
+  const model = React.useMemo(() => toRowModel(item, context), [item, context]);
+  const id = item.id;
+  return (
+    <TransactionRow
+      kind={model.kind}
+      title={model.title}
+      subtitle={item.account.name}
+      amount={model.amount}
+      trailing={model.trailing}
+      icon={model.icon}
+      color={model.color}
+      split={model.split}
+      accessibilityLabel={model.accessibilityLabel}
+      separator={separator}
+      onPress={() => actions.open(id)}
+      onLongPress={() => actions.menu(id)}
+      onDelete={() => actions.remove(id)}
+      onDuplicate={() => actions.duplicate(id)}
+    />
+  );
+});
 
 export default function CategoryScreen() {
   const router = useRouter();
@@ -124,6 +148,7 @@ export default function CategoryScreen() {
           currentIndex={last}
           selectedIndex={selected}
           onSelect={setPicked}
+          average={trend.average}
           formatValue={(index) => fmtShort(trend.points[index]?.amount ?? 0)}
           color={tint}
           accessibilityLabel={`${category?.name ?? 'Category'} over the last ${bars.length} periods`}
@@ -141,7 +166,7 @@ export default function CategoryScreen() {
     ({ item }: { item: CategoryEntry }) => {
       if (item.type === 'header') return <DaySectionHeader label={item.label} />;
       if (item.type === 'split') return <SplitLineRow entry={item} context={money} />;
-      return <TransactionListRow item={item.item} context={money} separator={!item.last} />;
+      return <CategoryTransactionRow item={item.item} context={money} separator={!item.last} />;
     },
     [money],
   );
@@ -152,11 +177,9 @@ export default function CategoryScreen() {
         options={{
           title: category?.name ?? 'Category',
           headerRight: () => (
-            <HeaderButton
-              symbol="pencil"
-              label="Edit category"
-              onPress={() => router.push({ pathname: '/settings/categories/[id]', params: { id } })}
-            />
+            <Button variant="plainText" size="sm" onPress={() => router.push({ pathname: '/settings/categories/[id]', params: { id } })} accessibilityLabel="Edit category">
+              <Text variant="body">Edit</Text>
+            </Button>
           ),
         }}
       />

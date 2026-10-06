@@ -14,6 +14,8 @@ type KeypadProps = {
   onLongBackspace?: () => void;
   showDecimal?: boolean;
   saveMode?: boolean;
+  /** Save key at 40% opacity (amount blocks saving); still pressable so the error haptic fires. */
+  saveDisabled?: boolean;
   hapticsEnabled?: boolean;
   /** Key height in pt, clamped to 52-64; the add sheet sizes it to the free space. */
   keyHeight?: number;
@@ -43,19 +45,22 @@ type KeyCellProps = {
   keyName: KeypadKey;
   height: number;
   saveMode: boolean;
+  saveDisabled: boolean;
   hapticsEnabled?: boolean;
   onKey: (key: KeypadKey) => void;
   onLongBackspace?: () => void;
 };
 
-function KeyCell({ keyName, height, saveMode, hapticsEnabled, onKey, onLongBackspace }: KeyCellProps) {
+function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKey, onLongBackspace }: KeyCellProps) {
   const { colors, isDark } = useTokens();
   const [pressed, setPressed] = React.useState(false);
   const isSave = keyName === '=' && saveMode;
   const isOperator = keyName === '-' || keyName === '+' || keyName === '=';
   const isDigit = !isOperator && keyName !== 'backspace' && keyName !== '.';
-  const base = isDark ? colors.fill : isDigit || keyName === '.' ? colors.surface : colors.fill;
-  const down = isDark ? '#3A3A3C' : isDigit || keyName === '.' ? '#E4E4E9' : '#DCDCE2';
+  const isDigitLike = isDigit || keyName === '.';
+  // Dark: digits sit on `surface`, operators and backspace on `elevated`, so the operator column reads against black.
+  const base = isDark ? (isDigitLike ? colors.surface : colors.elevated) : isDigitLike ? colors.surface : colors.fill;
+  const down = isDark ? (isDigitLike ? '#2C2C2E' : '#3A3A3C') : isDigitLike ? '#E4E4E9' : '#DCDCE2';
   const label = isSave ? 'Save' : (speech[keyName] ?? keyName);
   return (
     <Pressable
@@ -70,7 +75,7 @@ function KeyCell({ keyName, height, saveMode, hapticsEnabled, onKey, onLongBacks
       onLongPress={keyName === 'backspace' ? onLongBackspace : undefined}
       delayLongPress={400}
       className="flex-1 items-center justify-center rounded-[12px]"
-      style={{ height, backgroundColor: isSave ? colors.accent : pressed ? down : base, opacity: isSave && pressed ? 0.85 : 1 }}
+      style={{ height, backgroundColor: isSave ? colors.accent : pressed ? down : base, opacity: isSave ? (saveDisabled ? 0.4 : pressed ? 0.85 : 1) : 1 }}
     >
       {keyName === 'backspace' ? (
         <SymbolIcon name="delete.left" size={24} color={colors.text} weight="regular" />
@@ -99,7 +104,7 @@ function KeyCell({ keyName, height, saveMode, hapticsEnabled, onKey, onLongBacks
 }
 
 /** 4x4 grid of separate rounded keys on the page background. `keyHeight` is clamped to 52-64. */
-function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, hapticsEnabled, keyHeight = 56 }: KeypadProps) {
+function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, saveDisabled = false, hapticsEnabled, keyHeight = 56 }: KeypadProps) {
   const height = Math.min(Math.max(keyHeight, 52), 64);
   return (
     <View className="bg-bg" style={{ padding: KEY_GAP, gap: KEY_GAP }}>
@@ -114,6 +119,7 @@ function Keypad({ onKey, onLongBackspace, showDecimal = true, saveMode = false, 
                 keyName={key}
                 height={height}
                 saveMode={saveMode}
+                saveDisabled={saveDisabled}
                 hapticsEnabled={hapticsEnabled}
                 onKey={onKey}
                 onLongBackspace={onLongBackspace}

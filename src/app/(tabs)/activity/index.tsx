@@ -70,20 +70,25 @@ export default function Activity() {
   const totals = React.useMemo(() => sumItems(items, money), [items, money]);
   const transferOnly = kinds.length === 1 && kinds[0] === 'transfer';
   const decimals = money.showDecimals ? undefined : 0;
+  const showSpent = kinds.length === 0 || kinds.includes('expense');
+  const showEarned = kinds.length === 0 || kinds.includes('income');
   const summary = [
-    { label: 'Spent', value: formatMoney(totals.spent, money.displayCurrency, { locale: money.locale, sign: 'minus', decimals }) },
-    { label: 'Earned', value: formatMoney(totals.earned, money.displayCurrency, { locale: money.locale, sign: 'plus', decimals }), tone: 'income' as const },
+    ...(showSpent ? [{ label: 'Spent', value: formatMoney(totals.spent, money.displayCurrency, { locale: money.locale, sign: 'none', decimals }) }] : []),
+    ...(showEarned
+      ? [{ label: 'Earned', value: formatMoney(totals.earned, money.displayCurrency, { locale: money.locale, sign: 'none', decimals }), tone: 'income' as const }]
+      : []),
   ];
 
+  const jumpToNow = React.useCallback(() => setChoice(null), []);
   const headerOptions = React.useMemo(
-    () => ({ headerLeft: () => <MonthPill label={label} onPress={() => setPicking(true)} /> }),
-    [label],
+    () => ({ headerLeft: () => <MonthPill label={label} onPress={() => setPicking(true)} onLongPress={jumpToNow} /> }),
+    [label, jumpToNow],
   );
 
   const header = (
     <View className="gap-3 pb-1 pt-2">
       <FilterChips />
-      {items.length > 0 && !transferOnly ? (
+      {items.length > 0 && !transferOnly && summary.length > 0 ? (
         <View className="px-4">
           <SummaryStrip items={summary} />
         </View>
@@ -104,7 +109,14 @@ export default function Activity() {
   return (
     <View className="flex-1 bg-bg">
       <Stack.Screen options={headerOptions} />
-      <TransactionDayList items={items} context={money} header={header} empty={empty} contentContainerStyle={{ paddingBottom: 96 }} />
+      {items.length === 0 ? (
+        <View className="flex-1">
+          {header}
+          {empty}
+        </View>
+      ) : (
+        <TransactionDayList items={items} context={money} header={header} contentContainerStyle={{ paddingBottom: 96 }} />
+      )}
       <AddFab />
       <OptionPicker
         visible={picking}

@@ -3,9 +3,9 @@ import { toDateKey, type DateKey } from '@/lib/dates';
 import {
   IMPORT_CATEGORY_ICON,
   IMPORT_PALETTE,
-  accountKey,
   categoryKey,
   dedupeKey,
+  existingAccountKeys,
   planImport,
   type ExistingData,
   type ExportRecord,
@@ -56,7 +56,9 @@ export function importTransactions(db: Db, rows: readonly ImportRow[], defaults:
     const plan = planImport(rows, loadImportContext(tx), defaults);
 
     const accountIds = new Map<string, string>();
-    for (const a of tx.select({ id: accounts.id, name: accounts.name }).from(accounts).all()) accountIds.set(accountKey(a.name), a.id);
+    const stored = tx.select({ id: accounts.id, name: accounts.name, currency: accounts.currency }).from(accounts).all();
+    const keyById = existingAccountKeys(stored);
+    for (const a of stored) accountIds.set(keyById.get(a.id) as string, a.id);
     const accountCount = accountIds.size;
     plan.newAccounts.forEach((a, i) => {
       const created = createAccount(

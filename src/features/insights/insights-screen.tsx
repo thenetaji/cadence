@@ -1,27 +1,29 @@
-import { Stack, useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { FadeIn, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { Amount } from '@/components/app/amount';
-import { HeaderButton } from '@/components/app/header-button';
 import { SectionHeader } from '@/components/app/section-header';
 import { BarChart } from '@/components/charts/bar-chart';
 import { Donut } from '@/components/charts/donut';
 import { Card } from '@/components/ui/card';
+import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { useInsights, useSettings, useTodayKey } from '@/data/hooks';
 import { axisLabels } from '@/lib/charts';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@/lib/dates';
 import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
+import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 
 import { CategoryList, type CategoryListItem } from './category-list';
 import { barsTitle, deltaLine, scrubLabel } from './labels';
+import { KindMenu } from './kind-menu';
 import { donutData, keyForName, listItems, summaryLabel } from './model';
-import { canStepForward, parseInsightsParams, periodOf, stepView, type InsightsParams, type InsightsView } from './params';
+import { canStepForward, parseInsightsParams, periodOf, stepView, type InsightsKind, type InsightsParams, type InsightsView } from './params';
 import { PeriodControls } from './period-controls';
 import { useRangeStore } from './range-store';
 
@@ -56,7 +58,8 @@ export default function InsightsScreen() {
 
   const bars = React.useMemo(() => insights.series.map((p) => ({ key: p.key, value: p.amount })), [insights.series]);
   const labels = React.useMemo(() => axisLabels(insights.series.map((p) => p.key), insights.granularity), [insights.series, insights.granularity]);
-  const delta = insights.previousTotal > 0 ? deltaLine(insights.delta, period, view.kind) : null;
+  const delta = insights.previousTotal > 0 ? deltaLine(insights.delta, period, view.kind, { currency, locale: money.locale }) : null;
+  const [deltaAsAmount, setDeltaAsAmount] = React.useState(false);
   const forward = canStepForward(view, today, periodSettings);
 
   // Period change crossfades 200 ms; the charts themselves do not replay their intro.
@@ -106,8 +109,14 @@ export default function InsightsScreen() {
     setView((current) => ({ ...current, type, anchor: current.type === 'custom' ? today : current.anchor }));
     reset();
   };
-  const toggleKind = () => {
-    setView((current) => ({ ...current, kind: current.kind === 'expense' ? 'income' : 'expense' }));
+  const changeKind = (kind: InsightsKind) => {
+    if (kind === view.kind) return;
+    setView((current) => ({ ...current, kind }));
+    reset();
+  };
+  const jumpToCurrent = () => {
+    haptic('selection');
+    setView((current) => ({ ...current, anchor: today }));
     reset();
   };
 
@@ -133,13 +142,6 @@ export default function InsightsScreen() {
 
   return (
     <View className="flex-1 bg-bg">
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <HeaderButton symbol="arrow.left.arrow.right" label={view.kind === 'expense' ? 'Show income' : 'Show expenses'} onPress={toggleKind} />
-          ),
-        }}
-      />
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         <PeriodControls
           type={view.type}
@@ -148,47 +150,73 @@ export default function InsightsScreen() {
           onType={changeType}
           onStep={step}
           onEditCustom={editCustom}
+          onJumpToCurrent={jumpToCurrent}
         />
         <Animated.View style={fadeStyle}>
           <GestureDetector gesture={swipe}>
             <View collapsable={false}>
               <View className="px-4 pb-4 pt-3">
-                <Text variant="footnote" tone="secondary">
-                  {view.kind === 'expense' ? 'Spent' : 'Earned'}
-                </Text>
-                <Amount value={total} variant="hero" accessibilityLabel={formatMoneyForSpeech(insights.total, currency, { sign: 'none' })} />
+                <KindMenu kind={view.kind} onChange={changeKind} />
+                <View className="pt-1">
+                  <Amount value={total} variant="hero" accessibilityLabel={formatMoneyForSpeech(insights.total, currency, { sign: 'none' })} />
+                </View>
                 <View className="h-5">
                   {delta ? (
-                    <Text variant="footnote" tone={delta.good ? 'income' : 'secondary'} numeric>
-                      {delta.text}
-                    </Text>
+                    <Pressable
+                      role="button"
+                      accessibilityLabel={`${delta.text}, tap to show ${deltaAsAmount ? 'percent' : 'amount'}`}
+                      scale={1}
+                      dimTo={0.6}
+                      hitSlop={{ top: 8, bottom: 8, right: 16 }}
+                      onPress={() => {
+                        haptic('selection');
+                        setDeltaAsAmount((v) => !v);
+                      }}
+                      className="self-start"
+                    >
+                      <Animated.View key={deltaAsAmount ? 'amount' : 'percent'} entering={FadeIn.duration(200)}>
+                        <Text variant="footnote" tone={delta.good ? 'income' : 'secondary'} numeric>
+                          {deltaAsAmount && delta.alt ? delta.alt : delta.text}
+                        </Text>
+                      </Animated.View>
+                    </Pressable>
                   ) : null}
                 </View>
               </View>
-              <Card className="mx-4 items-center p-0 py-5">
+              <Card className="mx-4 items-center p-3">
                 <Donut
                   data={donut}
-                  totalLabel={total}
-                  totalCaption={view.kind === 'expense' ? 'Total' : 'Total'}
                   selectedKey={selectedKey}
                   onSelect={(key) => setSelection(key === null ? null : { key })}
                   accessibilityLabel={summaryLabel(insights, view.kind)}
+                  emptyLabel="Nothing yet"
                 />
               </Card>
             </View>
           </GestureDetector>
 
-          <Card className="mx-4 mt-4 px-4 pb-1 pt-3">
-            <View className="flex-row items-baseline justify-between">
-              <Text variant="footnote" tone="secondary">
-                {barsTitle(insights.granularity, view.kind)}
+          <SectionHeader title="Categories" actionLabel={selectedKey !== null ? 'Show all' : undefined} onAction={reset} />
+          <Card className="mx-4 p-0">
+            {rows.length === 0 ? (
+              <Text variant="callout" tone="secondary" className="py-8 text-center">
+                Nothing in this period
               </Text>
-              {insights.total > 0 ? (
+            ) : (
+              <CategoryList items={rows} currency={currency} locale={money.locale} showDecimals={money.showDecimals} onPress={openCategory} />
+            )}
+          </Card>
+
+          <Card className="mx-4 mt-4 px-4 pb-1 pt-3">
+            {insights.total > 0 ? (
+              <View className="flex-row items-baseline justify-between">
+                <Text variant="footnote" tone="secondary">
+                  {barsTitle(insights.granularity, view.kind)}
+                </Text>
                 <Text variant="footnote" tone="tertiary" numeric>
                   {`Avg ${average}/${noun}`}
                 </Text>
-              ) : null}
-            </View>
+              </View>
+            ) : null}
             <BarChart
               data={bars}
               currency={currency}
@@ -203,18 +231,6 @@ export default function InsightsScreen() {
             />
           </Card>
 
-          <View className="pt-4">
-            <SectionHeader title="Categories" />
-            <Card className="mx-4 mt-1 p-0">
-              {rows.length === 0 ? (
-                <Text variant="callout" tone="secondary" className="py-8 text-center">
-                  Nothing in this period
-                </Text>
-              ) : (
-                <CategoryList items={rows} currency={currency} locale={money.locale} showDecimals={money.showDecimals} onPress={openCategory} />
-              )}
-            </Card>
-          </View>
         </Animated.View>
       </ScrollView>
     </View>

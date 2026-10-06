@@ -12,6 +12,7 @@ import { TransactionDayList } from '@/features/transactions/transaction-day-list
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { nextPeriod, periodLabel, previousPeriod, type Period } from '@/lib/dates';
 import { formatMoneyForSpeech } from '@/lib/money';
+import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 
 import { BudgetCard } from './budget-card';
@@ -29,7 +30,7 @@ export default function BudgetDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors, category } = useTokens();
-  const money = useMoneyContext({ relativeDays: true });
+  const money = useMoneyContext();
   const today = useTodayKey();
   const categories = useCategories();
   const [offset, setOffset] = React.useState(0);
@@ -76,17 +77,22 @@ export default function BudgetDetailScreen() {
     : `Spending pace, ${formatMoneyForSpeech(detail.spent, budget.currency, { sign: 'none' })} of ${formatMoneyForSpeech(budget.amount, budget.currency, { sign: 'none' })}`;
 
   const header = (
-    <View className="gap-4 pb-2 pt-2">
+    <View className="gap-4 pt-2">
       <PeriodStepper
         label={periodLabel(period)}
         canForward={!isCurrent}
+        onTitlePress={isCurrent ? undefined : () => {
+          haptic('selection');
+          setSelected(null);
+          setOffset(0);
+        }}
         onStep={(direction) => {
           setSelected(null);
           setOffset((n) => Math.min(n + direction, 0));
         }}
       />
       <View className="px-4">
-        <BudgetCard view={view} title={isCurrent ? undefined : 'Ended'} />
+        <BudgetCard view={view} />
       </View>
       <Card className="mx-4 px-4 pb-1 pt-3">
         <PaceChart
@@ -100,7 +106,7 @@ export default function BudgetDetailScreen() {
           accessibilityLabel={chartLabel}
         />
       </Card>
-      <Text variant="headline" accessibilityRole="header" className="px-4 pt-2">
+      <Text variant="headline" accessibilityRole="header" className="-mb-2 px-4 pt-2">
         {scoped.length > 0 ? `${scoped.length} ${scoped.length === 1 ? 'transaction' : 'transactions'}` : 'Transactions'}
       </Text>
     </View>

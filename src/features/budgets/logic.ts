@@ -1,4 +1,4 @@
-import { diffDays, type DateKey, type Period } from '@/lib/dates';
+import { diffDays, parseKey, type DateKey, type Period } from '@/lib/dates';
 import type { BudgetPeriod, BudgetRow } from '@/db/schema';
 
 export type BudgetStatus = 'ok' | 'warning' | 'over';
@@ -23,6 +23,13 @@ export function daysLeft(period: Pick<Period, 'from' | 'to'>, todayKey: DateKey)
   if (todayKey > period.to) return 0;
   if (todayKey < period.from) return diffDays(period.from, period.to) + 1;
   return diffDays(todayKey, period.to) + 1;
+}
+
+/** Today's position in the period, 0-1 (middle of today), for the pace tick; undefined when today is outside it. */
+export function paceMarker(period: Pick<Period, 'from' | 'to'>, todayKey: DateKey): number | undefined {
+  if (todayKey < period.from || todayKey > period.to) return undefined;
+  const length = diffDays(period.from, period.to) + 1;
+  return (diffDays(period.from, todayKey) + 0.5) / length;
 }
 
 /** What's left spread evenly over the remaining days (minor units, rounded down); 0 when over or out of days. */
@@ -75,6 +82,15 @@ export function defaultAnchor(period: BudgetPeriod, settings: { weekStart: numbe
 }
 
 export const periodTitle = (period: BudgetPeriod): string => ({ weekly: 'This week', monthly: 'This month', yearly: 'This year' })[period];
+
+/** Footnote above a budget card: "This month" now, the month's name (or year) once it is not the current period. */
+export function periodCaption(period: BudgetPeriod, range: Pick<Period, 'from' | 'to'>, current: boolean): string {
+  if (current) return periodTitle(period);
+  const { year, month } = parseKey(range.from);
+  if (period === 'monthly') return MONTHS[month - 1] ?? '';
+  if (period === 'yearly') return String(year);
+  return `Week of ${parseKey(range.from).day} ${(MONTHS[month - 1] ?? '').slice(0, 3)}`;
+}
 
 const GENERIC_NAME = /^(Weekly|Monthly|Yearly) budget$/;
 

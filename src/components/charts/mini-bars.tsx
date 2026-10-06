@@ -4,10 +4,10 @@ import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { useDerivedValue } from 'react-native-reanimated';
 
-import { barSlots, slotIndex, valueToY } from '@/lib/charts';
+import { barDomain, barSlots, slotIndex, valueToY } from '@/lib/charts';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
-import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
+import { adjustableProps, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
 import { useChartFont } from './use-chart-font';
 
 export type MiniBarDatum = { key: string; label: string; value: number };
@@ -19,8 +19,10 @@ export type MiniBarsProps = {
   currentIndex: number;
   selectedIndex: number;
   onSelect: (index: number) => void;
-  /** Floating amount for a bar, e.g. "₹12,400". */
+  /** Amount for a bar, e.g. "₹12,400"; used for VoiceOver and the label on broken bars. */
   formatValue: (index: number) => string;
+  /** Mean per bucket, minor units; feeds the shared axis rule. */
+  average?: number;
   color?: string;
   accessibilityLabel: string;
   height?: number;
@@ -31,7 +33,7 @@ const AXIS = 24;
 const RADIUS = 6;
 
 /** Six-period bars for the category drill-down. Scrubbing and tapping both select a period. */
-function MiniBars({ data, currentIndex, selectedIndex, onSelect, formatValue, color, accessibilityLabel, height = 110 }: MiniBarsProps) {
+function MiniBars({ data, currentIndex, selectedIndex, onSelect, formatValue, average = 0, color, accessibilityLabel, height = 110 }: MiniBarsProps) {
   const { colors } = useTokens();
   const [width, onLayout] = useChartWidth();
   const font = useChartFont(11, 'medium');
@@ -39,7 +41,7 @@ function MiniBars({ data, currentIndex, selectedIndex, onSelect, formatValue, co
   const grow = useGrow();
   const count = data.length;
   const baseline = LANE + height;
-  const peak = data.reduce((m, d) => Math.max(m, d.value), 0);
+  const { top, clipped } = barDomain(data.map((d) => d.value), average);
   const slots = React.useMemo(() => barSlots(0, width, count, 14, 44), [width, count]);
   const tint = color ?? colors.accent;
   const growTransform = useDerivedValue(() => [{ translateY: baseline }, { scaleY: grow.value }, { translateY: -baseline }]);
@@ -70,7 +72,7 @@ function MiniBars({ data, currentIndex, selectedIndex, onSelect, formatValue, co
                   {data.map((d, i) => {
                     const slot = slots[i];
                     if (!slot) return null;
-                    const h = d.value > 0 && peak > 0 ? Math.max(6, baseline - valueToY(d.value, peak, baseline, height)) : 3;
+                    const h = d.value > 0 && top > 0 ? Math.max(6, baseline - valueToY(d.value, top, baseline, height)) : 3;
                     const active = i === selectedIndex;
                     return (
                       <RoundedRect
@@ -103,9 +105,23 @@ function MiniBars({ data, currentIndex, selectedIndex, onSelect, formatValue, co
                     );
                   })
                 : null}
-              {labelFont && slots[selectedIndex] ? (
-                <FloatingLabel text={formatValue(selectedIndex)} font={labelFont} centerX={slots[selectedIndex]!.center} y={0} totalWidth={width} />
-              ) : null}
+              {clipped && labelFont
+                ? data.map((d, i) => {
+                    const slot = slots[i];
+                    if (!slot || d.value <= top) return null;
+                    const text = formatValue(i);
+                    const w = labelFont.getTextWidth(text);
+                    const x = Math.min(Math.max(slot.center - w / 2, 0), width - w);
+                    return (
+                      <Group key={`break-${d.key}`}>
+                        {[10, 17].map((dy) => (
+                          <Line key={dy} p1={vec(slot.x - 3, LANE + dy + 5)} p2={vec(slot.x + slot.width + 3, LANE + dy - 5)} color={colors.surface} strokeWidth={2.5} />
+                        ))}
+                        <SkText x={x} y={LANE - 5} text={text} font={labelFont} color={colors.textSecondary} />
+                      </Group>
+                    );
+                  })
+                : null}
             </Canvas>
           </View>
         </GestureDetector>

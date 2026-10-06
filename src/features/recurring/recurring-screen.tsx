@@ -56,15 +56,15 @@ export function RecurringScreen() {
 
   if (rules.length === 0) {
     return (
-      <View className="flex-1 justify-center bg-bg pb-24">
+      <View className="flex-1 bg-bg">
         {header}
-        <EmptyState message="No recurring transactions" actionLabel="Add" onAction={add} />
+        <EmptyState message="No recurring transactions" actionLabel="Add rule" onAction={add} />
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 pb-12 pt-2">
+    <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="pb-12">
       {header}
       {upcoming.length > 0 ? (
         <View>

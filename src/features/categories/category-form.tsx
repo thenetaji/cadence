@@ -3,9 +3,10 @@ import * as React from 'react';
 import { Platform, View } from 'react-native';
 
 import { IconTile } from '@/components/app/icon-tile';
-import { ListGroup, ListRow } from '@/components/app/list-group';
+import { ListGroup } from '@/components/app/list-group';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useCategories } from '@/data/hooks';
@@ -14,7 +15,6 @@ import type { CategoryKind } from '@/db/schema';
 import { EntryLayout } from '@/features/entry/entry-layout';
 import { FormRow } from '@/features/entry/form-row';
 import { useSheetHeader } from '@/features/entry/sheet-header';
-import { FormChip } from '@/features/transaction-form/chips';
 import { haptic } from '@/theme/haptics';
 import type { CategoryColorKey } from '@/theme/tokens';
 
@@ -95,17 +95,15 @@ export function CategoryForm({ id }: CategoryFormProps) {
               className="h-6 min-h-0 flex-1 py-0 text-right"
             />
           </FormRow>
-          {creating ? (
-            <FormRow label="Kind">
-              <View className="flex-row gap-2">
-                {KINDS.map((k) => (
-                  <FormChip key={k} label={KIND_LABELS[k]} selected={kind === k} onPress={() => setKind(k)} />
-                ))}
-              </View>
-            </FormRow>
-          ) : (
-            <ListRow label="Kind" value={KIND_LABELS[kind]} />
-          )}
+          <FormRow label="Kind" stacked>
+            <SegmentedControl
+              values={KINDS.map((k) => KIND_LABELS[k])}
+              selectedIndex={KINDS.indexOf(kind)}
+              onChange={(index) => setKind(KINDS[index] ?? 'expense')}
+              disabled={!creating}
+              accessibilityLabel="Kind"
+            />
+          </FormRow>
           <FormRow label="Colour" stacked>
             <Swatches value={color} onChange={setColor} />
           </FormRow>

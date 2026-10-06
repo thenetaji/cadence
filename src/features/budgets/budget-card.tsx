@@ -7,12 +7,11 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { pressScale } from '@/theme/tokens';
 
-import { periodTitle } from './logic';
 import type { BudgetView } from './model';
 
 type BudgetCardProps = {
   view: BudgetView;
-  /** Title above the amount; defaults to "This month" and friends. */
+  /** Title above the amount; defaults to "This month", or the month's name when not current. */
   title?: string;
   onPress?: () => void;
 };
@@ -23,11 +22,11 @@ function BudgetCard({ view, title, onPress }: BudgetCardProps) {
     <Card className="gap-3">
       <View className="gap-0.5">
         <Text variant="footnote" tone="secondary">
-          {title ?? periodTitle(view.period)}
+          {title ?? view.caption}
         </Text>
         <Amount value={view.headline} variant="hero" tone={view.status === 'over' ? 'expense' : 'default'} />
       </View>
-      <ProgressBar value={view.ratio} accessibilityLabel={view.accessibilityLabel} />
+      <ProgressBar value={view.ratio} marker={view.marker} accessibilityLabel={view.accessibilityLabel} />
       <Text variant="footnote" tone="secondary" numeric numberOfLines={1}>
         {view.detail}
       </Text>

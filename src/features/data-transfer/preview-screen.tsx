@@ -13,7 +13,7 @@ import { useImportPlanner, useSettings, useTodayKey } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';
 import { moneyLocale } from '@/features/transactions/use-money-context';
 import { CASHEW_SAMPLE, DIME_SAMPLE, FARTHING_SAMPLE, dimeFixture } from '@/lib/csv/fixtures';
-import { importSummary, parseImport, type ImportFormat, type ImportRow } from '@/lib/csv';
+import { importBreakdown, parseImport, type ImportFormat, type ImportRow } from '@/lib/csv';
 import { dayLabel, toDateKey } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
 import { haptic } from '@/theme/haptics';
@@ -21,6 +21,7 @@ import { haptic } from '@/theme/haptics';
 import { useImportStore } from './store';
 
 const PREVIEW_ROWS = 6;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 function fixtureRows(name: string | undefined): { rows: ImportRow[]; unreadable: number } | null {
   if (Platform.OS !== 'web' || !name) return null;
@@ -84,9 +85,14 @@ export function ImportPreviewScreen() {
   return (
     <View className="flex-1 bg-bg">
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 pb-8 pt-4">
-        <Text variant="title2" className="px-5" accessibilityRole="header">
-          {importSummary(stats)}
-        </Text>
+        <View className="gap-1 px-5">
+          <Text variant="headline" accessibilityRole="header">
+            {plural(stats.transactions, 'transaction')}
+          </Text>
+          <Text variant="footnote" tone="secondary">
+            {importBreakdown(stats)}
+          </Text>
+        </View>
         <ListGroup header="Preview">
           {planned.transactions.slice(0, PREVIEW_ROWS).map((t, index) => (
             <ListRow

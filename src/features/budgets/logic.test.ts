@@ -1,4 +1,4 @@
-import { anchorLabel, anchorOptions, budgetStatus, daysLeft, defaultAnchor, displayName, editableName, ordinal, perDayLeft } from './logic';
+import { anchorLabel, anchorOptions, budgetStatus, daysLeft, defaultAnchor, displayName, editableName, ordinal, paceMarker, perDayLeft, periodCaption } from './logic';
 
 const october = { from: '2026-10-01', to: '2026-10-31' };
 
@@ -62,5 +62,19 @@ describe('labels', () => {
     expect(displayName({ name: 'Monthly budget', scope: 'all' }, [])).toBe('Monthly budget');
     expect(editableName({ name: 'Monthly budget' })).toBe('');
     expect(editableName({ name: 'Eating out' })).toBe('Eating out');
+  });
+});
+
+describe('pace marker and caption', () => {
+  it('places today in the middle of its day', () => {
+    expect(paceMarker(october, '2026-10-01')).toBeCloseTo(0.5 / 31);
+    expect(paceMarker(october, '2026-10-16')).toBeCloseTo(15.5 / 31);
+    expect(paceMarker(october, '2026-11-01')).toBeUndefined();
+    expect(paceMarker(october, '2026-09-30')).toBeUndefined();
+  });
+  it('names the month once it is not current', () => {
+    expect(periodCaption('monthly', october, true)).toBe('This month');
+    expect(periodCaption('monthly', { from: '2026-09-01', to: '2026-09-30' }, false)).toBe('September');
+    expect(periodCaption('yearly', { from: '2025-01-01', to: '2025-12-31' }, false)).toBe('2025');
   });
 });

@@ -33,3 +33,22 @@ export function convertWithRates(minor: number, from: string, to: string, lookup
   const rate = lookup(from, to);
   return rate === null ? minor : convertMinor(minor, from, to, rate);
 }
+
+/**
+ * Sums amounts in `to`. Amounts whose currency has no rate to `to` are excluded rather than
+ * added unconverted (100 USD is not 100 EUR); `excluded` counts them.
+ */
+export function sumConverted(
+  items: readonly { minor: number; currency: string }[],
+  to: string,
+  lookup: RateLookup,
+): { total: number; excluded: number } {
+  let total = 0;
+  let excluded = 0;
+  for (const item of items) {
+    const rate = lookup(item.currency, to);
+    if (rate === null) excluded++;
+    else total += convertMinor(item.minor, item.currency, to, rate);
+  }
+  return { total, excluded };
+}

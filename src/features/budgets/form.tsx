@@ -1,12 +1,13 @@
 import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Keyboard, View } from 'react-native';
 
 import { AmountReadout } from '@/components/app/amount-readout';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { showToast } from '@/components/app/toast-store';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useActions } from '@/data/actions';
 import { useBudgets, useCategories, useSettings } from '@/data/hooks';
@@ -14,19 +15,32 @@ import { ValidationError } from '@/db/errors';
 import type { BudgetInput } from '@/db/repos/budgets';
 import type { BudgetPeriod, BudgetScope } from '@/db/schema';
 import { AmountKeypad } from '@/features/entry/amount-keypad';
-import { CategoryGrid } from '@/features/entry/category-grid';
 import { EntryLayout } from '@/features/entry/entry-layout';
 import { FormRow, PickRow } from '@/features/entry/form-row';
 import { useSheetHeader } from '@/features/entry/sheet-header';
 import { useAmountEntry } from '@/features/entry/use-amount-entry';
-import { FormChip } from '@/features/transaction-form/chips';
-import { ShakeView } from '@/features/transaction-form/shake-view';
 import { currencySymbol, formatMoneyForSpeech, minorDigits } from '@/lib/money';
 import { haptic } from '@/theme/haptics';
 
+import { useCategoryRequest } from './category-store';
 import { anchorLabel, anchorOptions, defaultAnchor, editableName, PERIOD_LABELS, PERIOD_VALUES } from './logic';
 
 type BudgetFormProps = { mode: 'new' | 'edit'; budgetId?: string };
+
+const PERIOD_ADJECTIVE: Record<BudgetPeriod, string> = { weekly: 'weekly', monthly: 'monthly', yearly: 'yearly' };
+const SCOPE_VALUES: readonly BudgetScope[] = ['all', 'categories'];
+const SCOPE_LABELS = ['All spending', 'Categories'] as const;
+
+/** Footnote under the Scope row; taps through to the budget that already covers all spending. */
+function ScopeNote({ period, onPress }: { period: BudgetPeriod; onPress: () => void; showSeparator?: boolean }) {
+  return (
+    <Pressable role="button" scale={1} dimTo={0.6} onPress={onPress} accessibilityLabel={`An all-spending ${PERIOD_ADJECTIVE[period]} budget already exists, open it`} className="bg-surface px-4 pb-3 pt-2">
+      <Text variant="footnote" tone="accent">
+        {`An all-spending ${PERIOD_ADJECTIVE[period]} budget already exists`}
+      </Text>
+    </Pressable>
+  );
+}
 
 const GENERIC: Record<BudgetPeriod, string> = { weekly: 'Weekly budget', monthly: 'Monthly budget', yearly: 'Yearly budget' };
 
@@ -49,10 +63,10 @@ export function BudgetForm({ mode, budgetId }: BudgetFormProps) {
   const [anchor, setAnchor] = React.useState(() => source?.startAnchor ?? defaultAnchor('monthly', { weekStart: settings.week_start, monthStart: settings.month_start }));
   const [keypadOpen, setKeypadOpen] = React.useState(mode === 'new');
   const [nameFocused, setNameFocused] = React.useState(false);
-  const [shake, setShake] = React.useState(0);
   const entry = useAmountEntry(digits, amount, setAmount);
 
-  const taken = progress.some((p) => p.budget.scope === 'all' && p.budget.period === period && p.budget.id !== budgetId);
+  const existingOverall = progress.find((p) => p.budget.scope === 'all' && p.budget.period === period && p.budget.id !== budgetId)?.budget;
+  const taken = existingOverall !== undefined;
   const blocked = scope === 'all' && taken;
   const missingCategory = scope === 'categories' && categoryIds.length === 0;
   const disabled = amount <= 0 || blocked || missingCategory;
@@ -65,8 +79,8 @@ export function BudgetForm({ mode, budgetId }: BudgetFormProps) {
 
   const save = () => {
     if (missingCategory) {
-      setShake((n) => n + 1);
       haptic('error');
+      chooseCategories();
       return;
     }
     if (disabled) {
@@ -115,14 +129,21 @@ export function BudgetForm({ mode, budgetId }: BudgetFormProps) {
     const next = PERIOD_VALUES[index];
     if (!next) return;
     setPeriod(next);
+    // The all-spending option is taken for the new period: fall back to categories.
+    if (scope === 'all' && progress.some((p) => p.budget.scope === 'all' && p.budget.period === next && p.budget.id !== budgetId)) setScope('categories');
     setAnchor(defaultAnchor(next, { weekStart: settings.week_start, monthStart: settings.month_start }));
   };
 
-  const toggleCategory = (id: string) => setCategoryIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+  const chooseCategories = () => {
+    Keyboard.dismiss();
+    useCategoryRequest.getState().open({ selected: categoryIds, onChange: setCategoryIds });
+    router.push('/budget/categories');
+  };
 
-  const chooseScope = (next: BudgetScope) => {
-    setScope(next);
-    if (next === 'categories') setKeypadOpen(false);
+  const openExisting = () => {
+    if (!existingOverall) return;
+    if (router.canDismiss()) router.dismiss();
+    router.push({ pathname: '/budget/[id]', params: { id: existingOverall.id } });
   };
 
   const picked = categories.filter((c) => categoryIds.includes(c.id));
@@ -166,19 +187,18 @@ export function BudgetForm({ mode, budgetId }: BudgetFormProps) {
             />
           </FormRow>
           <FormRow label="Scope">
-            <ShakeView trigger={shake}>
-              <View className="flex-row gap-2">
-                <FormChip
-                  label="All spending"
-                  hint={taken ? 'Taken' : undefined}
-                  selected={scope === 'all'}
-                  onPress={() => (taken ? haptic('error') : chooseScope('all'))}
-                  accessibilityLabel={taken ? 'All spending, already exists for this period' : 'All spending'}
-                />
-                <FormChip label="Categories" selected={scope === 'categories'} onPress={() => chooseScope('categories')} />
-              </View>
-            </ShakeView>
+            <View className="w-[230px]">
+              <SegmentedControl
+                values={SCOPE_LABELS}
+                selectedIndex={SCOPE_VALUES.indexOf(scope)}
+                onChange={(index) => setScope(SCOPE_VALUES[index] ?? 'categories')}
+                disabledIndexes={taken ? [0] : undefined}
+                accessibilityLabel="Scope"
+              />
+            </View>
           </FormRow>
+          {taken ? <ScopeNote period={period} onPress={openExisting} /> : null}
+          {scope === 'categories' ? <ListRow label="Categories" value={picked.length === 0 ? 'Choose' : picked.map((c) => c.name).join(', ')} chevron onPress={chooseCategories} /> : null}
           <FormRow label="Period">
             <View className="w-[210px]">
               <SegmentedControl values={PERIOD_LABELS} selectedIndex={PERIOD_VALUES.indexOf(period)} onChange={changePeriod} accessibilityLabel="Period" />
@@ -193,24 +213,9 @@ export function BudgetForm({ mode, budgetId }: BudgetFormProps) {
             onSelect={setAnchor}
           />
         </ListGroup>
-        {scope === 'categories' && showKeypad ? (
-          <ListGroup>
-            <ListRow
-              label="Categories"
-              value={picked.length === 0 ? 'Choose' : picked.length === 1 ? picked[0]?.name : `${picked.length} selected`}
-              chevron
-              onPress={() => setKeypadOpen(false)}
-            />
-          </ListGroup>
-        ) : null}
-        {scope === 'categories' && !showKeypad ? (
-          <Card className="mx-4 p-0 pt-1">
-            <CategoryGrid categories={categories} selected={categoryIds} onToggle={toggleCategory} />
-          </Card>
-        ) : null}
         {mode === 'edit' ? (
           <ListGroup>
-            <ListRow label="Delete budget" destructive onPress={remove} />
+            <ListRow label="Delete budget" destructive centered onPress={remove} />
           </ListGroup>
         ) : null}
       </EntryLayout>

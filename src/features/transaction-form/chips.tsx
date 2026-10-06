@@ -20,10 +20,12 @@ type FormChipProps = {
   accessibilityLabel?: string;
   /** Lets the chip truncate inside a row instead of overflowing. */
   shrink?: boolean;
+  /** Fixed 32 pt circle showing only the icon; `label` is then the accessibility label. */
+  iconOnly?: boolean;
 };
 
 /** Pill chip whose selected state cross-fades over 200 ms. */
-function FormChip({ label, icon, trailingIcon, hint, selected = false, tint, onPress, accessibilityLabel, shrink = false }: FormChipProps) {
+function FormChip({ label, icon, trailingIcon, hint, selected = false, tint, onPress, accessibilityLabel, shrink = false, iconOnly = false }: FormChipProps) {
   const { colors, isDark } = useTokens();
   const progress = useSharedValue(selected ? 1 : 0);
   React.useEffect(() => {
@@ -46,7 +48,9 @@ function FormChip({ label, icon, trailingIcon, hint, selected = false, tint, onP
         {
           height: 32,
           borderRadius: 16,
-          paddingHorizontal: 12,
+          paddingHorizontal: iconOnly ? 0 : 12,
+          width: iconOnly ? 32 : undefined,
+          justifyContent: iconOnly ? 'center' : undefined,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 6,
@@ -56,10 +60,12 @@ function FormChip({ label, icon, trailingIcon, hint, selected = false, tint, onP
         background as ViewStyle,
       ]}
     >
-      {icon ? <SymbolIcon name={icon} size={14} color={iconColor} /> : null}
-      <Text variant="callout" tone={selected && !tint ? 'accent' : 'default'} numberOfLines={1} className="shrink">
-        {label}
-      </Text>
+      {icon ? <SymbolIcon name={icon} size={iconOnly ? 15 : 14} color={iconColor} /> : null}
+      {iconOnly ? null : (
+        <Text variant="callout" tone={selected && !tint ? 'accent' : 'default'} numberOfLines={1} className="shrink">
+          {label}
+        </Text>
+      )}
       {hint ? (
         <Text variant="callout" tone="secondary" numeric numberOfLines={1}>
           {hint}

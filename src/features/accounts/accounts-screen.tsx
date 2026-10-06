@@ -41,7 +41,7 @@ export function AccountsScreen() {
   const fmt = React.useMemo(() => ({ displayCurrency, rates, locale, showDecimals }), [displayCurrency, rates, locale, showDecimals]);
   const views = React.useMemo(() => active.map((a) => toAccountView(a, fmt)), [active, fmt]);
   const archivedViews = React.useMemo(() => archived.map((a) => toAccountView(a, fmt)), [archived, fmt]);
-  const total = totalInDisplay(active, fmt);
+  const { total, excluded } = totalInDisplay(active, fmt);
   const compact = Math.abs(total) / 10 ** minorDigits(displayCurrency) >= COMPACT_FROM;
   const totalText = formatMoney(total, displayCurrency, { locale, compact, decimals: showDecimals ? undefined : 0 });
 
@@ -79,11 +79,16 @@ export function AccountsScreen() {
   return (
     <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-5 pb-12 pt-2">
       {header}
-      <View className="px-5">
+      <View className="px-4">
         <Text variant="footnote" tone="secondary">
           Total
         </Text>
         <Amount value={totalText} variant="hero" tone={total < 0 ? 'expense' : 'default'} accessibilityLabel={`Total, ${formatMoneyForSpeech(total, displayCurrency)}`} />
+        {excluded.length > 0 ? (
+          <Text variant="footnote" tone="warning" numberOfLines={2}>
+            Excludes {excluded.map((a) => a.name).join(', ')}: rate needed
+          </Text>
+        ) : null}
       </View>
       <Card className="mx-4 p-0">
         {editing ? (
@@ -110,7 +115,7 @@ export function AccountsScreen() {
             scale={1}
             dimTo={0.6}
             onPress={() => setShowArchived((v) => !v)}
-            className="min-h-11 flex-row items-center gap-1.5 px-5"
+            className="min-h-11 flex-row items-center gap-1.5 px-4"
           >
             <Text variant="footnote" tone="secondary">
               Archived · {archivedViews.length}

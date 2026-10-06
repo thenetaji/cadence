@@ -29,16 +29,32 @@ function StepButton({ symbol, label, disabled, onPress }: StepButtonProps) {
   );
 }
 
-type PeriodStepperProps = { label: string; canForward: boolean; onStep: (direction: 1 | -1) => void };
+type PeriodStepperProps = {
+  label: string;
+  canForward: boolean;
+  onStep: (direction: 1 | -1) => void;
+  /** Tapping the title; the screen jumps to the current period. Inert when omitted. */
+  onTitlePress?: () => void;
+};
 
 /** Previous / next period around the current period's label. */
-function PeriodStepper({ label, canForward, onStep }: PeriodStepperProps) {
+function PeriodStepper({ label, canForward, onStep, onTitlePress }: PeriodStepperProps) {
   return (
     <View className="flex-row items-center justify-between px-2">
       <StepButton symbol="chevron.left" label="Previous period" onPress={() => onStep(-1)} />
-      <Text variant="headline" numberOfLines={1} className="text-center" accessibilityRole="header">
-        {label}
-      </Text>
+      <Pressable
+        role={onTitlePress ? 'button' : undefined}
+        disabled={!onTitlePress}
+        scale={1}
+        dimTo={0.6}
+        onPress={onTitlePress}
+        accessibilityLabel={onTitlePress ? `${label}, go to current period` : label}
+        className="h-11 justify-center"
+      >
+        <Text variant="headline" numberOfLines={1} className="text-center" accessibilityRole="header">
+          {label}
+        </Text>
+      </Pressable>
       <StepButton symbol="chevron.right" label="Next period" disabled={!canForward} onPress={() => onStep(1)} />
     </View>
   );

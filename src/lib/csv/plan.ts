@@ -66,6 +66,24 @@ export interface ImportPlan {
 const norm = (value: string) => value.trim().replace(/\s+/g, ' ').toLowerCase();
 
 export const accountKey = (name: string) => norm(name);
+
+/** Plan key per stored account id: the name, plus the currency when two stored accounts share a name. */
+export function existingAccountKeys(list: readonly ExistingAccount[]): Map<string, string> {
+  const seen = new Set<string>();
+  const out = new Map<string, string>();
+  for (const a of list) {
+    const base = accountKey(a.name);
+    out.set(a.id, seen.has(base) ? `${base}|${a.currency}` : base);
+    seen.add(base);
+  }
+  return out;
+}
+
+interface PlanAccount {
+  key: string;
+  name: string;
+  currency: string;
+}
 export const categoryKey = (kind: 'expense' | 'income', name: string) => `${kind}:${norm(name)}`;
 
 /** Transactions match when day, amount and title agree. */
@@ -78,7 +96,14 @@ const DEFAULT_ACCOUNT_NAME = 'Cash';
 
 /** Resolves a parsed file against existing data: matches or plans accounts and categories, converts amounts, drops duplicates. */
 export function planImport(rows: readonly ImportRow[], existing: ExistingData, defaults: PlanDefaults): ImportPlan {
-  const accounts = new Map(existing.accounts.map((a) => [accountKey(a.name), a]));
+  // Accounts by normalised name; a name can hold several currencies.
+  const registry = new Map<string, PlanAccount[]>();
+  const keyById = existingAccountKeys(existing.accounts);
+  for (const a of existing.accounts) {
+    const list = registry.get(accountKey(a.name)) ?? [];
+    list.push({ key: keyById.get(a.id) as string, name: a.name, currency: a.currency });
+    registry.set(accountKey(a.name), list);
+  }
   const categories = new Set(existing.categories.map((c) => categoryKey(c.kind, c.name)));
   const remaining = new Map(existing.keys);
   const seenIds = new Set(existing.ids);
@@ -94,15 +119,30 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
   let duplicates = 0;
   let skipped = 0;
 
-  const currencyOf = (key: string, hint: string): string =>
-    accounts.get(key)?.currency ?? newAccounts.get(key)?.currency ?? hint;
-  const hintFor = (code: string | null) => (code && getCurrency(code) ? code : defaults.displayCurrency);
+  /**
+   * Accounts match by name and currency. With a stated currency that differs from the stored one,
+   * a separate "Name (CUR)" account is used; amounts are never relabelled. With no stated currency
+   * the stored account wins, and a new account takes `fallback`.
+   */
+  const resolve = (name: string, code: string | null, fallback: string): PlanAccount => {
+    const base = accountKey(name);
+    const found = registry.get(base) ?? [];
+    if (!code) return found[0] ?? { key: base, name: name.trim(), currency: fallback };
+    const same = found.find((a) => a.currency === code);
+    if (same) return same;
+    if (found.length === 0) return { key: base, name: name.trim(), currency: code };
+    const altName = `${name.trim()} (${code})`;
+    const alt = (registry.get(accountKey(altName)) ?? []).find((a) => a.currency === code);
+    return alt ?? { key: accountKey(altName), name: altName, currency: code };
+  };
+  const knownCode = (code: string | null) => (code && getCurrency(code) ? code : null);
 
   for (const row of rows) {
     const kind = row.kind;
     const accountName = row.account?.trim() || defaultAccount?.name || DEFAULT_ACCOUNT_NAME;
-    const aKey = accountKey(accountName);
-    const currency = currencyOf(aKey, hintFor(row.currency));
+    const account = resolve(accountName, knownCode(row.currency), defaults.displayCurrency);
+    const aKey = account.key;
+    const currency = account.currency;
 
     const amount = toMinor(row.amount, currency);
     if (amount === null || amount <= 0) {
@@ -111,18 +151,19 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
     }
 
     let transferKey: string | null = null;
-    let transferName = '';
+    let transferAcct: PlanAccount | null = null;
     let transferAmount: number | null = null;
     let transferCurrency = currency;
     if (kind === 'transfer') {
-      transferName = row.transferAccount?.trim() ?? '';
-      transferKey = transferName ? accountKey(transferName) : null;
-      if (!transferKey || transferKey === aKey) {
+      const transferName = row.transferAccount?.trim() ?? '';
+      const sameAmount = row.transferAmount === null || row.transferAmount === row.amount;
+      transferAcct = transferName ? resolve(transferName, null, sameAmount ? currency : defaults.displayCurrency) : null;
+      transferKey = transferAcct?.key ?? null;
+      if (!transferAcct || transferKey === aKey) {
         skipped++;
         continue;
       }
-      const sameAmount = row.transferAmount === null || row.transferAmount === row.amount;
-      transferCurrency = currencyOf(transferKey, sameAmount ? currency : defaults.displayCurrency);
+      transferCurrency = transferAcct.currency;
       transferAmount = row.transferAmount === null ? amount : toMinor(row.transferAmount, transferCurrency);
       if (transferAmount === null || transferAmount <= 0) {
         skipped++;
@@ -168,12 +209,15 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
     }
     if (row.id) seenIds.add(row.id);
 
-    const register = (name: string, code: string, k: string) => {
-      usedAccounts.add(k);
-      if (!accounts.has(k) && !newAccounts.has(k)) newAccounts.set(k, { key: k, name: name.trim(), currency: code });
+    const register = (a: PlanAccount) => {
+      usedAccounts.add(a.key);
+      const list = registry.get(accountKey(a.name)) ?? [];
+      if (list.some((x) => x.key === a.key)) return;
+      newAccounts.set(a.key, a);
+      registry.set(accountKey(a.name), [...list, a]);
     };
-    register(accountName, currency, aKey);
-    if (transferKey) register(transferName, transferCurrency, transferKey);
+    register(account);
+    if (transferAcct) register(transferAcct);
     const registerCategory = (name: string, k: string) => {
       usedCategories.add(k);
       if (!categories.has(k) && !newCategories.has(k)) newCategories.set(k, { key: k, kind: lineKind, name: name.trim() });
@@ -223,4 +267,14 @@ export function importSummary(stats: Pick<ImportStats, 'transactions' | 'categor
     stats.newCategories > 0 ? `${categories} (${stats.newCategories} new)` : categories,
     plural(stats.accounts, 'account'),
   ].join(', ');
+}
+
+/** "8 categories (3 new) · 1 account": the breakdown beneath the transaction count. */
+export function importBreakdown(stats: Pick<ImportStats, 'categories' | 'newCategories' | 'accounts' | 'newAccounts'>): string {
+  const categories = `${stats.categories} ${stats.categories === 1 ? 'category' : 'categories'}`;
+  const accounts = `${stats.accounts} ${stats.accounts === 1 ? 'account' : 'accounts'}`;
+  return [
+    stats.newCategories > 0 ? `${categories} (${stats.newCategories} new)` : categories,
+    stats.newAccounts > 0 ? `${accounts} (${stats.newAccounts} new)` : accounts,
+  ].join(' · ');
 }

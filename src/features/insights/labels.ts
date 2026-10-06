@@ -22,18 +22,21 @@ export function previousLabel(period: Period): string {
 
 export interface DeltaLine {
   text: string;
+  /** The same change in money ("−₹12,196 vs September"); present when `deltaLine` was given a currency. */
+  alt?: string;
   /** True when the change is the good direction: spending fell or income rose. */
   good: boolean;
 }
 
 /** "−12% vs September". Null when there is nothing to compare with. */
-export function deltaLine(delta: Delta, period: Period, kind: InsightsKind): DeltaLine | null {
+export function deltaLine(delta: Delta, period: Period, kind: InsightsKind, money?: { currency: string; locale?: string }): DeltaLine | null {
   if (delta.percent === null) return null;
   const suffix = previousLabel(period);
   if (delta.percent === 0) return { text: `No change ${suffix}`, good: false };
   const sign = delta.percent < 0 ? MINUS : '+';
   const good = kind === 'expense' ? delta.percent < 0 : delta.percent > 0;
-  return { text: `${sign}${Math.abs(delta.percent)}% ${suffix}`, good };
+  const alt = money ? `${sign}${formatMoney(Math.abs(delta.amount), money.currency, { locale: money.locale, decimals: 0 })} ${suffix}` : undefined;
+  return { text: `${sign}${Math.abs(delta.percent)}% ${suffix}`, alt, good };
 }
 
 /** "Tue 7 · ₹1,240" for days, "Oct · ₹12,400" for months. */

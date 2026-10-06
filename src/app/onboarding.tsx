@@ -20,6 +20,7 @@ import {
 } from '@/lib/keypad';
 import { currencySymbol, minorDigits } from '@/lib/money';
 import { haptic } from '@/theme/haptics';
+import { useTokens } from '@/theme/use-tokens';
 
 type Action = { type: 'key'; key: ReducerKey } | { type: 'reset'; digits: number };
 
@@ -32,6 +33,7 @@ const toReducerKey = (key: KeypadKey): ReducerKey => (key === 'backspace' ? 'bac
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTokens();
   const actions = useActions();
   const [currency, setCurrency] = React.useState(defaultCurrencyCode);
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -68,12 +70,18 @@ export default function Onboarding() {
       <ScrollView
         className="flex-1"
         keyboardShouldPersistTaps="handled"
-        contentContainerClassName="gap-8 pb-6 pt-6"
+        contentContainerClassName="gap-6 pb-6 pt-6"
         scrollEnabled={editingName}
       >
         <Text variant="largeTitle" accessibilityRole="header" className="px-6">
           Set up
         </Text>
+        <View className="items-center gap-1">
+          <Text variant="footnote" tone="secondary">
+            Opening balance
+          </Text>
+          <AmountReadout symbol={currencySymbol(currency)} value={view.display} expression={view.expression || undefined} />
+        </View>
         <ListGroup>
           <ListRow label="Currency" value={`${currencySymbol(currency)} ${currency}`} chevron onPress={() => setPickerOpen(true)} />
           <ListRow
@@ -90,18 +98,14 @@ export default function Onboarding() {
                 autoCapitalize="words"
                 autoCorrect={false}
                 maxLength={40}
+                selectionColor={colors.textTertiary}
+                cursorColor={colors.textTertiary}
                 accessibilityLabel="Account name"
-                className="ml-3 h-6 min-h-0 w-44 py-0 text-right"
+                className="ml-3 h-8 min-h-0 w-44 rounded-[8px] bg-fill px-3 py-0 text-right"
               />
             }
           />
         </ListGroup>
-        <View className="items-center gap-1">
-          <Text variant="footnote" tone="secondary">
-            Opening balance
-          </Text>
-          <AmountReadout symbol={currencySymbol(currency)} value={view.display} expression={view.expression || undefined} />
-        </View>
       </ScrollView>
       <View className="px-4 pb-3">
         <Button size="lg" disabled={!canStart} onPress={start}>

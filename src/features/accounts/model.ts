@@ -1,5 +1,5 @@
 import type { AccountWithBalance } from '@/data/hooks';
-import { convertWithRates, formatMoney, formatMoneyForSpeech, type RateLookup } from '@/lib/money';
+import { convertWithRates, formatMoney, formatMoneyForSpeech, sumConverted, type RateLookup } from '@/lib/money';
 import type { AccountType } from '@/db/schema';
 import type { CategoryColorKey } from '@/theme/tokens';
 
@@ -27,9 +27,18 @@ export interface AccountView {
   accessibilityLabel: string;
 }
 
-/** Sum of balances in the display currency; accounts without a rate count at face value, like Home. */
-export function totalInDisplay(accounts: readonly AccountWithBalance[], fmt: Pick<AccountFormat, 'displayCurrency' | 'rates'>): number {
-  return accounts.reduce((sum, a) => sum + convertWithRates(a.balance, a.currency, fmt.displayCurrency, fmt.rates), 0);
+/** Sum of balances in the display currency. Accounts in a currency with no rate are left out, never added unconverted. */
+export function totalInDisplay(
+  accounts: readonly AccountWithBalance[],
+  fmt: Pick<AccountFormat, 'displayCurrency' | 'rates'>,
+): { total: number; excluded: AccountWithBalance[] } {
+  const priced = accounts.filter((a) => fmt.rates(a.currency, fmt.displayCurrency) !== null);
+  const { total } = sumConverted(
+    priced.map((a) => ({ minor: a.balance, currency: a.currency })),
+    fmt.displayCurrency,
+    fmt.rates,
+  );
+  return { total, excluded: accounts.filter((a) => !priced.includes(a)) };
 }
 
 export function toAccountView(account: AccountWithBalance, fmt: AccountFormat): AccountView {

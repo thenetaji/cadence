@@ -1,7 +1,6 @@
 import { useRouter, type Href } from 'expo-router';
 import * as React from 'react';
 import { InputAccessoryView, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -31,7 +30,7 @@ import { normalizeTitle } from '@/db/repos/titleMemory';
 import type { TitleMemoryRow, TransactionKind } from '@/db/schema';
 import { CategoryRowView } from '@/features/transaction-form/category-row';
 import { FormChip, Hairline } from '@/features/transaction-form/chips';
-import { EdgeFade } from '@/features/transaction-form/edge-fade';
+import { EdgeFade } from '@/components/app/edge-fade';
 import { applyDevPreset } from '@/features/transaction-form/dev-preset';
 import {
   addSplitLine,
@@ -62,7 +61,6 @@ import { selectDraft, useDraftStore } from '@/features/transaction-form/store';
 import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState } from '@/lib/keypad';
 import { currencySymbol, formatMoney, formatMoneyForSpeech, minorDigits } from '@/lib/money';
 import { haptic } from '@/theme/haptics';
-import { durations } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
 export type FormParams = {
@@ -350,14 +348,17 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
   const recentKind = draft.kind === 'transfer' ? 'expense' : draft.kind;
   const recents = useRecentCategories(recentKind);
   const kindCategories = categoriesAll.filter((c) => c.kind === recentKind);
-  const suggestions = useTitleSuggestions(draft.title, recentKind);
-  const showSuggestions = !isTransfer && suggestions.length > 0 && normalizeTitle(draft.title) !== draft.appliedTitleNorm;
+  const titleNorm = normalizeTitle(draft.title);
+  const suggestions = useTitleSuggestions(draft.title, recentKind).filter((row) => row.titleNorm !== titleNorm);
+  const showSuggestions = !isTransfer && suggestions.length > 0 && titleNorm !== draft.appliedTitleNorm;
   const selectedCategory = kindCategories.find((c) => c.id === draft.categoryId);
   const showKeypad = keypadOpen && inputFocus === null;
   const timeChanged = minuteOfDay(draft.occurredAt) !== initialMinute;
   const readoutMin = crossCurrency ? 152 : 80;
-  // Keys take the free height (52-64): area minus readout, card, keypad padding/gaps and some breathing room.
-  const keyHeight = areaHeight === 0 ? 56 : Math.floor((areaHeight - readoutMin - cardHeight - insets.bottom - 16 - 24 - 24) / 4);
+  // Keys take the free height (52-60): area minus readout, card, keypad padding/gaps and some breathing room.
+  // The readout zone is capped at 160 pt so tall phones get bigger keys instead of a floating amount.
+  const keyHeight =
+    areaHeight === 0 ? 56 : Math.min(60, Math.floor((areaHeight - readoutMin - cardHeight - insets.bottom - 16 - 24 - 24) / 4));
   const staticDisplay = (minor: number, digits: number) => deriveKeypad(createKeypadState(digits, minor)).display;
   const mainFocused = focus === 'amount';
   const receivesFocused = focus === 'receives';
@@ -422,8 +423,17 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
             <SymbolIcon name="trash" size={19} color={colors.accent} />
           </Pressable>
         ) : null}
-        <Button variant="plainText" size="sm" disabled={isSaveDisabled(block)} onPress={submit} accessibilityLabel="Save">
-          <Text variant="headline">Save</Text>
+        {/* Opacity goes on the label: Button's text-variant press animation pins the button's own opacity to 1, overriding `opacity-40`. */}
+        <Button
+          variant="plainText"
+          size="sm"
+          disabled={isSaveDisabled(block)}
+          onPress={submit}
+          accessibilityLabel="Save"
+        >
+          <Text variant="headline" style={isSaveDisabled(block) ? { opacity: 0.4 } : undefined}>
+            Save
+          </Text>
         </Button>
       </View>
 
@@ -434,11 +444,11 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
       >
         <ScrollView
           className="flex-1"
-          contentContainerClassName="grow pb-3"
+          contentContainerClassName="grow justify-center pb-3"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="grow justify-center py-2" style={{ minHeight: crossCurrency ? 152 : 80 }}>
+          <View className="justify-center py-2" style={{ minHeight: crossCurrency ? 152 : 104, maxHeight: crossCurrency ? 200 : 160 }}>
             <View style={{ opacity: receivesFocused ? 0.45 : 1 }}>
               <AmountReadout
                 symbol={symbol}
@@ -481,7 +491,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
               className="h-12 px-4 py-0"
             />
             {showSuggestions ? (
-              <Animated.View entering={FadeIn.duration(durations.chip)} exiting={FadeOut.duration(durations.press)}>
+              <View>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -502,11 +512,11 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                     />
                   ))}
                 </ScrollView>
-              </Animated.View>
+              </View>
             ) : null}
             <Hairline />
 
-            <Animated.View layout={LinearTransition.duration(durations.row)}>
+            <View>
               {isTransfer ? (
                 <View className="h-14 flex-row items-center gap-2 px-4">
                   <View className="min-w-0 shrink">
@@ -561,19 +571,19 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                   shakeTrigger={catShake}
                   onSelect={(id) => get().patch({ categoryId: id })}
                   onAll={() => pickCategoryFor(null)}
-                  onSplit={startSplitting}
                 />
               )}
-            </Animated.View>
+            </View>
             <Hairline />
 
-            <View className="h-14">
+            <View className="h-14 flex-row items-center">
+              <View className="h-14 min-w-0 flex-1">
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
                 className="flex-1"
-                contentContainerClassName="items-center gap-2 pl-4 pr-8"
+                contentContainerClassName="items-center gap-2 pl-4 pr-6"
               >
                 {isTransfer ? null : (
                   <View>
@@ -591,6 +601,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                 <View>
                   <FormChip
                     label={dateChipLabel(draft.occurredAt, todayKey, timeChanged)}
+                    icon="calendar"
                     onPress={() => router.push('/transaction/date')}
                     accessibilityLabel={`Date, ${dateChipLabel(draft.occurredAt, todayKey, timeChanged)}`}
                   />
@@ -619,6 +630,14 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                 </View>
               </ScrollView>
               <EdgeFade color={colors.surface} />
+              </View>
+              {isTransfer || draft.splits ? null : (
+                <Button variant="plainText" size="sm" onPress={startSplitting} accessibilityLabel="Split" className="mr-2 px-2">
+                  <Text variant="callout" tone="accent">
+                    Split
+                  </Text>
+                </Button>
+              )}
             </View>
             <Hairline />
 
@@ -651,6 +670,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
               }}
               showDecimal={digitsOf(focus) > 0}
               saveMode={view.equalsIsSave}
+              saveDisabled={isSaveDisabled(block)}
             />
           </View>
         ) : null}

@@ -71,8 +71,6 @@ export default function ChartsGallery() {
         <Card className="mx-4 items-center p-0 py-5">
           <Donut
             data={donut}
-            totalLabel={formatMoney(rupees(total), 'INR', { locale: 'en-IN', decimals: 0 })}
-            totalCaption="Total"
             selectedKey={donutKey}
             onSelect={setDonutKey}
             accessibilityLabel="Spending by category"

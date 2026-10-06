@@ -8,7 +8,6 @@ export const LICENCES: readonly { name: string; licence: string }[] = [
   { name: 'React Native Gesture Handler', licence: 'MIT' },
   { name: 'React Native Screens', licence: 'MIT' },
   { name: 'React Native Skia', licence: 'MIT' },
-  { name: 'Victory Native', licence: 'MIT' },
   { name: 'FlashList', licence: 'MIT' },
   { name: 'Drizzle ORM', licence: 'Apache-2.0' },
   { name: 'date-fns', licence: 'MIT' },

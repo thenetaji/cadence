@@ -54,7 +54,7 @@ function BudgetRow({ view, separator = true, onPress, onDelete }: BudgetRowProps
               {view.progressText}
             </Text>
           </View>
-          <ProgressBar value={view.ratio} color={tint} />
+          <ProgressBar value={view.ratio} color={tint} marker={view.marker} />
         </View>
         {separator ? (
           <View pointerEvents="none" style={{ left: 64, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />

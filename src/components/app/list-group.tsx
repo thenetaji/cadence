@@ -68,7 +68,7 @@ function ListRow({
         ) : null}
       </View>
       {value ? (
-        <Text variant="body" tone="secondary" numeric numberOfLines={1} className="ml-3 shrink">
+        <Text variant="body" tone="secondary" numeric numberOfLines={1} className={hasSwitch ? 'ml-3 mr-3 shrink' : 'ml-3 shrink'}>
           {value}
         </Text>
       ) : null}

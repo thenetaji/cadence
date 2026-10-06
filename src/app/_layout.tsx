@@ -129,6 +129,7 @@ function Navigator() {
         <Stack.Screen name="transaction/[id]/edit" options={{ ...sheet('Edit transaction'), headerShown: false }} />
         <Stack.Screen name="category/[id]" options={push('Category')} />
         <Stack.Screen name="budget/new" options={sheet('New budget')} />
+        <Stack.Screen name="budget/categories" options={subSheet('Categories', [0.6, 1])} />
         <Stack.Screen name="budget/[id]/index" options={push('Budget')} />
         <Stack.Screen name="budget/[id]/edit" options={sheet('Edit budget')} />
         <Stack.Screen name="recurring/index" options={push('Recurring')} />

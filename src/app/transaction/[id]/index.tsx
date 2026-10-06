@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { IconTile } from '@/components/app/icon-tile';
-import { ListGroup } from '@/components/app/list-group';
+import { ListGroup, ListRow } from '@/components/app/list-group';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useRecurringRule, useTransaction } from '@/data/hooks';
@@ -53,6 +53,11 @@ export default function TransactionDetail() {
   const shownCurrency = foreignRate === null ? item.currency : displayCurrency;
   const shownMinor = foreignRate === null ? item.amount : convertWithRates(item.amount, item.currency, displayCurrency, rates);
   const amount = formatMoney(shownMinor, shownCurrency, { locale, sign });
+  const transferRate = isTransfer && item.currency !== displayCurrency ? rates(item.currency, displayCurrency) : null;
+  const transferNote =
+    transferRate === null
+      ? null
+      : `≈ ${formatMoney(convertWithRates(item.amount, item.currency, displayCurrency, rates), displayCurrency, { locale, sign: 'none', decimals: 0 })}`;
   const split = item.splits.length > 1;
   const title = isTransfer
     ? `${item.account.name} → ${item.transferAccount?.name ?? ''}`
@@ -97,9 +102,14 @@ export default function TransactionDetail() {
         <Text variant="footnote" tone="secondary" numeric>
           {date}
         </Text>
+        {transferNote ? (
+          <Text variant="footnote" tone="secondary" numeric>
+            {transferNote}
+          </Text>
+        ) : null}
       </View>
 
-      <View className="gap-5">
+      <View className="gap-6">
         {split ? (
           <ListGroup header="Split">
             {item.splits.map((line) => (
@@ -156,13 +166,15 @@ export default function TransactionDetail() {
         ) : null}
       </View>
 
-      <View className="gap-1 px-4 pt-6">
-        <Button variant="secondary" size="lg" onPress={() => actions.duplicate(item.id)}>
-          Duplicate
-        </Button>
-        <Button variant="destructiveText" size="lg" onPress={onDelete}>
-          Delete
-        </Button>
+      <View className="gap-6 pt-6">
+        <View className="px-4">
+          <Button variant="secondary" size="lg" onPress={() => actions.duplicate(item.id)}>
+            Duplicate
+          </Button>
+        </View>
+        <ListGroup>
+          <ListRow label="Delete" destructive centered onPress={onDelete} />
+        </ListGroup>
       </View>
     </ScrollView>
   );

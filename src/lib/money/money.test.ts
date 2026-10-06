@@ -1,4 +1,4 @@
-import { convertMinor, makeRateLookup, convertWithRates } from './convert';
+import { convertMinor, makeRateLookup, convertWithRates, sumConverted } from './convert';
 import { formatMoney, formatMoneyForSpeech } from './format';
 import { fromMinor, parseAmountText, toMinor } from './parse';
 import { currencySymbol, minorDigits } from './currencies';
@@ -136,5 +136,20 @@ describe('conversion', () => {
     expect(lookup('EUR', 'INR')).toBeNull();
     expect(convertWithRates(100, 'EUR', 'INR', lookup)).toBe(100);
     expect(convertWithRates(100, 'USD', 'INR', lookup)).toBe(8000);
+  });
+});
+
+describe('sumConverted', () => {
+  const lookup = makeRateLookup([{ base: 'USD', quote: 'EUR', rate: 0.9 }]);
+  it('converts with rates and excludes currencies without one', () => {
+    const items = [
+      { minor: 1000, currency: 'EUR' },
+      { minor: 10000, currency: 'USD' },
+      { minor: 5000, currency: 'GBP' },
+    ];
+    expect(sumConverted(items, 'EUR', lookup)).toEqual({ total: 10000, excluded: 1 });
+  });
+  it('is zero for an empty list', () => {
+    expect(sumConverted([], 'EUR', lookup)).toEqual({ total: 0, excluded: 0 });
   });
 });

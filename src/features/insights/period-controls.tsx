@@ -19,6 +19,8 @@ type PeriodControlsProps = {
   onStep: (direction: 1 | -1) => void;
   /** Tapping the label edits a custom range. */
   onEditCustom: () => void;
+  /** Tapping the label of a week, month or year that is not current jumps back to now. */
+  onJumpToCurrent: () => void;
 };
 
 function StepButton({ symbol, label, disabled, onPress }: { symbol: string; label: string; disabled?: boolean; onPress: () => void }) {
@@ -43,7 +45,9 @@ function StepButton({ symbol, label, disabled, onPress }: { symbol: string; labe
 }
 
 /** Week | Month | Year | Custom, with a stepper row beneath. */
-function PeriodControls({ type, label, canForward, onType, onStep, onEditCustom }: PeriodControlsProps) {
+function PeriodControls({ type, label, canForward, onType, onStep, onEditCustom, onJumpToCurrent }: PeriodControlsProps) {
+  const custom = type === 'custom';
+  const tappable = custom || canForward;
   return (
     <View>
       <View className="px-4 pt-2">
@@ -56,7 +60,15 @@ function PeriodControls({ type, label, canForward, onType, onStep, onEditCustom 
       </View>
       <View className="flex-row items-center justify-between px-2 pt-1">
         <StepButton symbol="chevron.left" label="Previous period" onPress={() => onStep(-1)} />
-        <Pressable role={type === 'custom' ? 'button' : undefined} disabled={type !== 'custom'} scale={1} dimTo={0.6} onPress={onEditCustom} accessibilityLabel={label}>
+        <Pressable
+          role={tappable ? 'button' : undefined}
+          disabled={!tappable}
+          scale={1}
+          dimTo={0.6}
+          onPress={custom ? onEditCustom : onJumpToCurrent}
+          accessibilityLabel={custom || !canForward ? label : `${label}, go to current period`}
+          className="h-11 justify-center"
+        >
           <Text variant="headline" numberOfLines={1} className="text-center">
             {label}
           </Text>

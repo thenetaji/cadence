@@ -23,7 +23,9 @@ const keyOf = (entry: ListEntry) => entry.key;
 const typeOf = (entry: ListEntry) => entry.type;
 
 /** Day-grouped ledger on FlashList: sticky day headers, memoised rows, stable keys. */
-function TransactionDayList({ items, context, header, footer, empty, contentContainerStyle, keyboardDismissMode }: TransactionDayListProps) {
+function TransactionDayList({ items, context: callerContext, header, footer, empty, contentContainerStyle, keyboardDismissMode }: TransactionDayListProps) {
+  // Day headers already say the date, so rows under them always show the time (C4), whatever the caller passed.
+  const context = React.useMemo(() => (callerContext.relativeTo ? { ...callerContext, relativeTo: undefined } : callerContext), [callerContext]);
   const entries = React.useMemo(() => buildDayEntries(items, context), [items, context]);
   const sticky = React.useMemo(() => headerIndices(entries), [entries]);
   const renderItem = React.useCallback(

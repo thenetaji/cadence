@@ -13,6 +13,9 @@ describe('deltaLine', () => {
   it('inverts for income', () => {
     expect(deltaLine({ amount: 1, percent: 8 }, october, 'income')?.good).toBe(true);
   });
+  it('offers the same change in money for the tap-to-toggle', () => {
+    expect(deltaLine({ amount: -12196, percent: -20 }, october, 'expense', { currency: 'INR', locale: 'en-IN' })?.alt).toBe('−₹122 vs September');
+  });
   it('is null without a baseline and says no change at zero', () => {
     expect(deltaLine({ amount: 5, percent: null }, october, 'expense')).toBeNull();
     expect(deltaLine({ amount: 0, percent: 0 }, october, 'expense')?.text).toBe('No change vs September');

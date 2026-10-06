@@ -133,17 +133,21 @@ export function percentileOf(values: readonly number[], p: number): number {
   return sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil(p * sorted.length) - 1))] as number;
 }
 
+/** Bars above `AXIS_AVERAGE_MULTIPLE x average` (or the 90th percentile, whichever is larger) are drawn broken. */
+export const AXIS_AVERAGE_MULTIPLE = 4;
+export const AXIS_PERCENTILE = 0.9;
+
 /**
- * Y-domain for bars. A single huge value would flatten every other bar, so when the maximum is
- * more than 4x the 85th percentile of non-zero bars the domain is capped at ~1.6x that percentile
- * (rounded up to a nice tick) and the big bars are drawn broken.
+ * One axis rule for every bar chart: the axis tops out at max(4 x average, 90th percentile of the
+ * non-zero bars). When the tallest bar fits, the axis fits it; otherwise the axis is capped there
+ * (rounded up to a nice tick) and bars above it are drawn broken with a value label.
  */
-export function clippedDomain(values: readonly number[], count = 3): ClippedDomain {
+export function barDomain(values: readonly number[], average: number, count = 3): ClippedDomain {
   const max = values.reduce((m, v) => Math.max(m, v), 0);
   if (max <= 0) return { top: 0, ticks: [], clipped: false };
-  const p85 = percentileOf(values, 0.85);
-  if (p85 > 0 && max > 4 * p85) {
-    const { top, ticks } = niceTicks(1.6 * p85, count);
+  const cap = Math.max(AXIS_AVERAGE_MULTIPLE * Math.max(0, average), percentileOf(values, AXIS_PERCENTILE));
+  if (cap > 0 && max > cap) {
+    const { top, ticks } = niceTicks(cap, count);
     return { top, ticks, clipped: true };
   }
   const { top, ticks } = niceTicks(max, count);

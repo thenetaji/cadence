@@ -45,12 +45,11 @@ export default function ActivityFilters() {
 
   const headerOptions = React.useMemo(
     () => ({
-      headerLeft: () =>
-        active ? (
-          <Button variant="plainText" size="sm" onPress={clear}>
-            Clear
-          </Button>
-        ) : null,
+      headerLeft: () => (
+        <Button variant="plainText" size="sm" disabled={!active} onPress={clear}>
+          Reset
+        </Button>
+      ),
       headerRight: () => <DoneButton />,
     }),
     [active, clear],

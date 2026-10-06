@@ -12,7 +12,7 @@ import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
-import { useAccountUsage, useAccounts, useSettings } from '@/data/hooks';
+import { useAccountUsage, useAccounts, useRateLookup, useSettings } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';
 import { ACCOUNT_ICONS } from '@/db/repos/accounts';
 import type { AccountType } from '@/db/schema';
@@ -28,6 +28,10 @@ import { categoryKeys, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
 import { TYPE_LABELS, TYPES } from './model';
+
+const RATE_DIGITS = 6;
+const RATE_SCALE = 10 ** RATE_DIGITS;
+const toRateMinor = (rate: number | null) => (rate === null ? 0 : Math.round(rate * RATE_SCALE));
 
 const SWATCHES = categoryKeys.filter((key): key is Exclude<CategoryColorKey, 'gray'> => key !== 'gray');
 
@@ -65,6 +69,7 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
   const actions = useActions();
   const settings = useSettings();
   const accounts = useAccounts({ includeArchived: true });
+  const rates = useRateLookup();
   const usage = useAccountUsage(accountId);
   const source = mode === 'edit' ? accounts.find((a) => a.id === accountId) : undefined;
 
@@ -80,8 +85,16 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
   const [currencyOpen, setCurrencyOpen] = React.useState(false);
   const [moveOpen, setMoveOpen] = React.useState(false);
 
+  const displayCurrency = settings.display_currency;
+  const [rateMinor, setRateMinor] = React.useState(() => toRateMinor(rates(source?.currency ?? displayCurrency, displayCurrency)));
+  const [target, setTarget] = React.useState<'balance' | 'rate'>('balance');
+
   const digits = minorDigits(currency);
   const entry = useAmountEntry(digits, amount, setAmount);
+  const rateEntry = useAmountEntry(RATE_DIGITS, rateMinor, setRateMinor);
+  const foreign = currency !== displayCurrency;
+  const storedRate = rates(currency, displayCurrency);
+  const needsRate = foreign && rateMinor === 0;
   const locked = mode === 'edit' && usage > 0;
 
   const close = () => {
@@ -90,7 +103,7 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
     else router.replace('/accounts');
   };
 
-  const disabled = name.trim().length === 0;
+  const disabled = name.trim().length === 0 || needsRate;
   const header = useSheetHeader({ title: mode === 'edit' ? 'Edit account' : 'New account', onCancel: close, onSave: () => save(), saveDisabled: disabled });
   if (mode === 'edit' && !source) return null;
   const signed = negative ? -amount : amount;
@@ -114,6 +127,7 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
       } else {
         actions.accounts.create({ name, type, currency, openingBalance: signed, color, isDefault });
       }
+      if (foreign && rateMinor > 0 && rateMinor / RATE_SCALE !== storedRate) actions.fx.setRate(currency, displayCurrency, rateMinor / RATE_SCALE);
     } catch (error) {
       haptic('error');
       if (error instanceof ValidationError) return;
@@ -125,6 +139,10 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
 
   const changeCurrency = (code: string) => {
     setCurrency(code);
+    const nextRate = toRateMinor(rates(code, displayCurrency));
+    setRateMinor(nextRate);
+    rateEntry.reset(RATE_DIGITS, nextRate);
+    setTarget('balance');
     if (minorDigits(code) !== digits) {
       setAmount(0);
       entry.reset(minorDigits(code), 0);
@@ -133,6 +151,7 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
 
   const toggleNegative = () => {
     setNegative((v) => !v);
+    setTarget('balance');
     setKeypadOpen(true);
   };
 
@@ -173,11 +192,14 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
   const targets = accounts.filter((a) => a.id !== accountId && a.currency === source?.currency && !a.archivedAt);
   const onDelete = () => (usage === 0 ? confirmDelete() : setMoveOpen(true));
   const showKeypad = keypadOpen && !nameFocused;
+  const keypadEntry = target === 'rate' ? rateEntry : entry;
+  const rateText = rateMinor === 0 && target !== 'rate' ? '…' : rateEntry.view.display;
+  const canGoNegative = type === 'card' || type === 'other' || negative;
 
   return (
     <>
       <Stack.Screen options={header} />
-      <EntryLayout keypad={showKeypad ? <AmountKeypad entry={entry} digits={digits} onSave={save} /> : null}>
+      <EntryLayout keypad={showKeypad ? <AmountKeypad entry={keypadEntry} digits={target === 'rate' ? RATE_DIGITS : digits} onSave={save} /> : null}>
         <View className="items-center gap-1 pt-1">
           <Text variant="footnote" tone="secondary">
             Opening balance
@@ -188,11 +210,14 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
             expression={entry.view.expression}
             onPress={() => {
               setNameFocused(false);
+              setTarget('balance');
               setKeypadOpen(true);
             }}
             accessibilityLabel={`Opening balance, ${formatMoneyForSpeech(signed, currency)}`}
           />
-          <FormChip label="Negative" icon="minus.circle" selected={negative} onPress={toggleNegative} accessibilityLabel="Negative balance" />
+          {canGoNegative ? (
+            <FormChip label="Negative" icon="minus.circle" selected={negative} onPress={toggleNegative} accessibilityLabel="Negative balance" />
+          ) : null}
         </View>
         <ListGroup>
           <FormRow label="Name">
@@ -215,7 +240,11 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
             <SegmentedControl
               values={TYPES.map((t) => TYPE_LABELS[t])}
               selectedIndex={TYPES.indexOf(type)}
-              onChange={(index) => setType(TYPES[index] ?? 'bank')}
+              onChange={(index) => {
+                const next = TYPES[index] ?? 'bank';
+                setType(next);
+                if (next === 'cash' || next === 'bank') setNegative(false);
+              }}
               accessibilityLabel="Type"
             />
           </FormRow>
@@ -225,6 +254,25 @@ export function AccountForm({ mode, accountId }: AccountFormProps) {
             chevron={!locked}
             onPress={locked ? undefined : () => setCurrencyOpen(true)}
           />
+          {foreign ? (
+            <FormRow label="Rate">
+              <Pressable
+                role="button"
+                accessibilityLabel={`Rate, 1 ${currency} equals ${rateText} ${displayCurrency}`}
+                onPress={() => {
+                  setNameFocused(false);
+                  setTarget('rate');
+                  setKeypadOpen(true);
+                }}
+                className="h-9 justify-center"
+              >
+                <Text variant="body" tone={target === 'rate' ? 'accent' : needsRate ? 'warning' : 'default'} numeric>
+                  1 {currency} = {currencySymbol(displayCurrency)}
+                  {rateText}
+                </Text>
+              </Pressable>
+            </FormRow>
+          ) : null}
           {source?.isDefault ? (
             <ListRow label="Default account" value="On" />
           ) : (

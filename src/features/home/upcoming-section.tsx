@@ -6,13 +6,13 @@ import { showToast } from '@/components/app/toast-store';
 import { TransactionRow } from '@/components/app/transaction-row';
 import { Card } from '@/components/ui/card';
 import { useActions } from '@/data/actions';
-import { useAccounts, useCategories, useUpcoming } from '@/data/hooks';
+import { useAccounts, useCategories, useRecurringRules, useUpcoming } from '@/data/hooks';
 
 import { nextPerRule, toUpcomingRow, UPCOMING_DAYS } from './upcoming-model';
 
 type UpcomingSectionProps = { todayKey: string; locale?: string; showDecimals: boolean };
 
-/** Recurring rules due within 7 days; hidden when none. */
+/** Header with `All` whenever an active rule exists; rows for rules due within 7 days. */
 function UpcomingSection({ todayKey, locale, showDecimals }: UpcomingSectionProps) {
   const router = useRouter();
   const actions = useActions();
@@ -25,11 +25,15 @@ function UpcomingSection({ todayKey, locale, showDecimals }: UpcomingSectionProp
     () => nextPerRule(occurrences).map((o) => toUpcomingRow(o, { todayKey, locale, showDecimals, categories: categoryMap, accounts: accountMap })),
     [occurrences, todayKey, locale, showDecimals, categoryMap, accountMap],
   );
-  if (rows.length === 0) return null;
+  const rules = useRecurringRules();
+  // The header is the doorway to Recurring: show it whenever any rule is live, rows only when something is due soon.
+  const hasActiveRule = rules.some((rule) => rule.pausedAt === null && (!rule.endDate || rule.endDate >= todayKey));
+  if (rows.length === 0 && !hasActiveRule) return null;
 
   return (
     <>
       <SectionHeader title="Upcoming" actionLabel="All" onAction={() => router.push('/recurring')} />
+      {rows.length > 0 ? (
       <Card className="mx-4 p-0">
         {rows.map((row, index) => (
           <TransactionRow
@@ -65,6 +69,7 @@ function UpcomingSection({ todayKey, locale, showDecimals }: UpcomingSectionProp
           />
         ))}
       </Card>
+      ) : null}
     </>
   );
 }

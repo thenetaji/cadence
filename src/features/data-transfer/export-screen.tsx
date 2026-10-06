@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { SymbolIcon } from '@/components/app/symbol';
@@ -20,6 +20,19 @@ import { shareTextFile } from './share-file';
 
 const RANGES: readonly ExportRange[] = ['month', 'year', 'all', 'custom'];
 const RANGE_LABELS: Record<ExportRange, string> = { month: 'This month', year: 'This year', all: 'All', custom: 'Custom' };
+
+/** A label-less grouped-list row holding one control; the group's footnote header names it. */
+function ControlRow({ children, showSeparator = false }: { children: React.ReactNode; showSeparator?: boolean }) {
+  const { colors } = useTokens();
+  return (
+    <View className="bg-surface px-4 py-3">
+      {children}
+      {showSeparator ? (
+        <View pointerEvents="none" style={{ left: 16, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />
+      ) : null}
+    </View>
+  );
+}
 
 /** Range, accounts and the Export CSV button. */
 export function ExportScreen() {
@@ -65,15 +78,15 @@ export function ExportScreen() {
 
   return (
     <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 pb-12 pt-4">
-      <ListGroup>
-        <FormRow label="Range" stacked>
+      <ListGroup header="Range">
+        <ControlRow showSeparator={range === 'custom'}>
           <SegmentedControl
             values={RANGES.map((r) => RANGE_LABELS[r])}
             selectedIndex={RANGES.indexOf(range)}
             onChange={(index) => setRange(RANGES[index] ?? 'all')}
             accessibilityLabel="Range"
           />
-        </FormRow>
+        </ControlRow>
         {range === 'custom' ? (
           <FormRow label="From">
             <DatePicker mode="date" display="compact" value={keyToLocalMs(from, 12)} onChange={(ms) => setFrom(toDateKey(ms))} />

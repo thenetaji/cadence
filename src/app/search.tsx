@@ -2,6 +2,7 @@ import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-rou
 import * as React from 'react';
 import { Platform, ScrollView, TextInput, View } from 'react-native';
 
+import { EmptyState } from '@/components/app/empty-state';
 import { SymbolIcon } from '@/components/app/symbol';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { Button } from '@/components/ui/button';
@@ -87,25 +88,20 @@ export default function Search() {
           Cancel
         </Button>
       </View>
-      {typing ? (
+      {typing && results.length === 0 && term === query ? (
+        <EmptyState message="No matches" />
+      ) : typing ? (
         <TransactionDayList
           items={results}
           context={money}
           footer={footer}
           keyboardDismissMode="on-drag"
-          empty={
-            term === query ? (
-              <Text variant="callout" tone="secondary" className="px-6 py-12 text-center">
-                No matches
-              </Text>
-            ) : null
-          }
           contentContainerStyle={{ paddingBottom: 32 }}
         />
       ) : recent.length > 0 ? (
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pt-4">
           <ListGroup header="Recent searches">
-            {recent.map((entry) => (
+            {recent.slice(0, 5).map((entry) => (
               <ListRow
                 key={entry}
                 label={entry}

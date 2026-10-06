@@ -1,4 +1,4 @@
-import { barSlots, clampLabelX, clippedDomain, percentileOf, donutSegments, hitTestDonut, nearestPoint, niceTicks, slotIndex, valueToY } from './geometry';
+import { barSlots, clampLabelX, barDomain, percentileOf, donutSegments, hitTestDonut, nearestPoint, niceTicks, slotIndex, valueToY } from './geometry';
 
 describe('donutSegments', () => {
   it('fills the circle minus gaps and starts at 12 o clock', () => {
@@ -75,22 +75,32 @@ describe('misc', () => {
   });
 });
 
-describe('clippedDomain', () => {
+describe('barDomain', () => {
   it('leaves ordinary data alone', () => {
-    const d = clippedDomain([100, 200, 300, 250, 0]);
+    const d = barDomain([100, 200, 300, 250, 0], 170);
     expect(d.clipped).toBe(false);
     expect(d.top).toBeGreaterThanOrEqual(300);
   });
-  it('caps the domain when one bar dwarfs the rest', () => {
+  it('caps at max(4 x average, p90) when one bar dwarfs the rest', () => {
     const values = [...Array.from({ length: 20 }, (_, i) => 1000 + i * 50), 3_200_000];
-    const d = clippedDomain(values);
+    const average = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+    const d = barDomain(values, average);
     expect(d.clipped).toBe(true);
-    expect(d.top).toBeLessThan(5000);
-    expect(d.top).toBeGreaterThanOrEqual(1.6 * percentileOf(values, 0.85) - 1);
+    expect(d.top).toBeGreaterThanOrEqual(4 * average);
+    expect(d.top).toBeLessThan(3_200_000);
     expect(d.ticks.length).toBeLessThanOrEqual(3);
   });
+  it('applies one rule to any series length', () => {
+    const values = [...Array.from({ length: 19 }, (_, i) => 900 + i * 10), 9000];
+    // p90 is about 1070 and 4 x average (4000) is larger, so the axis tops out at 4000.
+    const d = barDomain(values, 1000);
+    expect(d.clipped).toBe(true);
+    expect(d.top).toBe(4000);
+    // With a higher average the same tall bar fits and nothing is broken.
+    expect(barDomain(values, 2500).clipped).toBe(false);
+  });
   it('handles empty and zero data', () => {
-    expect(clippedDomain([0, 0])).toEqual({ top: 0, ticks: [], clipped: false });
+    expect(barDomain([0, 0], 0)).toEqual({ top: 0, ticks: [], clipped: false });
     expect(percentileOf([0, 5, 1], 0.85)).toBe(5);
   });
 });

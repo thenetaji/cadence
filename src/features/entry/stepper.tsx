@@ -5,10 +5,10 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { useTokens } from '@/theme/use-tokens';
 
-type StepperProps = { value: number; min?: number; max?: number; onChange: (value: number) => void; label?: string };
+type StepperProps = { value: number; min?: number; max?: number; onChange: (value: number) => void; label?: string; /** Shown after the control, e.g. `month`. */ unit?: string };
 
 /** Round minus / value / plus control. */
-function Stepper({ value, min = 1, max = 99, onChange, label = 'Value' }: StepperProps) {
+function Stepper({ value, min = 1, max = 99, onChange, label = 'Value', unit }: StepperProps) {
   const { colors } = useTokens();
   const button = (symbol: string, name: string, next: number, disabled: boolean) => (
     <Pressable
@@ -30,6 +30,11 @@ function Stepper({ value, min = 1, max = 99, onChange, label = 'Value' }: Steppe
         {value}
       </Text>
       {button('plus', 'Increase', value + 1, value >= max)}
+      {unit ? (
+        <Text variant="body" tone="secondary" className="min-w-[60px]">
+          {unit}
+        </Text>
+      ) : null}
     </View>
   );
 }

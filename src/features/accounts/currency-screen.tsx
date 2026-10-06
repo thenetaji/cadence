@@ -43,8 +43,8 @@ function RateRow({ base, quote, rate, updatedAt, onCommit, showSeparator = false
         <Text variant="body" numeric>
           1 {base} =
         </Text>
-        <Text variant="footnote" tone="tertiary">
-          {updated ? `Updated ${updated.day} ${monthShort(updated.month)}` : 'Not set'}
+        <Text variant="footnote" tone={updated || rate !== null ? 'tertiary' : 'warning'}>
+          {updated ? `Updated ${updated.day} ${monthShort(updated.month)}` : rate !== null ? 'Set' : 'Rate needed'}
         </Text>
       </View>
       <View className="h-9 w-[132px] flex-row items-center gap-1 overflow-hidden rounded-[10px] bg-fill px-3">
@@ -96,7 +96,7 @@ export default function CurrencyScreen() {
   return (
     <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 py-4 pb-12" keyboardShouldPersistTaps="handled">
       <ListGroup>
-        <ListRow label="Display currency" value={`${currencySymbol(displayCurrency)} ${displayCurrency}`} chevron onPress={() => setOpen(true)} />
+        <ListRow label="Currency" value={`${currencySymbol(displayCurrency)} ${displayCurrency}`} chevron onPress={() => setOpen(true)} />
       </ListGroup>
       {foreign.length > 0 ? (
         <ListGroup header="Exchange rates">

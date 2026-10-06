@@ -25,10 +25,6 @@ export type DonutDatum = {
 
 export type DonutProps = {
   data: readonly DonutDatum[];
-  /** Centre label when nothing is selected. */
-  totalLabel: string;
-  /** Caption above the total, e.g. "Spent". */
-  totalCaption?: string;
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
   accessibilityLabel: string;
@@ -53,7 +49,7 @@ function Segment({ path, color, stroke, startDeg, sweepDeg, dimmed, grow }: Segm
   return <Path path={path} style="stroke" strokeWidth={stroke} color={color} opacity={dimmed ? 0.35 : 1} start={0} end={end} />;
 }
 
-function Donut({ data, totalLabel, totalCaption, selectedKey, onSelect, accessibilityLabel, emptyLabel, size = 220 }: DonutProps) {
+function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, size = 180 }: DonutProps) {
   const { colors } = useTokens();
   const grow = useGrow();
   const half = size / 2;
@@ -64,6 +60,8 @@ function Donut({ data, totalLabel, totalCaption, selectedKey, onSelect, accessib
   const segments = React.useMemo(() => donutSegments(data.map((d) => d.value), GAP), [data]);
   const selectedIndex = selectedKey === null ? -1 : data.findIndex((d) => d.key === selectedKey);
   const selected = selectedIndex >= 0 ? data[selectedIndex] : undefined;
+  // Nothing selected: the centre names the biggest category; the total lives in the hero above.
+  const leader = React.useMemo(() => data.reduce<DonutDatum | undefined>((best, d) => (!best || d.value > best.value ? d : best), undefined), [data]);
 
   const paths = React.useMemo(
     () =>
@@ -129,23 +127,20 @@ function Donut({ data, totalLabel, totalCaption, selectedKey, onSelect, accessib
               {selected.percentLabel}
             </Text>
           </>
-        ) : (
+        ) : leader && total > 0 ? (
           <>
-            {totalCaption ? (
-              <Text variant="footnote" tone="secondary">
-                {totalCaption}
-              </Text>
-            ) : null}
-            <Text variant="title2" numeric numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} className="text-center">
-              {totalLabel}
+            <Text variant="footnote" tone="secondary" numberOfLines={1} className="text-center">
+              {leader.name}
             </Text>
-            {total === 0 && emptyLabel ? (
-              <Text variant="footnote" tone="tertiary">
-                {emptyLabel}
-              </Text>
-            ) : null}
+            <Text variant="title2" numeric numberOfLines={1} className="text-center">
+              {leader.percentLabel}
+            </Text>
           </>
-        )}
+        ) : emptyLabel ? (
+          <Text variant="footnote" tone="tertiary">
+            {emptyLabel}
+          </Text>
+        ) : null}
       </View>
       {data.map((d, i) => {
         const segment = segments[i];

@@ -31,7 +31,8 @@ export default function Home() {
 
   return (
     <View className="flex-1 bg-bg">
-      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-2 pb-28 pt-2">
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="pb-28 pt-2"
+        contentContainerStyle={recent.length === 0 ? { flexGrow: 1 } : undefined}>
         <View className="px-4">
           <BalanceCard
             accounts={accounts}

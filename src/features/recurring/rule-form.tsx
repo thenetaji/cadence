@@ -199,8 +199,8 @@ export function RuleForm({ ruleId }: { ruleId: string }) {
               accessibilityLabel="Repeat"
             />
           </FormRow>
-          <FormRow label={interval === 1 ? `Every ${UNITS[frequency][0]}` : `Every ${interval} ${UNITS[frequency][1]}`}>
-            <Stepper value={interval} onChange={setInterval} label="Every" />
+          <FormRow label="Every">
+            <Stepper value={interval} onChange={setInterval} label="Every" unit={UNITS[frequency][interval === 1 ? 0 : 1]} />
           </FormRow>
           <FormRow label="Next due">
             <DatePicker value={noon(nextDue)} mode="date" display="compact" onChange={(ms) => setNextDue(toDateKey(ms))} />
@@ -225,7 +225,7 @@ export function RuleForm({ ruleId }: { ruleId: string }) {
           <ListRow label="Paused" switchValue={paused} onSwitchChange={setPaused} />
         </ListGroup>
         <ListGroup>
-          <ListRow label="Delete rule" destructive onPress={confirmDelete} />
+          <ListRow label="Delete rule" destructive centered onPress={confirmDelete} />
         </ListGroup>
       </EntryLayout>
       <CategoryPicker visible={categoryOpen} categories={kindCategories} selected={categoryId} onSelect={setCategoryId} onClose={() => setCategoryOpen(false)} />

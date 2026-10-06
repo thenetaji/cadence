@@ -92,7 +92,7 @@ function SplitList({
                     variant="body"
                     numeric
                     numberOfLines={1}
-                    tone={focused || line.amount > 0 ? 'default' : 'tertiary'}
+                    tone={focused ? 'accent' : line.amount > 0 ? 'default' : 'tertiary'}
                     className="font-medium"
                   >
                     {focused ? `${symbol}${liveDisplay}` : line.amount > 0 ? formatAmount(line.amount) : `${symbol}0`}

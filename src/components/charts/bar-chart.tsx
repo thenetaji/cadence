@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { useDerivedValue } from 'react-native-reanimated';
 
-import { barSlots, clippedDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
+import { barSlots, barDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
 import { formatMoney } from '@/lib/money';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
@@ -63,7 +63,7 @@ function BarChart({
   const count = data.length;
   const peak = data.reduce((m, d) => Math.max(m, d.value), 0);
   const hasData = peak > 0;
-  const domain = clippedDomain(data.map((d) => d.value), 3);
+  const domain = barDomain(data.map((d) => d.value), average, 3);
   const top = domain.top;
   const ticks = domain.ticks;
   const slots = React.useMemo(() => barSlots(0, plotWidth, count, count > 20 ? 3 : 6, 36), [plotWidth, count]);
@@ -79,7 +79,7 @@ function BarChart({
 
   const compact = (value: number) => formatMoney(value, currency, { compact: true, locale });
   const averageY = hasData && average > 0 ? valueToY(average, top, baseline, height) : null;
-  const guides = hasData ? ticks.map((t) => ({ value: t, y: valueToY(t, top, baseline, height) })) : [1, 2, 3].map((i) => ({ value: 0, y: baseline - (height * i) / 3 }));
+  const guides = hasData ? ticks.map((t) => ({ value: t, y: valueToY(t, top, baseline, height) })) : [];
   const selected = selectedIndex !== null && selectedIndex < count ? selectedIndex : null;
   const spoken = selected === null ? accessibilityLabel : `${accessibilityLabel}. ${formatLabel(selected)}`;
 
@@ -97,7 +97,7 @@ function BarChart({
               {guides.map((g) => (
                 <Group key={g.y}>
                   <Line p1={vec(0, g.y)} p2={vec(plotWidth, g.y)} color={colors.separator} strokeWidth={StyleSheet.hairlineWidth} />
-                  {font && g.value > 0 && !(averageY !== null && Math.abs(averageY - g.y) < 14) ? (
+                  {font && g.value > 0 ? (
                     <SkText
                       x={width - font.getTextWidth(compact(g.value))}
                       y={g.y + 4}
@@ -155,15 +155,6 @@ function BarChart({
                   <Line p1={vec(0, averageY)} p2={vec(plotWidth, averageY)} color={colors.textSecondary} strokeWidth={1.25}>
                     <DashPathEffect intervals={[2, 4]} />
                   </Line>
-                  {labelFont ? (
-                    <SkText
-                      x={width - labelFont.getTextWidth(compact(average))}
-                      y={averageY + 4}
-                      text={compact(average)}
-                      font={labelFont}
-                      color={colors.textSecondary}
-                    />
-                  ) : null}
                 </Group>
               ) : null}
               {font

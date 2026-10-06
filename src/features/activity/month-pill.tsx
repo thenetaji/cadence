@@ -6,10 +6,10 @@ import { Text } from '@/components/ui/text';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 
-type MonthPillProps = { label: string; onPress: () => void };
+type MonthPillProps = { label: string; onPress: () => void; /** Jumps back to the current month. */ onLongPress?: () => void };
 
 /** Leading header control: "Oct 2026 ⌄". */
-function MonthPill({ label, onPress }: MonthPillProps) {
+function MonthPill({ label, onPress, onLongPress }: MonthPillProps) {
   const { colors } = useTokens();
   return (
     <Pressable
@@ -21,6 +21,14 @@ function MonthPill({ label, onPress }: MonthPillProps) {
         haptic('selection');
         onPress();
       }}
+      onLongPress={
+        onLongPress
+          ? () => {
+              haptic('selection');
+              onLongPress();
+            }
+          : undefined
+      }
       style={Platform.OS === 'web' ? { marginLeft: 16 } : undefined}
       className="h-8 flex-row items-center gap-1.5 rounded-full bg-accent-soft px-3"
     >

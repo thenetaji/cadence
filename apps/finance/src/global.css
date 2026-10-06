@@ -2,7 +2,7 @@
 @import 'uniwind';
 
 /* Classes used inside the shared workspace packages must be generated too. */
-@source '../../../packages/*/src';
+@source '../../../packages/*/src/**/*.{ts,tsx}';
 
 @layer theme {
   :root {

@@ -1,6 +1,6 @@
 import { Group, RoundedRect, Text as SkText, type SkFont } from '@shopify/react-native-skia';
 import * as React from 'react';
-import { useDerivedValue, useReducedMotion, useSharedValue, withSpring, withTiming, Easing, type SharedValue } from 'react-native-reanimated';
+import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming, Easing, type SharedValue } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
 import { type LayoutChangeEvent } from 'react-native';
 
@@ -38,25 +38,42 @@ type FloatingLabelProps = {
   totalWidth: number;
 };
 
-/** Inverted pill used for scrub read-outs. */
+/** Keeps the pill this far inside the chart's left and right edges. */
+const LABEL_MARGIN = 8;
+/** How long the read-out stays after the last change before fading out. */
+const LABEL_HOLD_MS = 1500;
+
+/**
+ * Inverted pill used for scrub read-outs. It shows only when the read-out changes (scrubbing or tapping a bar),
+ * never for the initial selection, and fades out shortly after. A label wider than the chart is scaled down to fit.
+ */
 export function FloatingLabel({ text, font, centerX, y, totalWidth }: FloatingLabelProps) {
   const { colors } = useTokens();
   const reduced = useReducedMotion();
-  const textWidth = font.getTextWidth(text);
   const padX = 10;
   const height = 24;
-  const width = textWidth + padX * 2;
-  const target = clampLabelX(centerX, width, totalWidth);
+  const width = font.getTextWidth(text) + padX * 2;
+  const scale = Math.min(1, Math.max(0, totalWidth - LABEL_MARGIN * 2) / width);
+  const target = clampLabelX(centerX, width * scale, totalWidth, LABEL_MARGIN);
   // The pill springs to each new bar instead of teleporting.
   const x = useSharedValue(target);
   React.useEffect(() => {
     x.value = reduced ? target : withSpring(target, motion.springs.toast);
   }, [target, reduced, x]);
-  const textX = useDerivedValue(() => x.value + padX);
+  const opacity = useSharedValue(0);
+  const shownText = React.useRef(text);
+  React.useEffect(() => {
+    if (shownText.current === text) return;
+    shownText.current = text;
+    opacity.value = reduced
+      ? withSequence(withTiming(1, { duration: 0 }), withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 0 })))
+      : withSequence(withTiming(1, { duration: 120 }), withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 250 })));
+  }, [text, reduced, opacity]);
+  const transform = useDerivedValue(() => [{ translateX: x.value }, { translateY: y }, { scale }]);
   return (
-    <Group>
-      <RoundedRect x={x} y={y} width={width} height={height} r={8} color={colors.overlay} />
-      <SkText x={textX} y={y + 16.5} text={text} font={font} color={colors.overlayText} />
+    <Group opacity={opacity} transform={transform}>
+      <RoundedRect x={0} y={0} width={width} height={height} r={8} color={colors.overlay} />
+      <SkText x={padX} y={16.5} text={text} font={font} color={colors.overlayText} />
     </Group>
   );
 }

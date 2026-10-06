@@ -113,9 +113,10 @@ export function nearestPoint(x: number, left: number, width: number, count: numb
   return Math.min(count - 1, Math.max(0, Math.round(ratio * (count - 1))));
 }
 
-/** Clamp a floating label of `labelWidth` centred on `center` into [0, total]. */
-export function clampLabelX(center: number, labelWidth: number, total: number): number {
-  return Math.min(Math.max(center - labelWidth / 2, 0), Math.max(0, total - labelWidth));
+/** Left edge for a floating label of `labelWidth` centred on `center`, kept `margin` inside [0, total]. */
+export function clampLabelX(center: number, labelWidth: number, total: number, margin = 0): number {
+  const max = Math.max(margin, total - labelWidth - margin);
+  return Math.min(Math.max(center - labelWidth / 2, margin), max);
 }
 
 export interface ClippedDomain {

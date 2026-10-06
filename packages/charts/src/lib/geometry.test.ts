@@ -73,6 +73,11 @@ describe('misc', () => {
     expect(clampLabelX(295, 80, 300)).toBe(220);
     expect(clampLabelX(150, 80, 300)).toBe(110);
   });
+  it('keeps a margin from both edges', () => {
+    expect(clampLabelX(5, 80, 300, 8)).toBe(8);
+    expect(clampLabelX(295, 80, 300, 8)).toBe(212);
+    expect(clampLabelX(150, 300, 300, 8)).toBe(8);
+  });
 });
 
 describe('barDomain', () => {

@@ -13,8 +13,11 @@ import {
 } from "@studio/ui";
 import { foldOlder, withSkia } from "@studio/charts";
 import type { AllTimeSpend, HomeSpend } from "@/data/hooks";
+import { monthShort, parseKey, addDays } from "@studio/dates";
 import { formatMoney, formatMoneyForSpeech } from "@studio/money";
 import { haptic, useTokens } from "@studio/theme";
+
+import { flowAmount } from "@/features/insights/labels";
 
 import type { TideBarsProps, TideChartProps } from "@studio/charts/components";
 
@@ -148,6 +151,14 @@ function SpendHero({
       ),
     [allTime.months],
   );
+  const dayLabel = (i: number) => {
+    const { month, day } = parseKey(addDays(spend.from, i));
+    const spentThatDay = (cumulative[i] ?? 0) - (cumulative[i - 1] ?? 0);
+    const money = (minor: number) => flowAmount(minor, spend.currency, locale);
+    return `${day} ${monthShort(month)} · ${money(spentThatDay)} · ${money(cumulative[i] ?? 0)} so far`;
+  };
+  const barLabel = (i: number) =>
+    `${bars[i]?.label ?? ""} · ${flowAmount(bars[i]?.amount ?? 0, allTime.currency, locale)}`;
   const hasChart = all
     ? bars.length > 0
     : cumulative.some((v) => v > 0) || spend.previousTotal > 0;
@@ -220,6 +231,7 @@ function SpendHero({
           {all ? (
             <TideBars
               bars={bars}
+              formatLabel={barLabel}
               accessibilityLabel={`Spent per month, ${speech} in total`}
             />
           ) : (
@@ -227,6 +239,7 @@ function SpendHero({
               cumulative={cumulative}
               days={spend.series.length}
               reference={reference}
+              formatLabel={dayLabel}
               paused={!animating}
               accessibilityLabel={`Spent in ${monthLabel}, ${speech} so far`}
             />

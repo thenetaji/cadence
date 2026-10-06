@@ -3,6 +3,7 @@ import {
   Canvas,
   Circle,
   Group,
+  Line,
   LinearGradient,
   Path,
   RadialGradient,
@@ -12,6 +13,7 @@ import {
 } from "@shopify/react-native-skia";
 import * as React from "react";
 import { View } from "react-native";
+import { GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
   FadeIn,
@@ -25,9 +27,23 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { poolSamples, TIDE, tideGeometry, tideRamp, tideWave } from "../lib";
+import {
+  poolSamples,
+  TIDE,
+  tideDayAt,
+  tideGeometry,
+  tideRamp,
+  tideWave,
+} from "../lib";
 import { withAlpha, useTokens } from "@studio/theme";
-import { useChartWidth } from "./chart-kit";
+import {
+  adjustableProps,
+  FloatingLabel,
+  useChartWidth,
+  useScrubGesture,
+  useSelectionTimeout,
+} from "./chart-kit";
+import { useChartFont } from "./use-chart-font";
 
 export type TideChartProps = {
   /** Cumulative spend at the end of each day up to today, minor units. Today is the last entry. */
@@ -36,6 +52,8 @@ export type TideChartProps = {
   days: number;
   /** Biggest comparison figure (last period's total, the monthly budget): sets the water level. */
   reference: number;
+  /** Floating read-out for an elapsed day (0 = day 1), e.g. "12 Oct · ₹1,240 · ₹21,300 so far". */
+  formatLabel: (index: number) => string;
   accessibilityLabel: string;
   height?: number;
   /** Stop the animation (screen unfocused, app backgrounded). It resumes at the same phase. */
@@ -99,6 +117,7 @@ function TideChart({
   cumulative,
   days,
   reference,
+  formatLabel,
   accessibilityLabel,
   height = 120,
   paused = false,
@@ -107,6 +126,9 @@ function TideChart({
   const reduced = useReducedMotion();
   const [width, onLayout] = useChartWidth();
   const accent = colors.accent;
+  const labelFont = useChartFont(12, "semibold");
+  const [selected, setSelected] = React.useState<number | null>(null);
+  useSelectionTimeout(selected, setSelected);
 
   const geo = React.useMemo(
     () => tideGeometry(cumulative, days, reference, width, height),
@@ -123,6 +145,17 @@ function TideChart({
     }),
     [geo, width],
   );
+
+  const elapsed = cumulative.length;
+  const gesture = useScrubGesture({
+    indexAt: (x) => tideDayAt(x, width, days, elapsed),
+    selected,
+    onSelect: setSelected,
+  });
+  const shown = selected !== null && selected < elapsed ? selected : null;
+  const shownPoint = shown !== null ? geo.shore[shown + 1] : undefined;
+  const lastX = React.useRef(0);
+  if (shownPoint) lastX.current = shownPoint[0];
 
   const clock = useSharedValue(0);
   const rise = useSharedValue(reduced ? 1 : 0);
@@ -252,11 +285,18 @@ function TideChart({
     <View
       onLayout={onLayout}
       style={{ height }}
-      accessibilityRole="image"
       accessibilityLabel={accessibilityLabel}
+      {...adjustableProps(
+        elapsed,
+        shown,
+        setSelected,
+        shown !== null ? formatLabel(shown) : "",
+      )}
     >
       {width > 0 ? (
         <Animated.View entering={reduced ? FadeIn.duration(150) : undefined}>
+          <GestureDetector gesture={gesture}>
+            <View collapsable={false}>
           <Canvas style={{ width, height }}>
             <Path
               path={back}
@@ -312,7 +352,30 @@ function TideChart({
             </Path>
             <Circle cx={geo.joinX} cy={dotY} r={7} color={colors.bg} />
             <Circle cx={geo.joinX} cy={dotY} r={4.5} color={accent} />
+            {shownPoint ? (
+              <>
+                <Line
+                  p1={vec(shownPoint[0], 0)}
+                  p2={vec(shownPoint[0], height)}
+                  color={withAlpha(colors.text, 0.28)}
+                  strokeWidth={1}
+                />
+                <Circle cx={shownPoint[0]} cy={shownPoint[1]} r={6.5} color={colors.bg} />
+                <Circle cx={shownPoint[0]} cy={shownPoint[1]} r={4} color={accent} />
+              </>
+            ) : null}
+            {labelFont ? (
+              <FloatingLabel
+                text={shown !== null ? formatLabel(shown) : ""}
+                font={labelFont}
+                centerX={lastX.current}
+                y={0}
+                totalWidth={width}
+              />
+            ) : null}
           </Canvas>
+            </View>
+          </GestureDetector>
         </Animated.View>
       ) : null}
     </View>

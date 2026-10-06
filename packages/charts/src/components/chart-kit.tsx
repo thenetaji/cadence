@@ -4,7 +4,7 @@ import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSeque
 import { Gesture } from 'react-native-gesture-handler';
 import { type LayoutChangeEvent } from 'react-native';
 
-import { clampLabelX } from '../lib';
+import { clampLabelX, SELECTION_CLEAR_MS } from '../lib';
 import { haptic , durations , useTokens } from '@studio/theme';
 import { motion } from '@studio/motion';
 
@@ -45,7 +45,8 @@ const LABEL_HOLD_MS = 1500;
 
 /**
  * Inverted pill used for scrub read-outs. It shows only when the read-out changes (scrubbing or tapping a bar),
- * never for the initial selection, and fades out shortly after. A label wider than the chart is scaled down to fit.
+ * never for the initial selection, and fades out shortly after. Empty text hides it at once, so a caller that keeps
+ * it mounted shows it again for the next selection. A label wider than the chart is scaled down to fit.
  */
 export function FloatingLabel({ text, font, centerX, y, totalWidth }: FloatingLabelProps) {
   const { colors } = useTokens();
@@ -65,6 +66,10 @@ export function FloatingLabel({ text, font, centerX, y, totalWidth }: FloatingLa
   React.useEffect(() => {
     if (shownText.current === text) return;
     shownText.current = text;
+    if (text === '') {
+      opacity.value = 0;
+      return;
+    }
     opacity.value = reduced
       ? withSequence(withTiming(1, { duration: 0 }), withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 0 })))
       : withSequence(withTiming(1, { duration: 120 }), withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 250 })));
@@ -130,4 +135,13 @@ export function adjustableProps(count: number, selected: number | null, onSelect
       onSelect(Math.min(count - 1, Math.max(0, base + step)));
     },
   };
+}
+
+/** Clears a selection once its floating label has faded; every new selection restarts the wait. */
+export function useSelectionTimeout(selected: number | null, onSelect: (index: number | null) => void) {
+  React.useEffect(() => {
+    if (selected === null) return;
+    const timer = setTimeout(() => onSelect(null), SELECTION_CLEAR_MS);
+    return () => clearTimeout(timer);
+  }, [selected, onSelect]);
 }

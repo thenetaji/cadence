@@ -2,6 +2,8 @@ import {
   barRects,
   foldOlder,
   poolSamples,
+  tideBarCenter,
+  tideDayAt,
   tideGeometry,
   tideRamp,
   tideWave,
@@ -56,5 +58,34 @@ describe("tide", () => {
     expect(out).toHaveLength(12);
     expect(out[0]!.amount).toBe(3);
     expect(out[11]!.current).toBe(true);
+  });
+});
+
+describe("tide scrubbing", () => {
+  it("maps x to the elapsed day under the finger", () => {
+    // 30 days over 300 pt, 12 elapsed: day i spans [10i, 10i + 10)
+    expect(tideDayAt(0, 300, 30, 12)).toBe(0);
+    expect(tideDayAt(9.9, 300, 30, 12)).toBe(0);
+    expect(tideDayAt(10, 300, 30, 12)).toBe(1);
+    expect(tideDayAt(60, 300, 30, 12)).toBe(6);
+    expect(tideDayAt(120, 300, 30, 12)).toBe(11);
+  });
+  it("clamps the left edge and ignores the still water", () => {
+    expect(tideDayAt(-20, 300, 30, 12)).toBe(0);
+    expect(tideDayAt(121, 300, 30, 12)).toBe(-1);
+    expect(tideDayAt(300, 300, 30, 30)).toBe(29);
+  });
+  it("selects nothing without days, width or elapsed time", () => {
+    expect(tideDayAt(10, 0, 30, 5)).toBe(-1);
+    expect(tideDayAt(10, 300, 0, 5)).toBe(-1);
+    expect(tideDayAt(10, 300, 30, 0)).toBe(-1);
+  });
+  it("never goes past the month when elapsed overshoots", () => {
+    expect(tideDayAt(299, 300, 30, 40)).toBe(29);
+  });
+  it("centres bars in equal slots", () => {
+    expect(tideBarCenter(0, 120, 4)).toBe(15);
+    expect(tideBarCenter(3, 120, 4)).toBe(105);
+    expect(tideBarCenter(0, 120, 0)).toBe(0);
   });
 });

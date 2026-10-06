@@ -7,6 +7,7 @@ import {
 } from "@shopify/react-native-skia";
 import * as React from "react";
 import { View } from "react-native";
+import { GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
   FadeIn,
@@ -17,14 +18,23 @@ import Animated, {
   type SharedValue,
 } from "react-native-reanimated";
 
-import { barRects, type TideBar } from "../lib";
+import { barRects, slotIndex, tideBarCenter, type TideBar } from "../lib";
 import { Text } from "@studio/ui";
 import { withAlpha, useTokens } from "@studio/theme";
-import { useChartWidth } from "./chart-kit";
+import {
+  adjustableProps,
+  FloatingLabel,
+  useChartWidth,
+  useScrubGesture,
+  useSelectionTimeout,
+} from "./chart-kit";
+import { useChartFont } from "./use-chart-font";
 
 export type TideBarsProps = {
   /** Oldest first, at most 12; the current month last. */
   bars: readonly TideBar[];
+  /** Floating read-out for a month bar, e.g. "Sep · ₹52.3K". */
+  formatLabel: (index: number) => string;
   accessibilityLabel: string;
   /** Bar area height; the month labels sit below it. */
   height?: number;
@@ -33,6 +43,9 @@ export type TideBarsProps = {
 const GROW = 500;
 const STAGGER = 40;
 const RADIUS = 5;
+/** Room above the bars for the floating read-out. */
+const LANE = 28;
+const DIM = 0.45;
 
 type BarProps = {
   x: number;
@@ -42,6 +55,7 @@ type BarProps = {
   index: number;
   clock: SharedValue<number>;
   current: boolean;
+  lit: boolean;
   fill: string;
   accent: string;
 };
@@ -54,9 +68,15 @@ function Bar({
   index,
   clock,
   current,
+  lit,
   fill,
   accent,
 }: BarProps) {
+  const reduced = useReducedMotion();
+  const op = useSharedValue(lit ? 1 : DIM);
+  React.useEffect(() => {
+    op.value = reduced ? (lit ? 1 : DIM) : withTiming(lit ? 1 : DIM, { duration: 200 });
+  }, [lit, reduced, op]);
   const h = useDerivedValue(() => {
     const p = Math.min(Math.max((clock.value - index * STAGGER) / GROW, 0), 1);
     return full * (1 - Math.pow(1 - p, 5));
@@ -64,30 +84,50 @@ function Bar({
   const y = useDerivedValue(() => baseline - h.value);
   if (full <= 0) return null;
   return (
-    <RoundedRect
-      x={x}
-      y={y}
-      width={width}
-      height={h}
-      r={RADIUS}
-      color={current ? undefined : fill}
-    >
-      {current ? (
-        <LinearGradient
-          start={vec(0, baseline - full)}
-          end={vec(0, baseline)}
-          colors={[accent, withAlpha(accent, 0.45)]}
-        />
-      ) : null}
-    </RoundedRect>
+    <Group opacity={op}>
+      <RoundedRect
+        x={x}
+        y={y}
+        width={width}
+        height={h}
+        r={RADIUS}
+        color={current ? undefined : fill}
+      >
+        {current ? (
+          <LinearGradient
+            start={vec(0, baseline - full)}
+            end={vec(0, baseline)}
+            colors={[accent, withAlpha(accent, 0.45)]}
+          />
+        ) : null}
+      </RoundedRect>
+    </Group>
   );
 }
 
 /** All-time view of the Home hero: one bar per month, the current one in brass. */
-function TideBars({ bars, accessibilityLabel, height = 88 }: TideBarsProps) {
+function TideBars({
+  bars,
+  formatLabel,
+  accessibilityLabel,
+  height = 88,
+}: TideBarsProps) {
   const { colors, isDark } = useTokens();
   const reduced = useReducedMotion();
   const [width, onLayout] = useChartWidth();
+  const labelFont = useChartFont(12, "semibold");
+  const [selected, setSelected] = React.useState<number | null>(null);
+  useSelectionTimeout(selected, setSelected);
+  const count = bars.length;
+  const shown = selected !== null && selected < count ? selected : null;
+  const gesture = useScrubGesture({
+    indexAt: (x) => (width <= 0 ? -1 : slotIndex(x, 0, width, count)),
+    selected,
+    onSelect: setSelected,
+    minY: LANE - 6,
+  });
+  const lastX = React.useRef(0);
+  if (shown !== null) lastX.current = tideBarCenter(shown, width, count);
   const clock = useSharedValue(reduced ? GROW + STAGGER * 12 : 0);
   React.useEffect(() => {
     if (!reduced)
@@ -112,12 +152,19 @@ function TideBars({ bars, accessibilityLabel, height = 88 }: TideBarsProps) {
   return (
     <View
       onLayout={onLayout}
-      accessibilityRole="image"
       accessibilityLabel={accessibilityLabel}
+      {...adjustableProps(
+        count,
+        shown,
+        setSelected,
+        shown !== null ? formatLabel(shown) : "",
+      )}
     >
       {width > 0 ? (
         <Animated.View entering={reduced ? FadeIn.duration(150) : undefined}>
-          <Canvas style={{ width, height }}>
+          <GestureDetector gesture={gesture}>
+            <View collapsable={false}>
+          <Canvas style={{ width, height: LANE + height }}>
             <Group>
               {rects.map((r, i) => (
                 <Bar
@@ -125,10 +172,11 @@ function TideBars({ bars, accessibilityLabel, height = 88 }: TideBarsProps) {
                   x={r.x}
                   width={r.width}
                   full={r.height}
-                  baseline={height}
+                  baseline={LANE + height}
                   index={i}
                   clock={clock}
                   current={bars[i]!.current}
+                  lit={shown === null || shown === i}
                   fill={past}
                   accent={colors.accent}
                 />
@@ -136,13 +184,24 @@ function TideBars({ bars, accessibilityLabel, height = 88 }: TideBarsProps) {
             </Group>
             <RoundedRect
               x={0}
-              y={height - 1}
+              y={LANE + height - 1}
               width={width}
               height={1}
               r={0}
               color={colors.separator}
             />
+            {labelFont ? (
+              <FloatingLabel
+                text={shown !== null ? formatLabel(shown) : ""}
+                font={labelFont}
+                centerX={lastX.current}
+                y={0}
+                totalWidth={width}
+              />
+            ) : null}
           </Canvas>
+            </View>
+          </GestureDetector>
           <View
             className="mt-2 flex-row"
             accessibilityElementsHidden

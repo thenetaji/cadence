@@ -3,10 +3,12 @@ import { Pressable, View } from 'react-native';
 import type { SegmentedControlProps } from './segmented-control.types';
 import { Text } from './text';
 import { cn } from '../../lib/utils';
+import { readableOn, useTweenedColor } from '../../lib/tint';
 import { useTokens } from '@studio/theme';
 
-function SegmentedControl({ values, selectedIndex, onChange, accessibilityLabel, className, disabled = false, disabledIndexes }: SegmentedControlProps) {
+function SegmentedControl({ values, selectedIndex, onChange, accessibilityLabel, className, disabled = false, disabledIndexes, tintColor }: SegmentedControlProps) {
   const { isDark } = useTokens();
+  const tint = useTweenedColor(tintColor ?? 'rgba(0,0,0,0)');
   return (
     <View
       role="tablist"
@@ -27,11 +29,11 @@ function SegmentedControl({ values, selectedIndex, onChange, accessibilityLabel,
             onPress={() => onChange(index)}
             className={cn(
               'flex-1 items-center justify-center rounded-[7px]',
-              selected && (isDark ? 'bg-[#2C2C30]' : 'bg-surface'),
+              selected && !tintColor && (isDark ? 'bg-[#2C2C30]' : 'bg-surface'),
             )}
-            style={selected && !isDark ? { boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.08)' } : undefined}
+            style={selected && tintColor ? { backgroundColor: tint } : selected && !isDark ? { boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.08)' } : undefined}
           >
-            <Text variant="footnote" tone={off && !disabled ? 'tertiary' : 'default'} className={selected ? 'font-semibold' : 'font-medium'} numberOfLines={1}>
+            <Text variant="footnote" tone={off && !disabled ? 'tertiary' : 'default'} className={selected ? 'font-semibold' : 'font-medium'} style={selected && tintColor ? { color: readableOn(tint, '#141210', '#FFFFFF') } : undefined} numberOfLines={1}>
               {label}
             </Text>
           </Pressable>

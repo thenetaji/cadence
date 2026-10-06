@@ -34,3 +34,4 @@ export * from './components/app/toast-host';
 export * from './components/app/toast-store';
 export * from './components/app/undo-toast';
 export * from './lib/utils';
+export * from './lib/tint';

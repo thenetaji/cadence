@@ -44,7 +44,7 @@ function SplitLineRow({ entry, context }: { entry: Extract<CategoryEntry, { type
       icon={line.category.icon}
       color={asColor(line.category.color)}
       split
-      accessibilityLabel={[title, subtitle, formatMoneyForSpeech(line.amount, item.currency, { sign }), formatTime(item.occurredAt)].join(', ')}
+      accessibilityLabel={[title, subtitle, formatMoneyForSpeech(line.amount, item.currency, { sign, locale: context.locale }), formatTime(item.occurredAt)].join(', ')}
       separator={!entry.last}
       onPress={open}
     />

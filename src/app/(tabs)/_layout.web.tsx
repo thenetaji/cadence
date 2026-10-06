@@ -1,14 +1,14 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { useTokens } from '@/theme/use-tokens';
 
 const tabs = [
-  { name: '(home)', title: 'Home', symbol: 'house.fill' },
-  { name: 'activity', title: 'Activity', symbol: 'list.bullet.rectangle.fill' },
-  { name: 'insights', title: 'Insights', symbol: 'chart.pie.fill' },
-  { name: 'budgets', title: 'Budgets', symbol: 'gauge.with.dots.needle.33percent' },
+  { name: '(home)', title: 'Home', symbol: 'home' },
+  { name: 'activity', title: 'Activity', symbol: 'activity' },
+  { name: 'insights', title: 'Insights', symbol: 'insights' },
+  { name: 'budgets', title: 'Budgets', symbol: 'budgets' },
 ] as const;
 
 export default function TabsLayout() {
@@ -28,7 +28,7 @@ export default function TabsLayout() {
           name={tab.name}
           options={{
             title: tab.title,
-            tabBarIcon: ({ focused }) => <SymbolIcon name={tab.symbol} size={24} color={focused ? colors.accent : colors.textTertiary} />,
+            tabBarIcon: ({ focused }) => <AppIcon name={tab.symbol} size={24} color={focused ? colors.accent : colors.textTertiary} />,
           }}
         />
       ))}

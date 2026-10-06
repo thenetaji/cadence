@@ -1,11 +1,12 @@
 import { Group, RoundedRect, Text as SkText, type SkFont } from '@shopify/react-native-skia';
 import * as React from 'react';
-import { useReducedMotion, useSharedValue, withTiming, Easing, type SharedValue } from 'react-native-reanimated';
+import { useDerivedValue, useReducedMotion, useSharedValue, withSpring, withTiming, Easing, type SharedValue } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
 import { type LayoutChangeEvent } from 'react-native';
 
 import { clampLabelX } from '@/lib/charts';
 import { haptic } from '@/theme/haptics';
+import { motion } from '@/motion/tokens';
 import { durations } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
@@ -19,13 +20,13 @@ export function useChartWidth(): readonly [number, (event: LayoutChangeEvent) =>
   return [width, onLayout] as const;
 }
 
-/** 0 -> 1 over 400 ms on first mount only; already 1 under Reduce Motion. */
-export function useGrow(): SharedValue<number> {
+/** 0 -> 1 on first mount only (400 ms by default); already 1 under Reduce Motion. */
+export function useGrow(duration: number = durations.countUp): SharedValue<number> {
   const reduced = useReducedMotion();
   const grow = useSharedValue(reduced ? 1 : 0);
   React.useEffect(() => {
-    if (!reduced) grow.value = withTiming(1, { duration: durations.countUp, easing: Easing.out(Easing.cubic) });
-  }, [grow, reduced]);
+    if (!reduced) grow.value = withTiming(1, { duration, easing: Easing.out(Easing.cubic) });
+  }, [grow, reduced, duration]);
   return grow;
 }
 
@@ -42,15 +43,22 @@ type FloatingLabelProps = {
 /** Inverted pill used for scrub read-outs. */
 export function FloatingLabel({ text, font, centerX, y, totalWidth }: FloatingLabelProps) {
   const { colors } = useTokens();
+  const reduced = useReducedMotion();
   const textWidth = font.getTextWidth(text);
   const padX = 10;
   const height = 24;
   const width = textWidth + padX * 2;
-  const x = clampLabelX(centerX, width, totalWidth);
+  const target = clampLabelX(centerX, width, totalWidth);
+  // The pill springs to each new bar instead of teleporting.
+  const x = useSharedValue(target);
+  React.useEffect(() => {
+    x.value = reduced ? target : withSpring(target, motion.springs.toast);
+  }, [target, reduced, x]);
+  const textX = useDerivedValue(() => x.value + padX);
   return (
     <Group>
       <RoundedRect x={x} y={y} width={width} height={height} r={8} color={colors.overlay} />
-      <SkText x={x + padX} y={y + 16.5} text={text} font={font} color={colors.overlayText} />
+      <SkText x={textX} y={y + 16.5} text={text} font={font} color={colors.overlayText} />
     </Group>
   );
 }

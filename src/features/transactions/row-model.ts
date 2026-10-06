@@ -1,6 +1,7 @@
 import type { TransactionRowProps } from '@/components/app/transaction-row';
 import type { TransactionListItem } from '@/data/hooks';
 import { addDays, monthShort, parseKey } from '@/lib/dates';
+import { isLendingKind } from '@/lib/ledger';
 import { convertWithRates, formatMoney, formatMoneyForSpeech, type RateLookup, type SignMode } from '@/lib/money';
 import type { CategoryColorKey } from '@/theme/tokens';
 
@@ -23,6 +24,8 @@ export interface RowModel {
   icon: string;
   color: CategoryColorKey;
   split: boolean;
+  /** Tag dot colours (first three) and the receipt count, drawn after the subtitle. */
+  badges: { tags: CategoryColorKey[]; receipts: number };
   accessibilityLabel: string;
 }
 
@@ -40,7 +43,23 @@ function trailingDay(item: TransactionListItem, todayKey: string | undefined): s
   return `${day} ${monthShort(month)}`;
 }
 
-const SIGN: Record<TransactionListItem['kind'], SignMode> = { expense: 'minus', income: 'plus', transfer: 'none' };
+const SIGN: Record<TransactionListItem['kind'], SignMode> = {
+  expense: 'minus',
+  income: 'plus',
+  transfer: 'none',
+  lent: 'minus',
+  borrowed: 'plus',
+  repaid_to_me: 'plus',
+  repaid_by_me: 'minus',
+};
+/** "Lent to Rahul", "Borrowed from Rahul", "Repaid by Rahul", "Repaid to Rahul". */
+export function lendingLabel(kind: TransactionListItem['kind'], person: string | undefined): string {
+  const who = person ?? 'someone';
+  if (kind === 'lent') return `Lent to ${who}`;
+  if (kind === 'borrowed') return `Borrowed from ${who}`;
+  return kind === 'repaid_to_me' ? `Repaid by ${who}` : `Repaid to ${who}`;
+}
+
 const asColor = (value: string | undefined): CategoryColorKey => (value ?? 'gray') as CategoryColorKey;
 
 /** Maps a ledger item to TransactionRow props (SPEC 5.7): expense, income, transfer, split and foreign variants. */
@@ -48,7 +67,7 @@ export function toRowModel(item: TransactionListItem, ctx: RowModelContext): Row
   const decimals = ctx.showDecimals ? undefined : 0;
   const sign = SIGN[item.kind];
   const amount = formatMoney(item.amount, item.currency, { locale: ctx.locale, sign, decimals });
-  const spoken = formatMoneyForSpeech(item.amount, item.currency, { sign });
+  const spoken = formatMoneyForSpeech(item.amount, item.currency, { sign, locale: ctx.locale });
   const time = trailingDay(item, ctx.relativeTo);
   const split = item.splits.length > 1;
   const isTransfer = item.kind === 'transfer';
@@ -61,7 +80,7 @@ export function toRowModel(item: TransactionListItem, ctx: RowModelContext): Row
     if (rate !== null) {
       const converted = convertWithRates(item.amount, item.currency, ctx.displayCurrency, ctx.rates);
       trailing = `≈ ${formatMoney(converted, ctx.displayCurrency, { locale: ctx.locale, sign: 'none', decimals })}`;
-      spokenAmount = `${spoken}, about ${formatMoneyForSpeech(converted, ctx.displayCurrency, { sign: 'none' })}`;
+      spokenAmount = `${spoken}, about ${formatMoneyForSpeech(converted, ctx.displayCurrency, { sign: 'none', locale: ctx.locale })}`;
       spokenTrailing = time;
     }
   }
@@ -80,6 +99,13 @@ export function toRowModel(item: TransactionListItem, ctx: RowModelContext): Row
     subtitle = 'Transfer';
     icon = 'arrow.left.arrow.right';
     color = 'gray';
+  } else if (isLendingKind(item.kind)) {
+    const label = lendingLabel(item.kind, item.person?.name);
+    const own = item.title && item.title !== item.person?.name ? item.title : '';
+    title = own || label;
+    subtitle = [own ? label : '', accountName].filter(Boolean).join(' · ');
+    icon = 'loans';
+    color = 'gray';
   } else {
     title = item.title || categoryName || 'Transaction';
     subtitle = [categoryName, accountName].filter(Boolean).join(' · ');
@@ -91,5 +117,6 @@ export function toRowModel(item: TransactionListItem, ctx: RowModelContext): Row
   const spokenSubtitle = isTransfer ? 'Transfer' : [categoryName, accountName].filter(Boolean).join(', ');
   const accessibilityLabel = [spokenTitle, spokenSubtitle, spokenAmount, spokenTrailing].filter(Boolean).join(', ');
 
-  return { id: item.id, kind: item.kind, title, subtitle, amount, trailing, icon, color, split, accessibilityLabel };
+  const badges = { tags: item.tags.slice(0, 3).map((t) => asColor(t.color)), receipts: item.attachments.length };
+  return { id: item.id, kind: item.kind, title, subtitle, amount, trailing, icon, color, split, badges, accessibilityLabel };
 }

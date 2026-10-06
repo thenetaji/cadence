@@ -153,3 +153,25 @@ describe('sumConverted', () => {
     expect(sumConverted([], 'EUR', lookup)).toEqual({ total: 0, excluded: 0 });
   });
 });
+
+describe('masking', () => {
+  const { maskLocale, maskMoney, isMaskedLocale } = jest.requireActual('./format') as typeof import('./format');
+  it('keeps sign and symbol, hides the digits', () => {
+    const l = maskLocale('en-IN', true);
+    expect(isMaskedLocale(l)).toBe(true);
+    expect(formatMoney(-124000, 'INR', { locale: l, sign: 'minus' })).toBe('−₹••••');
+    expect(formatMoney(124000, 'INR', { locale: l, sign: 'plus' })).toBe('+₹••••');
+    expect(formatMoney(124000, 'INR', { locale: l, compact: true })).toBe('₹••');
+    expect(formatMoney(124000, 'EUR', { locale: maskLocale('de-DE', true) })).toBe('•••• €');
+  });
+  it('round trips and leaves unmasked locales alone', () => {
+    expect(maskLocale(maskLocale('en-IN', true), false)).toBe('en-IN');
+    expect(formatMoney(124000, 'INR', { locale: maskLocale('en-IN', false) })).toBe('₹1,240.00');
+    expect(formatMoneyForSpeech(100, 'USD', { locale: maskLocale('en-US', true) })).toBe('amount hidden');
+  });
+  it('masks an already formatted string', () => {
+    expect(maskMoney('−₹1,24,000.50')).toBe('−₹••••');
+    expect(maskMoney('$1.2K')).toBe('$••••');
+    expect(maskMoney('••••')).toBe('••••');
+  });
+});

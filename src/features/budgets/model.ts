@@ -43,7 +43,7 @@ export function toBudgetView(progress: BudgetSpent, fmt: BudgetFormat, current =
   // Budgets are round targets; whole units keep them calm whatever the list setting.
   const decimals = 0;
   const money = (minor: number) => formatMoney(minor, budget.currency, { locale: fmt.locale, decimals });
-  const spoken = (minor: number) => formatMoneyForSpeech(minor, budget.currency, { sign: 'none' });
+  const spoken = (minor: number) => formatMoneyForSpeech(minor, budget.currency, { sign: 'none', locale: fmt.locale });
   const linked = budget.categoryIds.map((id) => fmt.categories.get(id)).filter((c): c is CategoryRow => !!c);
   const name = displayName(budget, linked.map((c) => c.name));
   const status = budgetStatus(spent, budget.amount);

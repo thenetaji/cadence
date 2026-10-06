@@ -3,6 +3,10 @@ export type TableName =
   | 'categories'
   | 'transactions'
   | 'transaction_splits'
+  | 'transaction_tags'
+  | 'tags'
+  | 'people'
+  | 'attachments'
   | 'recurring_rules'
   | 'budgets'
   | 'budget_categories'
@@ -15,6 +19,10 @@ export const ALL_TABLES: readonly TableName[] = [
   'categories',
   'transactions',
   'transaction_splits',
+  'transaction_tags',
+  'tags',
+  'people',
+  'attachments',
   'recurring_rules',
   'budgets',
   'budget_categories',

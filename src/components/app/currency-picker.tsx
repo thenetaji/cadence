@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FlatList, Modal, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
@@ -89,7 +89,7 @@ function CurrencyPicker({ visible, selected, onSelect, onClose }: CurrencyPicker
                     {item.code}
                   </Text>
                 </View>
-                {item.code === selected ? <SymbolIcon name="checkmark" size={16} color={colors.accent} weight="semibold" /> : null}
+                {item.code === selected ? <AppIcon name="checkmark" size={16} color={colors.accent} /> : null}
                 <View
                   pointerEvents="none"
                   style={{ left: 72, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }}

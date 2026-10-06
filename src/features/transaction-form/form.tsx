@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { AmountReadout } from '@/components/app/amount-readout';
 import { Keypad, type KeypadKey } from '@/components/app/keypad';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { showToast } from '@/components/app/toast-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,20 +17,27 @@ import { useActions } from '@/data/actions';
 import {
   useAccounts,
   useCategories,
+  usePeople,
   useRateLookup,
   useRecentCategories,
   useRecurringRule,
   useSettings,
+  useTags,
   useTitleSuggestions,
   useTodayKey,
   useTransaction,
 } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';
 import { normalizeTitle } from '@/db/repos/titleMemory';
-import type { TitleMemoryRow, TransactionKind } from '@/db/schema';
+import type { TitleMemoryRow } from '@/db/schema';
 import { CategoryRowView } from '@/features/transaction-form/category-row';
 import { FormChip, Hairline } from '@/features/transaction-form/chips';
 import { EdgeFade } from '@/components/app/edge-fade';
+import { ShakeView } from '@/features/transaction-form/shake-view';
+import { pickReceipt, RECEIPT_OPTIONS, type ReceiptSource } from '@/features/receipts/pick';
+import { ReceiptThumb } from '@/features/receipts/receipt-thumb';
+import { TagPills } from '@/features/tags/tag-pill';
+import { isLendingKind, type TransactionKind } from '@/lib/ledger';
 import { applyDevPreset } from '@/features/transaction-form/dev-preset';
 import {
   addSplitLine,
@@ -43,7 +50,13 @@ import {
   draftFromTransaction,
   emptyDraft,
   isSaveDisabled,
+  KIND_SEGMENTS,
   kindChangePatch,
+  lendTitle,
+  lendToggle,
+  newReceiptKey,
+  receiptChanges,
+  segmentOf,
   moneyShort,
   pickOtherAccount,
   removeSplitLine,
@@ -82,8 +95,7 @@ type TransactionFormProps = {
   params?: FormParams;
 };
 
-const KINDS: readonly TransactionKind[] = ['expense', 'income', 'transfer'];
-const KIND_LABELS = ['Expense', 'Income', 'Transfer'] as const;
+const KIND_LABELS = ['Expense', 'Income', 'Transfer', 'Lend'] as const;
 const ACCESSORY_ID = 'transaction-form-done';
 const devEnabled = __DEV__ || Platform.OS === 'web';
 
@@ -111,6 +123,8 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
   const source = useTransaction(mode === 'edit' ? transactionId : params.duplicateOf);
   const rule = useRecurringRule(params.ruleId);
   const linkedRule = useRecurringRule(mode === 'edit' ? source?.recurringRuleId : undefined);
+  const people = usePeople();
+  const allTags = useTags();
 
   const [booted] = React.useState(() => {
     if (mode === 'edit' && !source) return false;
@@ -128,6 +142,8 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
     if (source) {
       draft = draftFromTransaction(source, mode === 'edit' ? source.occurredAt : now);
       draft.appliedTitleNorm = normalizeTitle(draft.title);
+      // A duplicate is a new transaction: it keeps the person and tags but not the photos.
+      if (mode !== 'edit') draft.receipts = [];
     } else if (rule) {
       draft = draftFromTransaction({ ...rule, transferCurrency: null, occurredAt: now, splits: [] }, now);
       if (rule.kind === 'transfer') draft.receives = rule.transferAmount;
@@ -141,7 +157,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
       const sameCurrency = !params.currency || account?.currency === params.currency;
       if (draft.kind !== 'transfer' && Number.isInteger(minor) && minor > 0 && sameCurrency) draft.amount = minor;
     }
-    if (devEnabled) draft = applyDevPreset(draft, params.dev, accountsAll, categoriesAll);
+    if (devEnabled) draft = applyDevPreset(draft, params.dev, accountsAll, categoriesAll, { personId: (people.find((p) => p.name === 'Rahul') ?? people[0])?.id ?? null, tagIds: allTags.slice(0, 2).map((t) => t.id) });
     useDraftStore.getState().init(draft);
     return true;
   });
@@ -156,6 +172,9 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
   const fromDigits = minorDigits(fromCurrency);
   const toDigits = minorDigits(toCurrency);
   const isTransfer = draft.kind === 'transfer';
+  const isLend = isLendingKind(draft.kind);
+  const person = people.find((p) => p.id === draft.personId);
+  const draftTags = allTags.filter((t) => draft.tagIds.includes(t.id));
   const crossCurrency = isTransfer && fromCurrency !== toCurrency;
 
   const contextFor = (d: Draft): SaveContext => {
@@ -186,6 +205,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
   const [initialMinute] = React.useState(() => minuteOfDay(get().occurredAt));
   const [catShake, setCatShake] = React.useState(0);
   const [splitShake, setSplitShake] = React.useState(0);
+  const [personShake, setPersonShake] = React.useState(0);
 
   const focusTarget = (target: string, digits = digitsOf(target)) => {
     Keyboard.dismiss();
@@ -213,6 +233,11 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
       haptic('error');
       return;
     }
+    if (why === 'person') {
+      setPersonShake((n) => n + 1);
+      haptic('error');
+      return;
+    }
     if (why === 'split_category') {
       setSplitShake((n) => n + 1);
       haptic('error');
@@ -233,11 +258,15 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
           ruleId = createdRuleId;
         }
       }
-      const input = buildTransactionInput(d, c, ruleId);
-      if (mode === 'edit' && transactionId) actions.transactions.update(transactionId, input);
-      else {
-        actions.transactions.create(input);
-        actions.settings.set('last_kind', d.kind);
+      const input = buildTransactionInput({ ...d, title: lendTitle(d, people.find((p) => p.id === d.personId)?.name) }, c, ruleId);
+      if (mode === 'edit' && transactionId) {
+        actions.transactions.update(transactionId, input);
+        const { add, remove } = receiptChanges(d.receipts, source?.attachments.map((a) => a.id) ?? []);
+        saveReceipts(transactionId, add, remove);
+      } else {
+        const created = actions.transactions.create(input);
+        saveReceipts(created.id, d.receipts, []);
+        if (d.kind === 'expense' || d.kind === 'income' || d.kind === 'transfer') actions.settings.set('last_kind', d.kind);
         if (d.accountId) actions.settings.set('last_account_id', d.accountId);
         if (params.ruleId) actions.recurring.skip(params.ruleId);
       }
@@ -250,6 +279,25 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
     haptic('success');
     close();
   };
+
+  /** Photos are copied after the transaction is saved; a failure only costs the photo. */
+  const saveReceipts = (id: string, add: readonly { uri: string; width: number | null; height: number | null }[], remove: readonly string[]) => {
+    for (const attachmentId of remove) void actions.attachments.remove(attachmentId);
+    if (add.length === 0) return;
+    void Promise.all(add.map((r) => actions.attachments.add(id, { uri: r.uri, width: r.width, height: r.height }))).catch(() =>
+      showToast({ message: 'Receipt not saved', haptic: 'warning' }),
+    );
+  };
+
+  const addReceipt = async (source: string) => {
+    const image = await pickReceipt(source as ReceiptSource);
+    if (image) get().patch({ receipts: [...get().receipts, { key: newReceiptKey(), ...image }] });
+  };
+
+  const removeReceipt = (key: string) => get().patch({ receipts: get().receipts.filter((r) => r.key !== key) });
+
+  const openReceipt = (uri: string, width: number | null, height: number | null) =>
+    router.push({ pathname: '/transaction/receipt', params: { uri, w: String(width ?? 0), h: String(height ?? 0) } });
 
   const close = () => {
     if (router.canDismiss()) router.dismiss();
@@ -282,9 +330,11 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
 
   // -- draft changes --------------------------------------------------------------------------
   const changeKind = (index: number) => {
-    const kind = KINDS[index];
-    if (!kind) return;
+    const segment = KIND_SEGMENTS[index];
+    if (!segment) return;
     const s = get();
+    const kind: TransactionKind = segment === 'lend' ? (isLendingKind(s.kind) ? s.kind : 'lent') : segment;
+    if (kind === s.kind) return;
     s.patch(kindChangePatch(s, kind, activeAccounts, categoriesAll));
     s.setFocus('amount');
     setEntry(createKeypadState(fromDigits, s.amount));
@@ -357,12 +407,12 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
   };
 
   // -- derived view data ----------------------------------------------------------------------
-  const recentKind = draft.kind === 'transfer' ? 'expense' : draft.kind;
+  const recentKind = draft.kind === 'income' ? 'income' : 'expense';
   const recents = useRecentCategories(recentKind);
   const kindCategories = categoriesAll.filter((c) => c.kind === recentKind);
   const titleNorm = normalizeTitle(draft.title);
   const suggestions = useTitleSuggestions(draft.title, recentKind).filter((row) => row.titleNorm !== titleNorm);
-  const showSuggestions = !isTransfer && suggestions.length > 0 && titleNorm !== draft.appliedTitleNorm;
+  const showSuggestions = !isTransfer && !isLend && suggestions.length > 0 && titleNorm !== draft.appliedTitleNorm;
   const selectedCategory = kindCategories.find((c) => c.id === draft.categoryId);
   const showKeypad = keypadOpen && inputFocus === null;
   const timeChanged = minuteOfDay(draft.occurredAt) !== initialMinute;
@@ -414,15 +464,9 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
         <Button variant="plainText" size="sm" onPress={close} accessibilityLabel="Cancel">
           <Text variant="body">Cancel</Text>
         </Button>
-        <View className="mx-2 min-w-0 flex-1 items-center">
-          <SegmentedControl
-            values={KIND_LABELS}
-            selectedIndex={KINDS.indexOf(draft.kind)}
-            onChange={changeKind}
-            accessibilityLabel="Transaction type"
-            className={mode === 'edit' ? 'w-full max-w-[210px]' : 'w-full max-w-[240px]'}
-          />
-        </View>
+        <Text variant="headline" accessibilityRole="header" numberOfLines={1} className="mx-2 min-w-0 flex-1 text-center">
+          {mode === 'edit' ? 'Edit' : 'New'}
+        </Text>
         {mode === 'edit' ? (
           <Pressable
             role="button"
@@ -432,7 +476,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
             onPress={onDelete}
             className="h-9 w-9 items-center justify-center"
           >
-            <SymbolIcon name="trash" size={19} color={colors.accent} />
+            <AppIcon name="trash" size={19} color={colors.accent} />
           </Pressable>
         ) : null}
         {/* Opacity goes on the label: Button's text-variant press animation pins the button's own opacity to 1, overriding `opacity-40`. */}
@@ -447,6 +491,15 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
             Save
           </Text>
         </Button>
+      </View>
+      <View className="px-4 pb-1 pt-1">
+        <SegmentedControl
+          values={KIND_LABELS}
+          selectedIndex={KIND_SEGMENTS.indexOf(segmentOf(draft.kind))}
+          onChange={changeKind}
+          accessibilityLabel="Transaction type"
+          className="w-full"
+        />
       </View>
 
       <KeyboardAvoidingView
@@ -543,7 +596,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                       shrink
                     />
                   </View>
-                  <SymbolIcon name="arrow.right" size={13} color={colors.textTertiary} weight="semibold" />
+                  <AppIcon name="arrow.right" size={13} color={colors.textTertiary} />
                   <View className="min-w-0 shrink">
                     <MenuChip
                       label={accountOf(draft.transferAccountId)?.name ?? 'To'}
@@ -557,6 +610,31 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                     />
                   </View>
                 </View>
+              ) : isLend ? (
+                <ShakeView trigger={personShake}>
+                  <View className="h-14 flex-row items-center gap-3 px-4">
+                    <SegmentedControl
+                      values={lendToggle(draft.kind as never).labels}
+                      selectedIndex={lendToggle(draft.kind as never).kinds.indexOf(draft.kind as never)}
+                      onChange={(i) => {
+                        const next = lendToggle(draft.kind as never).kinds[i];
+                        if (next) get().patch({ kind: next });
+                      }}
+                      accessibilityLabel="Lending direction"
+                      className="w-[168px]"
+                    />
+                    <View className="min-w-0 flex-1 items-end">
+                      <FormChip
+                        label={person?.name ?? 'Person'}
+                        icon="person"
+                        selected={!!person}
+                        shrink
+                        onPress={() => router.push('/transaction/person')}
+                        accessibilityLabel={`Person, ${person?.name ?? 'none'}`}
+                      />
+                    </View>
+                  </View>
+                </ShakeView>
               ) : draft.splits ? (
                 <SplitList
                   lines={draft.splits}
@@ -619,6 +697,28 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                   />
                 </View>
                 <View>
+                  <FormChip
+                    label={draftTags.length === 0 ? 'Tags' : draftTags.length === 1 ? (draftTags[0]?.name ?? 'Tags') : `${draftTags.length} tags`}
+                    icon="tag"
+                    selected={draftTags.length > 0}
+                    onPress={() => router.push('/transaction/tags')}
+                    accessibilityLabel={`Tags, ${draftTags.length === 0 ? 'none' : draftTags.map((t) => t.name).join(', ')}`}
+                  />
+                </View>
+                <View>
+                  <MenuChip
+                    label="Receipt"
+                    icon="camera"
+                    title="Receipt"
+                    options={RECEIPT_OPTIONS}
+                    selected={null}
+                    onSelect={(value) => void addReceipt(value)}
+                    highlight={draft.receipts.length > 0}
+                    accessibilityLabel={`Receipt, ${draft.receipts.length === 0 ? 'none' : `${draft.receipts.length} attached`}`}
+                  />
+                </View>
+                {isLend ? null : (
+                <View>
                   {linkedRule ? (
                     <FormChip
                       label={repeatLabel(linkedRule)}
@@ -640,10 +740,11 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
                     />
                   )}
                 </View>
+                )}
               </ScrollView>
               <EdgeFade color={colors.surface} />
               </View>
-              {isTransfer || draft.splits ? null : (
+              {isTransfer || isLend || draft.splits ? null : (
                 <Button variant="plainText" size="sm" onPress={startSplitting} accessibilityLabel="Split" className="mr-2 px-2">
                   <Text variant="callout" tone="accent">
                     Split
@@ -667,6 +768,21 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
               inputAccessoryViewID={ACCESSORY_ID}
               className="max-h-[84px] min-h-12 px-4 py-3"
             />
+            {draftTags.length > 0 || draft.receipts.length > 0 ? (
+              <>
+                <Hairline />
+                <View className="gap-3 px-4 py-3">
+                  {draftTags.length > 0 ? <TagPills tags={draftTags} onPressTag={() => router.push('/transaction/tags')} /> : null}
+                  {draft.receipts.length > 0 ? (
+                    <View className="flex-row flex-wrap gap-3 pt-1.5">
+                      {draft.receipts.map((r) => (
+                        <ReceiptThumb key={r.key} uri={r.uri} size={48} onPress={() => openReceipt(r.uri, r.width, r.height)} onRemove={() => removeReceipt(r.key)} />
+                      ))}
+                    </View>
+                  ) : null}
+                </View>
+              </>
+            ) : null}
           </View>
         </ScrollView>
 

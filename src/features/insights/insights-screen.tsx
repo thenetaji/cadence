@@ -14,6 +14,8 @@ import { Text } from '@/components/ui/text';
 import { useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
 import { axisLabels } from '@/lib/charts';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@/lib/dates';
+import { FocusFx } from '@/motion/focus-fx';
+import { Stagger } from '@/motion/stagger';
 import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { haptic } from '@/theme/haptics';
@@ -143,7 +145,7 @@ export default function InsightsScreen() {
   const days = diffDays(period.from, period.to) + 1;
 
   return (
-    <View className="flex-1 bg-bg">
+    <FocusFx className="flex-1 bg-bg">
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         <PeriodControls
           type={view.type}
@@ -160,7 +162,7 @@ export default function InsightsScreen() {
               <View className="px-4 pb-4 pt-3">
                 <KindMenu kind={view.kind} onChange={changeKind} />
                 <View className="pt-1">
-                  <Amount value={total} variant="hero" accessibilityLabel={formatMoneyForSpeech(insights.total, currency, { sign: 'none' })} />
+                  <Amount value={total} variant="hero" animate="intro" accessibilityLabel={formatMoneyForSpeech(insights.total, currency, { sign: 'none', locale: money.locale })} />
                 </View>
                 <View className="h-5">
                   {delta ? (
@@ -186,10 +188,11 @@ export default function InsightsScreen() {
                 </View>
               </View>
               {extras.transactionCount > 0 ? (
-                <View className="pb-4">
+                <Stagger index={1} className="pb-4">
                   <StatsGrid extras={extras} currency={currency} locale={money.locale} />
-                </View>
+                </Stagger>
               ) : null}
+              <Stagger index={2}>
               <Card className="mx-4 items-center p-3">
                 <Donut
                   data={donut}
@@ -199,6 +202,7 @@ export default function InsightsScreen() {
                   emptyLabel="Nothing yet"
                 />
               </Card>
+              </Stagger>
             </View>
           </GestureDetector>
 
@@ -213,6 +217,7 @@ export default function InsightsScreen() {
             )}
           </Card>
 
+          <Stagger index={4}>
           <Card className="mx-4 mt-4 px-4 pb-1 pt-3">
             {insights.total > 0 ? (
               <View className="flex-row items-baseline justify-between">
@@ -237,6 +242,7 @@ export default function InsightsScreen() {
               accessibilityLabel={`${barsTitle(insights.granularity, view.kind)}, ${days} days, average ${average} per ${noun}`}
             />
           </Card>
+          </Stagger>
 
           {insights.total > 0 ? (
             <>
@@ -248,7 +254,7 @@ export default function InsightsScreen() {
           ) : null}
         </Animated.View>
       </ScrollView>
-    </View>
+    </FocusFx>
   );
 }
 

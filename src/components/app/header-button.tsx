@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { useTokens } from '@/theme/use-tokens';
 
@@ -30,7 +30,7 @@ function HeaderButton({ symbol, label, onPress }: HeaderButtonProps) {
         }}
         className="items-center justify-center"
       >
-        <SymbolIcon name={symbol} size={17} color={colors.text} weight="semibold" />
+        <AppIcon name={symbol} size={17} color={colors.text} />
       </View>
     </Pressable>
   );

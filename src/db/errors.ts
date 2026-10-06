@@ -14,6 +14,12 @@ export type ValidationCode =
   | 'target_kind_mismatch'
   | 'currency_mismatch'
   | 'transfer_conflict'
+  | 'person_required'
+  | 'person_not_found'
+  | 'tag_not_found'
+  | 'duplicate_name'
+  | 'in_use'
+  | 'nothing_outstanding'
   | 'invalid_input';
 
 export class ValidationError extends Error {

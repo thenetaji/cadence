@@ -12,6 +12,7 @@ import { TransactionDayList } from '@/features/transactions/transaction-day-list
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { nextPeriod, periodLabel, previousPeriod, type Period } from '@/lib/dates';
 import { formatMoneyForSpeech } from '@/lib/money';
+import { Stagger } from '@/motion/stagger';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
 
@@ -91,9 +92,10 @@ export default function BudgetDetailScreen() {
           setOffset((n) => Math.min(n + direction, 0));
         }}
       />
-      <View className="px-4">
+      <Stagger index={0} className="px-4">
         <BudgetCard view={view} />
-      </View>
+      </Stagger>
+      <Stagger index={1}>
       <Card className="mx-4 px-4 pb-1 pt-3">
         <PaceChart
           data={detail.pace}
@@ -106,6 +108,7 @@ export default function BudgetDetailScreen() {
           accessibilityLabel={chartLabel}
         />
       </Card>
+      </Stagger>
       <Text variant="headline" accessibilityRole="header" className="-mb-2 px-4 pt-2">
         {scoped.length > 0 ? `${scoped.length} ${scoped.length === 1 ? 'transaction' : 'transactions'}` : 'Transactions'}
       </Text>

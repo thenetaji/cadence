@@ -77,3 +77,6 @@ export function keyToLocalMs(key: DateKey, hour = 0, minute = 0): number {
   const { year, month, day } = parseKey(key);
   return new Date(year, month - 1, day, hour, minute).getTime();
 }
+
+/** Inclusive bounds covering every possible date key, for "all time" queries. */
+export const ALL_DATES = { from: '0000-01-01', to: '9999-12-31' } as const;

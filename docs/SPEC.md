@@ -450,51 +450,58 @@ Account icons by type: cash `banknote`, bank `building.columns.fill`, card `cred
 
 Implemented as CSS variables in `src/global.css` for Uniwind and mirrored in a `tokens.ts` for Skia charts and Reanimated.
 
-### 5.1 Colours, semantic ("Obsidian": black, white, brass)
+### 5.1 Colours, semantic ("Obsidian": black, white, champagne brass)
+
+One warm hue (80-90 degrees, chroma <= 0.009) for every neutral. Palette keys are unchanged. Source of truth: `src/theme/tokens.ts` (`accentPresets`, `colors`, `categoryColors`, `categoryInk`), mirrored in `src/global.css`.
 
 | Token | Light (warm paper) | Dark (true black) |
 |---|---|---|
-| `bg` | `#F4F2EE` | `#000000` |
-| `surface` | `#FFFFFF` | `#0E0E10` |
-| `elevated` | `#FFFFFF` | `#161618` |
-| `border` (1 px card rim) | `rgba(20,18,14,0.07)` | `rgba(255,255,255,0.07)` |
-| `separator` | `rgba(20,18,14,0.07)` | `rgba(255,255,255,0.06)` |
-| `text` | `#141311` | `#F7F6F2` |
-| `text-secondary` | `#6C6A66` | `#9D9CA3` |
-| `text-tertiary` | `#A3A09A` | `#5F5F67` |
-| `accent` (brass: fills, FAB, selection, tab tint) | `#C9A24F` | `#E2B96A` |
-| `accent-text` (links, text buttons) | `#9A7224` | `#E2B96A` |
-| `accent-soft` (selected chip bg, operator keys) | `rgba(201,162,79,0.14)` | `rgba(226,185,106,0.14)` |
-| `on-accent` | `#141311` | `#141210` |
-| `income` | `#1F8A4D` | `#4FD08A` |
-| `expense` (over budget, negative, destructive only) | `#C8352F` | `#F0625D` |
-| `warning` | `#B8740E` | `#E8A33D` |
-| `fill` (inactive chips, inputs, tracks) | `#ECEAE4` | `#18181B` |
-| `overlay` (toasts) | `#141311` | `#F4F2EE` (text inverted) |
+| `bg` | `#F5F3EF` | `#000000` |
+| `surface` | `#FFFFFF` | `#100F0D` |
+| `elevated` | `#FFFFFF` | `#191816` |
+| `border` (1 px card rim) | `rgba(22,19,16,0.07)` | `rgba(255,255,255,0.07)` |
+| `separator` | `rgba(22,19,16,0.07)` | `rgba(255,255,255,0.06)` |
+| `text` | `#161310` | `#F8F7F2` |
+| `text-secondary` | `#66635D` | `#A4A19B` |
+| `text-tertiary` | `#9B9891` | `#686660` |
+| `accent` (brass: fills, FAB, selection) | `#C69E58` | `#DEC084` |
+| `accent-deep` (pressed) | `#BA904C` | `#BA904C` |
+| `accent-text` (links, text buttons) | `#936923` | `#DEC084` |
+| `accent-soft` | `rgba(198,158,88,0.14)` | `rgba(222,192,132,0.14)` |
+| `on-accent` | `#15120B` | `#15120B` |
+| `income` (mint) | `#048B56` | `#64D8A4` |
+| `income-soft` | `rgba(4,139,86,0.10)` | `rgba(100,216,164,0.12)` |
+| `expense` | `#C92F36` | `#F66C6D` |
+| `warning` | `#C9690C` | `#FA9947` |
+| `fill` | `#EAE8E3` | `#1E1D1A` |
+| `overlay` (toasts) | `#161310` | `#F5F3EF` (text inverted) |
 
-Expense amounts are rendered in `text`, not red. Only income is coloured. Chrome is black, white and brass; colour is spent on category tiles and data. Brass is for primary actions, selected state, active tab tint, links and key data highlights. Pure `#000000` background in dark mode.
+**Accent preset**: `accentPreset` in `tokens.ts` is `'brass'` (default) or `'ivory'` (dark accent `#F1EEE6`, `on-accent` `#0B0A08`, links in `text-secondary`; light accent is the ink `#161310`). One token switches `accent`, `accent-text`, `accent-soft`, `on-accent`, `accent-deep`. The `--tint*` CSS variables in `global.css` mirror the default and must be updated alongside when the switch becomes a setting.
+
+Expense amounts are rendered in `text`, not red. Income is mint and only used for the Earned value, the delta pill and `+` amounts. Chrome is black, white and brass; colour is spent on category tiles and data.
 
 ### 5.2 Category palette (12 + gray)
 
-Keys are what the DB stores. `ink` is the solid tile fill (same in both schemes, white glyph on top). `lit` is for charts, swatches and text on black; `paper` is the data colour on warm paper.
+Keys are what the DB stores. `ink` is the tile fill (both schemes). `lit` is the data colour on black; `paper` is the data colour on warm paper. Inks sit at an even lightness (about 0.58) and hue spacing.
 
 | Key | ink | lit (dark) | paper (light) | Key | ink | lit (dark) | paper (light) |
 |---|---|---|---|---|---|---|---|
-| red | `#B83840` | `#E0565E` | `#C2434A` | cyan | `#237B9A` | `#44A9CC` | `#277F9F` |
-| orange | `#C45C22` | `#E57A3A` | `#CC6425` | blue | `#3562C6` | `#5B86E0` | `#3764C4` |
-| amber | `#B5841F` | `#DDA53A` | `#B98A1E` | indigo | `#514FBE` | `#7C7AE0` | `#5150B9` |
-| lime | `#6A8C24` | `#9BBE43` | `#6F8F28` | purple | `#7A44B0` | `#A46BD4` | `#7C47B0` |
-| green | `#2F8C5B` | `#4FBF80` | `#2F8E5C` | pink | `#B03C85` | `#D45FA6` | `#B13E86` |
-| teal | `#22877C` | `#3FB8A9` | `#24897E` | brown | `#8A6648` | `#B48866` | `#8C6749` |
-| gray | `#56565E` | `#86868E` | `#6E6E76` | | | | |
+| red | `#C6484C` | `#FE8A88` | `#B34C4D` | cyan | `#0786A5` | `#54C1E3` | `#007E9C` |
+| orange | `#CD6108` | `#F7945A` | `#AE5517` | blue | `#2E78D5` | `#7CB4FE` | `#3672BE` |
+| amber | `#BE8700` | `#F3B94C` | `#AE7C04` | indigo | `#6D68D3` | `#A5A7FE` | `#6765BD` |
+| lime | `#859700` | `#B6CA59` | `#7A8A10` | purple | `#935AC0` | `#CA98F5` | `#8759AD` |
+| green | `#009241` | `#73C786` | `#238744` | pink | `#B74A8E` | `#EF8BC5` | `#A74D83` |
+| teal | `#008C80` | `#56C7B8` | `#008478` | brown | `#917257` | `#C7A384` | `#826144` |
+| gray | `#65635F` | `#A19E99` | `#7D7A75` | | | | |
 
-Icons: a 36 pt circle in solid `ink`, with a white SF Symbol (`type="monochrome"`, `weight="semibold"`, half the circle size). No tints, no gradients. Accounts use the same circle on `gray` ink; the selected swatch or icon gets a 2 pt brass ring. Chips show a 22 pt ink circle. Donut, bars and swatches use `lit`/`paper`, never `ink`.
+Icons render in the treatment the icon system provides (default: graphite tile with a coloured glyph). Donut, bars, share bars and swatches use `lit`/`paper`.
 
 ### 5.3 Type scale (system font: SF Pro on iOS, Roboto on Android)
 
 | Style | Size/Line | Weight | Tracking | Use |
 |---|---|---|---|---|
-| hero | 44/50 | 700 | −2.0 | Home balance, Insights total |
+| display | 54/60 | 700 | −2.4 | Home hero (the currency symbol is 44/600) |
+| hero | 44/50 | 700 | −2.0 | Insights total |
 | amount-entry | 44/52 | 600 | −1.0 | Add sheet readout |
 | large-title | 34/41 | 700 | −0.4 | Tab screen titles (native) |
 | title1 | 28/34 | 700 | −0.3 | Detail amounts |
@@ -512,7 +519,7 @@ All amounts: `fontVariant: ['tabular-nums']`, weight 500 in rows and 700 in hero
 
 - 4 pt grid: 4, 8, 12, 16, 20, 24, 32, 40, 48. Screen gutter 16. Card padding 16. Row horizontal padding 16, vertical 12.
 - Radii: 8 (small elements), 12 (buttons, keypad keys, inputs; chips are full pills), 18 (cards and list groups), 999 (icon tiles are circles), 20 (sheet top corners, system), 999 (pills, + button).
-- Hairlines, not shadows: `StyleSheet.hairlineWidth` in `separator` between rows (inset 16 + icon width + 12 from leading). Cards carry a 1 px `border` rim in both schemes (light adds `0 1 2 rgba(20,18,14,0.04)`). The only other shadows: the + button (brass glow `0 4 14 rgba(226,185,106,0.25)`) and toasts (`0 6 20 rgba(0,0,0,0.20)`).
+- Hairlines, not shadows: `StyleSheet.hairlineWidth` in `separator` between rows (inset 16 + icon width + 12 from leading). Cards carry a 1 px `border` rim in both schemes (light adds `0 1 2 rgba(20,18,14,0.04)`). The only other shadows: the + button (brass glow `0 4 14 rgba(222,192,132,0.25)`) and toasts (`0 6 20 rgba(0,0,0,0.20)`).
 
 ### 5.5 Motion
 

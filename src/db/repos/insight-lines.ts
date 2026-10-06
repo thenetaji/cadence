@@ -27,7 +27,7 @@ export function detailedLines(db: Db, range: { from: string; to: string }): Deta
     .all();
   const lines: DetailedLine[] = [];
   for (const row of [...plain, ...split]) {
-    if (row.kind === 'transfer') continue;
+    if (row.kind !== 'expense' && row.kind !== 'income') continue;
     lines.push({ ...row, kind: row.kind });
   }
   return lines;

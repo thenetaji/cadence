@@ -1,6 +1,6 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { pressScale, shadows } from '@/theme/tokens';
@@ -21,12 +21,14 @@ function FloatingAddButton({ onPress, onLongPress, style }: FloatingAddButtonPro
       accessibilityLabel="Add transaction"
       haptic="light"
       scale={pressScale.fab}
+      holdScale={1.07}
+      holdDelay={200}
       onPress={onPress}
       onLongPress={onLongPress}
       className="h-[52px] flex-row items-center gap-2 rounded-[26px] bg-accent pl-4 pr-5"
       style={[shadows.fab, style]}
     >
-      <SymbolIcon name="plus" size={17} color={colors.onAccent} weight="bold" />
+      <AppIcon name="plus" size={17} color={colors.onAccent} />
       <Text variant="headline" style={{ color: colors.onAccent }}>
         Add
       </Text>

@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, type SharedValue } from 'react-native-reanimated';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { haptic } from '@/theme/haptics';
 import { springs } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
@@ -79,7 +79,7 @@ function ReorderRow({ id, count, rowHeight, slots, active, onDrop, renderRow, on
         onAccessibilityAction={(event) => onMove(event.nativeEvent.actionName === 'increment' ? 1 : -1)}
         className="h-11 w-11 items-center justify-center"
       >
-        <SymbolIcon name="line.3.horizontal" size={18} color={colors.textTertiary} weight="semibold" />
+        <AppIcon name="line.3.horizontal" size={18} color={colors.textTertiary} />
       </View>
     </GestureDetector>
   );

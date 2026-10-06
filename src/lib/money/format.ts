@@ -97,8 +97,34 @@ function trimTenths(value: number, locale: NumberLocale): string {
   return tenth === 0 ? integer : `${integer}${locale.decimal}${tenth}`;
 }
 
+/** Private-use subtag appended to a locale tag to request masked output; see `maskLocale`. */
+const HIDE_TAG = '-x-hide';
+export const MASK = '••••';
+export const MASK_SHORT = '••';
+
+/**
+ * The privacy switch rides on the locale string every display path already passes to `formatMoney`.
+ * Memoised view models and React Compiler caches therefore refresh the moment `hidden` flips, with
+ * no global state. Inputs and exports never pass a masked locale, so they stay readable.
+ */
+export function maskLocale(tag: string | undefined, hidden: boolean): string | undefined {
+  const base = tag?.endsWith(HIDE_TAG) ? tag.slice(0, -HIDE_TAG.length) : tag;
+  if (!hidden) return base;
+  return `${base ?? 'en'}${HIDE_TAG}`;
+}
+
+export function isMaskedLocale(tag: string | undefined): boolean {
+  return !!tag && tag.endsWith(HIDE_TAG);
+}
+
+/** Replaces a formatted amount's digits with bullets, keeping the sign and currency symbol. */
+export function maskMoney(text: string): string {
+  return text.replace(/\d[\d.,\u00a0\u202f]*(?:Cr|[KMBL])?/, MASK);
+}
+
 export function formatMoney(minor: number, currency: string, options: FormatMoneyOptions = {}): string {
   const { locale: tag, sign = 'auto', compact = false } = options;
+  const hidden = isMaskedLocale(tag);
   const code = normalizeCurrency(currency);
   const digits = minorDigits(code);
   const locale = resolveNumberLocale(tag);
@@ -107,7 +133,9 @@ export function formatMoney(minor: number, currency: string, options: FormatMone
   const symbol = currencySymbol(code);
 
   let number: string;
-  if (compact) {
+  if (hidden) {
+    number = compact ? MASK_SHORT : MASK;
+  } else if (compact) {
     const indianUnits = locale.style === 'indian' || code === 'INR';
     number = compactNumber(abs, digits, locale, indianUnits ? INDIAN_UNITS : WESTERN_UNITS);
   } else {
@@ -125,7 +153,8 @@ function speechNumber(abs: number, digits: number): string {
 }
 
 /** "minus 1,240 rupees"; always en-US digits so screen readers don't mis-group. */
-export function formatMoneyForSpeech(minor: number, currency: string, options: { sign?: SignMode } = {}): string {
+export function formatMoneyForSpeech(minor: number, currency: string, options: { sign?: SignMode; locale?: string } = {}): string {
+  if (isMaskedLocale(options.locale)) return 'amount hidden';
   const code = normalizeCurrency(currency);
   const info = getCurrency(code);
   const digits = minorDigits(code);

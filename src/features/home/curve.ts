@@ -1,0 +1,108 @@
+/** Pure geometry and formatting for the Home spend curve and header. */
+
+export type Pt = readonly [number, number];
+/** Cubic segment: control 1, control 2, end. */
+export type Segment = readonly [number, number, number, number, number, number];
+
+/** Fritsch-Carlson monotone cubic: smooth, never overshoots the data. Returns one segment per gap. */
+export function monotoneSegments(pts: readonly Pt[]): Segment[] {
+  const n = pts.length;
+  if (n < 2) return [];
+  const dx: number[] = [];
+  const m: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = pts[i + 1]![0] - pts[i]![0];
+    m[i] = dx[i]! === 0 ? 0 : (pts[i + 1]![1] - pts[i]![1]) / dx[i]!;
+  }
+  const t: number[] = [m[0]!];
+  for (let i = 1; i < n - 1; i++) t[i] = m[i - 1]! * m[i]! <= 0 ? 0 : (m[i - 1]! + m[i]!) / 2;
+  t[n - 1] = m[n - 2]!;
+  for (let i = 0; i < n - 1; i++) {
+    if (m[i] === 0) {
+      t[i] = 0;
+      t[i + 1] = 0;
+      continue;
+    }
+    const a = t[i]! / m[i]!;
+    const b = t[i + 1]! / m[i]!;
+    const s = a * a + b * b;
+    if (s > 9) {
+      const k = 3 / Math.sqrt(s);
+      t[i] = k * a * m[i]!;
+      t[i + 1] = k * b * m[i]!;
+    }
+  }
+  return pts.slice(0, -1).map((p, i) => {
+    const q = pts[i + 1]!;
+    const h = dx[i]! / 3;
+    return [p[0] + h, p[1] + t[i]! * h, q[0] - h, q[1] - t[i + 1]! * h, q[0], q[1]] as const;
+  });
+}
+
+export interface CurveInput {
+  actual: number | null;
+  pace: number;
+}
+
+export interface CurveGeometry {
+  line: Pt[];
+  ghost: Pt[];
+  /** Last point of the current line (the end-dot). */
+  end: Pt | null;
+  peak: number;
+}
+
+/**
+ * Points for both lines. Each line starts at (0, baseline) so day 1's jump reads as a climb; day i of N sits at
+ * x = i / N * width, so the last day reaches the right edge.
+ */
+export function curveGeometry(series: readonly CurveInput[], width: number, height: number, pad = 6): CurveGeometry {
+  const days = series.length;
+  const peak = series.reduce((m, d) => Math.max(m, d.pace, d.actual ?? 0), 0);
+  if (days === 0 || peak <= 0 || width <= 0) return { line: [], ghost: [], end: null, peak };
+  const max = peak * 1.08;
+  const x = (i: number) => (i / days) * width;
+  const y = (v: number) => pad + (height - pad) * (1 - v / max);
+  const ghost: Pt[] = [[0, y(0)], ...series.map((d, i) => [x(i + 1), y(d.pace)] as const)];
+  const line: Pt[] = [[0, y(0)]];
+  series.forEach((d, i) => {
+    if (d.actual !== null) line.push([x(i + 1), y(d.actual)]);
+  });
+  return { line, ghost, end: line.length > 1 ? line[line.length - 1]! : null, peak };
+}
+
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+/** "Friday 16 Oct" for an ISO weekday (1 = Monday). */
+export function headerDay(isoWeekday: number, day: number, monthShort: string): string {
+  return `${WEEKDAYS[isoWeekday - 1] ?? ''} ${day} ${monthShort}`;
+}
+
+export function daysLeftLabel(left: number): string {
+  return `${left} ${left === 1 ? 'day' : 'days'} left`;
+}
+
+/** Whole percent of a budget used, clamped at 0. */
+export function percentUsed(spent: number, amount: number): number {
+  return amount > 0 ? Math.max(0, Math.round((spent / amount) * 100)) : 0;
+}
+
+/** Bar width as a share of the largest value (0-1), so the top row fills the bar. Falls back to percent when needed. */
+export function shareWidth(percent: number): number {
+  return Math.min(Math.max(percent, 0), 100) / 100;
+}
+
+/** "Monthly", "Every 2 weeks". */
+export function frequencyLabel(frequency: string, interval: number): string {
+  const adverb: Record<string, string> = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' };
+  const unit: Record<string, string> = { daily: 'days', weekly: 'weeks', monthly: 'months', yearly: 'years' };
+  if (interval <= 1) return adverb[frequency] ?? frequency;
+  return `Every ${interval} ${unit[frequency] ?? frequency}`;
+}
+
+/** "in 4 days", "Tomorrow", "Today". */
+export function dueIn(days: number): string {
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  return `in ${days} days`;
+}

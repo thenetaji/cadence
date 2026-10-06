@@ -1,68 +1,56 @@
 import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { SectionHeader } from '@/components/app/section-header';
 import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { useCategories, useFrequentTitles } from '@/data/hooks';
-import { formatMoney } from '@/lib/money';
+import { useCategories, useQuickAdd } from '@/data/hooks';
+import { useTokens } from '@/theme/use-tokens';
 import type { CategoryColorKey } from '@/theme/tokens';
 
-const LIMIT = 6;
+const LIMIT = 8;
 
-type QuickAddProps = { displayCurrency: string; locale?: string; showDecimals: boolean };
-
-/** One-tap repeats from title memory: chip opens the add sheet prefilled, so logging is chip then Save. */
-function QuickAdd({ displayCurrency, locale, showDecimals }: QuickAddProps) {
+/** Eyebrow plus chips for the most frequent title + category pairs; a tap opens the add sheet with the keypad ready. */
+function QuickAdd() {
   const router = useRouter();
-  const titles = useFrequentTitles(LIMIT);
+  const { colors } = useTokens();
+  const entries = useQuickAdd(LIMIT);
   const categories = useCategories();
   const byId = React.useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
-  if (titles.length === 0) return null;
+  if (entries.length === 0) return null;
 
   return (
-    <>
-      <SectionHeader title="Quick add" />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2 px-4">
-        {titles.map((row) => {
-          const category = row.categoryId ? byId.get(row.categoryId) : undefined;
-          const amount =
-            row.lastAmount !== null
-              ? formatMoney(row.lastAmount, row.lastCurrency ?? displayCurrency, { locale, decimals: showDecimals ? undefined : 0 })
-              : null;
-          const params: Record<string, string> = { kind: 'expense', title: row.title };
-          if (category) params.categoryId = category.id;
-          if (row.accountId) params.accountId = row.accountId;
-          if (row.lastAmount !== null) {
-            params.amount = String(row.lastAmount);
-            if (row.lastCurrency) params.currency = row.lastCurrency;
-          }
+    <View>
+      <Text variant="caption" tone="tertiary" className="mb-2.5 px-0.5 font-semibold uppercase tracking-[0.9px]">
+        Quick add
+      </Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4" contentContainerClassName="gap-2 px-4">
+        {entries.map((entry) => {
+          const category = entry.categoryId ? byId.get(entry.categoryId) : undefined;
+          const params: Record<string, string> = { title: entry.title, accountId: entry.accountId };
+          if (entry.kind === 'income') params.kind = 'income';
+          if (entry.categoryId) params.categoryId = entry.categoryId;
           return (
             <Pressable
-              key={row.titleNorm}
+              key={`${entry.title}:${entry.categoryId ?? ''}`}
               role="button"
-              accessibilityLabel={amount ? `${row.title}, ${amount}` : row.title}
+              accessibilityLabel={`Add ${entry.title}`}
               haptic="light"
-              scale={0.96}
+              scale={0.94}
               onPress={() => router.push({ pathname: '/transaction/new', params })}
-              className="h-11 flex-row items-center gap-2 rounded-full bg-surface pl-3 pr-3.5"
+              className="h-10 flex-row items-center gap-2 rounded-full bg-surface pl-2 pr-[15px]"
+              style={{ borderWidth: StyleSheet.hairlineWidth * 2, borderColor: colors.border }}
             >
-              <IconTile icon={category?.icon ?? 'tag.fill'} color={(category?.color ?? 'gray') as CategoryColorKey} size={24} radius={12} />
-              <Text variant="callout" numberOfLines={1} className="max-w-[140px]">
-                {row.title}
+              <IconTile icon={category?.icon ?? 'tag.fill'} color={(category?.color ?? 'gray') as CategoryColorKey} size={26} />
+              <Text variant="footnote" numberOfLines={1} className="max-w-[150px] text-[14px] font-semibold tracking-[-0.1px]">
+                {entry.title}
               </Text>
-              {amount ? (
-                <Text variant="callout" tone="secondary" numeric numberOfLines={1}>
-                  {amount}
-                </Text>
-              ) : null}
             </Pressable>
           );
         })}
       </ScrollView>
-    </>
+    </View>
   );
 }
 

@@ -1,4 +1,4 @@
-import { and, asc, gte, inArray, lte } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, lte } from 'drizzle-orm';
 import { toDateKey, type DateKey } from '@/lib/dates';
 import {
   IMPORT_CATEGORY_ICON,
@@ -18,7 +18,10 @@ import { newId } from '../ids';
 import {
   accounts,
   categories,
+  people,
+  tags,
   transactionSplits,
+  transactionTags,
   transactions,
   type NewSplit,
   type NewTransaction,
@@ -27,6 +30,8 @@ import {
 import type { Db } from '../types';
 import { createAccount } from './accounts';
 import { createCategory } from './categories';
+import { findOrCreatePerson } from './people';
+import { findOrCreateTag } from './tags';
 
 /** Everything the planner needs to match a file against what is already stored. */
 export function loadImportContext(db: Db): ExistingData {
@@ -42,6 +47,8 @@ export function loadImportContext(db: Db): ExistingData {
     accounts: db.select({ id: accounts.id, name: accounts.name, currency: accounts.currency }).from(accounts).all(),
     categories: db.select({ id: categories.id, name: categories.name, kind: categories.kind }).from(categories).all(),
     ids: new Set(db.select({ id: transactions.id }).from(transactions).all().map((t) => t.id)),
+    tags: db.select({ id: tags.id, name: tags.name }).from(tags).all(),
+    people: db.select({ id: people.id, name: people.name }).from(people).all(),
     keys,
   };
 }
@@ -89,6 +96,16 @@ export function importTransactions(db: Db, rows: readonly ImportRow[], defaults:
       return id;
     };
 
+    const tagIds = new Map<string, string>();
+    const tagKey = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase();
+    const personIds = new Map<string, string>();
+    const tagColour = (i: number) => IMPORT_PALETTE[i % IMPORT_PALETTE.length] as string;
+    const existingTags = tx.select({ id: tags.id, name: tags.name }).from(tags).all();
+    existingTags.forEach((t) => tagIds.set(tagKey(t.name), t.id));
+    plan.newTags.forEach((name, i) => tagIds.set(tagKey(name), findOrCreateTag(tx, name, tagColour(existingTags.length + i), now).id));
+    for (const p of tx.select({ id: people.id, name: people.name }).from(people).all()) personIds.set(tagKey(p.name), p.id);
+    for (const name of plan.newPeople) personIds.set(tagKey(name), findOrCreatePerson(tx, name, now).id);
+
     const accountCurrency = new Map(tx.select({ id: accounts.id, currency: accounts.currency }).from(accounts).all().map((a) => [a.id, a.currency]));
     plan.transactions.forEach((t, index) => {
       const id = t.id ?? newId();
@@ -110,10 +127,14 @@ export function importTransactions(db: Db, rows: readonly ImportRow[], defaults:
         dateKey: toDateKey(t.occurredAt),
         isSplit: t.splits.length > 0,
         recurringRuleId: null,
+        personId: t.personName ? (personIds.get(tagKey(t.personName)) ?? null) : null,
         createdAt: stamp,
         updatedAt: stamp,
       };
       tx.insert(transactions).values(row).run();
+      if (t.tags.length > 0) {
+        tx.insert(transactionTags).values(t.tags.map((name) => ({ transactionId: id, tagId: need(tagIds, tagKey(name)) }))).run();
+      }
       if (t.splits.length > 0) {
         const lines: NewSplit[] = t.splits.map((s, sortOrder) => ({
           id: newId(),
@@ -154,6 +175,16 @@ export function listForExport(db: Db, filter: ExportFilter = {}): ExportRecord[]
 
   const accountNames = new Map(db.select({ id: accounts.id, name: accounts.name }).from(accounts).all().map((a) => [a.id, a.name]));
   const categoryNames = new Map(db.select({ id: categories.id, name: categories.name }).from(categories).all().map((c) => [c.id, c.name]));
+  const tagNames = new Map<string, string[]>();
+  for (const row of db
+    .select({ transactionId: transactionTags.transactionId, name: tags.name })
+    .from(transactionTags)
+    .innerJoin(tags, eq(tags.id, transactionTags.tagId))
+    .orderBy(asc(tags.name))
+    .all()) {
+    tagNames.set(row.transactionId, [...(tagNames.get(row.transactionId) ?? []), row.name]);
+  }
+  const personNames = new Map(db.select({ id: people.id, name: people.name }).from(people).all().map((p) => [p.id, p.name]));
   const wanted = new Set(rows.filter((r) => r.isSplit).map((r) => r.id));
   const splits = new Map<string, { category: string; amount: number }[]>();
   if (wanted.size > 0) {
@@ -179,5 +210,7 @@ export function listForExport(db: Db, filter: ExportFilter = {}): ExportRecord[]
     transferAmount: r.transferAmount,
     transferCurrency: r.transferCurrency,
     splits: splits.get(r.id) ?? [],
+    tags: tagNames.get(r.id) ?? [],
+    person: r.personId ? (personNames.get(r.personId) ?? null) : null,
   }));
 }

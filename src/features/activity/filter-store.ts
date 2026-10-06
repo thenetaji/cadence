@@ -6,6 +6,9 @@ type ActivityFilterState = {
   kinds: TransactionKind[];
   categoryId: string | null;
   accountId: string | null;
+  /** The period Activity is showing, published by the screen so the sheet can count matches. */
+  period: { from: string; to: string };
+  setPeriod: (period: { from: string; to: string }) => void;
   toggleKind: (kind: TransactionKind) => void;
   setCategory: (id: string | null) => void;
   setAccount: (id: string | null) => void;
@@ -17,6 +20,8 @@ export const useActivityFilters = create<ActivityFilterState>((set) => ({
   kinds: [],
   categoryId: null,
   accountId: null,
+  period: { from: '0000-01-01', to: '9999-12-31' },
+  setPeriod: (period) => set((s) => (s.period.from === period.from && s.period.to === period.to ? s : { period })),
   toggleKind: (kind) => set((s) => ({ kinds: s.kinds.includes(kind) ? s.kinds.filter((k) => k !== kind) : [...s.kinds, kind] })),
   setCategory: (categoryId) => set({ categoryId }),
   setAccount: (accountId) => set({ accountId }),

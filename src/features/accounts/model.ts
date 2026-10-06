@@ -58,6 +58,6 @@ export function toAccountView(account: AccountWithBalance, fmt: AccountFormat): 
     balance,
     converted,
     archived: account.archivedAt !== null,
-    accessibilityLabel: [account.name, TYPE_LABELS[account.type], formatMoneyForSpeech(account.balance, account.currency)].join(', '),
+    accessibilityLabel: [account.name, TYPE_LABELS[account.type], formatMoneyForSpeech(account.balance, account.currency, { locale: fmt.locale })].join(', '),
   };
 }

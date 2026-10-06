@@ -51,7 +51,16 @@ export function RecurringScreen() {
   const open = (id: string) => router.push({ pathname: '/recurring/[id]', params: { id } });
 
   const header = (
-    <Stack.Screen options={{ title: 'Recurring', headerRight: () => <HeaderButton symbol="plus" label="Add recurring transaction" onPress={add} /> }} />
+    <Stack.Screen options={{
+        title: 'Recurring',
+        headerRight: () => (
+          <View className="flex-row items-center">
+            <HeaderButton symbol="chart.pie.fill" label="Subscriptions" onPress={() => router.push('/subscriptions')} />
+            <HeaderButton symbol="plus" label="Add recurring transaction" onPress={add} />
+          </View>
+        ),
+      }}
+    />
   );
 
   if (rules.length === 0) {

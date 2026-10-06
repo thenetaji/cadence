@@ -34,7 +34,8 @@ export function spendLines(db: Db, range: { from: string; to: string }): FlatLin
     .all();
   const lines: FlatLine[] = [];
   for (const row of [...plain, ...split]) {
-    if (row.kind === 'transfer') continue;
+    // Defensive: only plain spend kinds are attributable; transfers and lending never count.
+    if (row.kind !== 'expense' && row.kind !== 'income') continue;
     lines.push({ dateKey: row.dateKey, kind: row.kind, categoryId: row.categoryId, amount: row.amount, currency: row.currency });
   }
   return lines;

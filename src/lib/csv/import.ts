@@ -1,9 +1,10 @@
+import { ALL_KINDS, isLendingKind, type TransactionKind } from '@/lib/ledger';
 import { fromMinor, toMinor } from '@/lib/money';
 
 import { parseCsv } from './csv';
 
 export type ImportFormat = 'farthing' | 'dime' | 'cashew';
-export type ImportKind = 'expense' | 'income' | 'transfer';
+export type ImportKind = TransactionKind;
 
 /** A transaction as read from a file, before accounts, categories and currencies are resolved. Amounts are decimal text. */
 export interface ImportRow {
@@ -20,6 +21,10 @@ export interface ImportRow {
   transferAccount: string | null;
   transferAmount: string | null;
   splits: { category: string; amount: string }[];
+  /** Tag names; absent in files from older exports and other apps. */
+  tags?: string[];
+  /** Person name, required for the lending kinds. */
+  person?: string | null;
 }
 
 export interface ParseResult {
@@ -144,6 +149,19 @@ export function parseCashew(text: string): ParseResult {
   return { rows, skipped };
 }
 
+/** Splits the semicolon-separated `tags` cell, dropping blanks and case-insensitive repeats. */
+export function splitTags(cell: string | undefined): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of (cell ?? '').split(';')) {
+    const name = part.trim().replace(/\s+/g, ' ');
+    if (name === '' || seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    out.push(name);
+  }
+  return out;
+}
+
 function localMs(date: string, time: string): number | null {
   const m = /^(\d{2}):(\d{2})/.exec(time);
   return parseDateTime(`${date} ${m ? `${m[1]}:${m[2]}` : '12:00'}`);
@@ -165,7 +183,7 @@ export function parseFarthing(text: string): ParseResult {
     const kind = first.kind as ImportKind;
     const occurredAt = localMs(first.date ?? '', first.time ?? '');
     const currency = (first.currency ?? '').toUpperCase() || null;
-    if ((kind !== 'expense' && kind !== 'income' && kind !== 'transfer') || occurredAt === null || group.length !== count) {
+    if (!ALL_KINDS.includes(kind) || occurredAt === null || group.length !== count) {
       skipped++;
       continue;
     }
@@ -192,11 +210,13 @@ export function parseFarthing(text: string): ParseResult {
       memo: first.memo ?? '',
       amount,
       currency,
-      category: kind === 'transfer' ? '' : (first.category ?? ''),
+      category: kind === 'transfer' || isLendingKind(kind) ? '' : (first.category ?? ''),
       account: first.account || null,
       transferAccount: first.transfer_account || null,
       transferAmount: first.transfer_amount || null,
       splits: count > 1 ? lines : [],
+      tags: splitTags(first.tags),
+      person: first.person || null,
     });
   }
   return { rows, skipped };

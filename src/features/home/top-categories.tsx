@@ -1,66 +1,83 @@
 import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { IconTile } from '@/components/app/icon-tile';
-import { SectionHeader } from '@/components/app/section-header';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import type { Insights } from '@/data/hooks';
 import { formatMoney } from '@/lib/money';
-import type { CategoryColorKey } from '@/theme/tokens';
+import { withAlpha, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
-const BAR_CATEGORIES = 5;
+import { shareWidth } from './curve';
+import { HomeSectionHeader } from './section-header';
+
 const ROWS = 4;
+const easeOutQuint = Easing.bezier(0.22, 1, 0.36, 1);
+
+function ShareBar({ percent, color, index }: { percent: number; color: string; index: number }) {
+  const { colors } = useTokens();
+  const reduced = useReducedMotion();
+  const target = shareWidth(percent);
+  const grow = useSharedValue(reduced ? target : 0);
+  React.useEffect(() => {
+    grow.value = reduced ? target : withDelay(500 + index * 40, withTiming(target, { duration: 500, easing: easeOutQuint }));
+  }, [grow, target, reduced, index]);
+  const style = useAnimatedStyle(() => ({ width: `${grow.value * 100}%` }));
+  return (
+    <View className="mt-2 h-[3px] w-full overflow-hidden rounded-full" style={{ backgroundColor: withAlpha(colors.text, 0.06) }}>
+      <Animated.View className="h-full rounded-full" style={[{ backgroundColor: color }, style]} />
+    </View>
+  );
+}
 
 type TopCategoriesProps = { insights: Insights; locale?: string; showDecimals: boolean };
 
-/** Stacked bar of the month's categories (top 5 and Other) and the four largest as rows. */
+/** Four largest categories as rows with a 3 pt share bar in place of the subtitle. */
 function TopCategories({ insights, locale, showDecimals }: TopCategoriesProps) {
   const router = useRouter();
   const { category: palette, colors } = useTokens();
-  const rows = insights.categories;
-  const segments = React.useMemo(() => {
-    const top = rows.slice(0, BAR_CATEGORIES).map((r) => ({ key: r.categoryId ?? 'none', amount: r.amount, color: palette[(r.category?.color ?? 'gray') as CategoryColorKey] }));
-    const other = rows.slice(BAR_CATEGORIES).reduce((sum, r) => sum + r.amount, 0);
-    return other > 0 ? [...top, { key: 'other', amount: other, color: palette.gray }] : top;
-  }, [rows, palette]);
+  const rows = insights.categories.slice(0, ROWS);
   if (rows.length === 0) return null;
   const decimals = showDecimals ? undefined : 0;
 
   return (
-    <>
-      <SectionHeader title="Top categories" actionLabel="All" onAction={() => router.navigate('/insights')} />
-      <Card className="mx-4 gap-4 rounded-2xl px-4 py-4">
-        <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" className="h-[10px] flex-row overflow-hidden rounded-full" style={{ gap: 2, backgroundColor: colors.fill }}>
-          {segments.map((s) => (
-            <View key={s.key} style={{ flex: s.amount, backgroundColor: s.color }} />
-          ))}
-        </View>
-        <View className="gap-3">
-          {rows.slice(0, ROWS).map((r) => (
+    <View>
+      <HomeSectionHeader title="Top categories" actionLabel="Insights" onAction={() => router.navigate('/insights')} />
+      <Card className="rounded-[20px] p-0">
+        {rows.map((r, index) => {
+          const key = (r.category?.color ?? 'gray') as CategoryColorKey;
+          const amount = formatMoney(r.amount, insights.currency, { locale, sign: 'none', decimals });
+          return (
             <View
               key={r.categoryId ?? 'none'}
               accessible
-              accessibilityLabel={`${r.category?.name ?? 'Uncategorised'}, ${formatMoney(r.amount, insights.currency, { locale, sign: 'none', decimals })}, ${r.percent} percent`}
-              className="flex-row items-center gap-3"
+              accessibilityLabel={`${r.category?.name ?? 'Uncategorised'}, ${amount}, ${r.percent} percent`}
+              className="min-h-[62px] flex-row items-center gap-3 px-4 py-3"
+              style={index > 0 ? { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: colors.separator } : null}
             >
-              <IconTile icon={r.category?.icon ?? 'tag.fill'} color={(r.category?.color ?? 'gray') as CategoryColorKey} size={28} radius={8} />
-              <Text variant="body" numberOfLines={1} className="flex-1">
-                {r.category?.name ?? 'Uncategorised'}
-              </Text>
-              <Text variant="body" numeric className="font-medium">
-                {formatMoney(r.amount, insights.currency, { locale, sign: 'none', decimals })}
-              </Text>
-              <Text variant="footnote" tone="secondary" numeric className="w-9 text-right">
-                {`${r.percent}%`}
-              </Text>
+              <IconTile icon={r.category?.icon ?? 'tag.fill'} color={key} size={36} />
+              <View className="min-w-0 flex-1">
+                <Text variant="callout" numberOfLines={1} className="font-medium tracking-[-0.2px]">
+                  {r.category?.name ?? 'Uncategorised'}
+                </Text>
+                <ShareBar percent={r.percent} color={palette[key]} index={index} />
+              </View>
+              <View className="items-end">
+                <Text variant="callout" numeric className="font-semibold tracking-[-0.2px]">
+                  {amount}
+                </Text>
+                <Text variant="caption" tone="tertiary" numeric className="mt-[3px]">
+                  {`${r.percent}%`}
+                </Text>
+              </View>
             </View>
-          ))}
-        </View>
+          );
+        })}
       </Card>
-    </>
+    </View>
   );
 }
 

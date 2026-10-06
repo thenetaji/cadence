@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { showToast } from '@/components/app/toast-store';
 import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -106,7 +106,7 @@ export function ExportScreen() {
             subtitle={account.currency}
             icon={{ name: account.icon, color: account.color as CategoryColorKey }}
             trailing={
-              excluded.has(account.id) ? undefined : <SymbolIcon name="checkmark" size={16} color={colors.accent} weight="semibold" />
+              excluded.has(account.id) ? undefined : <AppIcon name="checkmark" size={16} color={colors.accent} />
             }
             onPress={() => toggle(account.id)}
           />

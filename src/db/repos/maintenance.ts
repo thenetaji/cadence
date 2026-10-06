@@ -1,10 +1,14 @@
 import { getSetting, insertMissingDefaults, setSetting } from './settings';
 import {
   accounts,
+  attachments,
   budgetCategories,
   budgets,
   categories,
   fxRates,
+  people,
+  tags,
+  transactionTags,
   recurringRules,
   settings,
   titleMemory,
@@ -18,8 +22,14 @@ import type { Db } from '../types';
 export function eraseAllData(db: Db): void {
   db.transaction((tx) => {
     const theme = getSetting(tx, 'theme');
+    const iconStyle = getSetting(tx, 'icon_style');
+    const iconBackground = getSetting(tx, 'icon_background');
     tx.delete(transactionSplits).run();
+    tx.delete(transactionTags).run();
+    tx.delete(attachments).run();
     tx.delete(transactions).run();
+    tx.delete(tags).run();
+    tx.delete(people).run();
     tx.delete(recurringRules).run();
     tx.delete(budgetCategories).run();
     tx.delete(budgets).run();
@@ -30,6 +40,8 @@ export function eraseAllData(db: Db): void {
     tx.delete(settings).run();
     insertMissingDefaults(tx);
     setSetting(tx, 'theme', theme);
+    setSetting(tx, 'icon_style', iconStyle);
+    setSetting(tx, 'icon_background', iconBackground);
     seedDefaults(tx);
   });
 }

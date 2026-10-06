@@ -34,7 +34,7 @@ function CategoryGrid({ categories, selected, onToggle }: CategoryGridProps) {
               className="w-full items-center gap-1.5"
             >
               <View className="items-center justify-center rounded-full p-[3px]" style={{ borderWidth: 2, borderColor: on ? colors.accent : 'transparent' }}>
-                <IconTile icon={category.icon} color={category.color as CategoryColorKey} size={44} />
+                <IconTile icon={category.icon} color={category.color as CategoryColorKey} size={46} />
               </View>
               <Text variant="caption" tone={on ? 'accent' : 'secondary'} numberOfLines={2} className="text-center">
                 {category.name}

@@ -1,4 +1,5 @@
 import { toDateKey } from '@/lib/dates';
+import { isLendingKind } from '@/lib/ledger';
 import { getCurrency, toMinor } from '@/lib/money';
 import { categoryKeys } from '@/theme/tokens';
 
@@ -21,6 +22,10 @@ export interface ExistingData {
   accounts: readonly ExistingAccount[];
   categories: readonly ExistingCategory[];
   ids: ReadonlySet<string>;
+  /** Stored tag names (matched ignoring case); omitted means none. */
+  tags?: readonly { id: string; name: string }[];
+  /** Stored people (matched ignoring case); omitted means none. */
+  people?: readonly { id: string; name: string }[];
   /** Number of stored transactions per dedupe key; see {@link dedupeKey}. */
   keys: ReadonlyMap<string, number>;
 }
@@ -44,6 +49,10 @@ export interface PlannedTransaction {
   transferAccountKey: string | null;
   transferAmount: number | null;
   splits: { categoryKey: string; amount: number }[];
+  /** Tag names, deduplicated. */
+  tags: string[];
+  /** Person name for the lending kinds. */
+  personName: string | null;
 }
 
 export interface ImportStats {
@@ -60,6 +69,10 @@ export interface ImportPlan {
   transactions: PlannedTransaction[];
   newAccounts: { key: string; name: string; currency: string }[];
   newCategories: { key: string; kind: 'expense' | 'income'; name: string }[];
+  /** Tag names that do not exist yet. */
+  newTags: string[];
+  /** People that do not exist yet. */
+  newPeople: string[];
   stats: ImportStats;
 }
 
@@ -113,6 +126,10 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
 
   const newAccounts = new Map<string, { key: string; name: string; currency: string }>();
   const newCategories = new Map<string, { key: string; kind: 'expense' | 'income'; name: string }>();
+  const knownTags = new Set((existing.tags ?? []).map((t) => norm(t.name)));
+  const knownPeople = new Set((existing.people ?? []).map((p) => norm(p.name)));
+  const newTags = new Map<string, string>();
+  const newPeople = new Map<string, string>();
   const usedAccounts = new Set<string>();
   const usedCategories = new Set<string>();
   const out: PlannedTransaction[] = [];
@@ -171,12 +188,19 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
       }
     }
 
+    const lending = isLendingKind(kind);
+    const personName = lending ? (row.person?.trim().replace(/\s+/g, ' ') ?? '') : '';
+    if (lending && personName === '') {
+      skipped++;
+      continue;
+    }
+
     const lineKind = kind === 'income' ? 'income' : 'expense';
     const lineName = (name: string) => name.trim() || fallbackCategory(lineKind);
     let cKey: string | null = null;
     const splits: { categoryKey: string; amount: number }[] = [];
     const names: string[] = [];
-    if (kind !== 'transfer') {
+    if (kind !== 'transfer' && !lending) {
       if (row.splits.length > 0) {
         let sum = 0;
         for (const line of row.splits) {
@@ -199,7 +223,7 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
       }
     }
 
-    const title = row.title.trim() || (kind === 'transfer' ? '' : (names[0] ?? ''));
+    const title = row.title.trim() || (kind === 'transfer' ? '' : lending ? personName : (names[0] ?? ''));
     const key = dedupeKey(toDateKey(row.occurredAt), amount, title);
     const left = remaining.get(key) ?? 0;
     if ((row.id && seenIds.has(row.id)) || left > 0) {
@@ -225,6 +249,15 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
     if (cKey) registerCategory(names[0] as string, cKey);
     splits.forEach((s, i) => registerCategory(names[i] as string, s.categoryKey));
 
+    const rowTags: string[] = [];
+    for (const raw of row.tags ?? []) {
+      const name = raw.trim().replace(/\s+/g, ' ');
+      if (name === '' || rowTags.some((t) => norm(t) === norm(name))) continue;
+      rowTags.push(name);
+      if (!knownTags.has(norm(name)) && !newTags.has(norm(name))) newTags.set(norm(name), name);
+    }
+    if (lending && !knownPeople.has(norm(personName)) && !newPeople.has(norm(personName))) newPeople.set(norm(personName), personName);
+
     out.push({
       id: row.id,
       kind,
@@ -239,6 +272,8 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
       transferAccountKey: transferKey,
       transferAmount,
       splits,
+      tags: rowTags,
+      personName: lending ? personName : null,
     });
   }
 
@@ -246,6 +281,8 @@ export function planImport(rows: readonly ImportRow[], existing: ExistingData, d
     transactions: out,
     newAccounts: [...newAccounts.values()],
     newCategories: [...newCategories.values()],
+    newTags: [...newTags.values()],
+    newPeople: [...newPeople.values()],
     stats: {
       transactions: out.length,
       categories: usedCategories.size,

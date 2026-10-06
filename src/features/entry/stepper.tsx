@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { useTokens } from '@/theme/use-tokens';
@@ -20,7 +20,7 @@ function Stepper({ value, min = 1, max = 99, onChange, label = 'Value', unit }: 
       className="h-9 w-9 items-center justify-center rounded-full bg-fill"
       style={{ opacity: disabled ? 0.4 : 1 }}
     >
-      <SymbolIcon name={symbol} size={14} color={colors.text} weight="semibold" />
+      <AppIcon name={symbol} size={14} color={colors.text} />
     </Pressable>
   );
   return (

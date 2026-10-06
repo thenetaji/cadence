@@ -1,4 +1,5 @@
 import { Text, type TextTone } from '@/components/ui/text';
+import { AnimatedNumber } from '@/motion/animated-number';
 import { cn } from '@/lib/utils';
 import { dynamicType } from '@/theme/tokens';
 
@@ -10,6 +11,8 @@ type AmountProps = {
   variant?: AmountVariant;
   accessibilityLabel?: string;
   className?: string;
+  /** Odometer roll when the value changes (`'intro'` also rolls up from zero on first appearance). */
+  animate?: boolean | 'intro';
 };
 
 const variantProps = {
@@ -19,9 +22,22 @@ const variantProps = {
   entry: { variant: 'amountEntry', className: '', multiplier: dynamicType.hero },
 } as const;
 
-function Amount({ value, tone = 'default', variant = 'row', accessibilityLabel, className }: AmountProps) {
+function Amount({ value, tone = 'default', variant = 'row', accessibilityLabel, className, animate = false }: AmountProps) {
   const config = variantProps[variant];
   const fit = variant === 'hero' || variant === 'entry';
+  if (animate) {
+    return (
+      <AnimatedNumber
+        value={value}
+        variant={config.variant}
+        tone={tone}
+        fit={fit}
+        intro={animate === 'intro'}
+        accessibilityLabel={accessibilityLabel}
+        className={cn(config.className, className)}
+      />
+    );
+  }
   return (
     <Text
       numeric

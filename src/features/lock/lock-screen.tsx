@@ -1,6 +1,6 @@
 import { Image, View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useTokens } from '@/theme/use-tokens';
@@ -19,7 +19,7 @@ export function LockScreen({ onUnlock }: LockScreenProps) {
         importantForAccessibility="no-hide-descendants"
       />
       <Button size="lg" className="min-w-[200px]" onPress={onUnlock}>
-        <SymbolIcon name="faceid" size={20} color={colors.onAccent} />
+        <AppIcon name="faceid" size={20} color={colors.onAccent} />
         <Text variant="headline">Unlock</Text>
       </Button>
     </View>

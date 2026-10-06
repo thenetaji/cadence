@@ -6,11 +6,13 @@ import {
   real,
   sqliteTable,
   text,
+  uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
+import type { RecurringKind, TransactionKind } from '../lib/ledger/kinds';
 
 export type AccountType = 'cash' | 'bank' | 'card' | 'other';
 export type CategoryKind = 'expense' | 'income';
-export type TransactionKind = 'expense' | 'income' | 'transfer';
+export type { LendingKind, RecurringKind, TransactionKind } from '../lib/ledger/kinds';
 export type Frequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
 export type BudgetPeriod = 'weekly' | 'monthly' | 'yearly';
 export type BudgetScope = 'all' | 'categories';
@@ -50,7 +52,7 @@ export const recurringRules = sqliteTable(
   'recurring_rules',
   {
     id: text('id').primaryKey(),
-    kind: text('kind').$type<TransactionKind>().notNull(),
+    kind: text('kind').$type<RecurringKind>().notNull(),
     title: text('title').notNull(),
     memo: text('memo').notNull().default(''),
     amount: integer('amount').notNull(),
@@ -75,6 +77,23 @@ export const recurringRules = sqliteTable(
   (t) => [index('recurring_rules_next_due_idx').on(t.nextDue)],
 );
 
+export const people = sqliteTable('people', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  createdAt: integer('created_at').notNull(),
+});
+
+export const tags = sqliteTable(
+  'tags',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    color: text('color').notNull(),
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => [uniqueIndex('tags_name_unique').on(t.name)],
+);
+
 export const transactions = sqliteTable(
   'transactions',
   {
@@ -95,10 +114,13 @@ export const transactions = sqliteTable(
     dateKey: text('date_key').notNull(),
     isSplit: integer('is_split', { mode: 'boolean' }).notNull().default(false),
     recurringRuleId: text('recurring_rule_id').references(() => recurringRules.id),
+    /** Counterparty of the lending kinds; null otherwise. */
+    personId: text('person_id').references(() => people.id),
     createdAt: integer('created_at').notNull(),
     updatedAt: integer('updated_at').notNull(),
   },
   (t) => [
+    index('transactions_person_idx').on(t.personId),
     index('transactions_date_idx').on(sql`${t.dateKey} desc`, sql`${t.occurredAt} desc`),
     index('transactions_account_date_idx').on(t.accountId, t.dateKey),
     index('transactions_category_date_idx').on(t.categoryId, t.dateKey),
@@ -124,6 +146,34 @@ export const transactionSplits = sqliteTable(
     index('transaction_splits_tx_idx').on(t.transactionId),
     index('transaction_splits_category_idx').on(t.categoryId),
   ],
+);
+
+export const transactionTags = sqliteTable(
+  'transaction_tags',
+  {
+    transactionId: text('transaction_id')
+      .notNull()
+      .references(() => transactions.id, { onDelete: 'cascade' }),
+    tagId: text('tag_id')
+      .notNull()
+      .references(() => tags.id, { onDelete: 'cascade' }),
+  },
+  (t) => [primaryKey({ columns: [t.transactionId, t.tagId] }), index('transaction_tags_tag_idx').on(t.tagId)],
+);
+
+export const attachments = sqliteTable(
+  'attachments',
+  {
+    id: text('id').primaryKey(),
+    transactionId: text('transaction_id')
+      .notNull()
+      .references(() => transactions.id, { onDelete: 'cascade' }),
+    uri: text('uri').notNull(),
+    width: integer('width'),
+    height: integer('height'),
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => [index('attachments_tx_idx').on(t.transactionId)],
 );
 
 export const budgets = sqliteTable('budgets', {
@@ -192,6 +242,10 @@ export const schema = {
   recurringRules,
   transactions,
   transactionSplits,
+  people,
+  tags,
+  transactionTags,
+  attachments,
   budgets,
   budgetCategories,
   titleMemory,
@@ -207,6 +261,13 @@ export type CategoryRow = typeof categories.$inferSelect;
 export type NewCategory = typeof categories.$inferInsert;
 export type TransactionRow = typeof transactions.$inferSelect;
 export type NewTransaction = typeof transactions.$inferInsert;
+export type PersonRow = typeof people.$inferSelect;
+export type NewPerson = typeof people.$inferInsert;
+export type TagRow = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
+export type TransactionTagRow = typeof transactionTags.$inferSelect;
+export type AttachmentRow = typeof attachments.$inferSelect;
+export type NewAttachment = typeof attachments.$inferInsert;
 export type SplitRow = typeof transactionSplits.$inferSelect;
 export type NewSplit = typeof transactionSplits.$inferInsert;
 export type RecurringRuleRow = typeof recurringRules.$inferSelect;

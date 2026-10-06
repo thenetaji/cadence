@@ -1,20 +1,44 @@
-import { categoryIconNames } from '@/components/app/symbolFallbacks';
+import { conceptFor, conceptMeta } from '@/icons/registry';
 
-const IGNORED = new Set(['fill']);
+export type IconSection = { title: string; ids: string[] };
 
-/** Search words for an SF Symbol name: its dot-separated parts, minus "fill". */
-export function iconWords(name: string): string[] {
-  return name.split('.').filter((part) => part.length > 0 && !IGNORED.has(part));
+/** Concepts offered in the picker: everything except bare UI glyphs, in theme order. */
+const PICKABLE = conceptMeta.filter((c) => !c.theme.startsWith('_'));
+
+/** Search words of a concept id: its label, id and keywords. */
+export function iconWords(id: string): string[] {
+  const meta = conceptMeta.find((c) => c.id === id);
+  return meta ? meta.words.split(' ') : id.split('-');
 }
 
-/** Curated icons whose name contains every typed word; the current icon is kept first even when it is not curated. */
-export function filterIcons(query: string, current?: string): string[] {
+/**
+ * Picker sections (one per theme) for a query. Every typed word must prefix a search word. A current icon
+ * that is not pickable (a legacy or UI glyph) is kept in a leading "Current" section when nothing is typed.
+ */
+export function iconSections(query: string, current?: string): IconSection[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const base: string[] = [...categoryIconNames];
-  if (current && !base.includes(current)) base.unshift(current);
-  if (words.length === 0) return base;
-  return base.filter((name) => {
-    const haystack = iconWords(name).join(' ').toLowerCase();
-    return words.every((word) => haystack.includes(word));
-  });
+  const sections: IconSection[] = [];
+  const byTheme = new Map<string, IconSection>();
+  for (const c of PICKABLE) {
+    if (words.length > 0) {
+      const haystack = c.words.split(' ');
+      if (!words.every((w) => haystack.some((h) => h.startsWith(w)))) continue;
+    }
+    let section = byTheme.get(c.theme);
+    if (!section) {
+      section = { title: c.theme, ids: [] };
+      byTheme.set(c.theme, section);
+      sections.push(section);
+    }
+    section.ids.push(c.id);
+  }
+  if (current && words.length === 0) {
+    const id = conceptFor(current);
+    if (!PICKABLE.some((c) => c.id === id)) sections.unshift({ title: 'Current', ids: [id] });
+  }
+  return sections;
+}
+
+export function pickableCount(): number {
+  return PICKABLE.length;
 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { IconTile } from '@/components/app/icon-tile';
 import { Pressable } from '@/components/ui/pressable';
 import { Switch } from '@/components/ui/switch';
@@ -76,13 +76,13 @@ function ListRow({
       {hasSwitch ? <Switch value={switchValue} onValueChange={onSwitchChange} accessibilityLabel={label} /> : null}
       {chevron ? (
         <View className="ml-2">
-          <SymbolIcon name="chevron.right" size={13} color={colors.textTertiary} weight="semibold" />
+          <AppIcon name="chevron.right" size={13} color={colors.textTertiary} />
         </View>
       ) : null}
       {showSeparator ? (
         <View
           pointerEvents="none"
-          style={{ left: icon ? 64 : 16, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }}
+          style={{ left: icon ? 66 : 16, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }}
           className="absolute bottom-0 right-0"
         />
       ) : null}

@@ -1,17 +1,24 @@
 import type { NativeStackNavigationOptions } from 'expo-router';
-import { Platform } from 'react-native';
 
 import { useTokens } from '@/theme/use-tokens';
 
-export function useTabStackOptions(): NativeStackNavigationOptions {
-  const { colors } = useTokens();
+/**
+ * Header chrome shared by every stack: a solid `bg` header (true black in dark, paper in light),
+ * no blur material, no hairline. `headerBlurEffect: 'none'` stops UIKit substituting a grey
+ * system material, and `headerShadowVisible: false` removes the scroll-edge hairline.
+ */
+export function headerChrome(colors: { bg: string; accent: string; text: string }): NativeStackNavigationOptions {
   return {
-    headerLargeTitleEnabled: false,
+    headerTransparent: false,
+    headerBlurEffect: 'none',
     headerShadowVisible: false,
-    headerTransparent: Platform.OS === 'ios',
-    headerBlurEffect: Platform.OS === 'ios' ? 'systemChromeMaterial' : undefined,
-    headerStyle: Platform.OS === 'ios' ? undefined : { backgroundColor: colors.bg },
+    headerStyle: { backgroundColor: colors.bg },
     headerTintColor: colors.accent,
     headerTitleStyle: { color: colors.text },
   };
+}
+
+export function useTabStackOptions(): NativeStackNavigationOptions {
+  const { colors } = useTokens();
+  return { ...headerChrome(colors), headerLargeTitleEnabled: false };
 }

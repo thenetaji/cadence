@@ -33,12 +33,16 @@ function item(patch: Partial<TransactionListItem>): TransactionListItem {
     dateKey: '2026-10-03',
     isSplit: false,
     recurringRuleId: null,
+    personId: null,
     createdAt: 0,
     updatedAt: 0,
     category: food,
     account: bank,
     transferAccount: null,
     splits: [],
+    tags: [],
+    person: null,
+    attachments: [],
     ...patch,
   };
 }

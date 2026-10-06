@@ -6,6 +6,7 @@ import { ListGroup, ListRow } from '@/components/app/list-group';
 import { OptionPicker, type Option } from '@/components/app/option-picker';
 import { useActions } from '@/data/actions';
 import { useAccounts, useSetting } from '@/data/hooks';
+import { ICON_STYLE_LABELS } from '@/icons/types';
 import { ordinal } from '@/features/budgets/logic';
 import { moneyLocale } from '@/features/transactions/use-money-context';
 import { formatMoney } from '@/lib/money';
@@ -30,9 +31,11 @@ export default function Settings() {
   const [monthStart, setMonthStart] = useSetting('month_start');
   const [defaultAccountId, setDefaultAccountId] = useSetting('default_account_id');
   const [theme] = useSetting('theme');
+  const [iconStyle] = useSetting('icon_style');
   const [haptics, setHaptics] = useSetting('haptics');
   const [showDecimals, setShowDecimals] = useSetting('show_decimals');
   const [lockEnabled] = useSetting('lock_enabled');
+  const [hideAmounts] = useSetting('hide_amounts');
   const [picker, setPicker] = React.useState<Picker>(null);
   const close = () => setPicker(null);
   // Onboarding is the unprotected route once `onboarding_done` resets, so the navigator moves there on its own.
@@ -79,12 +82,20 @@ export default function Settings() {
           chevron
           onPress={() => setPicker('account')}
         />
+        <ListRow label="Reminders" icon={{ name: 'bell', color: 'red' }} chevron onPress={() => router.push('/settings/reminders')} />
       </ListGroup>
       <ListGroup>
         <ListRow
           label="Theme"
           icon={{ name: 'paintbrush.fill', color: 'purple' }}
           value={theme === 'system' ? 'System' : theme === 'light' ? 'Light' : 'Dark'}
+          chevron
+          onPress={() => router.push('/settings/appearance')}
+        />
+        <ListRow
+          label="Icons"
+          icon={{ name: 'grid', color: 'indigo' }}
+          value={ICON_STYLE_LABELS[iconStyle].label}
           chevron
           onPress={() => router.push('/settings/appearance')}
         />
@@ -99,17 +110,21 @@ export default function Settings() {
       </ListGroup>
       <ListGroup>
         <ListRow
-          label="Face ID"
-          icon={{ name: 'faceid', color: 'green' }}
-          value={lockEnabled ? 'On' : 'Off'}
+          label="Privacy"
+          icon={{ name: 'lock', color: 'green' }}
+          value={lockEnabled || hideAmounts ? 'On' : 'Off'}
           chevron
-          onPress={() => router.push('/settings/lock')}
+          onPress={() => router.push('/settings/privacy')}
         />
       </ListGroup>
       <ListGroup>
         <ListRow label="Categories" icon={{ name: 'tag.fill', color: 'orange' }} chevron onPress={() => router.push('/settings/categories')} />
         <ListRow label="Accounts" icon={{ name: 'building.columns.fill', color: 'blue' }} chevron onPress={() => router.push('/accounts')} />
+        <ListRow label="People" icon={{ name: 'loans', color: 'teal' }} chevron onPress={() => router.push('/people')} />
+        <ListRow label="Tags" icon={{ name: 'tag', color: 'pink' }} chevron onPress={() => router.push('/tags')} />
         <ListRow label="Recurring" icon={{ name: 'repeat', color: 'indigo' }} chevron onPress={() => router.push('/recurring')} />
+        <ListRow label="Subscriptions" icon={{ name: 'subscriptions', color: 'purple' }} chevron onPress={() => router.push('/subscriptions')} />
+        <ListRow label="Backup & sync" icon={{ name: 'cloud', color: 'cyan' }} chevron onPress={() => router.push('/settings/backup')} />
         <ListRow label="Export" icon={{ name: 'square.and.arrow.up', color: 'indigo' }} chevron onPress={() => router.push('/settings/export')} />
         <ListRow label="Import" icon={{ name: 'square.and.arrow.down', color: 'teal' }} chevron onPress={() => router.push('/settings/import')} />
         <ListRow label="Erase all data" destructive onPress={eraseAll} />

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { IconTile } from '@/components/app/icon-tile';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
@@ -27,11 +27,12 @@ function Chip({ label, selected = false, icon, trailingIcon, hint, onPress, acce
       accessibilityState={{ selected }}
       accessibilityLabel={accessibilityLabel ?? label}
       haptic="light"
+      popWhen={selected}
       hitSlop={{ top: 6, bottom: 6 }}
       onPress={onPress}
       className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full border px-3', selected ? 'border-accent bg-accent-soft' : 'border-transparent bg-fill')}
     >
-      {icon ? <SymbolIcon name={icon} size={14} color={iconColor} /> : null}
+      {icon ? <AppIcon name={icon} size={14} color={iconColor} /> : null}
       <Text variant="callout" tone={selected ? 'accent' : 'default'} numberOfLines={1}>
         {label}
       </Text>
@@ -40,7 +41,7 @@ function Chip({ label, selected = false, icon, trailingIcon, hint, onPress, acce
           {hint}
         </Text>
       ) : null}
-      {trailingIcon ? <SymbolIcon name={trailingIcon} size={10} color={iconColor} weight="semibold" /> : null}
+      {trailingIcon ? <AppIcon name={trailingIcon} size={10} color={iconColor} /> : null}
     </Pressable>
   );
 }
@@ -54,20 +55,19 @@ type CategoryChipProps = {
 };
 
 function CategoryChip({ name, icon, color, selected = false, onPress }: CategoryChipProps) {
-  const { ink, colors } = useTokens();
+  const { colors } = useTokens();
   return (
     <Pressable
       role="button"
       accessibilityState={{ selected }}
       accessibilityLabel={name}
       haptic="light"
+      popWhen={selected}
       hitSlop={{ top: 6, bottom: 6 }}
       onPress={onPress}
       className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full border pl-1.5 pr-3', selected ? 'border-accent bg-accent-soft' : 'border-transparent bg-fill')}
     >
-      <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: ink[color], alignItems: 'center', justifyContent: 'center' }}>
-        <SymbolIcon name={icon} size={12} color="#FFFFFF" weight="semibold" />
-      </View>
+      <IconTile icon={icon} color={color} size={22} />
       <Text variant="callout" numberOfLines={1} style={selected ? { color: colors.accentText } : { color: colors.text }}>
         {name}
       </Text>

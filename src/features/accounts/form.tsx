@@ -6,7 +6,7 @@ import { AmountReadout } from '@/components/app/amount-readout';
 import { CurrencyPicker } from '@/components/app/currency-picker';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { OptionPicker } from '@/components/app/option-picker';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Input } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -53,7 +53,7 @@ function Swatches({ value, onChange }: { value: string; onChange: (key: Category
               style={{ borderWidth: 2, borderColor: on ? colors.accent : 'transparent' }}
             >
               <View className="h-8 w-8 items-center justify-center rounded-full" style={{ backgroundColor: ink[key] }}>
-                {on ? <SymbolIcon name="checkmark" size={14} color="#FFFFFF" weight="bold" /> : null}
+                {on ? <AppIcon name="checkmark" size={14} color="#FFFFFF" /> : null}
               </View>
             </Pressable>
           </View>

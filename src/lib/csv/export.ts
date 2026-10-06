@@ -1,4 +1,5 @@
 import { toDateKey } from '@/lib/dates';
+import type { TransactionKind } from '@/lib/ledger';
 import { fromMinor } from '@/lib/money';
 
 import { BOM, stringifyCsv } from './csv';
@@ -18,11 +19,16 @@ export const EXPORT_COLUMNS = [
   'split_index',
   'split_count',
   'id',
+  'tags',
+  'person',
 ] as const;
+
+/** Tag names are joined with this in the `tags` column. */
+export const TAG_SEPARATOR = ';';
 
 export interface ExportRecord {
   id: string;
-  kind: 'expense' | 'income' | 'transfer';
+  kind: TransactionKind;
   title: string;
   memo: string;
   /** Positive minor units in `currency`. */
@@ -36,6 +42,10 @@ export interface ExportRecord {
   transferAmount: number | null;
   transferCurrency: string | null;
   splits: readonly { category: string; amount: number }[];
+  /** Tag names. */
+  tags?: readonly string[];
+  /** Counterparty name of a lending kind. */
+  person?: string | null;
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -66,6 +76,8 @@ export function exportRows(records: readonly ExportRecord[]): string[][] {
         String(index + 1),
         String(lines.length),
         r.id,
+        (r.tags ?? []).map((t) => t.replaceAll(TAG_SEPARATOR, ',')).join(TAG_SEPARATOR),
+        r.person ?? '',
       ]);
     });
   }

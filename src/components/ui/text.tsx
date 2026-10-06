@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { dynamicType, type TypeVariant } from '@/theme/tokens';
 
 const variantClass: Record<TypeVariant, string> = {
+  display: 'text-[54px] leading-[60px] font-bold tracking-[-2.4px]',
   hero: 'text-[44px] leading-[50px] font-bold tracking-[-2px]',
   amountEntry: 'text-[44px] leading-[52px] font-semibold tracking-[-1px]',
   largeTitle: 'text-[34px] leading-[41px] font-bold tracking-[-0.4px]',
@@ -39,6 +40,7 @@ const toneVariants = cva('', {
 type TextTone = NonNullable<NonNullable<Parameters<typeof toneVariants>[0]>['tone']>;
 
 const multiplier: Partial<Record<TypeVariant, number>> = {
+  display: dynamicType.hero,
   hero: dynamicType.hero,
   amountEntry: dynamicType.hero,
   largeTitle: dynamicType.hero,

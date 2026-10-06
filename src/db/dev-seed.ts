@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { addDays, addMonths, keyToLocalMs, makeKey, parseKey, toDateKey, weekday, type DateKey } from '@/lib/dates';
 import { createAccount, type AccountInput } from './repos/accounts';
 import { listCategories } from './repos/categories';
@@ -6,10 +6,17 @@ import { setRate } from './repos/fx';
 import { createRule, postDue, setRulePaused } from './repos/recurring';
 import { setSetting } from './repos/settings';
 import { budgetPeriodFor, budgetSpent, createBudget, deleteBudget, getBudget } from './repos/budgets';
+import { addAttachment } from './repos/attachments';
+import { getPersonByName } from './repos/people';
+import { createTag, setTransactionTags } from './repos/tags';
 import { createTransaction, deleteTransaction, restoreTransaction, type TransactionInput } from './repos/transactions';
 import type { TransactionRow } from './schema';
 import {
   accounts,
+  attachments,
+  people,
+  tags,
+  transactionTags,
   budgetCategories,
   budgets,
   fxRates,
@@ -50,8 +57,12 @@ function makeRng(seed: number): Rng {
 }
 
 function clearDemoData(db: Db): void {
+  db.delete(transactionTags).run();
+  db.delete(attachments).run();
   db.delete(transactionSplits).run();
   db.delete(transactions).run();
+  db.delete(tags).run();
+  db.delete(people).run();
   db.delete(recurringRules).run();
   db.delete(budgetCategories).run();
   db.delete(budgets).run();
@@ -242,4 +253,72 @@ function seedDemoBudgets(db: Db, today: DateKey, categoryOf: (name: string) => s
   pinned('demo-budget-groceries', undefined, (spent) => roundTo(spent * 2 + 3000, 500), ['Groceries']);
   pinned('demo-budget-transport', undefined, (spent) => roundTo(spent / 0.95, 50), ['Transport']);
   pinned('demo-budget-shopping', undefined, (spent) => roundTo(spent * 3 + 4000, 500), ['Shopping', 'Personal']);
+}
+
+/** A drawn slip of paper for the demo receipt (web has no camera; native shows it too). */
+const DEMO_RECEIPT = `data:image/svg+xml;utf8,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="320"><rect width="240" height="320" fill="#d9d5cc"/><rect x="30" y="20" width="180" height="290" fill="#f7f5f0"/>' +
+    [50, 74, 98, 122, 146, 190, 214, 238].map((y, i) => `<rect x="48" y="${y}" width="${i % 3 === 0 ? 90 : 144}" height="6" fill="#6b675f"/>`).join('') +
+    '<rect x="48" y="268" width="144" height="10" fill="#2b2924"/></svg>',
+)}`;
+
+/**
+ * Lending, tags and a receipt on top of the demo ledger: three people (Rahul owes, Priya is owed, Amit is settled),
+ * two tags and fixed ids `demo-lent` and `demo-tagged`. Idempotent: does nothing when Rahul already exists.
+ */
+export function seedDemoExtras(db: Db, now = Date.now()): void {
+  if (getPersonByName(db, 'Rahul')) return;
+  const bank = db.select().from(accounts).where(eq(accounts.id, 'demo-account-bank')).get();
+  if (!bank) return;
+  const today = toDateKey(now);
+  const at = (daysAgo: number, hour: number) => keyToLocalMs(addDays(today, -daysAgo), hour, 15);
+
+  // Fixed ids let screenshots route straight to a person or tag.
+  const person = (slug: string, name: string) => {
+    const row = { id: `demo-person-${slug}`, name, createdAt: now };
+    db.insert(people).values(row).run();
+    return row;
+  };
+  const rahul = person('rahul', 'Rahul');
+  const priya = person('priya', 'Priya');
+  const amit = person('amit', 'Amit');
+
+  const lend = (kind: 'lent' | 'borrowed' | 'repaid_to_me' | 'repaid_by_me', personId: string, rupeeAmount: number, daysAgo: number, memo = '') =>
+    createTransaction(db, { kind, personId, accountId: bank.id, amount: rupees(rupeeAmount), occurredAt: at(daysAgo, 19), memo }, now);
+
+  const goa = createTag(db, { name: 'Goa trip', color: 'teal' }, now);
+  const work = createTag(db, { name: 'Work', color: 'indigo' }, now);
+  db.update(tags).set({ id: 'demo-tag-goa' }).where(eq(tags.id, goa.id)).run();
+  db.update(tags).set({ id: 'demo-tag-work' }).where(eq(tags.id, work.id)).run();
+  goa.id = 'demo-tag-goa';
+  work.id = 'demo-tag-work';
+
+  const lent = lend('lent', rahul.id, 2400, 9, 'Goa flights');
+  const snapshot = deleteTransaction(db, lent.id);
+  if (snapshot) restoreTransaction(db, { ...snapshot, transaction: { ...snapshot.transaction, id: 'demo-lent' } });
+  setTransactionTags(db, 'demo-lent', [goa.id]);
+  lend('lent', rahul.id, 1000, 21, 'Dinner');
+  lend('repaid_to_me', rahul.id, 500, 5);
+  lend('borrowed', priya.id, 800, 13, 'Cab share');
+  lend('lent', amit.id, 1500, 40);
+  lend('repaid_to_me', amit.id, 1500, 18);
+
+  const spend = db
+    .select()
+    .from(transactions)
+    .where(and(eq(transactions.kind, 'expense'), eq(transactions.accountId, bank.id)))
+    .orderBy(desc(transactions.occurredAt))
+    .limit(40)
+    .all()
+    .filter((row) => row.amount <= rupees(3000))
+    .slice(0, 7);
+  spend.slice(0, 4).forEach((row) => setTransactionTags(db, row.id, [goa.id]));
+  spend.slice(4).forEach((row) => setTransactionTags(db, row.id, [work.id]));
+  const first = spend[0];
+  if (first) {
+    const pinned = deleteTransaction(db, first.id);
+    if (pinned) restoreTransaction(db, { ...pinned, transaction: { ...pinned.transaction, id: 'demo-tagged' } });
+    setTransactionTags(db, 'demo-tagged', [goa.id, work.id]);
+    addAttachment(db, { transactionId: 'demo-tagged', uri: DEMO_RECEIPT, width: 240, height: 320 }, now);
+  }
 }

@@ -1,5 +1,6 @@
 import { nextDueDate, occurrencesBetween, defaultAnchorDay, type RecurrenceRule } from './next-due';
 import { weekday } from '../dates';
+import { chargesPerYear, monthlyCost, yearlyCost } from './subscriptions';
 
 const rule = (over: Partial<RecurrenceRule>): RecurrenceRule => ({
   frequency: 'monthly',
@@ -62,5 +63,32 @@ describe('occurrencesBetween', () => {
     expect(defaultAnchorDay('weekly', '2026-10-05', weekday)).toBe(1);
     expect(defaultAnchorDay('monthly', '2026-10-31', weekday)).toBe(31);
     expect(defaultAnchorDay('daily', '2026-10-31', weekday)).toBeNull();
+  });
+});
+
+describe('subscription maths', () => {
+  it('normalises each frequency to a monthly and yearly cost', () => {
+    expect(monthlyCost(1000, 'monthly')).toBe(1000);
+    expect(yearlyCost(1000, 'monthly')).toBe(12000);
+    expect(monthlyCost(12000, 'yearly')).toBe(1000);
+    expect(yearlyCost(12000, 'yearly')).toBe(12000);
+    expect(yearlyCost(100, 'weekly')).toBe(5200);
+    expect(monthlyCost(100, 'weekly')).toBe(433);
+    expect(yearlyCost(100, 'daily')).toBe(36500);
+    expect(monthlyCost(100, 'daily')).toBe(3042);
+  });
+
+  it('divides by the interval', () => {
+    expect(monthlyCost(3000, 'monthly', 3)).toBe(1000);
+    expect(yearlyCost(3000, 'monthly', 3)).toBe(12000);
+    expect(yearlyCost(1000, 'weekly', 2)).toBe(26000);
+    expect(yearlyCost(5000, 'yearly', 2)).toBe(2500);
+    expect(chargesPerYear('daily', 7)).toBeCloseTo(52.14, 2);
+  });
+
+  it('treats an interval below 1 as 1 and always returns integers', () => {
+    expect(monthlyCost(999, 'monthly', 0)).toBe(999);
+    expect(Number.isInteger(monthlyCost(1, 'daily', 3))).toBe(true);
+    expect(monthlyCost(0, 'weekly')).toBe(0);
   });
 });

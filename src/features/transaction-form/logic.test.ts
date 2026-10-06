@@ -10,7 +10,13 @@ import {
   emptyDraft,
   isSaveDisabled,
   kindChangePatch,
+  lendTitle,
+  lendToggle,
   MAX_SPLIT_LINES,
+  receiptChanges,
+  segmentOf,
+  titleAfterPerson,
+  toggleId,
   removeSplitLine,
   repeatLabel,
   resolveDefaults,
@@ -177,5 +183,70 @@ describe('labels and factories', () => {
     const src = { kind: 'transfer' as const, title: '', memo: '', amount: 1000, currency: 'INR', accountId: 'a1', categoryId: null, transferAccountId: 'a2', transferAmount: 12, transferCurrency: 'USD', occurredAt: 1, splits: [] };
     expect(draftFromTransaction(src, 5)).toMatchObject({ receives: 12, occurredAt: 5 });
     expect(draftFromTransaction({ ...src, transferCurrency: 'INR', transferAmount: 1000 }, 5).receives).toBeNull();
+  });
+});
+
+describe('lending drafts', () => {
+  const lend: Draft = { ...base, kind: 'lent', personId: 'p1', title: '', tagIds: ['t1'] };
+
+  it('maps a lend draft to a lending input with the person and tags, and no category', () => {
+    expect(buildTransactionInput({ ...lend, categoryId: 'food', title: 'Rahul' }, same)).toMatchObject({
+      kind: 'lent',
+      personId: 'p1',
+      categoryId: null,
+      tagIds: ['t1'],
+      amount: 10000,
+    });
+    expect(buildTransactionInput({ ...lend, kind: 'borrowed' }, same).kind).toBe('borrowed');
+  });
+
+  it('needs a person but no category; amount blocks first', () => {
+    expect(saveBlock({ ...lend, personId: null }, same)).toBe('person');
+    expect(isSaveDisabled('person')).toBe(false);
+    expect(saveBlock(lend, same)).toBeNull();
+    expect(saveBlock({ ...lend, amount: 0, personId: null }, same)).toBe('amount');
+  });
+
+  it('defaults the title to the person only when nothing was typed', () => {
+    expect(lendTitle(lend, 'Rahul')).toBe('Rahul');
+    expect(lendTitle({ ...lend, title: 'Flights' }, 'Rahul')).toBe('Flights');
+    expect(lendTitle({ ...base, title: '' }, 'Rahul')).toBe('');
+    expect(titleAfterPerson('', undefined, 'Rahul')).toBe('Rahul');
+    expect(titleAfterPerson('Rahul', 'Rahul', 'Priya')).toBe('Priya');
+    expect(titleAfterPerson('Flights', 'Rahul', 'Priya')).toBe('Flights');
+  });
+
+  it('puts every lending kind under the Lend segment with the right toggle labels', () => {
+    expect(segmentOf('borrowed')).toBe('lend');
+    expect(segmentOf('income')).toBe('income');
+    expect(lendToggle('lent').kinds).toEqual(['lent', 'borrowed']);
+    expect(lendToggle('repaid_by_me').labels).toEqual(['They paid', 'I paid']);
+  });
+
+  it('clears repeat and category when switching into lend', () => {
+    const patch = kindChangePatch({ accountId: 'a1', categoryId: 'food', transferAccountId: null }, 'lent', accounts, categories);
+    expect(patch).toMatchObject({ kind: 'lent', categoryId: null, repeat: null, splits: null });
+  });
+
+  it('never builds a recurring rule for lending', () => {
+    const repeat = { frequency: 'monthly' as const, interval: 1, endDate: null };
+    expect(buildRuleInput({ ...lend, repeat }, same, 'x')).toBeNull();
+  });
+
+  it('round-trips person, tags and receipts through edit', () => {
+    const draft = draftFromTransaction(
+      {
+        kind: 'lent', title: 'Rahul', memo: '', amount: 100, currency: 'INR', accountId: 'a1', categoryId: null, transferAccountId: null,
+        transferAmount: null, transferCurrency: null, occurredAt: 1, splits: [], personId: 'p1', tags: [{ id: 't1' }],
+        attachments: [{ id: 'att1', uri: 'file://a.jpg', width: 1, height: 2 }],
+      },
+      1,
+    );
+    expect(draft).toMatchObject({ kind: 'lent', personId: 'p1', tagIds: ['t1'] });
+    expect(receiptChanges(draft.receipts, ['att1', 'att2'])).toEqual({ add: [], remove: ['att2'] });
+    const added = [...draft.receipts, { key: 'n', uri: 'file://b.jpg', width: null, height: null }];
+    expect(receiptChanges(added, ['att1']).add.map((r) => r.uri)).toEqual(['file://b.jpg']);
+    expect(toggleId(['a'], 'b')).toEqual(['a', 'b']);
+    expect(toggleId(['a', 'b'], 'a')).toEqual(['b']);
   });
 });

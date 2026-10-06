@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -22,7 +22,7 @@ function Stepper({ value, onChange }: { value: number; onChange: (value: number)
   const { colors } = useTokens();
   const button = (symbol: string, label: string, next: number, disabled: boolean) => (
     <Pressable role="button" accessibilityLabel={label} haptic="light" disabled={disabled} onPress={() => onChange(next)} className="h-9 w-9 items-center justify-center rounded-full bg-fill" style={{ opacity: disabled ? 0.4 : 1 }}>
-      <SymbolIcon name={symbol} size={14} color={colors.text} weight="semibold" />
+      <AppIcon name={symbol} size={14} color={colors.text} />
     </Pressable>
   );
   return (

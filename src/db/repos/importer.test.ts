@@ -121,7 +121,7 @@ describe('export and import round trip', () => {
     const records: ExportRecord[] = listForExport(source);
     expect(records).toHaveLength(1000);
     const text = buildExportCsv(records);
-    expect(text.startsWith('﻿date,time,kind,title,memo,amount,currency,category,account,transfer_account,transfer_amount,split_index,split_count,id\r\n')).toBe(true);
+    expect(text.startsWith('﻿date,time,kind,title,memo,amount,currency,category,account,transfer_account,transfer_amount,split_index,split_count,id,tags,person\r\n')).toBe(true);
 
     const target = createTestDb();
     const parsed = parseFarthing(text);

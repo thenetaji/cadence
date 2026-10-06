@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
@@ -39,7 +39,7 @@ function StepButton({ symbol, label, disabled, onPress }: { symbol: string; labe
       }}
       className="h-11 w-11 items-center justify-center"
     >
-      <SymbolIcon name={symbol} size={18} color={disabled ? colors.textTertiary : colors.accent} weight="semibold" />
+      <AppIcon name={symbol} size={18} color={disabled ? colors.textTertiary : colors.accent} />
     </Pressable>
   );
 }

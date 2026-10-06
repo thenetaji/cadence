@@ -3,7 +3,7 @@ import { addDays, keyToLocalMs, weekday, type DateKey } from '@/lib/dates';
 import { defaultAnchorDay, nextDueDate, occurrencesBetween, type Frequency } from '@/lib/recurring';
 import { ValidationError } from '../errors';
 import { newId } from '../ids';
-import { accounts, recurringRules, transactions, type RecurringRuleRow, type TransactionKind } from '../schema';
+import { accounts, recurringRules, transactions, type RecurringKind, type RecurringRuleRow } from '../schema';
 import type { Db } from '../types';
 import { createTransaction, type TransactionInput } from './transactions';
 
@@ -11,7 +11,7 @@ export const POST_CAP_PER_RULE = 100;
 const POST_HOUR = 9;
 
 export interface RecurringInput {
-  kind: TransactionKind;
+  kind: RecurringKind;
   title: string;
   memo?: string;
   amount: number;

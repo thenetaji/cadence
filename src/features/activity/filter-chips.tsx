@@ -8,7 +8,15 @@ import type { TransactionKind } from '@/db/schema';
 
 import { useActivityFilters } from './filter-store';
 
-const KIND_LABEL: Record<TransactionKind, string> = { expense: 'Expense', income: 'Income', transfer: 'Transfer' };
+const KIND_LABEL: Record<TransactionKind, string> = {
+  expense: 'Expense',
+  income: 'Income',
+  transfer: 'Transfer',
+  lent: 'Lent',
+  borrowed: 'Borrowed',
+  repaid_to_me: 'Repaid to me',
+  repaid_by_me: 'Repaid by me',
+};
 
 /** Active filters as removable chips plus Clear. Renders nothing when no filter is set. */
 function FilterChips() {

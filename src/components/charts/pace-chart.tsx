@@ -2,10 +2,12 @@ import { BlurMask, Canvas, Circle, DashPathEffect, Group, Line, LinearGradient, 
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { useDerivedValue, useReducedMotion } from 'react-native-reanimated';
+import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
 import { nearestPoint, niceTicks, pointX, valueToY } from '@/lib/charts';
 import { formatMoney } from '@/lib/money';
+import { buildPolyPath, pointAt } from '@/motion/path-point';
+import { motion } from '@/motion/tokens';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
@@ -84,7 +86,7 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
   const [width, onLayout] = useChartWidth();
   const font = useChartFont(11, 'medium');
   const labelFont = useChartFont(12, 'semibold');
-  const grow = useGrow();
+  const grow = useGrow(motion.durations.draw);
   const showAxis = axis === 'full';
   const plotWidth = Math.max(0, width - (showAxis ? GUTTER : 0));
   const baseline = LANE + height;
@@ -99,6 +101,26 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
   );
 
   const end = useDerivedValue(() => grow.value);
+
+  // Comet: rides the line as it draws, then the end-dot pulses once.
+  const poly = React.useMemo(() => {
+    const pts: { x: number; y: number }[] = [];
+    data.forEach((d, i) => {
+      if (d.actual !== null) pts.push({ x: pointX(i, 0, plotWidth, count), y: valueToY(d.actual, yMax, baseline, height) });
+    });
+    return buildPolyPath(pts);
+  }, [data, plotWidth, count, yMax, baseline, height]);
+  const cometX = useDerivedValue(() => pointAt(poly, grow.value).x);
+  const cometY = useDerivedValue(() => pointAt(poly, grow.value).y);
+  const tailX = useDerivedValue(() => pointAt(poly, grow.value - 0.04).x);
+  const tailY = useDerivedValue(() => pointAt(poly, grow.value - 0.04).y);
+  const cometOpacity = useDerivedValue(() => (grow.value >= 1 ? 0 : Math.min(1, (1 - grow.value) * 10)));
+  const pulse = useSharedValue(0);
+  React.useEffect(() => {
+    if (!reduced) pulse.value = withDelay(motion.durations.draw, withTiming(1, { duration: motion.durations.pulse * 1.4 }));
+  }, [reduced, pulse]);
+  const ringR = useDerivedValue(() => 6 + pulse.value * 9);
+  const ringOpacity = useDerivedValue(() => (pulse.value <= 0 || pulse.value >= 1 ? 0 : (1 - pulse.value) * 0.55));
   const gesture = useScrubGesture({
     indexAt: (x) => (x > plotWidth + 8 ? -1 : nearestPoint(x, 0, plotWidth, count)),
     selected: selectedIndex,
@@ -148,6 +170,18 @@ function PaceChart({ data, currency, selectedIndex, onSelect, labels = [], color
                         </Path>
                       )}
                       <Path path={actualPath} style="stroke" strokeWidth={2.5} color={tint} strokeCap="round" strokeJoin="round" start={0} end={end} />
+                      {reduced ? null : (
+                        <>
+                          <Circle cx={tailX} cy={tailY} r={4} color={glow} opacity={cometOpacity}>
+                            <BlurMask blur={5} style="normal" />
+                          </Circle>
+                          <Circle cx={cometX} cy={cometY} r={7} color={glow} opacity={cometOpacity}>
+                            <BlurMask blur={7} style="normal" />
+                          </Circle>
+                          <Circle cx={cometX} cy={cometY} r={2.5} color="#FFFFFF" opacity={cometOpacity} />
+                          <Circle cx={pointX(lastActual, 0, plotWidth, count)} cy={valueToY(data[lastActual]?.actual ?? 0, yMax, baseline, height)} r={ringR} color={glow} opacity={ringOpacity} />
+                        </>
+                      )}
                       <Circle cx={pointX(lastActual, 0, plotWidth, count)} cy={valueToY(data[lastActual]?.actual ?? 0, yMax, baseline, height)} r={6} color={withAlpha(glow, 0.3)} />
                       <Circle cx={pointX(lastActual, 0, plotWidth, count)} cy={valueToY(data[lastActual]?.actual ?? 0, yMax, baseline, height)} r={3.5} color={glow} />
                     </>

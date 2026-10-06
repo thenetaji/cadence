@@ -1,28 +1,29 @@
-import { categoryIconNames } from '@/components/app/symbolFallbacks';
-import { filterIcons, iconWords } from './icons';
+import { iconSections, pickableCount } from './icons';
 
-describe('category icons', () => {
-  it('splits names into search words without "fill"', () => {
-    expect(iconWords('cart.fill')).toEqual(['cart']);
-    expect(iconWords('takeoutbag.and.cup.and.straw.fill')).toEqual(['takeoutbag', 'and', 'cup', 'and', 'straw']);
+const flat = (query: string, current?: string) => iconSections(query, current).flatMap((s) => s.ids);
+
+describe('category icon picker', () => {
+  it('groups every pickable concept under a theme', () => {
+    const sections = iconSections('');
+    expect(sections.length).toBeGreaterThan(8);
+    expect(flat('')).toHaveLength(pickableCount());
+    expect(pickableCount()).toBeGreaterThanOrEqual(150);
   });
 
-  it('returns the whole curated set for an empty query', () => {
-    expect(filterIcons('')).toEqual([...categoryIconNames]);
+  it('matches every typed word by prefix', () => {
+    expect(flat('car')).toContain('car');
+    expect(flat('take away')).toEqual([]);
+    expect(flat('takeaway')).toEqual(['takeaway']);
+    expect(flat('zzzz')).toEqual([]);
   });
 
-  it('matches every typed word', () => {
-    expect(filterIcons('car')).toContain('car.fill');
-    expect(filterIcons('cup straw')).toEqual(['takeoutbag.and.cup.and.straw.fill']);
-    expect(filterIcons('zzzz')).toEqual([]);
+  it('finds icons by synonym', () => {
+    expect(flat('burger')).toContain('fastfood');
   });
 
-  it('keeps a non-curated current icon first', () => {
-    expect(filterIcons('', 'moon.stars')[0]).toBe('moon.stars');
-    expect(filterIcons('car', 'moon.stars')).not.toContain('moon.stars');
-  });
-
-  it('offers about 70 curated icons', () => {
-    expect(categoryIconNames.length).toBeGreaterThanOrEqual(60);
+  it('keeps a non-pickable current icon in its own section', () => {
+    expect(iconSections('', 'plus.circle.fill')[0]).toEqual({ title: 'Current', ids: ['add-circle'] });
+    expect(iconSections('', 'cart.fill')[0]?.title).not.toBe('Current');
+    expect(iconSections('car', 'plus.circle.fill').some((s) => s.title === 'Current')).toBe(false);
   });
 });

@@ -4,6 +4,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { DaySectionHeader } from '@/components/app/day-section-header';
 import type { TransactionListItem } from '@/data/hooks';
+import { EntryTracker } from '@/motion/entry-tracker';
 
 import { buildDayEntries, headerIndices, type ListEntry } from './day-groups';
 import { TransactionListRow } from './transaction-list-row';
@@ -27,15 +28,18 @@ function TransactionDayList({ items, context: callerContext, header, footer, emp
   // Day headers already say the date, so rows under them always show the time (C4), whatever the caller passed.
   const context = React.useMemo(() => (callerContext.relativeTo ? { ...callerContext, relativeTo: undefined } : callerContext), [callerContext]);
   const entries = React.useMemo(() => buildDayEntries(items, context), [items, context]);
+  // One tracker per mounted list: first screenful staggers in, later single inserts spring + shimmer.
+  const [tracker] = React.useState(() => new EntryTracker());
+  React.useMemo(() => tracker.sync(items.map((i) => i.id)), [tracker, items]);
   const sticky = React.useMemo(() => headerIndices(entries), [entries]);
   const renderItem = React.useCallback(
     ({ item }: { item: ListEntry }) =>
       item.type === 'header' ? (
         <DaySectionHeader label={item.label} total={item.total} />
       ) : (
-        <TransactionListRow item={item.item} context={context} separator={!item.last} />
+        <TransactionListRow item={item.item} context={context} separator={!item.last} tracker={tracker} />
       ),
-    [context],
+    [context, tracker],
   );
   return (
     <FlashList

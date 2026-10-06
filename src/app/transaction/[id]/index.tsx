@@ -9,14 +9,21 @@ import { Text } from '@/components/ui/text';
 import { useRecurringRule, useTransaction } from '@/data/hooks';
 import { DetailRow } from '@/features/transactions/detail-row';
 import { repeatLabel } from '@/features/transactions/repeat-label';
-import { formatTime } from '@/features/transactions/row-model';
+import { ReceiptThumb } from '@/features/receipts/receipt-thumb';
+import { TagPills } from '@/features/tags/tag-pill';
+import { formatTime, lendingLabel } from '@/features/transactions/row-model';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { useTransactionActions } from '@/features/transactions/use-transaction-actions';
 import { fullDayLabel } from '@/lib/dates';
+import { isLendingKind, type TransactionKind } from '@/lib/ledger';
 import { convertWithRates, formatMoney, formatMoneyForSpeech, type SignMode } from '@/lib/money';
+import { AnimatedNumber } from '@/motion/animated-number';
+import { Stagger } from '@/motion/stagger';
 import type { CategoryColorKey } from '@/theme/tokens';
 
-const SIGN: Record<'expense' | 'income' | 'transfer', SignMode> = { expense: 'minus', income: 'plus', transfer: 'none' };
+const SIGN: Record<TransactionKind, SignMode> = { expense: 'minus', income: 'plus', transfer: 'none', lent: 'minus', borrowed: 'plus', repaid_to_me: 'plus', repaid_by_me: 'minus' };
+
+const LEND_CAPTION: Partial<Record<TransactionKind, string>> = { lent: 'Lent', borrowed: 'Borrowed', repaid_to_me: 'Repaid to you', repaid_by_me: 'You repaid' };
 
 function EditButton({ id }: { id: string }) {
   const actions = useTransactionActions();
@@ -59,11 +66,14 @@ export default function TransactionDetail() {
       ? null
       : `≈ ${formatMoney(convertWithRates(item.amount, item.currency, displayCurrency, rates), displayCurrency, { locale, sign: 'none', decimals: 0 })}`;
   const split = item.splits.length > 1;
+  const lending = isLendingKind(item.kind);
   const title = isTransfer
     ? `${item.account.name} → ${item.transferAccount?.name ?? ''}`
-    : item.title || (split ? `${item.splits.length} categories` : (item.category?.name ?? 'Transaction'));
-  const icon = isTransfer ? 'arrow.left.arrow.right' : ((split ? item.splits[0]?.category.icon : item.category?.icon) ?? 'tag.fill');
-  const color = (isTransfer ? 'gray' : ((split ? item.splits[0]?.category.color : item.category?.color) ?? 'gray')) as CategoryColorKey;
+    : lending
+      ? item.title || lendingLabel(item.kind, item.person?.name)
+      : item.title || (split ? `${item.splits.length} categories` : (item.category?.name ?? 'Transaction'));
+  const icon = lending ? 'loans' : isTransfer ? 'arrow.left.arrow.right' : ((split ? item.splits[0]?.category.icon : item.category?.icon) ?? 'tag.fill');
+  const color = (isTransfer || lending ? 'gray' : ((split ? item.splits[0]?.category.color : item.category?.color) ?? 'gray')) as CategoryColorKey;
   const date = `${fullDayLabel(item.dateKey)} · ${formatTime(item.occurredAt)}`;
   const memo = item.memo.trim();
   const fmt = (minor: number, currency: string) => formatMoney(minor, currency, { locale, sign: 'none' });
@@ -80,25 +90,23 @@ export default function TransactionDetail() {
   return (
     <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="pb-12">
       <Stack.Screen options={headerOptions} />
-      <View className="items-center gap-1 px-6 pb-6 pt-4">
+      <Stagger index={0} className="items-center gap-1 px-6 pb-6 pt-4">
         <View className="mb-3">
           <IconTile icon={icon} color={color} size={64} splitBadge={split} />
         </View>
         <Text variant="title2" numberOfLines={2} className="text-center" accessibilityRole="header">
           {title}
         </Text>
-        <Text
+        <AnimatedNumber
+          value={amount}
           variant="largeTitle"
-          numeric
-          tone={item.kind === 'income' ? 'income' : 'default'}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.7}
+          tone={item.kind === 'income' || item.kind === 'borrowed' || item.kind === 'repaid_to_me' ? 'income' : 'default'}
+          intro
+          fit
+          justify="center"
           className="font-semibold"
-          accessibilityLabel={formatMoneyForSpeech(shownMinor, shownCurrency, { sign })}
-        >
-          {amount}
-        </Text>
+          accessibilityLabel={formatMoneyForSpeech(shownMinor, shownCurrency, { sign, locale })}
+        />
         <Text variant="footnote" tone="secondary" numeric>
           {date}
         </Text>
@@ -107,10 +115,11 @@ export default function TransactionDetail() {
             {transferNote}
           </Text>
         ) : null}
-      </View>
+      </Stagger>
 
       <View className="gap-6">
         {split ? (
+          <Stagger index={1}>
           <ListGroup header="Split">
             {item.splits.map((line) => (
               <DetailRow
@@ -122,9 +131,20 @@ export default function TransactionDetail() {
               />
             ))}
           </ListGroup>
+          </Stagger>
         ) : null}
 
+        <Stagger index={2}>
         <ListGroup>
+          {item.person ? (
+            <DetailRow
+              label="Person"
+              value={item.person.name}
+              caption={LEND_CAPTION[item.kind]}
+              chevron
+              onPress={() => router.push({ pathname: '/people/[id]', params: { id: item.person?.id ?? '' } })}
+            />
+          ) : null}
           {!split && !isTransfer && item.category ? (
             <DetailRow label="Category" value={item.category.name} tile={{ icon: item.category.icon, color: item.category.color as CategoryColorKey }} />
           ) : null}
@@ -150,8 +170,37 @@ export default function TransactionDetail() {
             <DetailRow label="Original amount" value={`${fmt(item.amount, item.currency)} · rate ${Number(foreignRate.toFixed(4))}`} numeric />
           ) : null}
         </ListGroup>
+        </Stagger>
+
+        {item.tags.length > 0 ? (
+          <Stagger index={3}>
+            <ListGroup header="Tags">
+              <View className="bg-surface px-4 py-3.5">
+                <TagPills tags={item.tags} onPressTag={(tagId) => router.push({ pathname: '/tags/[id]', params: { id: tagId } })} />
+              </View>
+            </ListGroup>
+          </Stagger>
+        ) : null}
+
+        {item.attachments.length > 0 ? (
+          <Stagger index={3}>
+            <ListGroup header="Receipt">
+              <View className="flex-row flex-wrap gap-3 bg-surface px-4 py-3.5">
+                {item.attachments.map((a) => (
+                  <ReceiptThumb
+                    key={a.id}
+                    uri={a.uri}
+                    size={84}
+                    onPress={() => router.push({ pathname: '/transaction/receipt', params: { uri: a.uri, w: String(a.width ?? 0), h: String(a.height ?? 0) } })}
+                  />
+                ))}
+              </View>
+            </ListGroup>
+          </Stagger>
+        ) : null}
 
         {memo || rule ? (
+          <Stagger index={3}>
           <ListGroup>
             {memo ? <DetailRow label="Memo" value={memo} stacked /> : null}
             {rule ? (
@@ -163,10 +212,11 @@ export default function TransactionDetail() {
               />
             ) : null}
           </ListGroup>
+          </Stagger>
         ) : null}
       </View>
 
-      <View className="gap-6 pt-6">
+      <Stagger index={4} className="gap-6 pt-6">
         <View className="px-4">
           <Button variant="secondary" size="lg" onPress={() => actions.duplicate(item.id)}>
             Duplicate
@@ -175,7 +225,7 @@ export default function TransactionDetail() {
         <ListGroup>
           <ListRow label="Delete" destructive centered onPress={onDelete} />
         </ListGroup>
-      </View>
+      </Stagger>
     </ScrollView>
   );
 }

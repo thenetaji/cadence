@@ -1,5 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 
+import { headerChrome } from '@/components/app/tab-header';
 import { Button } from '@/components/ui/button';
 import { useTokens } from '@/theme/use-tokens';
 
@@ -10,10 +11,7 @@ export default function SettingsLayout() {
     <Stack
       screenOptions={{
         headerBackButtonDisplayMode: 'minimal',
-        headerShadowVisible: false,
-        headerTintColor: colors.accent,
-        headerTitleStyle: { color: colors.text },
-        headerStyle: { backgroundColor: colors.bg },
+        ...headerChrome(colors),
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
@@ -30,9 +28,12 @@ export default function SettingsLayout() {
           ),
         }}
       />
-      <Stack.Screen name="appearance" options={{ title: 'Theme' }} />
+      <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
       <Stack.Screen name="currency" options={{ title: 'Display currency' }} />
       <Stack.Screen name="lock" options={{ title: 'Face ID' }} />
+      <Stack.Screen name="privacy" options={{ title: 'Privacy' }} />
+      <Stack.Screen name="reminders" options={{ title: 'Reminders' }} />
+      <Stack.Screen name="backup" options={{ title: 'Backup & sync' }} />
       <Stack.Screen name="categories/index" options={{ title: 'Categories' }} />
       <Stack.Screen
         name="categories/[id]"

@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Animated, { runOnJS, useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
+import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
 import { Amount } from '@/components/app/amount';
 import { IconTile } from '@/components/app/icon-tile';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { haptic } from '@/theme/haptics';
 import { pressScale, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
-type TransactionKind = 'expense' | 'income' | 'transfer';
+type TransactionKind = import('@/lib/ledger').TransactionKind;
 
 type TransactionRowProps = {
   kind: TransactionKind;
@@ -23,6 +23,8 @@ type TransactionRowProps = {
   icon: string;
   color: CategoryColorKey;
   split?: boolean;
+  /** Tiny tag dots and a receipt mark after the subtitle. */
+  badges?: { tags: readonly CategoryColorKey[]; receipts: number };
   separator?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
@@ -40,6 +42,7 @@ type SwipeAction = { label: string; symbol: string; tone?: 'accent' | 'destructi
 
 const ACTION_WIDTH = 72;
 const FULL_SWIPE = 200;
+const tick = () => haptic('selection');
 
 type DeleteActionProps = {
   translation: SharedValue<number>;
@@ -57,13 +60,21 @@ function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.f
     () => translation.value,
     (value, previous) => {
       if (value < -FULL_SWIPE && (previous ?? 0) >= -FULL_SWIPE) runOnJS(onFull)();
+      // Light tick the moment the action is fully revealed.
+      else if (value < -ACTION_WIDTH && (previous ?? 0) >= -ACTION_WIDTH) runOnJS(tick)();
     },
   );
+  const iconStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(-translation.value, [0, ACTION_WIDTH * 0.5], [0, 1], Extrapolation.CLAMP),
+    transform: [{ scale: interpolate(-translation.value, [0, ACTION_WIDTH, FULL_SWIPE], [0.4, 1, 1.25], Extrapolation.CLAMP) }],
+  }));
   const style = useAnimatedStyle(() => ({ width: Math.max(ACTION_WIDTH, -translation.value) }));
   return (
     <Pressable role="button" accessibilityLabel={label} scale={1} onPress={onFull} className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
       <Animated.View style={[{ backgroundColor: background, minWidth: ACTION_WIDTH }, style]} className="items-center justify-center gap-1">
-        <SymbolIcon name={symbol} size={18} color={fg} />
+        <Animated.View style={iconStyle}>
+          <AppIcon name={symbol} size={18} color={fg} />
+        </Animated.View>
         <Text variant="caption" style={{ color: fg }}>
           {label}
         </Text>
@@ -72,13 +83,25 @@ function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.f
   );
 }
 
-function DuplicateAction({ label = 'Duplicate', symbol = 'doc.on.doc', tone = 'accent' }: { label?: string; symbol?: string; tone?: NonNullable<SwipeAction['tone']> }) {
+function DuplicateAction({ translation, label = 'Duplicate', symbol = 'doc.on.doc', tone = 'accent' }: { translation: SharedValue<number>; label?: string; symbol?: string; tone?: NonNullable<SwipeAction['tone']> }) {
   const { colors } = useTokens();
+  const iconStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(translation.value, [0, ACTION_WIDTH * 0.5], [0, 1], Extrapolation.CLAMP),
+    transform: [{ scale: interpolate(translation.value, [0, ACTION_WIDTH], [0.4, 1], Extrapolation.CLAMP) }],
+  }));
+  useAnimatedReaction(
+    () => translation.value,
+    (value, previous) => {
+      if (value > ACTION_WIDTH && (previous ?? 0) <= ACTION_WIDTH) runOnJS(tick)();
+    },
+  );
   const background = tone === 'destructive' ? colors.expense : tone === 'neutral' ? colors.textSecondary : colors.accent;
   const fg = tone === 'accent' ? colors.onAccent : '#FFFFFF';
   return (
     <View style={{ width: ACTION_WIDTH, backgroundColor: background }} className="items-center justify-center gap-1">
-      <SymbolIcon name={symbol} size={18} color={fg} />
+      <Animated.View style={iconStyle}>
+        <AppIcon name={symbol} size={18} color={fg} />
+      </Animated.View>
       <Text variant="caption" style={{ color: fg }}>
         {label}
       </Text>
@@ -95,6 +118,7 @@ function TransactionRow({
   icon,
   color,
   split = false,
+  badges,
   separator = true,
   onPress,
   onLongPress,
@@ -104,9 +128,9 @@ function TransactionRow({
   rightAction,
   leftAction,
 }: TransactionRowProps) {
-  const { colors } = useTokens();
+  const { colors, category } = useTokens();
   const swipeRef = React.useRef<SwipeableMethods>(null);
-  const tone = kind === 'income' ? 'income' : kind === 'transfer' ? 'secondary' : 'default';
+  const tone = kind === 'income' || kind === 'borrowed' || kind === 'repaid_to_me' ? 'income' : kind === 'transfer' ? 'secondary' : 'default';
   const label = accessibilityLabel ?? [title, subtitle, amount, trailing].filter(Boolean).join(', ');
   const triggerRight = rightAction?.onTrigger ?? onDelete;
   const triggerLeft = leftAction?.onTrigger ?? onDuplicate;
@@ -143,7 +167,7 @@ function TransactionRow({
             )
           : undefined
       }
-      renderLeftActions={triggerLeft ? () => <DuplicateAction label={leftAction?.label} symbol={leftAction?.symbol} tone={leftAction?.tone} /> : undefined}
+      renderLeftActions={triggerLeft ? (_progress, translation) => <DuplicateAction translation={translation} label={leftAction?.label} symbol={leftAction?.symbol} tone={leftAction?.tone} /> : undefined}
       onSwipeableOpen={(direction) => {
         // `direction` is the swipe direction: swiping right opens the left (Duplicate) panel.
         if (direction === 'right') {
@@ -173,9 +197,19 @@ function TransactionRow({
           <Text variant="body" numberOfLines={1} ellipsizeMode="tail">
             {title}
           </Text>
-          <Text variant="subhead" tone="secondary" numberOfLines={1} ellipsizeMode="tail">
-            {subtitle}
-          </Text>
+          <View className="flex-row items-center">
+            <Text variant="subhead" tone="secondary" numberOfLines={1} ellipsizeMode="tail" className="shrink">
+              {subtitle}
+            </Text>
+            {badges && (badges.tags.length > 0 || badges.receipts > 0) ? (
+              <View className="ml-2 flex-row items-center gap-1" accessibilityElementsHidden>
+                {badges.tags.map((key, i) => (
+                  <View key={`${key}-${i}`} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: category[key] }} />
+                ))}
+                {badges.receipts > 0 ? <AppIcon name="photo" size={11} color={colors.textTertiary} /> : null}
+              </View>
+            ) : null}
+          </View>
         </View>
         <View className="items-end">
           <Amount value={amount} tone={tone} variant="row" />

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
@@ -10,6 +10,7 @@ import { CategoryPill, FormChip, Hairline } from '@/features/transaction-form/ch
 import { MAX_SPLIT_LINES, splitRemaining, type SplitDraftLine } from '@/features/transaction-form/logic';
 import { ShakeView } from '@/features/transaction-form/shake-view';
 import type { CategoryRow } from '@/db/schema';
+import { useAnimatedTextColor } from '@/motion/use-animated-color';
 import { durations, springs, type CategoryColorKey } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
 
@@ -47,6 +48,8 @@ function SplitList({
 }: SplitListProps) {
   const { colors } = useTokens();
   const remaining = splitRemaining(total, lines);
+  // Colour eases to warning when something is left to allocate.
+  const remainingColor = useAnimatedTextColor(colors.textSecondary, colors.warning, remaining !== 0);
   return (
     <ShakeView trigger={shakeTrigger}>
       <View>
@@ -106,7 +109,7 @@ function SplitList({
                   onPress={() => onRemoveLine(line.key)}
                   className="h-9 w-9 items-center justify-center"
                 >
-                  <SymbolIcon name="minus.circle" size={20} color={colors.textTertiary} weight="regular" />
+                  <AppIcon name="minus.circle" size={20} color={colors.textTertiary} />
                 </Pressable>
               </View>
             </Animated.View>
@@ -123,15 +126,13 @@ function SplitList({
             <Text variant="callout">Remove split</Text>
           </Button>
           <View className="flex-1" />
-          <Text
-            variant="footnote"
-            tone={remaining === 0 ? 'secondary' : 'warning'}
-            numeric
+          <Animated.Text
             numberOfLines={1}
             accessibilityLabel={`Remaining ${formatAmount(Math.abs(remaining))}`}
+            style={[{ fontSize: 13, lineHeight: 18, fontVariant: ['tabular-nums'] }, remainingColor]}
           >
             {`Remaining ${remaining < 0 ? '−' : ''}${formatAmount(Math.abs(remaining))}`}
-          </Text>
+          </Animated.Text>
         </View>
       </View>
     </ShakeView>

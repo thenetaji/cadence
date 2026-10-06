@@ -32,6 +32,9 @@ export const useDraftStore = create<DraftState>((set) => ({
   repeat: null,
   splits: null,
   appliedTitleNorm: null,
+  personId: null,
+  tagIds: [],
+  receipts: [],
   sessionId: 0,
   focus: 'amount',
   pickingLine: null,
@@ -58,4 +61,7 @@ export const selectDraft = (s: DraftState): Draft => ({
   repeat: s.repeat,
   splits: s.splits,
   appliedTitleNorm: s.appliedTitleNorm,
+  personId: s.personId,
+  tagIds: s.tagIds,
+  receipts: s.receipts,
 });

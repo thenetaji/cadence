@@ -21,7 +21,7 @@ function SummaryStrip({ items }: SummaryStripProps) {
             <Text variant="footnote" tone="secondary">
               {item.label}
             </Text>
-            <Amount value={item.value} tone={item.tone} variant="title" />
+            <Amount value={item.value} tone={item.tone} variant="title" animate />
           </View>
         </React.Fragment>
       ))}

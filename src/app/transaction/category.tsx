@@ -54,7 +54,7 @@ export default function CategorySheet() {
             <View key={category.id} className="w-1/4 items-center px-1 pb-4">
               <Pressable role="button" accessibilityLabel={category.name} accessibilityState={{ selected }} onPress={() => choose(category.id)} className="w-full items-center gap-1.5">
                 <View className="items-center justify-center rounded-full p-[3px]" style={selected ? { borderWidth: 2, borderColor: colors.accent } : { borderWidth: 2, borderColor: 'transparent' }}>
-                  <IconTile icon={category.icon} color={category.color as CategoryColorKey} size={44} />
+                  <IconTile icon={category.icon} color={category.color as CategoryColorKey} size={46} />
                 </View>
                 <Text variant="caption" tone={selected ? 'accent' : 'secondary'} numberOfLines={2} className="text-center">
                   {category.name}

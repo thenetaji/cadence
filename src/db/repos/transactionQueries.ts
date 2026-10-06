@@ -1,15 +1,23 @@
 import { and, between, desc, eq, inArray, or, sql, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
+import { ALL_DATES } from '@/lib/dates';
 import { currencyCodesWithDigits, DISTINCT_DIGITS, parseAmountText } from '@/lib/money';
 import {
   accounts,
   categories,
+  people,
+  tags,
   transactionSplits,
+  transactionTags,
   transactions,
+  type AttachmentRow,
   type TransactionKind,
   type TransactionRow,
 } from '../schema';
 import type { Db } from '../types';
+import { listAttachmentsFor } from './attachments';
+import type { PersonRef } from './people';
+import type { TagRef } from './tags';
 
 export interface CategoryRef {
   id: string;
@@ -39,6 +47,11 @@ export interface TransactionListItem extends TransactionRow {
   account: AccountRef;
   transferAccount: AccountRef | null;
   splits: SplitLine[];
+  /** Alphabetical. */
+  tags: TagRef[];
+  /** The counterparty of a lending kind. */
+  person: PersonRef | null;
+  attachments: AttachmentRow[];
 }
 
 export interface PeriodFilter {
@@ -48,6 +61,10 @@ export interface PeriodFilter {
   kinds?: readonly TransactionKind[];
   categoryId?: string;
   accountId?: string;
+  /** Only transactions carrying this tag. */
+  tagId?: string;
+  /** Only lending transactions with this person. */
+  personId?: string;
 }
 
 const SEARCH_LIMIT = 200;
@@ -72,11 +89,13 @@ function baseSelect(db: Db) {
       toIcon: transferAccounts.icon,
       toColor: transferAccounts.color,
       toCurrency: transferAccounts.currency,
+      personName: people.name,
     })
     .from(transactions)
     .innerJoin(accounts, eq(transactions.accountId, accounts.id))
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
-    .leftJoin(transferAccounts, eq(transactions.transferAccountId, transferAccounts.id));
+    .leftJoin(transferAccounts, eq(transactions.transferAccountId, transferAccounts.id))
+    .leftJoin(people, eq(transactions.personId, people.id));
 }
 
 type BaseRow = ReturnType<typeof baseSelect> extends { all(): (infer R)[] } ? R : never;
@@ -121,7 +140,25 @@ function loadSplits(db: Db, ids: readonly string[]): Map<string, SplitLine[]> {
   return byTx;
 }
 
+function loadTags(db: Db, ids: readonly string[]): Map<string, TagRef[]> {
+  const byTx = new Map<string, TagRef[]>();
+  for (const part of chunk(ids, IN_CHUNK)) {
+    const rows = db
+      .select({ transactionId: transactionTags.transactionId, id: tags.id, name: tags.name, color: tags.color })
+      .from(transactionTags)
+      .innerJoin(tags, eq(tags.id, transactionTags.tagId))
+      .where(inArray(transactionTags.transactionId, part))
+      .orderBy(sql`lower(${tags.name}) asc`)
+      .all();
+    for (const r of rows) byTx.set(r.transactionId, [...(byTx.get(r.transactionId) ?? []), { id: r.id, name: r.name, color: r.color }]);
+  }
+  return byTx;
+}
+
 function hydrate(db: Db, rows: readonly BaseRow[]): TransactionListItem[] {
+  const ids = rows.map((r) => r.tx.id);
+  const tagMap = loadTags(db, ids);
+  const files = listAttachmentsFor(db, ids);
   const splits = loadSplits(
     db,
     rows.filter((r) => r.tx.isSplit).map((r) => r.tx.id),
@@ -144,10 +181,18 @@ function hydrate(db: Db, rows: readonly BaseRow[]): TransactionListItem[] {
         ? { id: r.toId, name: r.toName, icon: r.toIcon, color: r.toColor, currency: r.toCurrency }
         : null,
     splits: splits.get(r.tx.id) ?? [],
+    tags: tagMap.get(r.tx.id) ?? [],
+    person: r.tx.personId && r.personName !== null ? { id: r.tx.personId, name: r.personName } : null,
+    attachments: files.get(r.tx.id) ?? [],
   }));
 }
 
 const newestFirst = [desc(transactions.dateKey), desc(transactions.occurredAt)] as const;
+
+/** Every transaction carrying the tag, newest first; narrowed to a period when given. */
+export function transactionsForTag(db: Db, tagId: string, period?: { from: string; to: string }): TransactionListItem[] {
+  return listForPeriod(db, { from: period?.from ?? ALL_DATES.from, to: period?.to ?? ALL_DATES.to, tagId });
+}
 
 export function getTransaction(db: Db, id: string): TransactionListItem | undefined {
   const rows = baseSelect(db).where(eq(transactions.id, id)).all();
@@ -168,6 +213,12 @@ export function listForPeriod(db: Db, filter: PeriodFilter): TransactionListItem
       ),
     );
   }
+  if (filter.tagId) {
+    conditions.push(
+      sql`exists (select 1 from ${transactionTags} where ${transactionTags.transactionId} = ${transactions.id} and ${transactionTags.tagId} = ${filter.tagId})`,
+    );
+  }
+  if (filter.personId) conditions.push(eq(transactions.personId, filter.personId));
   const rows = baseSelect(db)
     .where(and(...conditions))
     .orderBy(...newestFirst)
@@ -215,6 +266,8 @@ export function search(db: Db, text: string): TransactionListItem[] {
   const matches = or(
     sql`${transactions.title} like ${like} escape '\\'`,
     sql`${transactions.memo} like ${like} escape '\\'`,
+    sql`${people.name} like ${like} escape '\\'`,
+    sql`exists (select 1 from ${transactionTags} inner join ${tags} on ${tags.id} = ${transactionTags.tagId} where ${transactionTags.transactionId} = ${transactions.id} and ${tags.name} like ${like} escape '\\')`,
     ...amountClauses(query),
   );
   const rows = baseSelect(db)

@@ -1,22 +1,30 @@
 import { eq, inArray } from 'drizzle-orm';
 import { toDateKey } from '@/lib/dates';
+import { isLendingKind } from '@/lib/ledger';
 import { ValidationError } from '../errors';
 import { newId } from '../ids';
 import {
   accounts,
+  attachments,
   categories,
+  people,
+  tags,
   transactionSplits,
+  transactionTags,
   transactions,
   type AccountRow,
+  type AttachmentRow,
   type CategoryRow,
+  type PersonRow,
   type SplitRow,
   type TransactionKind,
   type TransactionRow,
 } from '../schema';
 import type { Db } from '../types';
+import { replaceTransactionTags } from './tags';
 import { recordTitle } from './titleMemory';
 
-export { getTransaction, listForPeriod, recent, search } from './transactionQueries';
+export { getTransaction, listForPeriod, recent, search, transactionsForTag } from './transactionQueries';
 export type { PeriodFilter, TransactionListItem } from './transactionQueries';
 
 export const MIN_SPLITS = 2;
@@ -41,16 +49,24 @@ export interface TransactionInput {
   transferAmount?: number | null;
   occurredAt: number;
   recurringRuleId?: string | null;
+  /** Required for lent, borrowed, repaid_to_me and repaid_by_me; ignored for other kinds. */
+  personId?: string | null;
+  /** Replaces the transaction's tags. On update, omit to keep the current tags. */
+  tagIds?: readonly string[];
 }
 
 export interface TransactionSnapshot {
   transaction: TransactionRow;
   splits: SplitRow[];
+  /** Tag links and attachment metadata, restored by {@link restoreTransaction}. */
+  tagIds?: string[];
+  attachments?: AttachmentRow[];
 }
 
 interface Resolved {
   account: AccountRow;
   transferAccount: AccountRow | null;
+  person: PersonRow | null;
   categoryIds: string[];
   categories: Map<string, CategoryRow>;
 }
@@ -66,9 +82,15 @@ function resolve(db: Db, input: TransactionInput): Resolved {
   if (!account) throw new ValidationError('account_not_found');
 
   let transferAccount: AccountRow | null = null;
+  let person: PersonRow | null = null;
   const categoryIds: string[] = [];
 
-  if (input.kind === 'transfer') {
+  if (isLendingKind(input.kind)) {
+    if (!input.personId) throw new ValidationError('person_required');
+    person = db.select().from(people).where(eq(people.id, input.personId)).get() ?? null;
+    if (!person) throw new ValidationError('person_not_found');
+    if (input.splits && input.splits.length > 0) throw new ValidationError('invalid_input', 'lending cannot be split');
+  } else if (input.kind === 'transfer') {
     if (!input.transferAccountId || input.transferAccountId === input.accountId) {
       throw new ValidationError('transfer_needs_two_accounts');
     }
@@ -103,15 +125,16 @@ function resolve(db: Db, input: TransactionInput): Resolved {
       if (row.kind !== input.kind) throw new ValidationError('target_kind_mismatch', 'category kind must match the transaction kind');
     }
   }
-  return { account, transferAccount, categoryIds, categories: found };
+  return { account, transferAccount, person, categoryIds, categories: found };
 }
 
 function writeRows(db: Db, id: string, input: TransactionInput, resolved: Resolved, existing: TransactionRow | undefined, now: number): void {
-  const { account, transferAccount } = resolved;
-  const isSplit = input.kind !== 'transfer' && (input.splits?.length ?? 0) > 0;
+  const { account, transferAccount, person } = resolved;
+  const hasCategory = input.kind === 'expense' || input.kind === 'income';
+  const isSplit = hasCategory && (input.splits?.length ?? 0) > 0;
   const firstCategory = resolved.categoryIds[0];
   const typedTitle = (input.title ?? '').trim();
-  const fallbackTitle = input.kind === 'transfer' || !firstCategory ? '' : (resolved.categories.get(firstCategory)?.name ?? '');
+  const fallbackTitle = person ? person.name : !hasCategory || !firstCategory ? '' : (resolved.categories.get(firstCategory)?.name ?? '');
   const sameCurrency = transferAccount?.currency === account.currency;
 
   const row: TransactionRow = {
@@ -122,7 +145,7 @@ function writeRows(db: Db, id: string, input: TransactionInput, resolved: Resolv
     amount: input.amount,
     currency: account.currency,
     accountId: account.id,
-    categoryId: input.kind === 'transfer' || isSplit ? null : (input.categoryId ?? null),
+    categoryId: !hasCategory || isSplit ? null : (input.categoryId ?? null),
     transferAccountId: transferAccount?.id ?? null,
     transferAmount: transferAccount ? (sameCurrency ? input.amount : (input.transferAmount ?? null)) : null,
     transferCurrency: transferAccount?.currency ?? null,
@@ -130,6 +153,7 @@ function writeRows(db: Db, id: string, input: TransactionInput, resolved: Resolv
     dateKey: toDateKey(input.occurredAt),
     isSplit,
     recurringRuleId: input.recurringRuleId ?? null,
+    personId: person?.id ?? null,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };
@@ -142,10 +166,12 @@ function writeRows(db: Db, id: string, input: TransactionInput, resolved: Resolv
       .run();
   }
 
-  if (typedTitle && input.kind !== 'transfer') {
+  if (input.tagIds !== undefined || !existing) replaceTransactionTags(db, id, input.tagIds ?? []);
+
+  if (typedTitle && hasCategory) {
     recordTitle(db, {
       title: typedTitle,
-      kind: input.kind,
+      kind: input.kind as 'expense' | 'income',
       categoryId: firstCategory ?? null,
       accountId: account.id,
       amount: input.amount,
@@ -189,8 +215,10 @@ export function deleteTransaction(db: Db, id: string): TransactionSnapshot | und
       .where(eq(transactionSplits.transactionId, id))
       .orderBy(transactionSplits.sortOrder)
       .all();
+    const tagIds = tx.select({ id: transactionTags.tagId }).from(transactionTags).where(eq(transactionTags.transactionId, id)).all().map((r) => r.id);
+    const files = tx.select().from(attachments).where(eq(attachments.transactionId, id)).all();
     tx.delete(transactions).where(eq(transactions.id, id)).run();
-    return { transaction: row, splits };
+    return { transaction: row, splits, tagIds, attachments: files };
   });
 }
 
@@ -198,5 +226,13 @@ export function restoreTransaction(db: Db, snapshot: TransactionSnapshot): void 
   db.transaction((tx) => {
     tx.insert(transactions).values(snapshot.transaction).run();
     if (snapshot.splits.length > 0) tx.insert(transactionSplits).values(snapshot.splits).run();
+    const tagIds = snapshot.tagIds ?? [];
+    if (tagIds.length > 0) {
+      // Tags deleted since the snapshot was taken are simply skipped.
+      const alive = new Set(tx.select({ id: tags.id }).from(tags).where(inArray(tags.id, tagIds)).all().map((t) => t.id));
+      const live = tagIds.filter((id) => alive.has(id));
+      if (live.length > 0) tx.insert(transactionTags).values(live.map((tagId) => ({ transactionId: snapshot.transaction.id, tagId }))).run();
+    }
+    if (snapshot.attachments && snapshot.attachments.length > 0) tx.insert(attachments).values(snapshot.attachments).run();
   });
 }

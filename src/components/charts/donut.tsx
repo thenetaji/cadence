@@ -2,7 +2,7 @@ import { Canvas, Circle, Path, Skia, type SkPath } from '@shopify/react-native-s
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { useDerivedValue } from 'react-native-reanimated';
+import { Easing, useDerivedValue, useReducedMotion, withTiming } from 'react-native-reanimated';
 
 import { Text } from '@/components/ui/text';
 import { donutSegments, hitTestDonut } from '@/lib/charts';
@@ -52,6 +52,17 @@ function Segment({ path, color, stroke, startDeg, sweepDeg, dimmed, grow }: Segm
 function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, size = 180 }: DonutProps) {
   const { colors } = useTokens();
   const grow = useGrow();
+  const reduced = useReducedMotion();
+  // Period change: same ring sweeps in again. Selection changes do not touch `signature`.
+  const signature = data.map((d) => `${d.key}:${d.value}`).join('|');
+  const seen = React.useRef(signature);
+  React.useEffect(() => {
+    if (seen.current === signature) return;
+    seen.current = signature;
+    if (reduced) return;
+    grow.set(0.02);
+    grow.set(withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) }));
+  }, [signature, reduced, grow]);
   const half = size / 2;
   const baseOuter = half - GROW;
   const radius = baseOuter - STROKE / 2;

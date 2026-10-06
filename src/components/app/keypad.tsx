@@ -1,8 +1,12 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
+
 import { Pressable } from '@/components/ui/pressable';
+import { motion } from '@/motion/tokens';
+import { haptic } from '@/theme/haptics';
 import { Text } from '@/components/ui/text';
 import { dynamicType } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
@@ -62,32 +66,58 @@ function KeyCell({ keyName, height, saveMode, saveDisabled, hapticsEnabled, onKe
   const base = isOperator ? colors.accentSoft : isDark ? colors.elevated : isDigitLike ? colors.surface : colors.fill;
   const down = isDark ? (isOperator ? 'rgba(226,185,106,0.28)' : '#26262A') : isOperator ? 'rgba(201,162,79,0.28)' : '#E4E1DA';
   const label = isSave ? 'Save' : (speech[keyName] ?? keyName);
+
+  // Save key morphs into a check (scale + rotate spring) before the sheet dismisses.
+  const reduced = useReducedMotion();
+  const done = useSharedValue(0);
+  const saving = React.useRef(false);
+  const labelStyle = useAnimatedStyle(() => ({ opacity: 1 - done.value, transform: [{ scale: 1 - done.value * 0.6 }, { rotate: `${done.value * 90}deg` }] }));
+  const checkStyle = useAnimatedStyle(() => ({ opacity: done.value, transform: [{ scale: done.value }, { rotate: `${(1 - done.value) * -90}deg` }] }));
+  const press = () => {
+    if (!isSave || saveDisabled || saving.current) {
+      onKey(keyName);
+      return;
+    }
+    saving.current = true;
+    haptic('success', hapticsEnabled);
+    done.set(reduced ? 1 : withSpring(1, motion.springs.morph));
+    setTimeout(() => {
+      onKey(keyName);
+      // If the form refused to save the key returns to normal.
+      setTimeout(() => {
+        done.set(withSpring(0, motion.springs.morph));
+        saving.current = false;
+      }, 900);
+    }, reduced ? 0 : 300);
+  };
   return (
     <Pressable
       role="button"
       accessibilityLabel={label}
-      haptic="light"
+      haptic={isSave ? false : 'light'}
       hapticsEnabled={hapticsEnabled}
       scale={0.94}
       onPressIn={() => setPressed(true)}
       onPressOut={() => setPressed(false)}
-      onPress={() => onKey(keyName)}
+      onPress={press}
       onLongPress={keyName === 'backspace' ? onLongBackspace : undefined}
       delayLongPress={400}
       className="flex-1 items-center justify-center rounded-[12px]"
       style={{ height, borderWidth: isSave ? 0 : 1, borderColor: colors.border, backgroundColor: isSave ? colors.accent : pressed ? down : base, opacity: isSave ? (saveDisabled ? 0.4 : pressed ? 0.85 : 1) : 1 }}
     >
       {keyName === 'backspace' ? (
-        <SymbolIcon name="delete.left" size={24} color={colors.text} weight="regular" />
+        <AppIcon name="delete.left" size={24} color={colors.text} />
       ) : isSave ? (
-        <Text
-          variant="headline"
-          maxFontSizeMultiplier={dynamicType.keypad}
-          style={{ color: colors.onAccent }}
-          className="text-[19px] font-semibold"
-        >
-          Save
-        </Text>
+        <>
+          <Animated.View style={labelStyle}>
+            <Text variant="headline" maxFontSizeMultiplier={dynamicType.keypad} style={{ color: colors.onAccent }} className="text-[19px] font-semibold">
+              Save
+            </Text>
+          </Animated.View>
+          <Animated.View pointerEvents="none" style={[{ position: 'absolute' }, checkStyle]}>
+            <AppIcon name="checkmark" size={26} color={colors.onAccent} />
+          </Animated.View>
+        </>
       ) : (
         <Text
           variant="title1"

@@ -2,13 +2,14 @@ import { Canvas, DashPathEffect, Group, Line, RoundedRect, Text as SkText, vec }
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { useDerivedValue } from 'react-native-reanimated';
+import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSpring } from 'react-native-reanimated';
 
 import { barSlots, barDomain, slotIndex, valueToY, type AxisLabel } from '@/lib/charts';
 import { formatMoney } from '@/lib/money';
+import { motion } from '@/motion/tokens';
 import { withAlpha } from '@/theme/tokens';
 import { useTokens } from '@/theme/use-tokens';
-import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
+import { adjustableProps, FloatingLabel, useChartWidth, useScrubGesture } from './chart-kit';
 import { useChartFont } from './use-chart-font';
 
 export type BarDatum = { key: string; value: number };
@@ -41,6 +42,20 @@ const GUTTER = 44;
 const RADIUS = 4;
 const MIN_NUB = 2;
 
+type BarProps = { x: number; width: number; baseline: number; target: number; index: number; color: string };
+
+/** One bar: grows from zero on mount (staggered) and springs to new heights when the data changes. */
+function Bar({ x, width, baseline, target, index, color }: BarProps) {
+  const reduced = useReducedMotion();
+  const h = useSharedValue(reduced ? target : 0);
+  React.useEffect(() => {
+    h.value = reduced ? target : withDelay(Math.min(index, 14) * 22, withSpring(target, motion.springs.chart));
+  }, [target, index, reduced, h]);
+  const y = useDerivedValue(() => baseline - h.value);
+  const height = useDerivedValue(() => Math.max(0, h.value) + RADIUS);
+  return <RoundedRect x={x} y={y} width={width} height={height} r={RADIUS} color={color} />;
+}
+
 function BarChart({
   data,
   currency,
@@ -59,7 +74,6 @@ function BarChart({
   const [width, onLayout] = useChartWidth();
   const font = useChartFont(11, 'medium');
   const labelFont = useChartFont(12, 'semibold');
-  const grow = useGrow();
 
   const plotWidth = Math.max(0, width - GUTTER);
   const baseline = LANE + height;
@@ -71,7 +85,6 @@ function BarChart({
   const ticks = domain.ticks;
   const slots = React.useMemo(() => barSlots(0, plotWidth, count, count > 20 ? 3 : 6, 36), [plotWidth, count]);
   const tint = color ?? colors.accent;
-  const growTransform = useDerivedValue(() => [{ translateY: baseline }, { scaleY: grow.value }, { translateY: -baseline }]);
 
   const gesture = useScrubGesture({
     indexAt: (x) => (x > plotWidth ? -1 : slotIndex(x, 0, plotWidth, count)),
@@ -114,21 +127,20 @@ function BarChart({
               <Line p1={vec(0, baseline)} p2={vec(plotWidth, baseline)} color={colors.separator} strokeWidth={StyleSheet.hairlineWidth} />
               {hasData ? (
                 <Group clip={{ x: 0, y: 0, width: plotWidth, height: baseline }}>
-                  <Group transform={growTransform}>
+                  <Group>
                     {data.map((d, i) => {
                       const slot = slots[i];
                       if (!slot) return null;
                       const h = d.value > 0 ? Math.max(MIN_NUB + RADIUS, baseline - valueToY(d.value, top, baseline, height)) : 0;
-                      if (h === 0) return null;
                       const faded = selected !== null ? selected !== i : highlightIndex !== null && highlightIndex !== i;
                       return (
-                        <RoundedRect
+                        <Bar
                           key={d.key}
                           x={slot.x}
-                          y={baseline - h}
                           width={slot.width}
-                          height={h + RADIUS}
-                          r={RADIUS}
+                          baseline={baseline}
+                          target={h}
+                          index={i}
                           color={selected === i || (selected === null && highlightIndex === i) ? tint : withAlpha(tint, faded ? 0.45 : 0.7)}
                         />
                       );

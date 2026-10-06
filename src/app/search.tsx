@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Platform, ScrollView, TextInput, View } from 'react-native';
 
 import { EmptyState } from '@/components/app/empty-state';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -64,7 +64,7 @@ export default function Search() {
       <Stack.Screen options={HIDDEN_HEADER} />
       <View className="flex-row items-center gap-2 px-4 pb-2 pt-6">
         <View className="h-10 flex-1 flex-row items-center gap-2 rounded-[12px] bg-fill px-3">
-          <SymbolIcon name="magnifyingglass" size={16} color={colors.textTertiary} />
+          <AppIcon name="magnifyingglass" size={16} color={colors.textTertiary} />
           <TextInput
             autoFocus
             value={query}

@@ -188,14 +188,17 @@ function moveAccountReferences(db: Db, from: string, to: string): void {
   db.update(titleMemory).set({ accountId: to }).where(eq(titleMemory.accountId, from)).run();
 }
 
-/** opening + income - expense - transfers out + transfers in, in each account's own currency. */
+/**
+ * opening + inflows - outflows - transfers out + transfers in, in each account's own currency.
+ * Inflows: income, borrowed, repaid_to_me. Outflows: expense, lent, repaid_by_me.
+ */
 export function listAccountsWithBalances(db: Db, options: { includeArchived?: boolean } = {}): AccountWithBalance[] {
   const rows = listAccounts(db, options);
   const flows = db
     .select({
       accountId: transactions.accountId,
-      income: sql<number>`coalesce(sum(case when ${transactions.kind} = 'income' then ${transactions.amount} end), 0)`,
-      expense: sql<number>`coalesce(sum(case when ${transactions.kind} = 'expense' then ${transactions.amount} end), 0)`,
+      income: sql<number>`coalesce(sum(case when ${transactions.kind} in ('income', 'borrowed', 'repaid_to_me') then ${transactions.amount} end), 0)`,
+      expense: sql<number>`coalesce(sum(case when ${transactions.kind} in ('expense', 'lent', 'repaid_by_me') then ${transactions.amount} end), 0)`,
       out: sql<number>`coalesce(sum(case when ${transactions.kind} = 'transfer' then ${transactions.amount} end), 0)`,
     })
     .from(transactions)

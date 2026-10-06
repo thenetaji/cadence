@@ -1,7 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
+import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { dynamicType } from '@/theme/tokens';
+import { AnimatedNumber } from '@/motion/animated-number';
 
 type AmountReadoutProps = {
   symbol: string;
@@ -16,6 +17,7 @@ function AmountReadout({ symbol, value, expression, onPress, accessibilityLabel 
   return (
     <Pressable
       role="button"
+      scale={0.98}
       disabled={!onPress}
       onPress={onPress}
       accessibilityLabel={accessibilityLabel ?? `${symbol}${value}`}
@@ -30,18 +32,15 @@ function AmountReadout({ symbol, value, expression, onPress, accessibilityLabel 
         <Text variant="title2" tone="secondary" numberOfLines={1}>
           {symbol}
         </Text>
-        <Text
-          numeric
+        <AnimatedNumber
+          value={value === '' ? '0' : value}
           variant="amountEntry"
           tone={empty ? 'tertiary' : 'default'}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={32 / 44}
-          maxFontSizeMultiplier={dynamicType.hero}
+          align="left"
+          dropNew
+          fit
           className="min-w-0 shrink"
-        >
-          {value === '' ? '0' : value}
-        </Text>
+        />
       </View>
     </Pressable>
   );

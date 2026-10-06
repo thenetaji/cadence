@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ActionSheetIOS, Platform, View } from 'react-native';
 
 import { OptionPicker } from '@/components/app/option-picker';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { haptic } from '@/theme/haptics';
@@ -50,7 +50,7 @@ function KindMenu({ kind, onChange }: KindMenuProps) {
           {label}
         </Text>
         <View>
-          <SymbolIcon name="chevron.down" size={11} color={colors.accent} weight="semibold" />
+          <AppIcon name="chevron.down" size={11} color={colors.accent} />
         </View>
       </Pressable>
       {Platform.OS === 'ios' ? null : (

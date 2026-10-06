@@ -24,7 +24,7 @@ function BudgetCard({ view, title, onPress }: BudgetCardProps) {
         <Text variant="footnote" tone="secondary">
           {title ?? view.caption}
         </Text>
-        <Amount value={view.headline} variant="hero" tone={view.status === 'over' ? 'expense' : 'default'} />
+        <Amount value={view.headline} variant="hero" animate tone={view.status === 'over' ? 'expense' : 'default'} />
       </View>
       <ProgressBar value={view.ratio} marker={view.marker} accessibilityLabel={view.accessibilityLabel} />
       <Text variant="footnote" tone="secondary" numeric numberOfLines={1}>

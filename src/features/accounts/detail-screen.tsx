@@ -65,8 +65,9 @@ export default function AccountDetailScreen() {
         <Amount
           value={formatMoney(account.balance, account.currency, { locale: money.locale, decimals })}
           variant="hero"
+          animate="intro"
           tone={account.balance < 0 ? 'expense' : 'default'}
-          accessibilityLabel={`Balance, ${formatMoneyForSpeech(account.balance, account.currency)}`}
+          accessibilityLabel={`Balance, ${formatMoneyForSpeech(account.balance, account.currency, { locale: money.locale })}`}
         />
         {converted ? (
           <Text variant="subhead" tone="secondary" numeric>

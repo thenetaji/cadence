@@ -4,6 +4,7 @@ import { ActionSheetIOS, Alert, Platform } from 'react-native';
 
 import { showToast } from '@/components/app/toast-store';
 import { useActions } from '@/data/actions';
+import { collapseThen } from '@/motion/collapse';
 
 export interface TransactionActions {
   open: (id: string) => void;
@@ -23,7 +24,8 @@ export function useTransactionActions(): TransactionActions {
     const open = (id: string) => router.push({ pathname: '/transaction/[id]', params: { id } });
     const edit = (id: string) => router.push({ pathname: '/transaction/[id]/edit', params: { id } });
     const duplicate = (id: string) => router.push({ pathname: '/transaction/new', params: { duplicateOf: id } });
-    const remove = (id: string) => {
+    const remove = (id: string): boolean => !!collapseThen(id, () => removeNow(id));
+    const removeNow = (id: string) => {
       const snapshot = actions.transactions.delete(id);
       if (!snapshot) return false;
       showToast({

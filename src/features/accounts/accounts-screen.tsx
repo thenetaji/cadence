@@ -5,7 +5,7 @@ import { ScrollView, View } from 'react-native';
 import { Amount } from '@/components/app/amount';
 import { EmptyState } from '@/components/app/empty-state';
 import { HeaderButton } from '@/components/app/header-button';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
@@ -13,7 +13,7 @@ import { Text } from '@/components/ui/text';
 import { useActions } from '@/data/actions';
 import { useAccounts, useRateLookup, useSetting } from '@/data/hooks';
 import { moneyLocale } from '@/features/transactions/use-money-context';
-import { formatMoney, formatMoneyForSpeech, minorDigits } from '@/lib/money';
+import { formatMoney, formatMoneyForSpeech, maskLocale, minorDigits } from '@/lib/money';
 import { useTokens } from '@/theme/use-tokens';
 
 import { AccountRow, ACCOUNT_ROW_HEIGHT } from './account-row';
@@ -37,7 +37,8 @@ export function AccountsScreen() {
 
   const active = React.useMemo(() => all.filter((a) => !a.archivedAt), [all]);
   const archived = React.useMemo(() => all.filter((a) => a.archivedAt), [all]);
-  const locale = moneyLocale(displayCurrency);
+  const [hidden] = useSetting('hide_amounts');
+  const locale = maskLocale(moneyLocale(displayCurrency), hidden);
   const fmt = React.useMemo(() => ({ displayCurrency, rates, locale, showDecimals }), [displayCurrency, rates, locale, showDecimals]);
   const views = React.useMemo(() => active.map((a) => toAccountView(a, fmt)), [active, fmt]);
   const archivedViews = React.useMemo(() => archived.map((a) => toAccountView(a, fmt)), [archived, fmt]);
@@ -83,7 +84,7 @@ export function AccountsScreen() {
         <Text variant="footnote" tone="secondary">
           Total
         </Text>
-        <Amount value={totalText} variant="hero" tone={total < 0 ? 'expense' : 'default'} accessibilityLabel={`Total, ${formatMoneyForSpeech(total, displayCurrency)}`} />
+        <Amount value={totalText} variant="hero" animate="intro" tone={total < 0 ? 'expense' : 'default'} accessibilityLabel={`Total, ${formatMoneyForSpeech(total, displayCurrency, { locale })}`} />
         {excluded.length > 0 ? (
           <Text variant="footnote" tone="warning" numberOfLines={2}>
             Excludes {excluded.map((a) => a.name).join(', ')}: rate needed
@@ -120,7 +121,7 @@ export function AccountsScreen() {
             <Text variant="footnote" tone="secondary">
               Archived · {archivedViews.length}
             </Text>
-            <SymbolIcon name={showArchived ? 'chevron.up' : 'chevron.down'} size={10} color={colors.textTertiary} weight="semibold" />
+            <AppIcon name={showArchived ? 'chevron.up' : 'chevron.down'} size={10} color={colors.textTertiary} />
           </Pressable>
           {showArchived ? (
             <Card className="mx-4 p-0" style={{ opacity: 0.6 }}>

@@ -1,10 +1,16 @@
 import * as React from 'react';
 import { View, type LayoutChangeEvent } from 'react-native';
 
+import Animated from 'react-native-reanimated';
+
+import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { fadeIn } from '@/motion/entering';
+import { Float } from '@/motion/float';
+import { useTokens } from '@/theme/use-tokens';
 
-type EmptyStateProps = { message: string; actionLabel?: string; onAction?: () => void };
+type EmptyStateProps = { message: string; actionLabel?: string; onAction?: () => void; icon?: string };
 
 const LIFT = 0.1;
 
@@ -12,7 +18,8 @@ const LIFT = 0.1;
  * Centred in the space below the last fixed element, lifted 10% so it sits above optical centre.
  * The action is always a secondary button; labels are verb + object.
  */
-function EmptyState({ message, actionLabel, onAction }: EmptyStateProps) {
+function EmptyState({ message, actionLabel, onAction, icon = 'tray' }: EmptyStateProps) {
+  const { colors } = useTokens();
   const [height, setHeight] = React.useState(0);
   const onLayout = React.useCallback((event: LayoutChangeEvent) => setHeight(event.nativeEvent.layout.height), []);
   return (
@@ -21,14 +28,21 @@ function EmptyState({ message, actionLabel, onAction }: EmptyStateProps) {
       className="min-h-[200px] flex-1 items-center justify-center gap-4 px-6"
       style={{ paddingBottom: height * LIFT * 2 }}
     >
-      <Text variant="callout" tone="secondary" className="text-center">
-        {message}
-      </Text>
-      {actionLabel && onAction ? (
-        <Button variant="secondary" onPress={onAction}>
-          {actionLabel}
-        </Button>
-      ) : null}
+      <Float>
+        <Animated.View entering={fadeIn(0)} className="size-14 items-center justify-center rounded-full bg-fill">
+          <AppIcon name={icon} size={24} color={colors.textTertiary} />
+        </Animated.View>
+      </Float>
+      <Animated.View entering={fadeIn(120)} className="items-center gap-4">
+        <Text variant="callout" tone="secondary" className="text-center">
+          {message}
+        </Text>
+        {actionLabel && onAction ? (
+          <Button variant="secondary" onPress={onAction}>
+            {actionLabel}
+          </Button>
+        ) : null}
+      </Animated.View>
     </View>
   );
 }

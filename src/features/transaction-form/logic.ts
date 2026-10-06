@@ -3,7 +3,7 @@ import { addDays, dayLabel, keyToLocalMs, toDateKey, weekday, type DateKey } fro
 import { convertMinor } from '@/lib/money';
 import type { RecurringInput } from '@/db/repos/recurring';
 import type { SplitInput, TransactionInput } from '@/db/repos/transactions';
-import type { TransactionKind } from '@/db/schema';
+import { isLendingKind, type LendingKind, type TransactionKind } from '@/lib/ledger';
 
 export const MAX_SPLIT_LINES = 8;
 
@@ -17,6 +17,15 @@ export interface RepeatDraft {
   frequency: Frequency;
   interval: number;
   endDate: DateKey | null;
+}
+
+/** A receipt in the draft: existing rows carry their attachment `id`; picked photos do not yet. */
+export interface DraftReceipt {
+  key: string;
+  uri: string;
+  width: number | null;
+  height: number | null;
+  id?: string;
 }
 
 /** Everything the sheet edits, in minor units. Shared between the sheet and its sub-sheets. */
@@ -35,6 +44,38 @@ export interface Draft {
   splits: SplitDraftLine[] | null;
   /** Normalised title a suggestion chip filled in; hides the suggestions until the title changes. */
   appliedTitleNorm: string | null;
+  /** Counterparty for the lending kinds. */
+  personId: string | null;
+  tagIds: string[];
+  receipts: DraftReceipt[];
+}
+
+// ---------------------------------------------------------------- kinds
+
+/** Segments of the kind control: every lending kind lives under the last one. */
+export const KIND_SEGMENTS = ['expense', 'income', 'transfer', 'lend'] as const;
+export type KindSegment = (typeof KIND_SEGMENTS)[number];
+
+export const segmentOf = (kind: TransactionKind): KindSegment => (isLendingKind(kind) ? 'lend' : (kind as KindSegment));
+
+/** Sub-toggle values under Lend. Repayments (edit only) get their own pair of labels. */
+export function lendToggle(kind: LendingKind): { labels: readonly [string, string]; kinds: readonly [LendingKind, LendingKind] } {
+  return kind === 'repaid_to_me' || kind === 'repaid_by_me'
+    ? { labels: ['They paid', 'I paid'], kinds: ['repaid_to_me', 'repaid_by_me'] }
+    : { labels: ['Lent', 'Borrowed'], kinds: ['lent', 'borrowed'] };
+}
+
+/** Title to save: what was typed, else the person's name for lending. */
+export function lendTitle(draft: Pick<Draft, 'kind' | 'title'>, personName: string | undefined): string {
+  const typed = draft.title.trim();
+  if (typed || !isLendingKind(draft.kind)) return draft.title;
+  return personName ?? '';
+}
+
+/** Title after choosing a person: follow the name unless the user typed their own. */
+export function titleAfterPerson(currentTitle: string, previousName: string | undefined, nextName: string): string {
+  const current = currentTitle.trim();
+  return current === '' || current === previousName ? nextName : currentTitle;
 }
 
 // ---------------------------------------------------------------- splits
@@ -89,7 +130,8 @@ export interface ResolvedDefaults {
   categoryId: string | null;
 }
 
-const isKind = (value: unknown): value is TransactionKind => value === 'expense' || value === 'income' || value === 'transfer';
+const isKind = (value: unknown): value is TransactionKind =>
+  value === 'expense' || value === 'income' || value === 'transfer' || (typeof value === 'string' && isLendingKind(value));
 
 export function resolveDefaults(input: DefaultsInput): ResolvedDefaults {
   const { params, accounts } = input;
@@ -99,7 +141,7 @@ export function resolveDefaults(input: DefaultsInput): ResolvedDefaults {
     [params.accountId, input.lastAccountId, input.defaultAccountId].find(has) ?? accounts[0]?.id ?? null;
   const transferAccountId = kind === 'transfer' ? pickOtherAccount(accounts, accountId, null) : null;
   const category = params.categoryId ? input.categories.find((c) => c.id === params.categoryId) : undefined;
-  const categoryId = kind !== 'transfer' && category?.kind === kind ? category.id : null;
+  const categoryId = (kind === 'expense' || kind === 'income') && category?.kind === kind ? category.id : null;
   return { kind, accountId, transferAccountId, categoryId };
 }
 
@@ -115,11 +157,12 @@ export function kindChangePatch(
   accounts: readonly { id: string }[],
   categories: readonly { id: string; kind: string }[],
 ): Partial<Draft> {
-  const keepCategory = kind !== 'transfer' && categories.some((c) => c.id === draft.categoryId && c.kind === kind);
+  const keepCategory = (kind === 'expense' || kind === 'income') && categories.some((c) => c.id === draft.categoryId && c.kind === kind);
   return {
     kind,
     categoryId: keepCategory ? draft.categoryId : null,
     splits: null,
+    ...(isLendingKind(kind) ? { repeat: null } : {}),
     transferAccountId: kind === 'transfer' ? pickOtherAccount(accounts, draft.accountId, draft.transferAccountId) : draft.transferAccountId,
   };
 }
@@ -190,7 +233,7 @@ export interface SaveContext {
   receivesAmount: number;
 }
 
-export type SaveBlock = 'amount' | 'accounts' | 'receives' | 'split_total' | 'category' | 'split_category';
+export type SaveBlock = 'amount' | 'accounts' | 'receives' | 'split_total' | 'category' | 'split_category' | 'person';
 
 /** What stops a save, or null. Save is disabled for everything except the two category cases (those shake). */
 export function saveBlock(draft: Draft, ctx: SaveContext): SaveBlock | null {
@@ -200,6 +243,7 @@ export function saveBlock(draft: Draft, ctx: SaveContext): SaveBlock | null {
     if (!ctx.sameCurrency && ctx.receivesAmount <= 0) return 'receives';
     return null;
   }
+  if (isLendingKind(draft.kind)) return !draft.accountId ? 'accounts' : draft.personId ? null : 'person';
   if (draft.splits) {
     const nonEmpty = draft.splits.every((line) => line.amount > 0);
     if (splitRemaining(draft.amount, draft.splits) !== 0 || !nonEmpty) return 'split_total';
@@ -209,7 +253,8 @@ export function saveBlock(draft: Draft, ctx: SaveContext): SaveBlock | null {
   return draft.categoryId ? null : 'category';
 }
 
-export const isSaveDisabled = (block: SaveBlock | null): boolean => block !== null && block !== 'category' && block !== 'split_category';
+export const isSaveDisabled = (block: SaveBlock | null): boolean =>
+  block !== null && block !== 'category' && block !== 'split_category' && block !== 'person';
 
 export function buildTransactionInput(draft: Draft, ctx: SaveContext, recurringRuleId: string | null = null): TransactionInput {
   const base: TransactionInput = {
@@ -220,7 +265,9 @@ export function buildTransactionInput(draft: Draft, ctx: SaveContext, recurringR
     accountId: draft.accountId ?? '',
     occurredAt: draft.occurredAt,
     recurringRuleId,
+    tagIds: draft.tagIds,
   };
+  if (isLendingKind(draft.kind)) return { ...base, personId: draft.personId, categoryId: null };
   if (draft.kind === 'transfer') {
     return { ...base, transferAccountId: draft.transferAccountId, transferAmount: ctx.sameCurrency ? draft.amount : ctx.receivesAmount };
   }
@@ -233,12 +280,13 @@ export function buildTransactionInput(draft: Draft, ctx: SaveContext, recurringR
 
 /** Rule for Repeat ≠ Never. This transaction is the first occurrence, so `nextDue` is the one after it. */
 export function buildRuleInput(draft: Draft, ctx: SaveContext, fallbackTitle: string): RecurringInput | null {
-  if (!draft.repeat || !draft.accountId) return null;
+  if (!draft.repeat || !draft.accountId || isLendingKind(draft.kind)) return null;
+  const kind = draft.kind as 'expense' | 'income' | 'transfer';
   const startDate = toDateKey(draft.occurredAt);
   const { frequency, interval, endDate } = draft.repeat;
   const nextDue = nextDueDate({ frequency, interval, anchorDay: defaultAnchorDay(frequency, startDate, weekday), startDate }, startDate);
   return {
-    kind: draft.kind,
+    kind,
     title: draft.title.trim() || fallbackTitle,
     memo: draft.memo,
     amount: draft.amount,
@@ -270,11 +318,14 @@ export function emptyDraft(defaults: ResolvedDefaults, now: number): Draft {
     repeat: null,
     splits: null,
     appliedTitleNorm: null,
+    personId: null,
+    tagIds: [],
+    receipts: [],
   };
 }
 
 interface SourceTransaction {
-  kind: TransactionKind;
+  kind: string;
   title: string;
   memo: string;
   amount: number;
@@ -286,13 +337,16 @@ interface SourceTransaction {
   transferCurrency: string | null;
   occurredAt: number;
   splits: readonly { categoryId: string; amount: number }[];
+  personId?: string | null;
+  tags?: readonly { id: string }[];
+  attachments?: readonly { id: string; uri: string; width: number | null; height: number | null }[];
 }
 
 /** Edit mode keeps the date; duplicating uses `now` and drops the recurring link. */
 export function draftFromTransaction(source: SourceTransaction, occurredAt: number): Draft {
   const cross = source.transferCurrency !== null && source.transferCurrency !== source.currency;
   return {
-    kind: source.kind,
+    kind: isKind(source.kind) ? source.kind : 'expense',
     amount: source.amount,
     receives: source.kind === 'transfer' && cross ? source.transferAmount : null,
     title: source.title,
@@ -307,8 +361,23 @@ export function draftFromTransaction(source: SourceTransaction, occurredAt: numb
         ? source.splits.map((line) => ({ key: newLineKey(), categoryId: line.categoryId, amount: line.amount }))
         : null,
     appliedTitleNorm: null,
+    personId: source.personId ?? null,
+    tagIds: (source.tags ?? []).map((t) => t.id),
+    receipts: (source.attachments ?? []).map((a) => ({ key: a.id, id: a.id, uri: a.uri, width: a.width, height: a.height })),
   };
 }
+
+/** Receipts to add and attachment ids to remove when saving an edit. */
+export function receiptChanges(draft: readonly DraftReceipt[], existingIds: readonly string[]): { add: DraftReceipt[]; remove: string[] } {
+  const kept = new Set(draft.flatMap((r) => (r.id ? [r.id] : [])));
+  return { add: draft.filter((r) => !r.id), remove: existingIds.filter((id) => !kept.has(id)) };
+}
+
+let receiptCounter = 0;
+export const newReceiptKey = (): string => `receipt-${++receiptCounter}`;
+
+/** Toggle a tag id in the draft's selection. */
+export const toggleId = (ids: readonly string[], id: string): string[] => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
 
 /** "₹340" for whole amounts, "₹340.50" otherwise: compact money for chips and the split footer. */
 export function moneyShort(minor: number, currency: string, format: (minor: number, currency: string, options: { decimals?: number; sign?: 'none' }) => string, digits: number): string {

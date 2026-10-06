@@ -1,0 +1,78 @@
+name: iOS unsigned IPA
+
+# Builds an unsigned Farthing IPA for sideloading with SideStore (see docs/SIDELOAD.md).
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      APP_SCHEME: Farthing
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate the native iOS project
+        run: pnpm exec expo prebuild -p ios --clean
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: pods-${{ runner.os }}-
+
+      - name: Install pods
+        run: cd ios && pod install
+
+      - name: Archive (unsigned)
+        run: |
+          set -o pipefail
+          WORKSPACE=$(ls -d ios/*.xcworkspace | head -n 1)
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$APP_SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/App.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | tail -n 200
+
+      - name: Package IPA
+        run: |
+          APP=$(ls -d build/App.xcarchive/Products/Applications/*.app | head -n 1)
+          mkdir -p build/ipa/Payload
+          cp -R "$APP" build/ipa/Payload/
+          (cd build/ipa && zip -qry ../Farthing-unsigned.ipa Payload)
+          ls -lh build/Farthing-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Farthing-unsigned-ipa
+          path: build/Farthing-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/Farthing-unsigned.ipa

@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { haptic } from '@/theme/haptics';
@@ -35,7 +35,7 @@ function MonthPill({ label, onPress, onLongPress }: MonthPillProps) {
       <Text variant="callout" tone="accent" numeric numberOfLines={1}>
         {label}
       </Text>
-      <SymbolIcon name="chevron.down" size={10} color={colors.accent} weight="semibold" />
+      <AppIcon name="chevron.down" size={10} color={colors.accent} />
     </Pressable>
   );
 }

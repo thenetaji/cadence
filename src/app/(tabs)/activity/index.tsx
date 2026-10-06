@@ -2,19 +2,25 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 
+import { HeaderButton } from '@/components/app/header-button';
+import { CalendarView } from '@/features/calendar/calendar-view';
+import { monthOf, shiftMonth } from '@/features/calendar/grid';
+
 import { AddFab } from '@/components/app/add-fab';
 import { EmptyState } from '@/components/app/empty-state';
 import { OptionPicker, type Option } from '@/components/app/option-picker';
 import { SummaryStrip } from '@/components/app/summary-strip';
 import { usePeriodTransactions, useSetting, useTodayKey } from '@/data/hooks';
 import { FilterChips } from '@/features/activity/filter-chips';
-import { activeFilterCount, useActivityFilters } from '@/features/activity/filter-store';
+import { activeFilterCount, useActiveFilterCount, useActivityFilters } from '@/features/activity/filter-store';
 import { MonthPill } from '@/features/activity/month-pill';
 import { sumItems } from '@/features/transactions/day-groups';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';
 import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { monthName, monthShort, parseKey, periodLabel, recentMonthPeriods, type Period } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
+import { FocusFx } from '@/motion/focus-fx';
+import { haptic } from '@/theme/haptics';
 
 const ALL = 'all';
 const ALL_TIME = { from: '0000-01-01', to: '9999-12-31' };
@@ -39,7 +45,7 @@ export default function Activity() {
   const categoryId = useActivityFilters((s) => s.categoryId);
   const accountId = useActivityFilters((s) => s.accountId);
   const clear = useActivityFilters((s) => s.clear);
-  const params = useLocalSearchParams<{ filter?: string }>();
+  const params = useLocalSearchParams<{ filter?: string; view?: string }>();
   React.useEffect(() => {
     // Deep link / QA: `?filter=expense` opens with that type filter on.
     const kind = params.filter;
@@ -53,6 +59,10 @@ export default function Activity() {
   const allTime = choice === ALL;
   const month = (allTime ? undefined : months.find((m) => m.from === choice)) ?? months[0];
   const range = allTime || !month ? ALL_TIME : { from: month.from, to: month.to };
+  const setPeriod = useActivityFilters((s) => s.setPeriod);
+  React.useEffect(() => {
+    setPeriod({ from: range.from, to: range.to });
+  }, [range.from, range.to, setPeriod]);
   const items = usePeriodTransactions({
     ...range,
     kinds: kinds.length > 0 ? kinds : undefined,
@@ -79,10 +89,57 @@ export default function Activity() {
       : []),
   ];
 
-  const jumpToNow = React.useCallback(() => setChoice(null), []);
+  // Calendar mode: its own calendar-month state; the list keeps its period choice untouched.
+  // `?view=calendar` opens in calendar mode (QA deep link).
+  const [calendar, setCalendar] = React.useState(() => params.view === 'calendar');
+  const [calMonth, setCalMonth] = React.useState<string | null>(null);
+  const [calDay, setCalDay] = React.useState<string | null>(null);
+  const currentMonth = monthOf(today);
+  const shownMonth = calMonth ?? currentMonth;
+  const calLabel = React.useMemo(() => {
+    const { year, month: m } = parseKey(`${shownMonth}-01`);
+    return `${monthShort(m)} ${year}`;
+  }, [shownMonth]);
+  const calOptions = React.useMemo<readonly Option<string>[]>(
+    () =>
+      Array.from({ length: MONTH_COUNT }, (_, i) => {
+        const value = shiftMonth(currentMonth, -i);
+        const { year, month: m } = parseKey(`${value}-01`);
+        return { value, label: `${monthName(m)} ${year}` };
+      }),
+    [currentMonth],
+  );
+  const stepMonth = React.useCallback(
+    (delta: 1 | -1) => {
+      const next = shiftMonth(shownMonth, delta);
+      if (next > currentMonth) return;
+      haptic('selection');
+      setCalMonth(next === currentMonth ? null : next);
+      setCalDay(null);
+    },
+    [shownMonth, currentMonth],
+  );
+  const calendarDay = calDay ?? (shownMonth === currentMonth ? today : null);
+  const jumpToNow = React.useCallback(() => (calendar ? setCalMonth(null) : setChoice(null)), [calendar]);
+  const filterCount = useActiveFilterCount();
   const headerOptions = React.useMemo(
-    () => ({ headerLeft: () => <MonthPill label={label} onPress={() => setPicking(true)} onLongPress={jumpToNow} /> }),
-    [label, jumpToNow],
+    () => ({
+      headerLeft: () => <MonthPill label={calendar ? calLabel : label} onPress={() => setPicking(true)} onLongPress={jumpToNow} />,
+      headerRight: () => (
+        <View className="flex-row items-center">
+          <HeaderButton symbol={calendar ? 'activity' : 'calendar'} label={calendar ? 'List' : 'Calendar'} onPress={() => setCalendar((v) => !v)} />
+          {calendar ? null : (
+            <HeaderButton
+              symbol={filterCount > 0 ? 'line.3.horizontal.decrease.circle.fill' : 'line.3.horizontal.decrease.circle'}
+              label="Filters"
+              onPress={() => router.push('/activity-filters')}
+            />
+          )}
+          <HeaderButton symbol="magnifyingglass" label="Search" onPress={() => router.push('/search')} />
+        </View>
+      ),
+    }),
+    [label, calLabel, calendar, jumpToNow, filterCount, router],
   );
 
   const header = (
@@ -107,9 +164,11 @@ export default function Activity() {
   );
 
   return (
-    <View className="flex-1 bg-bg">
+    <FocusFx className="flex-1 bg-bg">
       <Stack.Screen options={headerOptions} />
-      {items.length === 0 ? (
+      {calendar ? (
+        <CalendarView month={shownMonth} selected={calendarDay} onSelect={setCalDay} onStep={stepMonth} />
+      ) : items.length === 0 ? (
         <View className="flex-1">
           {header}
           {empty}
@@ -119,13 +178,24 @@ export default function Activity() {
       )}
       <AddFab />
       <OptionPicker
-        visible={picking}
+        visible={picking && !calendar}
         title="Period"
         options={options}
         selected={selected}
         onSelect={(value) => setChoice(value === months[0]?.from ? null : value)}
         onClose={() => setPicking(false)}
       />
-    </View>
+      <OptionPicker
+        visible={picking && calendar}
+        title="Month"
+        options={calOptions}
+        selected={shownMonth}
+        onSelect={(value) => {
+          setCalMonth(value === currentMonth ? null : value);
+          setCalDay(null);
+        }}
+        onClose={() => setPicking(false)}
+      />
+    </FocusFx>
   );
 }

@@ -1,6 +1,7 @@
 import { getLocales } from 'expo-localization';
 import { useMemo } from 'react';
 
+import { maskLocale } from '@/lib/money';
 import { useRateLookup, useSetting, useTodayKey } from '@/data/hooks';
 
 import type { DayGroupContext } from './day-groups';
@@ -19,6 +20,7 @@ export type MoneyContext = DayGroupContext & RowModelContext;
 export function useMoneyContext(options: { relativeDays?: boolean } = {}): MoneyContext {
   const [displayCurrency] = useSetting('display_currency');
   const [showDecimals] = useSetting('show_decimals');
+  const [hidden] = useSetting('hide_amounts');
   const rates = useRateLookup();
   const todayKey = useTodayKey();
   const relative = options.relativeDays ?? false;
@@ -28,9 +30,9 @@ export function useMoneyContext(options: { relativeDays?: boolean } = {}): Money
       showDecimals,
       rates,
       todayKey,
-      locale: moneyLocale(displayCurrency),
+      locale: maskLocale(moneyLocale(displayCurrency), hidden),
       relativeTo: relative ? todayKey : undefined,
     }),
-    [displayCurrency, showDecimals, rates, todayKey, relative],
+    [displayCurrency, showDecimals, hidden, rates, todayKey, relative],
   );
 }

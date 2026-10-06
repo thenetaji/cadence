@@ -35,7 +35,7 @@ function CategoryRow({ item, currency, locale, showDecimals, last, onPress }: Om
     <Pressable
       role="button"
       disabled={item.id === null}
-      accessibilityLabel={`${item.name}, ${formatMoneyForSpeech(item.amount, currency, { sign: 'none' })}, ${item.percent} percent`}
+      accessibilityLabel={`${item.name}, ${formatMoneyForSpeech(item.amount, currency, { sign: 'none', locale })}, ${item.percent} percent`}
       onPress={onPress}
       scale={1}
       className="min-h-[60px] flex-row items-center bg-surface px-4 py-2.5 active:bg-fill"

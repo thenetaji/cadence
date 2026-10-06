@@ -10,10 +10,12 @@ import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { headerChrome } from '@/components/app/tab-header';
 import { ToastHost } from '@/components/app/toast-host';
 import { Text } from '@/components/ui/text';
 import { LockGate } from '@/features/lock/lock-gate';
-import { useSetting, usePostDueRecurring } from '@/data/hooks';
+import { useSetting, usePostDueRecurring, useReminderSync } from '@/data/hooks';
+import { useIconPrefsSync } from '@/icons/prefs';
 import { DemoSeedGate } from '@/lib/demo-seed-gate';
 import { setHapticsEnabled } from '@/theme/haptics';
 import { applyThemePreference, followWebColorScheme } from '@/theme/theme';
@@ -90,6 +92,8 @@ function Database({ children }: { children: ReactNode }) {
 
 function Navigator() {
   usePostDueRecurring();
+  useReminderSync();
+  useIconPrefsSync();
   const { colors } = useTokens();
   const [theme] = useSetting('theme');
   const [haptics] = useSetting('haptics');
@@ -110,10 +114,7 @@ function Navigator() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.bg },
-        headerTintColor: colors.accent,
-        headerTitleStyle: { color: colors.text },
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.bg },
+        ...headerChrome(colors),
       }}
     >
       <Stack.Protected guard={!onboardingDone}>
@@ -125,6 +126,14 @@ function Navigator() {
         <Stack.Screen name="transaction/category" options={subSheet('Category', [0.6, 1])} />
         <Stack.Screen name="transaction/date" options={subSheet('Date', [0.6])} />
         <Stack.Screen name="transaction/repeat" options={subSheet('Repeat', [0.45])} />
+        <Stack.Screen name="transaction/person" options={subSheet('Person', [0.6, 1])} />
+        <Stack.Screen name="transaction/tags" options={subSheet('Tags', [0.6, 1])} />
+        <Stack.Screen name="transaction/receipt" options={{ presentation: 'fullScreenModal', animation: 'fade', headerShown: false, contentStyle: { backgroundColor: '#000000' } }} />
+        <Stack.Screen name="people/index" options={push('People')} />
+        <Stack.Screen name="people/[id]/index" options={push('Person')} />
+        <Stack.Screen name="people/[id]/settle" options={{ ...sheet('Settle up'), headerShown: false }} />
+        <Stack.Screen name="tags/index" options={push('Tags')} />
+        <Stack.Screen name="tags/[id]" options={push('Tag')} />
         <Stack.Screen name="transaction/[id]/index" options={push('Transaction')} />
         <Stack.Screen name="transaction/[id]/edit" options={{ ...sheet('Edit transaction'), headerShown: false }} />
         <Stack.Screen name="category/[id]" options={push('Category')} />
@@ -132,6 +141,7 @@ function Navigator() {
         <Stack.Screen name="budget/categories" options={subSheet('Categories', [0.6, 1])} />
         <Stack.Screen name="budget/[id]/index" options={push('Budget')} />
         <Stack.Screen name="budget/[id]/edit" options={sheet('Edit budget')} />
+        <Stack.Screen name="subscriptions" options={push('Subscriptions')} />
         <Stack.Screen name="recurring/index" options={push('Recurring')} />
         <Stack.Screen name="recurring/[id]" options={sheet('Edit rule')} />
         <Stack.Screen name="accounts/index" options={push('Accounts')} />

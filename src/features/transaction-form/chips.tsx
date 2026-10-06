@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, type ViewStyle } from 'react-native';
 import { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { durations, type CategoryColorKey } from '@/theme/tokens';
@@ -42,6 +42,7 @@ function FormChip({ label, icon, trailingIcon, hint, selected = false, ink, onPr
       accessibilityState={{ selected }}
       accessibilityLabel={accessibilityLabel ?? label}
       haptic="light"
+      popWhen={selected}
       hitSlop={{ top: 6, bottom: 6 }}
       onPress={onPress}
       style={[
@@ -63,10 +64,10 @@ function FormChip({ label, icon, trailingIcon, hint, selected = false, ink, onPr
     >
       {icon && ink ? (
         <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: ink, alignItems: 'center', justifyContent: 'center', marginLeft: -6 }}>
-          <SymbolIcon name={icon} size={12} color="#FFFFFF" weight="semibold" />
+          <AppIcon name={icon} size={12} color="#FFFFFF" />
         </View>
       ) : icon ? (
-        <SymbolIcon name={icon} size={iconOnly ? 15 : 14} color={iconColor} />
+        <AppIcon name={icon} size={iconOnly ? 15 : 14} color={iconColor} />
       ) : null}
       {iconOnly ? null : (
         <Text variant="callout" tone={selected && !ink ? 'accent' : 'default'} numberOfLines={1} className="shrink">
@@ -78,7 +79,7 @@ function FormChip({ label, icon, trailingIcon, hint, selected = false, ink, onPr
           {hint}
         </Text>
       ) : null}
-      {trailingIcon ? <SymbolIcon name={trailingIcon} size={9} color={colors.textTertiary} weight="bold" /> : null}
+      {trailingIcon ? <AppIcon name={trailingIcon} size={9} color={colors.textTertiary} /> : null}
     </Pressable>
   );
 }

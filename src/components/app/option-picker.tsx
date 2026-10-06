@@ -2,7 +2,7 @@ import { Modal, ScrollView, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { haptic } from '@/theme/haptics';
@@ -43,7 +43,7 @@ function OptionPicker<T extends string | number | null>({ visible, title, option
                   key={String(option.value)}
                   label={option.label}
                   trailing={
-                    option.value === selected ? <SymbolIcon name="checkmark" size={16} color={colors.accent} weight="semibold" /> : undefined
+                    option.value === selected ? <AppIcon name="checkmark" size={16} color={colors.accent} /> : undefined
                   }
                   onPress={() => {
                     haptic('selection');

@@ -1,22 +1,23 @@
 import { useRouter } from 'expo-router';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text, type TextTone } from '@/components/ui/text';
+import { AnimatedNumber } from '@/motion/animated-number';
+import { useTokens } from '@/theme/use-tokens';
 
-type Stat = { label: string; value: string; tone?: TextTone; onPress?: () => void };
+type StatProps = { label: string; value: string; tone?: TextTone; divider?: boolean; onPress?: () => void };
 
-function Tile({ label, value, tone, onPress }: Stat) {
+function Stat({ label, value, tone, divider, onPress }: StatProps) {
+  const { colors } = useTokens();
   const body = (
-    <Card className="rounded-2xl px-3 py-3">
-      <Text variant="footnote" tone="secondary" numberOfLines={1}>
+    <View className="px-4" style={divider ? { borderLeftWidth: StyleSheet.hairlineWidth * 2, borderLeftColor: colors.separator } : null}>
+      <Text variant="caption" tone="secondary" numberOfLines={1}>
         {label}
       </Text>
-      <Text variant="headline" tone={tone} numeric numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
-        {value}
-      </Text>
-    </Card>
+      <AnimatedNumber value={value} variant="headline" tone={tone} fit align="left" intro className="mt-1 font-bold tracking-[-0.4px]" />
+    </View>
   );
   if (!onPress) return <View className="flex-1">{body}</View>;
   return (
@@ -26,17 +27,17 @@ function Tile({ label, value, tone, onPress }: Stat) {
   );
 }
 
-type StatRowProps = { earned: string; balance: string; perDay: string; balanceNegative: boolean };
+type StatRowProps = { earned: string; perDay: string; balance: string; balanceNegative: boolean };
 
-/** Earned, Balance, Per day: three equal tiles. */
-function StatRow({ earned, balance, perDay, balanceNegative }: StatRowProps) {
+/** One card, three columns split by hairlines: Earned, Daily avg, Balance. */
+function StatRow({ earned, perDay, balance, balanceNegative }: StatRowProps) {
   const router = useRouter();
   return (
-    <View className="flex-row gap-3 px-4">
-      <Tile label="Earned" value={earned} tone="income" />
-      <Tile label="Balance" value={balance} tone={balanceNegative ? 'expense' : 'default'} onPress={() => router.push('/accounts')} />
-      <Tile label="Per day" value={perDay} />
-    </View>
+    <Card className="flex-row rounded-[20px] px-0 py-3.5">
+      <Stat label="Earned" value={earned} tone="income" />
+      <Stat label="Daily avg" value={perDay} divider />
+      <Stat label="Balance" value={balance} tone={balanceNegative ? 'expense' : 'default'} divider onPress={() => router.push('/accounts')} />
+    </Card>
   );
 }
 

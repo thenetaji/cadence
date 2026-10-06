@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { IconTile } from '@/components/app/icon-tile';
-import { SymbolIcon } from '@/components/app/symbol';
+import { AppIcon } from '@/icons/app-icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import type { CategoryColorKey } from '@/theme/tokens';
@@ -59,7 +59,7 @@ function DetailRow({ label, value, tile, leading, caption, stacked = false, nume
             </Text>
           ) : null}
         </View>
-        {chevron ? <SymbolIcon name="chevron.right" size={13} color={colors.textTertiary} weight="semibold" /> : null}
+        {chevron ? <AppIcon name="chevron.right" size={13} color={colors.textTertiary} /> : null}
       </View>
       {showSeparator ? (
         <View

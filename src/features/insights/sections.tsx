@@ -9,6 +9,7 @@ import { PairedBars } from '@/components/charts/paired-bars';
 import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
+import { AnimatedNumber } from '@/motion/animated-number';
 import type { InsightsExtras } from '@/data/hooks';
 import { monthShort, parseKey } from '@/lib/dates';
 import { formatMoney, formatMoneyForSpeech } from '@/lib/money';
@@ -44,9 +45,7 @@ function Tile({ label, value, caption, tone = 'default', onPress, accessibilityL
       <Text variant="footnote" tone="secondary" numberOfLines={1}>
         {label}
       </Text>
-      <Text variant="headline" tone={tone} numeric numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} className="mt-1">
-        {value}
-      </Text>
+      <AnimatedNumber value={value} variant="headline" tone={tone} fit className="mt-1" />
       {caption ? (
         <Text variant="caption" tone="tertiary" numberOfLines={1} className="mt-0.5">
           {caption}
@@ -74,7 +73,7 @@ type StatsGridProps = MoneyProps & { extras: InsightsExtras };
 const StatsGrid = React.memo(function StatsGrid({ extras, currency, locale }: StatsGridProps) {
   const router = useRouter();
   const money = (value: number) => formatMoney(value, currency, { locale, decimals: 0 });
-  const speech = (value: number) => formatMoneyForSpeech(value, currency, { sign: 'none' });
+  const speech = (value: number) => formatMoneyForSpeech(value, currency, { sign: 'none', locale });
   const { biggest, savingsRate } = extras;
   const biggestName = biggest ? biggest.title || biggest.category?.name || 'Untitled' : undefined;
   const rate = percentText(savingsRate);

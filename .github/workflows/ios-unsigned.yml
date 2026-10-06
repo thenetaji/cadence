@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 60
     env:
       APP: ${{ inputs.app || 'finance' }}
@@ -28,6 +28,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Expo SDK 57's ExpoModulesJSI headers use Xcode 27's Swift/C++ interop annotations; Xcode 26 rejects them.
+      - name: Select Xcode 27+
+        run: |
+          echo "Installed:"; ls -d /Applications/Xcode*.app
+          XCODE=$(ls -d /Applications/Xcode_2[7-9]*.app 2>/dev/null | sort -V | tail -n 1)
+          if [ -z "$XCODE" ]; then echo "No Xcode 27+ on this runner"; exit 1; fi
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version
+          swift --version
+
+      # Uses the version pinned in the root package.json's packageManager field.
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
@@ -37,8 +48,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # pnpm skips react-native-skia's postinstall, and `pod install` aborts without its prebuilt binaries.
-      - name: Install Skia binaries
+      # pnpm skips dependency postinstall scripts, so copy Skia's prebuilt binaries explicitly.
+      - name: Install Skia prebuilt libraries
         working-directory: apps/${{ env.APP }}
         run: pnpm exec install-skia
 
@@ -61,8 +72,9 @@ jobs:
         working-directory: apps/${{ env.APP }}
         run: |
           set -o pipefail
+          mkdir -p build
           WORKSPACE=$(ls -d ios/*.xcworkspace | head -n 1)
-          xcodebuild \
+          if ! xcodebuild \
             -workspace "$WORKSPACE" \
             -scheme "$APP_SCHEME" \
             -configuration Release \
@@ -71,7 +83,20 @@ jobs:
             -archivePath build/App.xcarchive \
             archive \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-            | tail -n 200
+            > build/xcodebuild.log 2>&1; then
+            echo "::group::Errors"; grep -nE "error:|fatal error|\*\* ARCHIVE FAILED" build/xcodebuild.log | head -n 60; echo "::endgroup::"
+            tail -n 80 build/xcodebuild.log
+            exit 1
+          fi
+          tail -n 20 build/xcodebuild.log
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: apps/${{ env.APP }}/build/xcodebuild.log
+          if-no-files-found: ignore
 
       - name: Package IPA
         working-directory: apps/${{ env.APP }}
@@ -79,8 +104,8 @@ jobs:
           APP_BUNDLE=$(ls -d build/App.xcarchive/Products/Applications/*.app | head -n 1)
           mkdir -p build/ipa/Payload
           cp -R "$APP_BUNDLE" build/ipa/Payload/
-          (cd build/ipa && zip -qry ../${APP_SCHEME}-unsigned.ipa Payload)
-          ls -lh build/${APP_SCHEME}-unsigned.ipa
+          (cd build/ipa && zip -qry "../${APP_SCHEME}-unsigned.ipa" Payload)
+          ls -lh "build/${APP_SCHEME}-unsigned.ipa"
 
       - uses: actions/upload-artifact@v4
         with:

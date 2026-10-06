@@ -138,7 +138,7 @@ export function createActions(db: Db) {
         notifyChange(['settings']);
         return json;
       },
-      /** Writes `Farthing-backup-YYYY-MM-DD.json` and opens the share sheet (a download on web). */
+      /** Writes `<App>-backup-YYYY-MM-DD.json` and opens the share sheet (a download on web). */
       share: async (): Promise<string> => {
         const now = Date.now();
         const json = backup.serializeBackup(backup.exportBackup(db, { now, appVersion: appVersion() }));

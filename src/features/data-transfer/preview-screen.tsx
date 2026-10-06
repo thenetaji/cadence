@@ -12,7 +12,7 @@ import { useActions } from '@/data/actions';
 import { useImportPlanner, useSettings, useTodayKey } from '@/data/hooks';
 import { ValidationError } from '@/db/errors';
 import { moneyLocale } from '@/features/transactions/use-money-context';
-import { CASHEW_SAMPLE, DIME_SAMPLE, FARTHING_SAMPLE, dimeFixture } from '@/lib/csv/fixtures';
+import { CASHEW_SAMPLE, DIME_SAMPLE, NATIVE_SAMPLE, dimeFixture } from '@/lib/csv/fixtures';
 import { importBreakdown, parseImport, type ImportFormat, type ImportRow } from '@/lib/csv';
 import { dayLabel, toDateKey } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
@@ -29,7 +29,7 @@ function fixtureRows(name: string | undefined): { rows: ImportRow[]; unreadable:
     dime: ['dime', dimeFixture(312)],
     'dime-small': ['dime', DIME_SAMPLE],
     cashew: ['cashew', CASHEW_SAMPLE],
-    farthing: ['farthing', FARTHING_SAMPLE],
+    native: ['native', NATIVE_SAMPLE],
   };
   const source = sources[name];
   if (!source) return null;

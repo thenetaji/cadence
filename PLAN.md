@@ -2,7 +2,7 @@
 
 A personal finance tracker that looks as good as Dime and does what Cashew does, without the clutter. One of each concept, each done well. If a feature can't be done well, it doesn't ship.
 
-The build contract is **`docs/SPEC.md`** (scope, navigation, every screen, data model, design tokens, copy, charts, accessibility, phases). The reasoning behind it is in **`docs/RESEARCH.md`**. The working name "Cadence" is taken; the spec's §Name shortlists replacements, with **Farthing** as the pick.
+The build contract is **`docs/SPEC.md`** (scope, navigation, every screen, data model, design tokens, copy, charts, accessibility, phases). The reasoning behind it is in **`docs/RESEARCH.md`**. The working name "Cadence" is taken; the spec's §Name shortlists replacements, with **Finance** as the pick.
 
 ## Stack (fixed)
 

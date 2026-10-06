@@ -1,6 +1,6 @@
 /** @jest-environment node */
-import { buildExportCsv, parseFarthing, splitTags } from '@/lib/csv';
-import { FARTHING_SAMPLE } from '@/lib/csv/fixtures';
+import { buildExportCsv, parseNative, splitTags } from '@/lib/csv';
+import { NATIVE_SAMPLE } from '@/lib/csv/fixtures';
 import { ValidationError } from '../errors';
 import { at, categoryId, createTestDb, makeAccounts } from '../test-helpers';
 import { importTransactions, listForExport } from './importer';
@@ -195,7 +195,7 @@ describe('CSV tags and lending', () => {
 
     const target = createTestDb();
     makeAccounts(target);
-    const parsed = parseFarthing(text);
+    const parsed = parseNative(text);
     expect(parsed.skipped).toBe(0);
     const result = importTransactions(target, parsed.rows, { displayCurrency: 'INR', defaultAccountId: null });
     expect(result.imported).toBe(5);
@@ -209,7 +209,7 @@ describe('CSV tags and lending', () => {
   });
 
   it('still imports files without tags or person columns', () => {
-    const parsed = parseFarthing(FARTHING_SAMPLE);
+    const parsed = parseNative(NATIVE_SAMPLE);
     expect(parsed.rows.every((r) => (r.tags ?? []).length === 0 && r.person === null)).toBe(true);
     const db = createTestDb({ seed: true });
     const result = importTransactions(db, parsed.rows, { displayCurrency: 'USD', defaultAccountId: null });
@@ -226,7 +226,7 @@ describe('CSV tags and lending', () => {
       '2026-10-02,10:00,lent,,,10.00,INR,,Cash,,,1,1,x2,,Asha',
       '2026-10-03,10:00,expense,Tea,,3.00,INR,Food & Drink,Cash,,,1,1,x3,goa TRIP; New ;new,',
     ].join('\n');
-    const parsed = parseFarthing(csv);
+    const parsed = parseNative(csv);
     const result = importTransactions(db, parsed.rows, { displayCurrency: 'INR', defaultAccountId: null });
     expect(result).toMatchObject({ imported: 2, skipped: 1 });
     expect(listTags(db).map((t) => t.name)).toEqual(['Goa trip', 'New', 'Work']);

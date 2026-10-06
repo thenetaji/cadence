@@ -16,7 +16,7 @@ The build contract for the app. Engineers implement exactly this; anything not l
 
 Cut after checks: Tally (defunct $172M fintech, and TallyPrime dominates "Tally" in India), Till (Till Financial), Coffer, Kept, Ducat, Florin, Outlay, Margin, Groat, Quid, Spent, Tabs, Kitty, Tender, Abacus, Moneta, Mint, Pocket, Stash, Penny, Ledger (all live finance apps or brands).
 
-**Pick: Farthing.** Bundle id and scheme can stay as they are until the owner confirms; the name appears only on the About row and the launch screen, nowhere in copy.
+**Working name: Finance** (neutral placeholder; the owner will pick the final name). Earlier pick was Farthing. Bundle id and scheme can stay as they are until the owner confirms; the name appears only on the About row and the launch screen, nowhere in copy.
 
 ## 1. Product
 
@@ -641,7 +641,7 @@ Each phase is self-contained and handed to one engineer agent. Acceptance = all 
 
 ## 9. Implementation notes (orchestrator, binding)
 
-- **Name**: working name **Farthing**. It lives in exactly two places: `app.json` `expo.name` and `APP_NAME` in `src/constants/app.ts`. Bundle id and scheme stay as they are.
+- **Name**: working name **Finance**. It lives in exactly two places: `app.json` `expo.name` and `APP_NAME` in `src/constants/app.ts`. Bundle id and scheme stay as they are.
 - **Expo Go only**: any dependency with native code must appear in `node_modules/expo/bundledNativeModules.json`; add it with `pnpm exec expo install`. Pure-JS libraries are fine. Available and preferred: `@react-native-segmented-control/segmented-control` (every segmented control), `@react-native-community/datetimepicker`, `expo-crypto` (UUIDs), `expo-symbols`, `@expo/vector-icons` (Android/web icon fallback), `@expo/ui` (SwiftUI menus/pickers on iOS, only where it stays simple and there is a non-iOS fallback), `expo-glass-effect`. Not available: zeego, `@react-native-menu/menu`.
 - **Styling**: Uniwind + Tailwind 4 (`src/global.css`). Replace the stock shadcn greys with the §5 tokens. Keep the shadcn variable names Reusables components expect and map them (`--background` = bg, `--card` = surface, `--primary` = accent, `--muted-foreground` = text-secondary, `--border`, `--destructive` = expense), then add our own (`surface`, `elevated`, `separator`, `text-tertiary`, `accent-soft`, `income`, `expense`, `warning`, `fill`, `overlay`, and the category palette). `src/theme/tokens.ts` mirrors the same values for Skia, Reanimated and any place that needs a raw colour.
 - **Theme setting**: System/Light/Dark is applied with `Uniwind.setTheme(...)` (check the Uniwind API) plus `Appearance.setColorScheme` so native tabs, sheets and pickers match.

@@ -1,6 +1,6 @@
 # Art direction
 
-Three OLED-first directions for Farthing, built from App Store screenshots of 15 premium apps. Mocks of the Home screen are in `.review/directions/` (`compare.png` shows all six side by side); reference boards are in `.review/references/board-01…07.png`. Nothing in app code has changed; this document is the brief.
+Three OLED-first directions for Finance, built from App Store screenshots of 15 premium apps. Mocks of the Home screen are in `.review/directions/` (`compare.png` shows all six side by side); reference boards are in `.review/references/board-01…07.png`. Nothing in app code has changed; this document is the brief.
 
 ## 1. What the references do
 
@@ -22,7 +22,7 @@ Three OLED-first directions for Farthing, built from App Store screenshots of 15
 | Crouton | Flat full-colour screens | Per-section colour as identity (not adopted). |
 | Arc Search | Pastel gradient haze | Gradient haze as background texture (Aurora light). |
 
-Common to every premium dark app above: the background is true black or within 5 % of it; cards are either absent (hairlines), very dark (`#0E`–`#1A`) with a 1 px light rim, or glass; the accent appears in one or two places per screen; numbers are large, tight-tracked and tabular; icons are either white-on-solid-colour or monochrome, never a 15 % tint with a coloured glyph (that is the generic template look the owner is reacting to). Farthing's current `#1C1C1E`/`#2C2C2E` cards sit at 11–17 % luminance, which is why it does not read as black.
+Common to every premium dark app above: the background is true black or within 5 % of it; cards are either absent (hairlines), very dark (`#0E`–`#1A`) with a 1 px light rim, or glass; the accent appears in one or two places per screen; numbers are large, tight-tracked and tabular; icons are either white-on-solid-colour or monochrome, never a 15 % tint with a coloured glyph (that is the generic template look the owner is reacting to). Finance's current `#1C1C1E`/`#2C2C2E` cards sit at 11–17 % luminance, which is why it does not read as black.
 
 ## 2. The three directions
 

@@ -28,7 +28,7 @@ jest.mock('@/lib/files', () => ({
   copyIntoAttachments: jest.fn(async (uri: string) => `file:///docs/attachments/${uri.split('/').pop()}`),
   deleteAttachmentFile: jest.fn(async () => {}),
   pickBackupFile: jest.fn(async () => null),
-  shareBackupFile: jest.fn(async () => 'Farthing-backup-2026-10-06.json'),
+  shareBackupFile: jest.fn(async () => 'Finance-backup-2026-10-06.json'),
 }));
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -198,7 +198,7 @@ describe('feature hooks react to writes made through useActions', () => {
     });
     expect(otherActions.value.backup.create()).toContain('"amount":700');
     expect(await otherActions.value.sync.now()).toEqual({ action: 'none' });
-    expect(await actions.value.backup.share()).toBe('Farthing-backup-2026-10-06.json');
+    expect(await actions.value.backup.share()).toBe('Finance-backup-2026-10-06.json');
     actions.unmount();
     otherActions.unmount();
   });

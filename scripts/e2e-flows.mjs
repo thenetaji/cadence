@@ -567,13 +567,13 @@ export const flows = [
       // A split transaction exports one row per line, so count distinct ids (the last column).
       const rowsA = new Set(linesA.slice(1).map((l) => l.split(',').pop())).size;
 
-      // Install B: empty database, import that file with the Farthing preset through the file chooser.
+      // Install B: empty database, import that file with the native preset through the file chooser.
       // (An existing account is matched by name and its currency wins, so B is onboarded in INR like the demo "Cash".)
       const b = await freshPage();
       await onboard(b, base, 'INR');
       await goClient(b, '/settings/import');
-      await expectText(b, 'Farthing CSV');
-      const [chooser] = await Promise.all([b.waitForEvent('filechooser', { timeout: 30000 }), tapText(b, 'Farthing CSV')]);
+      await expectText(b, 'Finance CSV');
+      const [chooser] = await Promise.all([b.waitForEvent('filechooser', { timeout: 30000 }), tapText(b, 'Finance CSV')]);
       await chooser.setFiles({ name: 'farthing.csv', mimeType: 'text/csv', buffer: Buffer.from(csvA) });
       await expectText(b, `${rowsA} transactions`);
       await b.getByRole('button', { name: 'Import', exact: true }).last().tap();

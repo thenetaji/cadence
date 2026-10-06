@@ -1,5 +1,5 @@
-import { CASHEW_SAMPLE, DIME_SAMPLE, FARTHING_SAMPLE, dimeFixture } from './fixtures';
-import { CsvFormatError, parseCashew, parseDateTime, parseDime, parseFarthing, parseImport } from './import';
+import { CASHEW_SAMPLE, DIME_SAMPLE, NATIVE_SAMPLE, dimeFixture } from './fixtures';
+import { CsvFormatError, parseCashew, parseDateTime, parseDime, parseNative, parseImport } from './import';
 
 describe('parseDateTime', () => {
   it('treats an offset as an absolute instant', () => {
@@ -77,8 +77,8 @@ describe('Cashew', () => {
   });
 });
 
-describe('Farthing', () => {
-  const { rows } = parseFarthing(FARTHING_SAMPLE);
+describe('native CSV', () => {
+  const { rows } = parseNative(NATIVE_SAMPLE);
 
   it('groups split lines into one transaction', () => {
     expect(rows).toHaveLength(4);

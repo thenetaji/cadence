@@ -1,5 +1,5 @@
-import { DIME_SAMPLE, FARTHING_SAMPLE } from './fixtures';
-import { parseDime, parseFarthing, type ImportRow } from './import';
+import { DIME_SAMPLE, NATIVE_SAMPLE } from './fixtures';
+import { parseDime, parseNative, type ImportRow } from './import';
 import { dedupeKey, importBreakdown, importSummary, planImport, type ExistingData } from './plan';
 import { toDateKey } from '@/lib/dates';
 
@@ -100,8 +100,8 @@ describe('planImport', () => {
     expect(plan.stats).toMatchObject({ transactions: 0, skipped: 3, newAccounts: 0 });
   });
 
-  it('plans splits and transfers from a Farthing file', () => {
-    const plan = planImport(parseFarthing(FARTHING_SAMPLE).rows, empty, defaults);
+  it('plans splits and transfers from a native file', () => {
+    const plan = planImport(parseNative(NATIVE_SAMPLE).rows, empty, defaults);
     const split = plan.transactions.find((t) => t.id === 'a2');
     expect(split?.splits.map((s) => s.amount)).toEqual([6000, 2640]);
     const transfer = plan.transactions.find((t) => t.kind === 'transfer');

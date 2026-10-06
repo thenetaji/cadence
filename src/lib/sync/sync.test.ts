@@ -58,7 +58,7 @@ describe('GoogleDriveProvider', () => {
     const list = new URL(calls[0]!.url);
     expect(list.pathname).toBe('/drive/v3/files');
     expect(list.searchParams.get('spaces')).toBe('appDataFolder');
-    expect(list.searchParams.get('q')).toBe("name = 'Farthing-backup.json' and trashed = false");
+    expect(list.searchParams.get('q')).toBe("name = 'backup.json' and trashed = false");
     const create = calls[1]!;
     expect(create.init?.method).toBe('POST');
     expect(create.url).toContain('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
@@ -67,7 +67,7 @@ describe('GoogleDriveProvider', () => {
     expect(headers['Content-Type']).toMatch(/^multipart\/related; boundary=/);
     const body = String(create.init?.body);
     expect(body).toContain('"parents":["appDataFolder"]');
-    expect(body).toContain('"name":"Farthing-backup.json"');
+    expect(body).toContain('"name":"backup.json"');
     expect(body).toContain('{"hello":1}');
   });
 

@@ -107,7 +107,7 @@ The bones are right: one type scale, one row anatomy, calm colour, real charts, 
 - **P2** `settings-import-preview`: the summary wraps to two lines at title2. Use `headline` for the count and put the breakdown on a footnote line beneath (`8 categories (3 new) · 1 account`).
 
 ### Lock overlay (`lock-overlay-*`)
-- **P2** The mark is a 40 pt accent square with a lock glyph. Use the app icon asset at 48 pt, radius 11, so the lock screen is recognisably Farthing; keep the single `Unlock` button.
+- **P2** The mark is a 40 pt accent square with a lock glyph. Use the app icon asset at 48 pt, radius 11, so the lock screen is recognisably Finance; keep the single `Unlock` button.
 
 ### Dark mode (all `*-dark`)
 - No structural issues. Two refinements: **P2** keypad operator keys and digit keys read as the same fill on black; give operators `elevated` (#2C2C2E) and digits `surface` (#1C1C1E) so the column reads. **P2** `insights-selected-dark` dims unselected segments to ~25%; use 35% so the ring does not vanish on OLED.

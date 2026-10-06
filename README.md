@@ -1,8 +1,8 @@
-# Farthing
+# Finance
 
 A local-first expense tracker for iPhone. It has Dime's calm interface plus the depth Dime lacks: title and memo, split transactions, charts and breakdowns, budgets, recurring payments, multiple accounts and currencies.
 
-"Farthing" is a working name. The shortlist and how each name was checked are in `docs/SPEC.md` §Name. Renaming means changing `app.json` → `expo.name` and `APP_NAME` in `src/constants/app.ts`.
+"Finance" is a working name. The shortlist and how each name was checked are in `docs/SPEC.md` §Name. Renaming means changing `app.json` → `expo.name` and `APP_NAME` in `src/constants/app.ts`.
 
 ## Run it on your iPhone
 

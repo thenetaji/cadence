@@ -3,6 +3,7 @@ import { ScrollView, View } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { showToast } from '@/components/app/toast-store';
+import { APP_NAME } from '@/constants/app';
 import { useActions } from '@/data/actions';
 import { useSetting, useSyncStatus } from '@/data/hooks';
 import type { BackupSummary } from '@/db/repos/backup';
@@ -46,7 +47,7 @@ export function BackupScreen() {
       if (text === null) return;
       const result = actions.backup.validate(text);
       if (!result.ok) {
-        showToast({ message: result.error === 'newer_schema' ? 'Made by a newer version' : 'Not a Farthing backup', haptic: 'warning' });
+        showToast({ message: result.error === 'newer_schema' ? 'Made by a newer version' : `Not a ${APP_NAME} backup`, haptic: 'warning' });
         return;
       }
       setPending({ json: text, summary: result.summary });

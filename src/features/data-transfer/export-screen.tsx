@@ -5,6 +5,7 @@ import { ListGroup, ListRow } from '@/components/app/list-group';
 import { AppIcon } from '@/icons/app-icon';
 import { showToast } from '@/components/app/toast-store';
 import { Button } from '@/components/ui/button';
+import { APP_NAME } from '@/constants/app';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useAccounts, useExportReader, useSettings } from '@/data/hooks';
 import { FormRow } from '@/features/entry/form-row';
@@ -67,7 +68,7 @@ export function ExportScreen() {
     }
     setBusy(true);
     try {
-      await shareTextFile(`farthing-${today}.csv`, buildExportCsv(records));
+      await shareTextFile(`${APP_NAME.toLowerCase()}-${today}.csv`, buildExportCsv(records));
       haptic('success');
     } catch {
       showToast({ message: 'Export failed', haptic: 'error' });

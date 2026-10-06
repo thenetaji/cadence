@@ -19,7 +19,7 @@ Main,2400.0,usd,Paycheck,,2024-03-01 09:00:00.000,true,null,Salary,,0xffff9800,,
 Savings,-9.99,usd,Netflix,,2024-03-03 12:00:00.000,false,1,Subscriptions,,0xff9c27b0,,,,
 `;
 
-export const FARTHING_SAMPLE = `﻿date,time,kind,title,memo,amount,currency,category,account,transfer_account,transfer_amount,split_index,split_count,id\r
+export const NATIVE_SAMPLE = `﻿date,time,kind,title,memo,amount,currency,category,account,transfer_account,transfer_amount,split_index,split_count,id\r
 2024-03-05,08:32,expense,Blue Bottle,,12.50,USD,Food & Drink,Main,,,1,1,a1\r
 2024-03-04,18:05,expense,Costco,"Bulk, ""party"" run",60.00,USD,Groceries,Main,,,1,2,a2\r
 2024-03-04,18:05,expense,Costco,"Bulk, ""party"" run",26.40,USD,Shopping,Main,,,2,2,a2\r

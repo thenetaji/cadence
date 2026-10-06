@@ -11,7 +11,7 @@ import { pickTextFile } from './pick-text-file';
 import { useImportStore } from './store';
 
 const FORMATS: readonly { format: ImportFormat; color: CategoryColorKey }[] = [
-  { format: 'farthing', color: 'blue' },
+  { format: 'native', color: 'blue' },
   { format: 'dime', color: 'green' },
   { format: 'cashew', color: 'orange' },
 ];

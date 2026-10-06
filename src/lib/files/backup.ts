@@ -3,7 +3,7 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { backupFileName } from './paths';
 
-/** Writes the backup to the cache directory as `Farthing-backup-YYYY-MM-DD.json` and opens the share sheet. */
+/** Writes the backup to the cache directory as `<App>-backup-YYYY-MM-DD.json` and opens the share sheet. */
 export async function shareBackupFile(json: string, date: Date | number = Date.now()): Promise<string> {
   const name = backupFileName(date);
   const file = new File(Paths.cache, name);

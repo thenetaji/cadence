@@ -1,9 +1,11 @@
 import { ALL_KINDS, isLendingKind, type TransactionKind } from '@/lib/ledger';
 import { fromMinor, toMinor } from '@/lib/money';
 
+import { APP_NAME } from '@/constants/app';
+
 import { parseCsv } from './csv';
 
-export type ImportFormat = 'farthing' | 'dime' | 'cashew';
+export type ImportFormat = 'native' | 'dime' | 'cashew';
 export type ImportKind = TransactionKind;
 
 /** A transaction as read from a file, before accounts, categories and currencies are resolved. Amounts are decimal text. */
@@ -167,7 +169,7 @@ function localMs(date: string, time: string): number | null {
   return parseDateTime(`${date} ${m ? `${m[1]}:${m[2]}` : '12:00'}`);
 }
 
-export function parseFarthing(text: string): ParseResult {
+export function parseNative(text: string): ParseResult {
   const table = records(text, ['date', 'kind', 'amount', 'currency', 'category', 'account']);
   const rows: ImportRow[] = [];
   let skipped = 0;
@@ -228,13 +230,13 @@ export function parseImport(format: ImportFormat, text: string): ParseResult {
       return parseDime(text);
     case 'cashew':
       return parseCashew(text);
-    case 'farthing':
-      return parseFarthing(text);
+    case 'native':
+      return parseNative(text);
   }
 }
 
 export const IMPORT_FORMAT_LABELS: Record<ImportFormat, string> = {
-  farthing: 'Farthing CSV',
+  native: `${APP_NAME} CSV`,
   dime: 'Dime CSV',
   cashew: 'Cashew CSV',
 };

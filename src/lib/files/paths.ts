@@ -1,9 +1,10 @@
 /** Pure helpers shared by the native and web file code. */
+import { APP_NAME } from '@/constants/app';
 
 export function backupFileName(date: Date | number = Date.now()): string {
   const d = new Date(date);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `Farthing-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
+  return `${APP_NAME}-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
 }
 
 /** File extension including the dot, lower-cased; '.jpg' when the source has none. */

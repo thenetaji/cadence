@@ -3,7 +3,8 @@ import { SyncError, type SyncProvider, type SyncStatus } from './types';
 
 const API = 'https://www.googleapis.com/drive/v3';
 const UPLOAD = 'https://www.googleapis.com/upload/drive/v3';
-export const DRIVE_BACKUP_NAME = 'Farthing-backup.json';
+/** Stable, brand-free name inside the app's private Drive folder. */
+export const DRIVE_BACKUP_NAME = 'backup.json';
 /** The OAuth scope that gives access to this app's private appDataFolder only. */
 export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 
@@ -73,7 +74,7 @@ export class GoogleDriveProvider implements SyncProvider {
       this.fileId = ((await res.json()) as DriveFile).id ?? existing.id;
       return;
     }
-    const boundary = `farthing-${Date.now().toString(36)}`;
+    const boundary = `backup-${Date.now().toString(36)}`;
     const metadata = JSON.stringify({ name: this.name, parents: ['appDataFolder'], mimeType: 'application/json' });
     const body =
       `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n` +

@@ -1,5 +1,5 @@
-import { buildExportCsv, parseFarthing, parseImport, type ExportRecord } from '@/lib/csv';
-import { CASHEW_SAMPLE, DIME_SAMPLE, FARTHING_SAMPLE } from '@/lib/csv/fixtures';
+import { buildExportCsv, parseNative, parseImport, type ExportRecord } from '@/lib/csv';
+import { CASHEW_SAMPLE, DIME_SAMPLE, NATIVE_SAMPLE } from '@/lib/csv/fixtures';
 import { toDateKey } from '@/lib/dates';
 import { createAccount, listAccounts } from './accounts';
 import { listCategories } from './categories';
@@ -67,7 +67,7 @@ describe('importTransactions', () => {
           throw new Error('boom');
         }),
     } as unknown as TestDb;
-    expect(() => importTransactions(failing, parseFarthing(FARTHING_SAMPLE).rows, defaults)).toThrow('boom');
+    expect(() => importTransactions(failing, parseNative(NATIVE_SAMPLE).rows, defaults)).toThrow('boom');
     expect(listAccounts(db)).toHaveLength(0);
     expect(listCategories(db)).toHaveLength(cats);
     expect(db.select().from(transactions).all()).toHaveLength(0);
@@ -124,7 +124,7 @@ describe('export and import round trip', () => {
     expect(text.startsWith('﻿date,time,kind,title,memo,amount,currency,category,account,transfer_account,transfer_amount,split_index,split_count,id,tags,person\r\n')).toBe(true);
 
     const target = createTestDb();
-    const parsed = parseFarthing(text);
+    const parsed = parseNative(text);
     expect(parsed.skipped).toBe(0);
     const result = importTransactions(target, parsed.rows, defaults);
     expect(result).toMatchObject({ imported: 1000, duplicates: 0, skipped: 0, newAccounts: 3 });

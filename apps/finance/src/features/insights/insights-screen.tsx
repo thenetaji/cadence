@@ -5,7 +5,8 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { FadeIn, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { Amount , SectionHeader , Card , Pressable , Text } from '@studio/ui';
-import { BarChart , Donut , axisLabels } from '@studio/charts';
+import { axisLabels } from '@studio/charts/lib';
+import { BarChart, Donut } from '@studio/charts/components';
 import { useCashFlow, useInsights, useInsightsExtras, useSettings, useTodayKey } from '@/data/hooks';
 import { addDays, diffDays, periodLabel, type PeriodSettings, type PeriodType } from '@studio/dates';
 import { Stagger } from '@studio/motion';

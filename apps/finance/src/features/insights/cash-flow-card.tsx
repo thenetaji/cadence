@@ -2,7 +2,8 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { SectionHeader , Card , Text } from '@studio/ui';
-import { CashFlowChart , axisLabels } from '@studio/charts';
+import { axisLabels } from '@studio/charts/lib';
+import { CashFlowChart } from '@studio/charts/components';
 import type { CashFlowData } from '@/data/hooks';
 import { formatMoneyForSpeech } from '@studio/money';
 import { useTokens } from '@studio/theme';

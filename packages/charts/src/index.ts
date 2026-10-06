@@ -1,12 +1,5 @@
-export * from './components/bar-chart';
-export * from './components/cash-flow-chart';
-export * from './components/chart-kit';
-export * from './components/cumulative-duo';
-export * from './components/donut';
-export * from './components/mini-bars';
-export * from './components/monthly-bars';
-export * from './components/pace-chart';
-export * from './components/paired-bars';
-export * from './components/use-chart-font';
+// Light entry: the Skia loader and the pure chart maths. Importing this never evaluates Skia, which on web must
+// first be evaluated after CanvasKit has loaded (see `withSkia`). The chart components are the separate
+// `@studio/charts/components` entry; load them lazily through `withSkia(() => import('@studio/charts/components')...)`.
 export * from './components/with-skia';
 export * from './lib';

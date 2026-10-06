@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { withSkia } from '@studio/charts';
-import type { MonthlyBarsProps } from '@studio/charts';
+import type { MonthlyBarsProps } from '@studio/charts/components';
 import { Card } from '@studio/ui';
 import { useMonthlyTotals } from '@/data/hooks';
 import { monthShort, parseKey, type Period } from '@studio/dates';
@@ -10,7 +10,7 @@ import { formatMoneyForSpeech } from '@studio/money';
 
 import { monthScrub } from './labels';
 
-const MonthlyBars = withSkia<MonthlyBarsProps>(() => import('@studio/charts').then((m) => ({ default: m.MonthlyBars })));
+const MonthlyBars = withSkia<MonthlyBarsProps>(() => import('@studio/charts/components').then((m) => ({ default: m.MonthlyBars })));
 
 const SHOWN = 12;
 

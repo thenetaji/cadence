@@ -3,7 +3,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { IconTile , SectionHeader , Card , Pressable , Text , AnimatedNumber } from '@studio/ui';
-import { BarChart , PairedBars } from '@studio/charts';
+import { BarChart , PairedBars } from '@studio/charts/components';
 import type { InsightsExtras } from '@/data/hooks';
 import { monthShort, parseKey } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';

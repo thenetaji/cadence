@@ -9,13 +9,13 @@ import type { HomeSpend } from '@/data/hooks';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';
 import { withAlpha , useTokens } from '@studio/theme';
 
-import type { CumulativeDuoProps } from '@studio/charts';
+import type { CumulativeDuoProps } from '@studio/charts/components';
 import { addDays, monthShort, parseKey } from '@studio/dates';
 
 import { FlowLegend } from './spend-legend';
 
 /** Skia loads lazily (CanvasKit first on web), keeping chart code out of the initial graph. */
-const CumulativeDuo = withSkia<CumulativeDuoProps>(() => import('@studio/charts').then((m) => ({ default: m.CumulativeDuo })));
+const CumulativeDuo = withSkia<CumulativeDuoProps>(() => import('@studio/charts/components').then((m) => ({ default: m.CumulativeDuo })));
 
 type SpendHeroProps = {
   spend: HomeSpend;

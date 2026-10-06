@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { BarChart , Donut , MiniBars , PaceChart, paceLabel , axisLabels } from '@studio/charts';
+import { axisLabels } from '@studio/charts/lib';
+import { BarChart, Donut, MiniBars, PaceChart, paceLabel } from '@studio/charts/components';
 import { Card , Text } from '@studio/ui';
 import { addDays } from '@studio/dates';
 import { formatMoney } from '@studio/money';

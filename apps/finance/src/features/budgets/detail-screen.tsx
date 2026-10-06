@@ -3,7 +3,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { EmptyState , barRight , Button , Card , Text } from '@studio/ui';
-import { PaceChart, paceLabel } from '@studio/charts';
+import { PaceChart, paceLabel } from '@studio/charts/components';
 import { useBudgetDetail, useCategories, usePeriodTransactions, useTodayKey } from '@/data/hooks';
 import { TransactionDayList } from '@/features/transactions/transaction-day-list';
 import { useMoneyContext } from '@/features/transactions/use-money-context';

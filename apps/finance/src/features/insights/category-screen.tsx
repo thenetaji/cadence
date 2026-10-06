@@ -5,7 +5,7 @@ import { View } from 'react-native';
 
 import { DaySectionHeader , barRight , Button , Card , Text } from '@studio/ui';
 import { TransactionRow } from '@/components/app/transaction-row';
-import { MiniBars } from '@studio/charts';
+import { MiniBars } from '@studio/charts/components';
 import { useCategoryTrend, usePeriodTransactions, useSettings, useTodayKey, useTopCategoryId, type TransactionListItem } from '@/data/hooks';
 import { periodFor, periodLabel, previousPeriod, type Period, type PeriodType } from '@studio/dates';
 import { formatMoney, formatMoneyForSpeech } from '@studio/money';

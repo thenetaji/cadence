@@ -1,4 +1,4 @@
-import type { DonutDatum } from '@studio/charts';
+import type { DonutDatum } from '@studio/charts/components';
 import type { Insights } from '@/data/hooks';
 import { formatMoney } from '@studio/money';
 import type { CategoryColorKey, Scheme } from '@studio/theme';

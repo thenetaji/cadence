@@ -10,7 +10,8 @@ packages/theme       @studio/theme   tokens, useTokens, theme preference, haptic
 packages/icons       @studio/icons   icon registry, tile styles, AppIcon, generator (scripts/build-icons.mjs)
 packages/motion      @studio/motion  Reanimated primitives
 packages/ui          @studio/ui      primitives + generic app components, toasts, cn()
-packages/charts      @studio/charts  Skia charts (+ @studio/charts/lib: pure geometry)
+packages/charts      @studio/charts  withSkia + pure maths; /components = Skia charts, load them
+                                     lazily via withSkia (on web Skia must evaluate after CanvasKit loads)
 packages/data        @studio/data    change tracking, useLiveData/useDb, DatabaseProvider, ids,
                                      /files (attachments, backups), /sync (Drive, iCloud stub)
 tooling/qa           screenshot + e2e harness, compare-shots; apps keep routes/flows in apps/<app>/qa/

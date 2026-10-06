@@ -499,13 +499,10 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
         className="flex-1"
         onLayout={(event) => setAreaHeight(event.nativeEvent.layout.height)}
       >
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName="grow justify-center pb-3"
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View className="justify-center py-2" style={{ minHeight: crossCurrency ? 152 : 104, maxHeight: crossCurrency ? 200 : 160 }}>
+        {/* No ScrollView: everything fits by design, and a capped, centred readout zone overflowed upward into the
+            kind selector on device. The readout zone takes the free height and centres the amount instead. */}
+        <View className="flex-1 pb-3">
+          <View className="flex-1 justify-center py-2" style={{ minHeight: crossCurrency ? 152 : 96 }}>
             <View style={{ opacity: receivesFocused ? 0.45 : 1 }}>
               <AmountReadout
                 symbol={symbol}
@@ -776,7 +773,7 @@ function TransactionForm({ mode, transactionId, params = {} }: TransactionFormPr
               </>
             ) : null}
           </View>
-        </ScrollView>
+        </View>
 
         {showKeypad ? (
           <View className="bg-bg" style={{ paddingBottom: insets.bottom }}>

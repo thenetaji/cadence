@@ -11,7 +11,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {},
   "peerDependencies": {
@@ -23,6 +24,10 @@
     "zustand": "*"
   },
   "devDependencies": {
-    "@studio/config": "workspace:*"
+    "@studio/config": "workspace:*",
+    "@iconify-json/hugeicons": "^1.2.35",
+    "@iconify-json/lucide": "^1.2.140",
+    "@iconify-json/ph": "^1.2.2",
+    "@iconify-json/solar": "^1.2.13"
   }
 }

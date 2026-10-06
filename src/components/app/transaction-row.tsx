@@ -60,14 +60,14 @@ function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.f
   );
   const style = useAnimatedStyle(() => ({ width: Math.max(ACTION_WIDTH, -translation.value) }));
   return (
-    <View className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
+    <Pressable role="button" accessibilityLabel={label} scale={1} onPress={onFull} className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
       <Animated.View style={[{ backgroundColor: background, minWidth: ACTION_WIDTH }, style]} className="items-center justify-center gap-1">
         <SymbolIcon name={symbol} size={18} color="#FFFFFF" />
         <Text variant="caption" className="text-white">
           {label}
         </Text>
       </Animated.View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -126,7 +126,6 @@ function TransactionRow({
       ref={swipeRef}
       friction={1.6}
       overshootLeft={false}
-      overshootRight={false}
       rightThreshold={ACTION_WIDTH / 2}
       leftThreshold={ACTION_WIDTH / 2}
       renderRightActions={
@@ -144,7 +143,8 @@ function TransactionRow({
       }
       renderLeftActions={triggerLeft ? () => <DuplicateAction label={leftAction?.label} symbol={leftAction?.symbol} tone={leftAction?.tone} /> : undefined}
       onSwipeableOpen={(direction) => {
-        if (direction === 'left') {
+        // `direction` is the swipe direction: swiping right opens the left (Duplicate) panel.
+        if (direction === 'right') {
           swipeRef.current?.close();
           triggerLeft?.();
         }

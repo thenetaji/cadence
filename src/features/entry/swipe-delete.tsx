@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { View } from 'react-native';
 import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { runOnJS, useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
 import { SymbolIcon } from '@/components/app/symbol';
+import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { haptic } from '@/theme/haptics';
 import { useTokens } from '@/theme/use-tokens';
@@ -21,14 +21,14 @@ function DeleteAction({ translation, onFull, label }: { translation: SharedValue
   );
   const style = useAnimatedStyle(() => ({ width: Math.max(ACTION_WIDTH, -translation.value) }));
   return (
-    <View className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
+    <Pressable role="button" accessibilityLabel={label} scale={1} onPress={onFull} className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
       <Animated.View style={[{ backgroundColor: colors.expense, minWidth: ACTION_WIDTH }, style]} className="items-center justify-center gap-1">
         <SymbolIcon name="trash.fill" size={18} color="#FFFFFF" />
         <Text variant="caption" className="text-white">
           {label}
         </Text>
       </Animated.View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -46,7 +46,6 @@ function SwipeDelete({ onDelete, label = 'Delete', children }: SwipeDeleteProps)
     <ReanimatedSwipeable
       ref={ref}
       friction={1.6}
-      overshootRight={false}
       rightThreshold={ACTION_WIDTH / 2}
       renderRightActions={(_progress, translation) => <DeleteAction translation={translation} onFull={full} label={label} />}
     >

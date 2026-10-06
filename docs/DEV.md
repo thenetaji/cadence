@@ -8,6 +8,8 @@
 - `pnpm run doctor` expo-doctor (plain `pnpm doctor` is a pnpm builtin) | `pnpm verify` typecheck + lint + test + bundle:ios
 - `pnpm screenshots` web export, then `.screenshots/<name>-<light|dark>.png` (393x852 @3x)
   for each route in `scripts/screenshot-routes.json`; errors go to `.screenshots/console.log`
+- `pnpm e2e` web export to `.export-web-e2e`, then Playwright flows (`scripts/e2e-flows.mjs`) at iPhone size, one fresh
+  in-memory db per flow; failures save `.e2e/<n>-<flow>.png`. `E2E_SKIP_EXPORT=1` reuses the export, `E2E_ONLY=2,Budget` filters flows
 - `pnpm db:generate` drizzle-kit generates SQL migrations into `drizzle/`
 - `pnpm typegen` regenerates typed routes after adding a route file
 

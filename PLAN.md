@@ -8,9 +8,9 @@ The build contract is **`docs/SPEC.md`** (scope, navigation, every screen, data 
 
 - Expo SDK 57, React Native 0.86, TypeScript strict, expo-router (file routes in `src/app`, native tabs).
 - Must run in **Expo Go** until the Apple Developer account exists: no custom native modules, widgets or dev-build-only libraries. Expo Go supports only the latest SDK, so upgrade when it moves.
-- UI: Tailwind via NativeWind/Uniwind + React Native Reusables (components owned in `src/components/ui`). SF Symbols via expo-symbols with a MaterialIcons fallback on Android.
+- UI: Tailwind 4 via Uniwind + React Native Reusables (components owned in `src/components/ui`). SF Symbols via expo-symbols with a MaterialIcons fallback on Android.
 - Data: local-first, expo-sqlite + Drizzle ORM. Money is integer minor units + ISO currency code. No server, no accounts, no bank linking.
-- Charts: victory-native (Skia). Motion: Reanimated 4 + Gesture Handler. Haptics: expo-haptics. Lock: expo-local-authentication. Lists: FlashList.
+- Charts: hand-built on @shopify/react-native-skia (donut, bars with scrub and outlier clipping, pace line). Motion: Reanimated 4 + Gesture Handler. Haptics: expo-haptics. Lock: expo-local-authentication. Lists: FlashList.
 - iOS first; Android must render sensibly.
 
 No Mac is needed: Metro runs on Linux, Expo Go loads the app on the iPhone over Wi-Fi or `--tunnel`. A standalone iOS build needs the $99/yr account and `eas build -p ios` on Expo's cloud Macs.
@@ -23,7 +23,7 @@ Not in v1: bank linking, sync, widgets, goals, loans, shared budgets, notificati
 
 ## Navigation
 
-Native tabs **Home · Activity · Insights · Budgets**, a floating **+** that opens the add sheet, Settings as a modal stack from the Home header. Add/edit are form sheets; details are pushes on a single root stack (per-tab stacks are Later).
+Native tabs **Home · Activity · Insights · Budgets**, a floating **+** that opens the add sheet, Settings as a modal stack from the Home header. Add/edit are form sheets. Each tab root has its own small stack for the native large-title header; details push on the root stack, so the tab bar hides on push.
 
 ## Phases (details and acceptance criteria in SPEC §8)
 
@@ -40,9 +40,4 @@ Dime and Cashew are **GPL-3.0**, cloned to `.reference/` (gitignored) for studyi
 
 ## Commands
 
-```sh
-pnpm install
-pnpm start        # Metro; open in Expo Go
-pnpm test
-pnpm tsc --noEmit
-```
+See `docs/DEV.md`. The short version: `pnpm start` to run in Expo Go, `pnpm verify` before committing.

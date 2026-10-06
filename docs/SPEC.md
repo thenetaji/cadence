@@ -77,7 +77,7 @@ A floating **+** button, 56×56 pt, accent fill, white `plus` symbol (20 pt, sem
 - **Sheets** (`presentation: "formSheet"`, grabber visible, `sheetAllowedDetents: [1]` on iOS): add/edit transaction, add/edit budget, add/edit account, add/edit category, export, import, settings stack (Settings is a modal stack over the tabs, like Apple Podcasts), search.
 - **Pushes**: transaction detail, category drill-down, budget detail, account detail, recurring list, accounts list.
 - **Alerts** (native `Alert`): only for destructive actions without undo (erase all data, delete account with transactions).
-- v1 uses a single root Stack above the tabs; a push hides the tab bar. Per-tab stacks are Later.
+- v1 pushes details on the root Stack above the tabs, so a push hides the tab bar. Each tab root sits in its own small Stack only for the native large-title header.
 
 ### Route map (`src/app`)
 
@@ -207,7 +207,7 @@ Purpose: where the money went, and whether that is changing.
 1. Header: large title "Insights"; trailing `arrow.left.arrow.right` toggles Expense/Income (default Expense).
 2. **Period control**: segmented `Week | Month | Year | Custom`; beneath it a period stepper row: `chevron.left` "October 2026" `chevron.right` (swipe left/right anywhere on the chart area also steps). Custom opens a two-date sheet.
 3. **Total**: hero amount for the period, with a delta line "−12% vs September" (secondary; green when spending fell, plain when rose; no red).
-4. **Donut** (victory-native, 220 pt): up to 8 segments + "Other"; stroke width 22 pt, gap 2°; centre shows the selected segment's name + amount, else the total. Tap a segment to select it (selection haptic; segment grows 4 pt; the list below filters to it). Tap again to clear.
+4. **Donut** (Skia, 220 pt): up to 8 segments + "Other"; stroke width 22 pt, gap 2°; centre shows the selected segment's name + amount, else the total. Tap a segment to select it (selection haptic; segment grows 4 pt; the list below filters to it). Tap again to clear.
 5. **Bars**: daily bars for Week/Month, monthly for Year, auto for Custom. Height 160 pt, 4 pt radius tops, bars in accent at 70%, selected bar 100%; a dotted average line with a right-aligned label. Scrub: pan along the chart shows a floating label "Tue 7 · ₹1,240" and highlights the bar; release keeps the selection; tap elsewhere clears. Bar colours switch to the selected category colour when a donut segment is selected.
 6. **Category list**: one row per category: icon, name, bar-under-name showing share, trailing amount and "34%". Sorted by amount. Tap → `/category/[id]?from&to`.
 
@@ -448,7 +448,7 @@ Account icons by type: cash `banknote`, bank `building.columns.fill`, card `cred
 
 ## 5. Design language (tokens)
 
-Implemented as CSS variables in `src/global.css` for NativeWind/Uniwind and mirrored in a `tokens.ts` for Skia charts and Reanimated.
+Implemented as CSS variables in `src/global.css` for Uniwind and mirrored in a `tokens.ts` for Skia charts and Reanimated.
 
 ### 5.1 Colours, semantic
 
@@ -566,7 +566,7 @@ Key strings:
 | Lock | Unlock |
 | Onboarding | Set up · Currency · Account · Opening balance · Start |
 
-## 6. Charts (victory-native, Skia)
+## 6. Charts (Skia)
 
 | Chart | Screen | Data | Interaction |
 |---|---|---|---|

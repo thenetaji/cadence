@@ -9,7 +9,7 @@ import { ensureCanvaskit, exportWeb, root, serveWeb } from './web-server.mjs';
 const exportDir = process.env.SHOTS_EXPORT_DIR ?? '.export-web';
 const outDir = join(root, process.env.SHOTS_OUT ?? '.screenshots');
 const only = process.env.SHOTS_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
-const routes = JSON.parse(readFileSync(join(root, 'scripts/screenshot-routes.json'), 'utf8')).filter(
+const routes = JSON.parse(readFileSync(join(root, 'qa/screenshot-routes.json'), 'utf8')).filter(
   (r) => !only || only.some((prefix) => r.name.startsWith(prefix)),
 );
 

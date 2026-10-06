@@ -1,4 +1,5 @@
 // Shared by the screenshot and e2e harnesses: web export, canvaskit wasm and a static server with COOP/COEP headers.
+// Every harness takes `--app <name>` (default `finance`) and works inside apps/<name>.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, createReadStream, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -6,7 +7,19 @@ import { createRequire } from 'node:module';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
+export const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
+
+/** Reads `--app <name>` from argv (also `--app=<name>`); returns `{ app, root }` where root is apps/<app>. */
+export function resolveApp(argv = process.argv.slice(2)) {
+  let app = 'finance';
+  const i = argv.findIndex((a) => a === '--app' || a.startsWith('--app='));
+  if (i !== -1) app = argv[i].includes('=') ? argv[i].split('=')[1] : argv[i + 1];
+  const root = join(repoRoot, 'apps', app);
+  if (!app || !existsSync(join(root, 'app.json'))) throw new Error(`unknown app "${app}" (no apps/${app}/app.json)`);
+  return { app, root };
+}
+
+export const { app, root } = resolveApp();
 
 /** Skia on web needs canvaskit.wasm in public/ (gitignored; same file `setup-skia-web` copies). */
 export function ensureCanvaskit() {

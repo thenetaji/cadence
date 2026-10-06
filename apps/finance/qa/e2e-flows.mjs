@@ -1,4 +1,4 @@
-// Flow definitions for scripts/e2e.mjs. Each flow: { name, run({ page, base }), skip? }.
+// Flow definitions for tooling/qa/e2e.mjs. Each flow: { name, run({ page, base }), skip? }.
 // The web database is in-memory, so a full page.goto wipes it: navigate through the UI after the first load.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

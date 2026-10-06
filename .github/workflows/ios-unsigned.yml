@@ -1,8 +1,17 @@
 name: iOS unsigned IPA
 
-# Builds an unsigned Finance IPA for sideloading with SideStore (see docs/SIDELOAD.md).
+# Builds an unsigned IPA of one app for sideloading with SideStore (see apps/finance/docs/SIDELOAD.md).
 on:
   workflow_dispatch:
+    inputs:
+      app:
+        description: App folder under apps/ to build
+        default: finance
+        required: true
+      scheme:
+        description: Xcode scheme (the app's display name, as in app.json)
+        default: Finance
+        required: true
   push:
     tags: ['v*']
 
@@ -14,7 +23,8 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 60
     env:
-      APP_SCHEME: Finance
+      APP: ${{ inputs.app || 'finance' }}
+      APP_SCHEME: ${{ inputs.scheme || 'Finance' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -30,19 +40,22 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Generate the native iOS project
+        working-directory: apps/${{ env.APP }}
         run: pnpm exec expo prebuild -p ios --clean
 
       - name: Cache CocoaPods
         uses: actions/cache@v4
         with:
-          path: ios/Pods
-          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          path: apps/${{ env.APP }}/ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles(format('apps/{0}/ios/Podfile.lock', env.APP)) }}
           restore-keys: pods-${{ runner.os }}-
 
       - name: Install pods
+        working-directory: apps/${{ env.APP }}
         run: cd ios && pod install
 
       - name: Archive (unsigned)
+        working-directory: apps/${{ env.APP }}
         run: |
           set -o pipefail
           WORKSPACE=$(ls -d ios/*.xcworkspace | head -n 1)
@@ -58,21 +71,22 @@ jobs:
             | tail -n 200
 
       - name: Package IPA
+        working-directory: apps/${{ env.APP }}
         run: |
-          APP=$(ls -d build/App.xcarchive/Products/Applications/*.app | head -n 1)
+          APP_BUNDLE=$(ls -d build/App.xcarchive/Products/Applications/*.app | head -n 1)
           mkdir -p build/ipa/Payload
-          cp -R "$APP" build/ipa/Payload/
-          (cd build/ipa && zip -qry ../Finance-unsigned.ipa Payload)
-          ls -lh build/Finance-unsigned.ipa
+          cp -R "$APP_BUNDLE" build/ipa/Payload/
+          (cd build/ipa && zip -qry ../${APP_SCHEME}-unsigned.ipa Payload)
+          ls -lh build/${APP_SCHEME}-unsigned.ipa
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Finance-unsigned-ipa
-          path: build/Finance-unsigned.ipa
+          name: ${{ env.APP_SCHEME }}-unsigned-ipa
+          path: apps/${{ env.APP }}/build/${{ env.APP_SCHEME }}-unsigned.ipa
           if-no-files-found: error
 
       - name: Attach to GitHub Release (tags only)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/Finance-unsigned.ipa
+          files: apps/${{ env.APP }}/build/${{ env.APP_SCHEME }}-unsigned.ipa

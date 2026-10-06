@@ -1,5 +1,5 @@
 // End-to-end functional tests against the web export (the only way to exercise real flows without a device).
-// Usage: pnpm e2e            export + serve + run every flow
+// Usage: pnpm e2e --app finance            export + serve + run every flow
 //        E2E_SKIP_EXPORT=1 pnpm e2e         reuse .export-web-e2e
 //        E2E_ONLY=2,5 pnpm e2e              run only flows whose number or name matches
 // Every flow gets a fresh browser context, so a fresh in-memory database.
@@ -7,8 +7,12 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 
+import { pathToFileURL } from 'node:url';
+
 import { exportWeb, root, serveWeb } from './web-server.mjs';
-import { flows } from './e2e-flows.mjs';
+
+// Each app keeps its own flows in apps/<app>/qa/e2e-flows.mjs.
+const { flows } = await import(pathToFileURL(join(root, 'qa/e2e-flows.mjs')).href);
 
 const exportDir = process.env.E2E_EXPORT_DIR ?? '.export-web-e2e';
 const outDir = join(root, '.e2e');

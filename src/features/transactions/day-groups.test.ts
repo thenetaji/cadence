@@ -39,6 +39,12 @@ describe('buildDayEntries', () => {
     expect(entries.filter((e) => e.type === 'row').map((e) => (e.type === 'row' ? e.last : null))).toEqual([false, true, true, true]);
   });
 
+  it('shows no day total for a lending-only day', () => {
+    const header = buildDayEntries([tx('l', '2026-10-03', 'lent', 5000)], ctx)[0];
+    expect(header).toMatchObject({ type: 'header' });
+    expect((header as { total?: string }).total).toBeUndefined();
+  });
+
   it('keeps keys unique and stable', () => {
     const keys = entries.map((e) => e.key);
     expect(new Set(keys).size).toBe(keys.length);
@@ -49,6 +55,12 @@ describe('sumItems', () => {
   it('converts foreign amounts and skips transfers', () => {
     const totals = sumItems([tx('a', 'k', 'expense', 1000), tx('b', 'k', 'income', 100, 'USD'), tx('c', 'k', 'transfer', 9999)], ctx);
     expect(totals).toEqual({ spent: 1000, earned: 8000 });
+  });
+
+  it('leaves lending kinds out of spent and earned', () => {
+    const lending = ['lent', 'borrowed', 'repaid_to_me', 'repaid_by_me'] as const;
+    const totals = sumItems([tx('a', 'k', 'expense', 1000), tx('b', 'k', 'income', 300), ...lending.map((kind, i) => tx(`l${i}`, 'k', kind, 500))], ctx);
+    expect(totals).toEqual({ spent: 1000, earned: 300 });
   });
 
   it('handles 5,000 rows', () => {

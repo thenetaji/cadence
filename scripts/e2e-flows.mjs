@@ -44,6 +44,31 @@ export const labelsOf = (page) => page.evaluate(() =>
       }).map((e) => e.getAttribute('aria-label')),
   );
 
+/** Minimal RFC 4180 parser (quoted fields, doubled quotes, embedded commas/newlines); a leading BOM is dropped. */
+export function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let quoted = false;
+  const src = text.replace(/^\uFEFF/, '');
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (quoted) {
+      if (ch === '"' && src[i + 1] === '"') { field += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else field += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ',') { row.push(field); field = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && src[i + 1] === '\n') i++;
+      row.push(field); field = '';
+      rows.push(row); row = [];
+    } else field += ch;
+  }
+  if (field !== '' || row.length > 0) { row.push(field); rows.push(row); }
+  return rows;
+}
+
 const KEY_NAMES = { '+': 'Plus', '-': 'Minus', '.': 'Decimal point', '=': 'Equals', '<': 'Delete' };
 /** Press keypad keys by character: digits, + - . = and `<` for backspace. */
 export async function keys(page, sequence) {
@@ -67,7 +92,8 @@ export async function onboard(page, base, code) {
 
 export async function seeded(page, base, mode) {
   await open(page, base, `/?seed=${mode}`);
-  await expectText(page, 'Recent');
+  // An empty install shows only the hero and the empty state (no Recent list, no stats strip).
+  await expectText(page, mode === 'empty' ? 'No transactions yet' : 'Recent');
 }
 
 /** From Home: open the add sheet, enter amount/title/category and save. */
@@ -156,7 +182,10 @@ export const flows = [
       await expectText(page, '€ EUR');
       await tap(page, 'Start');
       await expectText(page, 'No transactions yet');
-      await expectLabel(page, 'Balance, €0');
+      // Empty Home: the hero reads zero in the chosen currency (the Balance strip appears with the first transaction).
+      await expectLabel(page, 'Spent in ', { exact: false });
+      assert.ok((await labelsOf(page)).some((l) => /^Spent in \w+, 0 euros$/.test(l)), 'hero should read zero euros');
+      assert.match(await body(page), /€\s*0/);
     },
   },
   {
@@ -166,7 +195,8 @@ export const flows = [
       await addExpense(page, { amount: '450', title: 'Coffee', category: 'Food & Drink' });
       await save(page);
       await sheetClosed(page);
-      await expectLabel(page, 'Coffee, Food & Drink, Cash, $450.00 spent'.replace('$450.00 spent', ''), { exact: false });
+      await expectLabel(page, 'Coffee, Food & Drink, Cash, ', { exact: false });
+      await expectText(page, 'Recent');
       assert.match(await body(page), /Coffee[\s\S]*−\$450/);
       await tabTo(page, 'Activity');
       await expectText(page, 'Coffee');
@@ -301,6 +331,18 @@ export const flows = [
     async run({ page, base }) {
       await seeded(page, base, 'demo');
       const homeBalance = await page.locator('[aria-label^="Balance, "]').first().getAttribute('aria-label');
+      // Demo accounts carry extras (people, lending), so read the starting balances instead of hard-coding them.
+      const rupees = async (name) => {
+        const l = (await labelsOf(page)).find((x) => x.startsWith(`${name}, `) && x.endsWith(' rupees'));
+        assert.ok(l, `no ${name} account label`);
+        return Number(l.match(/(-?[\d,]+(?:\.\d+)?) rupees$/)[1].replace(/,/g, ''));
+      };
+      await page.locator('[aria-label^="Balance, "]').first().tap();
+      await expectLabel(page, 'HDFC Savings, Bank, ', { exact: false });
+      const [hdfc0, cash0] = [await rupees('HDFC Savings'), await rupees('Cash')];
+      const total0 = (await labelsOf(page)).find((x) => x.startsWith('Total, '));
+      await page.goBack();
+      await expectText(page, 'Recent');
       await addFab(page).tap();
       await page.locator('[aria-label="Transaction type"]').waitFor();
       await page.getByRole('tab', { name: 'Transfer' }).tap();
@@ -315,9 +357,10 @@ export const flows = [
       await sheetClosed(page);
       assert.equal(await page.locator('[aria-label^="Balance, "]').first().getAttribute('aria-label'), homeBalance, 'Home total changed after a transfer');
       await page.locator('[aria-label^="Balance, "]').first().tap();
-      await expectLabel(page, 'HDFC Savings, Bank, 645,587 rupees');
-      await expectLabel(page, 'Cash, Cash, 11,675 rupees');
-      await expectLabel(page, 'Total, 807,854.50 rupees');
+      await expectLabel(page, 'HDFC Savings, Bank, ', { exact: false });
+      assert.equal(await rupees('HDFC Savings'), hdfc0 - 5000, 'source account should drop by exactly the transfer');
+      assert.equal(await rupees('Cash'), cash0 + 5000, 'destination account should rise by exactly the transfer');
+      assert.equal((await labelsOf(page)).find((x) => x.startsWith('Total, ')), total0, 'Total changed after a transfer');
     },
   },
   {
@@ -457,7 +500,12 @@ export const flows = [
       await page.locator('[aria-label="Search currencies"]').fill('EUR');
       await page.locator('[aria-label^="EUR"]').first().tap();
       await tap(page, 'Start');
-      await expectLabel(page, 'Balance, €0');
+      await expectText(page, 'No transactions yet');
+      // The Balance strip only exists once there is a transaction: log a €10 expense so Home shows it.
+      await addExpense(page, { amount: '10', title: 'Tea', category: 'Food & Drink' });
+      await save(page);
+      await sheetClosed(page);
+      await expectLabel(page, 'Balance, −€10');
       await page.locator('[aria-label^="Balance, "]:visible').first().tap();
       await page.locator('[aria-label="Add account"]:visible').tap();
       await page.locator('[aria-label="Name"]').waitFor();
@@ -479,9 +527,9 @@ export const flows = [
       await expectLabel(page, 'Dollars, Bank, 100 US dollars', { exact: false }).catch(async () => {
         throw new Error(`USD account missing on /accounts: ${(await labelsOf(page)).join(' | ')}`);
       });
-      await expectLabel(page, 'Total, 90 euros');
+      await expectLabel(page, 'Total, 80 euros');
       await goClient(page, '/');
-      await expectLabel(page, 'Balance, €90');
+      await expectLabel(page, 'Balance, €80');
       // The rate lives in Settings > Currency too: changing it re-converts the total.
       await goClient(page, '/settings/currency');
       await expectText(page, 'Exchange rates');
@@ -491,7 +539,7 @@ export const flows = [
       await rate.press('Enter');
       await rate.blur();
       await goClient(page, '/');
-      await expectLabel(page, 'Balance, €50');
+      await expectLabel(page, 'Balance, €40');
     },
   },
   {
@@ -529,21 +577,23 @@ export const flows = [
     async run({ page, base }) {
       await seeded(page, base, 'demo');
       const bg = () => page.evaluate(() => getComputedStyle(document.querySelector('.bg-bg')).backgroundColor);
-      assert.equal(await bg(), 'rgb(244, 242, 238)', 'light theme expected before the change');
-      assert.ok((await body(page)).includes('₹533'), 'Home rows should read ₹533');
-      assert.ok(!(await body(page)).includes('₹533.00'), 'decimals should be off by default');
+      assert.equal(await bg(), 'rgb(245, 243, 239)', 'light theme expected before the change');
+      // Pick a Recent row amount from the data (the demo rows move with the clock), e.g. "−₹1,042".
+      const amount = (await body(page)).match(/−₹[\d,]+(?!\.)/)?.[0];
+      assert.ok(amount, 'Home should list a Recent row with a whole-rupee amount');
+      assert.ok(!(await body(page)).includes(`${amount}.00`), 'decimals should be off by default');
       await page.locator('[aria-label="Settings"]:visible').tap();
       await expectText(page, 'Show decimals');
       await tapText(page, 'Theme');
       await tapText(page, 'Dark');
-      await page.waitForFunction(() => getComputedStyle(document.querySelector('.bg-bg')).backgroundColor !== 'rgb(244, 242, 238)', null, { timeout: 15000 });
+      await page.waitForFunction(() => getComputedStyle(document.querySelector('.bg-bg')).backgroundColor !== 'rgb(245, 243, 239)', null, { timeout: 15000 });
       const dark = await bg();
-      assert.notEqual(dark, 'rgb(244, 242, 238)');
+      assert.notEqual(dark, 'rgb(245, 243, 239)');
       await page.goBack();
       await expectText(page, 'Show decimals');
       await page.locator('input[aria-label="Show decimals"]').dispatchEvent('click');
       await page.goBack();
-      await expectText(page, '₹533.00');
+      await expectText(page, `${amount}.00`);
       assert.match(await body(page), /−₹32,000\.00/);
       assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.bg-bg')).backgroundColor), dark, 'theme should persist');
     },
@@ -562,10 +612,18 @@ export const flows = [
       };
       await seeded(page, base, 'demo');
       const csvA = await exportAll(page);
-      const linesA = csvA.trim().split(/\r?\n/);
-      assert.ok(linesA.length > 100, `demo export looks too small: ${linesA.length} lines`);
-      // A split transaction exports one row per line, so count distinct ids (the last column).
-      const rowsA = new Set(linesA.slice(1).map((l) => l.split(',').pop())).size;
+      const rowsOfA = parseCsv(csvA);
+      const [header, ...dataA] = rowsOfA;
+      const idCol = header.indexOf('id');
+      assert.ok(idCol >= 0, `export has no id column: ${header.join(',')}`);
+      assert.ok(header.includes('tags') && header.includes('person'), 'export should carry tags and person columns');
+      assert.ok(dataA.length > 100, `demo export looks too small: ${dataA.length} rows`);
+      assert.ok(dataA.every((r) => r.length === header.length), 'every export row should have one field per column');
+      // The demo extras (lending, tags) must be in the export, or the round trip proves less.
+      assert.ok(dataA.some((r) => r[header.indexOf('tags')] !== ''), 'demo export should include tagged rows');
+      assert.ok(dataA.some((r) => r[header.indexOf('person')] !== ''), 'demo export should include lending rows');
+      // A split transaction exports one row per line, so count distinct ids.
+      const rowsA = new Set(dataA.map((r) => r[idCol])).size;
 
       // Install B: empty database, import that file with the native preset through the file chooser.
       // (An existing account is matched by name and its currency wins, so B is onboarded in INR like the demo "Cash".)
@@ -580,12 +638,13 @@ export const flows = [
       await expectText(b, 'Imported');
       // Round trip: exporting B reproduces A (same rows, order aside).
       const csvB = await exportAll(b);
-      const linesB = csvB.trim().split(/\r?\n/);
-      assert.equal(new Set(linesB.slice(1).map((l) => l.split(',').pop())).size, rowsA, 'transaction count after import differs from the export');
-      assert.equal(linesB.length, linesA.length, 'exported row count differs after the round trip');
-      const strip = (l) => l.split(',').slice(0, -1).join(',');
-      const setA = new Set(linesA.slice(1).map(strip));
-      const setB = new Set(linesB.slice(1).map(strip));
+      const dataB = parseCsv(csvB).slice(1);
+      assert.equal(new Set(dataB.map((r) => r[idCol])).size, rowsA, 'transaction count after import differs from the export');
+      assert.equal(dataB.length, dataA.length, 'exported row count differs after the round trip');
+      // Ids are regenerated on import, so compare every other column.
+      const strip = (r) => JSON.stringify(r.filter((_, i) => i !== idCol));
+      const setA = new Set(dataA.map(strip));
+      const setB = new Set(dataB.map(strip));
       const onlyA = [...setA].filter((l) => !setB.has(l));
       const onlyB = [...setB].filter((l) => !setA.has(l));
       assert.ok(onlyA.length === 0 && onlyB.length === 0, `round trip differs (${onlyA.length} rows): A has ${onlyA.slice(0, 2).join(' || ')} but B has ${onlyB.slice(0, 2).join(' || ')}`);
@@ -675,16 +734,28 @@ export const flows = [
       await tapText(page, 'Daily');
       await save(page);
       await sheetClosed(page);
-      await expectText(page, 'Upcoming');
+      // Home surfaces the next bill under "Coming up"; the swipe actions live on the Recurring screen.
+      await expectText(page, 'Coming up');
+      await expectLabel(page, 'Paper, Tomorrow, $100');
+      await goClient(page, '/recurring');
+      await expectText(page, 'Rules');
       const due = () => page.locator('[aria-label^="Paper, "][aria-label*="due"]:visible').first();
-      const rowsOf = async () => (await labelsOf(page)).filter((l) => isRowLabel(l, 'Paper')).length;
+      // Posted transactions are counted on Home (Recent); the occurrences live on Recurring.
+      const rowsOf = async () => {
+        await goClient(page, '/');
+        await expectText(page, 'Recent');
+        await page.waitForTimeout(500);
+        const n = (await labelsOf(page)).filter((l) => isRowLabel(l, 'Paper')).length;
+        await goClient(page, '/recurring');
+        await due().waitFor();
+        return n;
+      };
       await due().waitFor();
       assert.equal(await rowsOf(), 1);
       const firstDue = await due().getAttribute('aria-label');
       // Swipe right: Post now creates a transaction and the next occurrence moves on.
       await swipeLeft(page, due(), { from: 30, to: 300 });
       await expectText(page, 'Posted');
-      await page.waitForFunction(() => [...document.querySelectorAll('[aria-label^="Paper, "]')].filter((e) => /, (minus|plus) /.test(e.getAttribute('aria-label')) && !e.getAttribute('aria-label').includes(', due ')).length >= 2, null, { timeout: 15000 });
       assert.equal(await rowsOf(), 2, 'Post now should add a Paper transaction');
       const secondDue = await due().getAttribute('aria-label');
       assert.notEqual(secondDue, firstDue, 'next due date should advance after posting');
@@ -702,17 +773,20 @@ export const flows = [
     name: 'Quick add',
     async run({ page, base }) {
       await seeded(page, base, 'demo');
-      await expectText(page, 'Quick add');
-      const chip = page.locator('[aria-label="Uber, ₹404"]:visible').first();
+      // The section label renders uppercase through a text transform, so match it case-insensitively.
+      assert.match(await body(page), /quick add/i);
+      const chip = page.locator('[aria-label="Add Uber"]:visible').first();
       await chip.tap();
       await page.locator('[aria-label="Transaction type"]').waitFor();
-      // The sheet is prefilled from the chip: title, category, account and amount.
+      // The sheet is prefilled from the chip (title, category, account); the amount is typed on the ready keypad.
       assert.equal(await page.locator('[aria-label="Title"]').inputValue(), 'Uber');
       await expectLabel(page, 'Transport');
-      assert.equal(await saveDisabled(page), false, 'a prefilled sheet should be ready to save');
+      assert.equal(await saveDisabled(page), true, 'Save must wait for an amount');
+      await keys(page, '404');
+      assert.equal(await saveDisabled(page), false, 'a prefilled sheet with an amount should be ready to save');
       await save(page);
       await sheetClosed(page);
-      // The new row appears in Recent (Home shows five), carrying the chip's title and amount.
+      // The new row appears in Recent (Home shows five), carrying the chip's title and the typed amount.
       const row = page.locator(`${rowSel('Uber')}:visible`).first();
       await row.waitFor();
       const text = await row.getAttribute('aria-label');

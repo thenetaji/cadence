@@ -19,11 +19,11 @@ export interface Totals {
   earned: number;
 }
 
-/** Spent and earned in the display currency; transfers are excluded and unknown rates stay unconverted. */
+/** Spent and earned in the display currency; only expenses and income count (transfers and lending are excluded, as on Home) and unknown rates stay unconverted. */
 export function sumItems(items: readonly TransactionListItem[], ctx: Pick<DayGroupContext, 'displayCurrency' | 'rates'>): Totals {
   const totals: Totals = { spent: 0, earned: 0 };
   for (const item of items) {
-    if (item.kind === 'transfer') continue;
+    if (item.kind !== 'expense' && item.kind !== 'income') continue;
     const value = convertWithRates(item.amount, item.currency, ctx.displayCurrency, ctx.rates);
     if (item.kind === 'expense') totals.spent += value;
     else totals.earned += value;
@@ -40,7 +40,7 @@ export function buildDayEntries(items: readonly TransactionListItem[], ctx: DayG
     let end = start;
     while (end < items.length && (items[end] as TransactionListItem).dateKey === dateKey) end++;
     const day = items.slice(start, end);
-    const hasMoney = day.some((i) => i.kind !== 'transfer');
+    const hasMoney = day.some((i) => i.kind === 'expense' || i.kind === 'income');
     let total: string | undefined;
     if (hasMoney) {
       const { spent, earned } = sumItems(day, ctx);

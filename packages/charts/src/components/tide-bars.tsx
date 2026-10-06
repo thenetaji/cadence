@@ -126,8 +126,10 @@ function TideBars({
     onSelect: setSelected,
     minY: LANE - 6,
   });
-  const lastX = React.useRef(0);
-  if (shown !== null) lastX.current = tideBarCenter(shown, width, count);
+  // Keeps the label anchored on the last bar while it fades out after the selection clears.
+  const [anchor, setAnchor] = React.useState<number | null>(null);
+  if (shown !== null && shown !== anchor) setAnchor(shown);
+  const labelX = anchor !== null ? tideBarCenter(anchor, width, count) : 0;
   const clock = useSharedValue(reduced ? GROW + STAGGER * 12 : 0);
   React.useEffect(() => {
     if (!reduced)
@@ -194,7 +196,7 @@ function TideBars({
               <FloatingLabel
                 text={shown !== null ? formatLabel(shown) : ""}
                 font={labelFont}
-                centerX={lastX.current}
+                centerX={labelX}
                 y={0}
                 totalWidth={width}
               />

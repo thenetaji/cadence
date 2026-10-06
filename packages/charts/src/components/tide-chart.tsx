@@ -154,8 +154,9 @@ function TideChart({
   });
   const shown = selected !== null && selected < elapsed ? selected : null;
   const shownPoint = shown !== null ? geo.shore[shown + 1] : undefined;
-  const lastX = React.useRef(0);
-  if (shownPoint) lastX.current = shownPoint[0];
+  // Keeps the label anchored on the last day while it fades out after the selection clears.
+  const [anchorX, setAnchorX] = React.useState(0);
+  if (shownPoint && shownPoint[0] !== anchorX) setAnchorX(shownPoint[0]);
 
   const clock = useSharedValue(0);
   const rise = useSharedValue(reduced ? 1 : 0);
@@ -368,7 +369,7 @@ function TideChart({
               <FloatingLabel
                 text={shown !== null ? formatLabel(shown) : ""}
                 font={labelFont}
-                centerX={lastX.current}
+                centerX={anchorX}
                 y={0}
                 totalWidth={width}
               />

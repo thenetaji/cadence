@@ -37,8 +37,9 @@ function flush(): void {
 
 /**
  * Marks tables as changed (all of them when omitted). Calls within one tick are
- * coalesced, so the SQLite change listener and an explicit call after a write
- * cause a single refresh.
+ * coalesced into a single refresh. Writes go through `useActions`, which calls
+ * this once per write; SQLite's per-row change listener is deliberately unused
+ * because bulk writes would trigger one refresh per row.
  */
 export function notifyChange(tables: readonly string[] = ALL_TABLES): void {
   for (const table of tables) pending.add(table);

@@ -1,9 +1,7 @@
 import { randomUUID } from 'expo-crypto';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import { addDatabaseChangeListener } from 'expo-sqlite';
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import migrations from '../../drizzle/migrations';
-import { notifyChange } from '@/data/changes';
 import { db } from './client';
 import { DatabaseContext, useDb } from './context';
 import { setIdGenerator } from './ids';
@@ -34,11 +32,6 @@ export function DatabaseProvider({ children, fallback = null, errorFallback }: D
       return { status: 'error', error: error instanceof Error ? error : new Error(String(error)) };
     }
   }, [success]);
-
-  useEffect(() => {
-    const subscription = addDatabaseChangeListener((event) => notifyChange([event.tableName]));
-    return () => subscription.remove();
-  }, []);
 
   const value = useMemo<Db | null>(() => (seeded.status === 'ready' ? db : null), [seeded.status]);
 

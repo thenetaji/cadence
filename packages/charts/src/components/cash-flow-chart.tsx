@@ -8,7 +8,8 @@ import { barSlots, flowScale, netOffsets, runningNet, slotIndex, type AxisLabel,
 import { monotoneSegments } from '../lib/smooth';
 import { formatMoney, MINUS } from '@studio/money';
 import { withAlpha , useTokens } from '@studio/theme';
-import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture } from './chart-kit';
+import { adjustableProps, FloatingLabel, useChartWidth, useGrow, useScrubGesture, useSelectionTimeout } from './chart-kit';
+import { useHeld } from './use-held';
 import { useChartFont } from './use-chart-font';
 
 export type CashFlowChartProps = {
@@ -71,6 +72,8 @@ function CashFlowChart({ data, currency, labels, selectedIndex, onSelect, format
 
   const compact = (value: number) => formatMoney(value, currency, { compact: true, locale });
   const selected = selectedIndex !== null && selectedIndex < count ? selectedIndex : null;
+  useSelectionTimeout(selected, onSelect);
+  const heldIndex = useHeld(selected);
   const spoken = selected === null ? accessibilityLabel : `${accessibilityLabel}. ${formatLabel(selected)}`;
   const px = scale.pxPerUnit;
   const mint = colors.income;
@@ -167,8 +170,8 @@ function CashFlowChart({ data, currency, labels, selectedIndex, onSelect, format
                     return <SkText key={label.index} x={x} y={LANE + height + 17} text={label.text} font={font} color={selected === label.index ? colors.text : colors.textTertiary} />;
                   })
                 : null}
-              {selected !== null && labelFont && slots[selected] ? (
-                <FloatingLabel text={formatLabel(selected)} font={labelFont} centerX={slots[selected]!.center} y={0} totalWidth={width} />
+              {labelFont ? (
+                <FloatingLabel text={selected !== null && slots[selected] ? formatLabel(selected) : ''} font={labelFont} centerX={slots[heldIndex]?.center ?? 0} y={0} totalWidth={width} />
               ) : null}
             </Canvas>
           </View>

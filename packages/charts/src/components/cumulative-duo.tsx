@@ -8,7 +8,8 @@ import { duoGeometry, gapSegments, sampleSmooth, type DuoPoint, type Pt } from '
 import { monotoneSegments } from '../lib/smooth';
 import { buildPolyPath, pointAt } from '@studio/motion';
 import { withAlpha , useTokens } from '@studio/theme';
-import { adjustableProps, FloatingLabel, useChartWidth, useScrubGesture } from './chart-kit';
+import { adjustableProps, FloatingLabel, useChartWidth, useScrubGesture, useSelectionTimeout } from './chart-kit';
+import { useHeld } from './use-held';
 import { useChartFont } from './use-chart-font';
 
 export type CumulativeDuoProps = {
@@ -115,6 +116,8 @@ function CumulativeDuo({ series, height = 150, formatLabel, accessibilityLabel }
   const outAreaOpacity = useDerivedValue(() => fill.value);
 
   const count = series.length;
+  useSelectionTimeout(selected, setSelected);
+  const heldIndex = useHeld(selected);
   const gesture = useScrubGesture({
     // Day i ends at (i + 1) / count of the plot; pick the nearest day that has happened.
     indexAt: (x) => (todayIndex < 0 || count === 0 ? -1 : Math.min(todayIndex, Math.max(0, Math.round((x / Math.max(plotWidth, 1)) * count) - 1))),
@@ -188,7 +191,7 @@ function CumulativeDuo({ series, height = 150, formatLabel, accessibilityLabel }
                   </Group>
                 ) : null}
               </Group>
-              {point && selected !== null && labelFont ? <FloatingLabel text={formatLabel(selected)} font={labelFont} centerX={sx} y={0} totalWidth={width} /> : null}
+              {labelFont ? <FloatingLabel text={point && selected !== null ? formatLabel(selected) : ''} font={labelFont} centerX={geo.xAt(heldIndex)} y={0} totalWidth={width} /> : null}
             </Canvas>
           </View>
         </GestureDetector>

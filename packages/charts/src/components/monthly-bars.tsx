@@ -8,6 +8,7 @@ import { barDomain, barSlots, slotIndex, valueToY, type AxisLabel, type FlowDatu
 import { motion } from '@studio/motion';
 import { haptic , withAlpha , useTokens } from '@studio/theme';
 import { FloatingLabel, useChartWidth } from './chart-kit';
+import { useHeld } from './use-held';
 import { useChartFont } from './use-chart-font';
 
 export type MonthlyBarsProps = {
@@ -82,6 +83,7 @@ function MonthlyBars({ data, labels, selectedIndex, onPick, formatLabel, accessi
 
   const viewed = selectedIndex !== null && selectedIndex >= 0 && selectedIndex < count ? selectedIndex : null;
   const shown = scrub ?? viewed;
+  const heldIndex = useHeld(scrub);
 
   const indexAt = (x: number) => (width <= 0 ? -1 : slotIndex(x, 0, width, count));
   const gesture = Gesture.Race(
@@ -164,7 +166,7 @@ function MonthlyBars({ data, labels, selectedIndex, onPick, formatLabel, accessi
                     return <SkText key={label.index} x={Math.min(Math.max(slot.center - w / 2, 0), width - w)} y={baseline + 16} text={label.text} font={font} color={lit ? colors.text : colors.textTertiary} />;
                   })
                 : null}
-              {shown !== null && labelFont && slots[shown] ? <FloatingLabel text={formatLabel(shown)} font={labelFont} centerX={slots[shown]!.center} y={0} totalWidth={width} /> : null}
+              {labelFont ? <FloatingLabel text={scrub !== null && slots[scrub] ? formatLabel(scrub) : ''} font={labelFont} centerX={slots[heldIndex]?.center ?? 0} y={0} totalWidth={width} /> : null}
             </Canvas>
           </View>
         </GestureDetector>

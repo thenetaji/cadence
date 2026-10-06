@@ -8,7 +8,8 @@ import { barSlots, barDomain, slotIndex, valueToY, type AxisLabel } from '../lib
 import { formatMoney } from '@studio/money';
 import { motion } from '@studio/motion';
 import { withAlpha , useTokens } from '@studio/theme';
-import { adjustableProps, FloatingLabel, useChartWidth, useScrubGesture } from './chart-kit';
+import { adjustableProps, FloatingLabel, useChartWidth, useScrubGesture, useSelectionTimeout } from './chart-kit';
+import { useHeld } from './use-held';
 import { useChartFont } from './use-chart-font';
 
 export type BarDatum = { key: string; value: number };
@@ -96,6 +97,8 @@ function BarChart({
   const averageY = hasData && average > 0 ? valueToY(average, top, baseline, height) : null;
   const guides = hasData ? ticks.map((t) => ({ value: t, y: valueToY(t, top, baseline, height) })) : [];
   const selected = selectedIndex !== null && selectedIndex < count ? selectedIndex : null;
+  useSelectionTimeout(selected, onSelect);
+  const heldIndex = useHeld(selected);
   const spoken = selected === null ? accessibilityLabel : `${accessibilityLabel}. ${formatLabel(selected)}`;
 
   return (
@@ -180,8 +183,8 @@ function BarChart({
                     return <SkText key={label.index} x={x} y={baseline + 17} text={label.text} font={font} color={colors.textTertiary} />;
                   })
                 : null}
-              {selected !== null && labelFont && slots[selected] ? (
-                <FloatingLabel text={formatLabel(selected)} font={labelFont} centerX={slots[selected]!.center} y={0} totalWidth={width} />
+              {labelFont ? (
+                <FloatingLabel text={selected !== null && slots[selected] ? formatLabel(selected) : ''} font={labelFont} centerX={slots[heldIndex]?.center ?? 0} y={0} totalWidth={width} />
               ) : null}
             </Canvas>
           </View>

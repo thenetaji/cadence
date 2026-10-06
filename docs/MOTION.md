@@ -1,6 +1,6 @@
 # Motion
 
-All primitives live in `src/motion/` (import from `@/motion/...`). Everything runs on the UI thread (shared values, animated styles, Skia derived values) and honours Reduce Motion (instant, no choreography). Rules: no JS-thread loops, no per-frame renders; entrances play on first mount only.
+All primitives live in `packages/motion` (import from `@studio/motion`; `AnimatedNumber`/`CountUp` are in `@studio/ui` because they render `Text`). Everything runs on the UI thread (shared values, animated styles, Skia derived values) and honours Reduce Motion (instant, no choreography). Rules: no JS-thread loops, no per-frame renders; entrances play on first mount only.
 
 ## Primitives
 | Primitive | Use |

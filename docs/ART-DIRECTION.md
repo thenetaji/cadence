@@ -1,5 +1,8 @@
 # Art direction
 
+> Studio note: this is the shared design language. Paths below predate the monorepo: `src/theme`, `src/motion`, `src/components/{ui,app,charts}` are now `packages/{theme,motion,ui,charts}/src`, and `src/global.css` is `apps/<app>/src/global.css`.
+
+
 Three OLED-first directions for Finance, built from App Store screenshots of 15 premium apps. Mocks of the Home screen are in `.review/directions/` (`compare.png` shows all six side by side); reference boards are in `.review/references/board-01…07.png`. Nothing in app code has changed; this document is the brief.
 
 ## 1. What the references do

@@ -1,6 +1,6 @@
 # Design review: Phases 1–5
 
-Scope: every route in `scripts/screenshot-routes.json`, light and dark, from `.review/sheets/*` and `.screenshots/*`. Web-only artefacts (JS header/tab bar, Material glyphs, 1 px hairlines, non-shrinking heroes) are ignored. Items are tagged **P0** (broken or confusing), **P1** (below the premium bar), **P2** (refinement). "Spec" = `docs/SPEC.md`; where a fix amends the spec it says so.
+Scope: every route in `apps/finance/qa/screenshot-routes.json`, light and dark, from `.review/sheets/*` and `.screenshots/*`. Web-only artefacts (JS header/tab bar, Material glyphs, 1 px hairlines, non-shrinking heroes) are ignored. Items are tagged **P0** (broken or confusing), **P1** (below the premium bar), **P2** (refinement). "Spec" = `SPEC.md`; where a fix amends the spec it says so.
 
 ## 1. Verdict
 

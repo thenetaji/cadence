@@ -2,7 +2,7 @@
 
 A personal finance tracker that looks as good as Dime and does what Cashew does, without the clutter. One of each concept, each done well. If a feature can't be done well, it doesn't ship.
 
-The build contract is **`docs/SPEC.md`** (scope, navigation, every screen, data model, design tokens, copy, charts, accessibility, phases). The reasoning behind it is in **`docs/RESEARCH.md`**. The working name "Cadence" is taken; the spec's §Name shortlists replacements, with **Finance** as the pick.
+The build contract is **`SPEC.md`** (scope, navigation, every screen, data model, design tokens, copy, charts, accessibility, phases). The reasoning behind it is in **`RESEARCH.md`**. The working name "Cadence" is taken; the spec's §Name shortlists replacements, with **Finance** as the pick.
 
 ## Stack (fixed)
 
@@ -40,4 +40,4 @@ Dime and Cashew are **GPL-3.0**, cloned to `.reference/` (gitignored) for studyi
 
 ## Commands
 
-See `docs/DEV.md`. The short version: `pnpm start` to run in Expo Go, `pnpm verify` before committing.
+See `../../docs/DEV.md`. The short version: `pnpm dev:finance` (repo root) to run in Expo Go, `pnpm verify` before committing.

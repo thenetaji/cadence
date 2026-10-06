@@ -1,51 +1,23 @@
-# Finance
+# studio
 
-A local-first expense tracker for iPhone. It has Dime's calm interface plus the depth Dime lacks: title and memo, split transactions, charts and breakdowns, budgets, recurring payments, multiple accounts and currencies.
+A monorepo for consumer apps (iOS and Android through Expo) that share code. Each app is a thin product layer over shared packages for UI, theme, motion, charts, money, dates and data plumbing.
 
-"Finance" is a working name. The shortlist and how each name was checked are in `docs/SPEC.md` §Name. Renaming means changing `app.json` → `expo.name` and `APP_NAME` in `src/constants/app.ts`.
+```
+apps/        the apps; each one runs in Expo Go (finance)
+packages/    TypeScript-source workspace packages (@studio/*), no build step
+services/    backend services shared by the apps (empty for now)
+tooling/     the screenshot and end-to-end harness
+docs/        studio-wide conventions, dev notes, motion and art direction
+```
 
-## Run it on your iPhone
+## Quick start
 
-1. Install **Expo Go** from the App Store.
-2. On this machine:
-   ```sh
-   pnpm install
-   pnpm start            # same Wi-Fi as the phone
-   pnpm start --tunnel   # from anywhere
-   ```
-3. Scan the QR code with the iPhone Camera.
+```sh
+pnpm install              # pnpm 10 only; node-linker=hoisted (see .npmrc)
+pnpm dev:finance          # Expo dev server for apps/finance; scan the QR code with Expo Go
+pnpm verify               # typecheck + lint + test + iOS bundle, all packages and apps (Turborepo)
+pnpm e2e --app finance    # Playwright flows against the web export
+pnpm screenshots --app finance
+```
 
-No Mac and no Apple Developer account are needed for this. Your data stays on the phone, in SQLite.
-
-**Demo data**: in a dev build, open Settings → About → Load demo data to load six months of realistic entries.
-
-## What's in v1
-
-| Area | Features |
-|---|---|
-| Entry | Custom keypad with + and −, title memory (fills category and account), recent categories, title + memo, splits across categories, transfers including cross-currency, repeat rules |
-| Activity | Day-grouped ledger, month picker, filters, search by text or amount, swipe to delete (with undo) or duplicate |
-| Insights | Category donut, daily/monthly bars with scrubbing, week/month/year/custom periods, category drill-down |
-| Budgets | Overall and per-category budgets, weekly/monthly/yearly, with a pace chart |
-| Recurring | Rules with an upcoming list, auto-post, post now, skip |
-| Accounts | Cash/bank/card, per-account currency, manual exchange rates, reorder, archive |
-| Data | CSV export, import from Dime, Cashew or our own CSV |
-| Privacy | Face ID lock, app-switcher privacy cover |
-
-## Project
-
-- `docs/SPEC.md`: the product and design contract (screens, data model, tokens, copy).
-- `docs/RESEARCH.md`: what users praise and hate in Dime, Cashew and the best trackers.
-- `docs/CONVENTIONS.md`: engineering rules.
-- `docs/DEV.md`: commands.
-- `docs/QA.md`: the screen-by-screen checklist.
-- Stack: Expo SDK 57, expo-router with native tabs, TypeScript strict, Uniwind + React Native Reusables, expo-sqlite + Drizzle, Skia charts, Reanimated, FlashList.
-- `pnpm verify` runs typecheck, lint, tests and the iOS bundle. `pnpm screenshots` renders every screen in light and dark for review.
-
-## Before the App Store
-
-- A real support address in `FEEDBACK_EMAIL` (`src/constants/app.ts`).
-- The final name and app icon.
-- The Apple Developer account, then `eas build -p ios` and `eas submit`.
-
-Dime and Cashew are GPL-3.0. They're cloned to `.reference/` (gitignored) for studying UX only; no code from them is used.
+Start with `docs/DEV.md` (commands, layout, where code goes) and `docs/CONVENTIONS.md` (binding rules). Finance's own docs are in `apps/finance/docs/`.

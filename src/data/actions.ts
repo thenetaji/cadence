@@ -3,6 +3,8 @@ import * as accounts from '@/db/repos/accounts';
 import * as budgets from '@/db/repos/budgets';
 import * as categories from '@/db/repos/categories';
 import * as fx from '@/db/repos/fx';
+import * as importer from '@/db/repos/importer';
+import * as maintenance from '@/db/repos/maintenance';
 import * as recurring from '@/db/repos/recurring';
 import * as settings from '@/db/repos/settings';
 import * as transactions from '@/db/repos/transactions';
@@ -68,6 +70,12 @@ export function createActions(db: Db) {
     },
     dev: {
       seedDemo: write(seedDemoData),
+    },
+    import: {
+      run: write(importer.importTransactions),
+    },
+    data: {
+      eraseAll: write(maintenance.eraseAllData),
     },
     fx: {
       setRate: write(fx.setRate),

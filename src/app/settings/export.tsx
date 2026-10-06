@@ -1,3 +1,3 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { ExportScreen } from '@/features/data-transfer/export-screen';
 
-export default BlankScreen;
+export default ExportScreen;

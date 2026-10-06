@@ -34,9 +34,20 @@ export default function SettingsLayout() {
       <Stack.Screen name="currency" options={{ title: 'Display currency' }} />
       <Stack.Screen name="lock" options={{ title: 'Face ID' }} />
       <Stack.Screen name="categories/index" options={{ title: 'Categories' }} />
-      <Stack.Screen name="categories/[id]" options={{ title: 'Category' }} />
+      <Stack.Screen
+        name="categories/[id]"
+        options={{
+          title: 'Category',
+          presentation: 'formSheet',
+          headerShown: true,
+          sheetAllowedDetents: [1],
+          sheetGrabberVisible: true,
+          sheetCornerRadius: 24,
+        }}
+      />
       <Stack.Screen name="export" options={{ title: 'Export' }} />
       <Stack.Screen name="import" options={{ title: 'Import' }} />
+      <Stack.Screen name="import-preview" options={{ title: 'Preview' }} />
       <Stack.Screen name="about" options={{ title: 'About' }} />
     </Stack>
   );

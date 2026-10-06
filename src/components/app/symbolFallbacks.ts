@@ -133,6 +133,7 @@ export const symbolFallbacks = {
   'house.and.flag.fill': 'cottage',
   'building.2.fill': 'apartment',
   'questionmark.circle.fill': 'help',
+  'doc.text.fill': 'description',
 } as const satisfies Record<string, MaterialGlyph>;
 
 export type SymbolName = keyof typeof symbolFallbacks;

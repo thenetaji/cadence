@@ -12,6 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ToastHost } from '@/components/app/toast-host';
 import { Text } from '@/components/ui/text';
+import { LockGate } from '@/features/lock/lock-gate';
 import { useSetting, usePostDueRecurring } from '@/data/hooks';
 import { DemoSeedGate } from '@/lib/demo-seed-gate';
 import { setHapticsEnabled } from '@/theme/haptics';
@@ -156,6 +157,7 @@ export default function RootLayout() {
         <Database>
           <DemoSeedGate>
             <Navigator />
+            <LockGate />
           </DemoSeedGate>
         </Database>
         <PortalHost />

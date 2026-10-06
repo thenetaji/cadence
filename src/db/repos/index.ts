@@ -7,3 +7,5 @@ export * as reports from './reports';
 export * as settings from './settings';
 export * as titleMemory from './titleMemory';
 export * as transactions from './transactions';
+export * as importer from './importer';
+export * as maintenance from './maintenance';

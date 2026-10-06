@@ -41,5 +41,14 @@
   {"name": "account-detail", "path": "/accounts/demo-account-bank?seed=demo"},
   {"name": "account-new", "path": "/accounts/new?seed=demo"},
   {"name": "account-edit", "path": "/accounts/demo-account-usd/edit?seed=demo"},
-  {"name": "currency", "path": "/settings/currency?seed=demo"}
+  {"name": "currency", "path": "/settings/currency?seed=demo"},
+  {"name": "settings-categories", "path": "/settings/categories?seed=demo"},
+  {"name": "settings-category-edit", "path": "/settings/categories/demo?seed=demo&name=Groceries"},
+  {"name": "settings-category-new", "path": "/settings/categories/new?seed=demo"},
+  {"name": "settings-export", "path": "/settings/export?seed=demo"},
+  {"name": "settings-import", "path": "/settings/import?seed=demo"},
+  {"name": "settings-import-preview", "path": "/settings/import-preview?seed=demo&fixture=dime"},
+  {"name": "settings-lock", "path": "/settings/lock?seed=demo"},
+  {"name": "settings-about", "path": "/settings/about?seed=demo", "fullPage": true},
+  {"name": "lock-overlay", "path": "/?seed=demo&lock=1"}
 ]

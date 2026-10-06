@@ -4,7 +4,10 @@ import { ScrollView } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/app/list-group';
 import { OptionPicker, type Option } from '@/components/app/option-picker';
+import { useActions } from '@/data/actions';
 import { useAccounts, useSetting } from '@/data/hooks';
+import { confirmErase } from '@/features/data-transfer/erase';
+import { haptic } from '@/theme/haptics';
 
 type Picker = 'week' | 'month' | 'account' | null;
 
@@ -17,6 +20,7 @@ const monthOptions: readonly Option<number>[] = Array.from({ length: 28 }, (_, i
 
 export default function Settings() {
   const router = useRouter();
+  const actions = useActions();
   const accounts = useAccounts();
   const [displayCurrency] = useSetting('display_currency');
   const [weekStart, setWeekStart] = useSetting('week_start');
@@ -28,6 +32,12 @@ export default function Settings() {
   const [lockEnabled] = useSetting('lock_enabled');
   const [picker, setPicker] = React.useState<Picker>(null);
   const close = () => setPicker(null);
+  // Onboarding is the unprotected route once `onboarding_done` resets, so the navigator moves there on its own.
+  const eraseAll = () =>
+    confirmErase(() => {
+      actions.data.eraseAll();
+      haptic('success');
+    });
 
   const defaultAccount = accounts.find((a) => a.id === defaultAccountId);
   const accountOptions = React.useMemo<readonly Option<string | null>[]>(
@@ -92,7 +102,7 @@ export default function Settings() {
         <ListRow label="Accounts" icon={{ name: 'building.columns.fill', color: 'blue' }} chevron onPress={() => router.push('/accounts')} />
         <ListRow label="Export" icon={{ name: 'square.and.arrow.up', color: 'indigo' }} chevron onPress={() => router.push('/settings/export')} />
         <ListRow label="Import" icon={{ name: 'square.and.arrow.down', color: 'teal' }} chevron onPress={() => router.push('/settings/import')} />
-        <ListRow label="Erase all data" destructive />
+        <ListRow label="Erase all data" destructive onPress={eraseAll} />
       </ListGroup>
       <ListGroup>
         <ListRow label="About" icon={{ name: 'info.circle', color: 'gray' }} chevron onPress={() => router.push('/settings/about')} />

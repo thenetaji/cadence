@@ -1,3 +1,3 @@
-import { BlankScreen } from '@/components/app/blank-screen';
+import { CategoriesScreen } from '@/features/categories/categories-screen';
 
-export default BlankScreen;
+export default CategoriesScreen;

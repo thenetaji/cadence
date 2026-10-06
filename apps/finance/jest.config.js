@@ -1,5 +1,3 @@
-module.exports = {
-  preset: 'jest-expo',
-  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
-  testPathIgnorePatterns: ['/node_modules/', '/.reference/', '/dist/'],
-};
+const { createJestConfig } = require('@studio/config/jest');
+
+module.exports = createJestConfig({ moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' } });

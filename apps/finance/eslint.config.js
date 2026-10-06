@@ -1,7 +1,3 @@
-const { defineConfig } = require('eslint/config');
-const expo = require('eslint-config-expo/flat');
+const { createEslintConfig } = require('@studio/config/eslint');
 
-module.exports = defineConfig([
-  expo,
-  { ignores: ['dist/*', '.screenshots/*', '.export-*/*', 'drizzle/*'] },
-]);
+module.exports = createEslintConfig(['drizzle/*']);

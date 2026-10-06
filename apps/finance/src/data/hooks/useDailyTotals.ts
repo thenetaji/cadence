@@ -1,5 +1,5 @@
 import { dailyTotals, type DailyTotals } from '@/db/repos/calendar';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 /** Per-day totals for the calendar month containing `month` (`YYYY-MM` or a date key). Transfers and lending excluded. */
 export function useDailyTotals(month: string, kind: 'expense' | 'income' = 'expense'): DailyTotals {

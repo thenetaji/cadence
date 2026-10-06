@@ -1,5 +1,5 @@
 import { listAccountsWithBalances, type AccountWithBalance } from '@/db/repos/accounts';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 export type { AccountWithBalance };
 

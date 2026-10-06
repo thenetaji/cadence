@@ -14,7 +14,7 @@ import {
   type PlanDefaults,
 } from '@/lib/csv';
 import { ValidationError } from '../errors';
-import { newId } from '../ids';
+import { newId } from '@studio/data';
 import {
   accounts,
   categories,

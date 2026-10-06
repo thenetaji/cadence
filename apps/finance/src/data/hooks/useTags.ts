@@ -1,7 +1,7 @@
 import { listTags, listTagsWithTotals, type TagTotal } from '@/db/repos/tags';
 import { transactionsForTag } from '@/db/repos/transactions';
 import type { TagRow } from '@/db/schema';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import type { TransactionListItem } from './useTransactions';
 
 /** Every tag, alphabetical. */

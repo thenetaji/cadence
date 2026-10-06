@@ -1,5 +1,5 @@
 import type { Period } from '@studio/dates';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { readCashFlow, readMonthlyTotals, type CashFlowData, type MonthlyTotalsData } from './cashFlow';
 
 export type { CashFlowData, MonthlyTotalsData } from './cashFlow';

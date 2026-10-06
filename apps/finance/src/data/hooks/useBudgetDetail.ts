@@ -3,7 +3,7 @@ import { getRateLookup } from '@/db/repos/fx';
 import { spendLines } from '@/db/repos/reports';
 import type { Period } from '@studio/dates';
 import { paceSeries, type PacePoint } from '@/lib/insights';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { useTodayKey } from './useTodayKey';
 
 export interface BudgetDetail {

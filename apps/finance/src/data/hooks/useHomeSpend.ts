@@ -1,5 +1,5 @@
 import type { Period } from '@studio/dates';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { readHomeSpend, type HomeSpend } from './homeSpend';
 
 export type { HomeSpend, HomeSpendPoint } from './homeSpend';

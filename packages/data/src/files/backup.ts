@@ -4,8 +4,8 @@ import * as Sharing from 'expo-sharing';
 import { backupFileName } from './paths';
 
 /** Writes the backup to the cache directory as `<App>-backup-YYYY-MM-DD.json` and opens the share sheet. */
-export async function shareBackupFile(json: string, date: Date | number = Date.now()): Promise<string> {
-  const name = backupFileName(date);
+export async function shareBackupFile(json: string, date: Date | number = Date.now(), appName?: string): Promise<string> {
+  const name = backupFileName(date, appName);
   const file = new File(Paths.cache, name);
   if (file.exists) file.delete();
   file.create();

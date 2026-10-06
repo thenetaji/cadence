@@ -1,3 +1,5 @@
+import { notifyChange as notify, registerTables } from '@studio/data';
+
 export type TableName =
   | 'accounts'
   | 'categories'
@@ -31,41 +33,11 @@ export const ALL_TABLES: readonly TableName[] = [
   'settings',
 ];
 
-const versions = new Map<string, number>(ALL_TABLES.map((t) => [t, 0]));
-const listeners = new Set<() => void>();
-const pending = new Set<string>();
-let scheduled = false;
+registerTables(ALL_TABLES);
 
-function flush(): void {
-  scheduled = false;
-  for (const table of pending) versions.set(table, (versions.get(table) ?? 0) + 1);
-  pending.clear();
-  for (const listener of [...listeners]) listener();
-}
+export { subscribeToChanges, versionOf } from '@studio/data';
 
-/**
- * Marks tables as changed (all of them when omitted). Calls within one tick are
- * coalesced into a single refresh. Writes go through `useActions`, which calls
- * this once per write; SQLite's per-row change listener is deliberately unused
- * because bulk writes would trigger one refresh per row.
- */
-export function notifyChange(tables: readonly string[] = ALL_TABLES): void {
-  for (const table of tables) pending.add(table);
-  if (scheduled) return;
-  scheduled = true;
-  queueMicrotask(flush);
-}
-
-export function subscribeToChanges(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-/** Monotonic number that changes whenever any of `tables` changes. */
-export function versionOf(tables: readonly TableName[]): number {
-  let sum = 0;
-  for (const table of tables) sum += versions.get(table) ?? 0;
-  return sum;
+/** Marks Finance tables as changed (all of them when omitted); see `notifyChange` in @studio/data. */
+export function notifyChange(tables: readonly TableName[] = ALL_TABLES): void {
+  notify(tables);
 }

@@ -2,7 +2,7 @@ import { and, asc, eq, gt, isNull, lte, or } from 'drizzle-orm';
 import { addDays, keyToLocalMs, weekday, type DateKey } from '@studio/dates';
 import { defaultAnchorDay, nextDueDate, occurrencesBetween, type Frequency } from '@/lib/recurring';
 import { ValidationError } from '../errors';
-import { newId } from '../ids';
+import { newId } from '@studio/data';
 import { accounts, recurringRules, transactions, type RecurringKind, type RecurringRuleRow } from '../schema';
 import type { Db } from '../types';
 import { createTransaction, type TransactionInput } from './transactions';

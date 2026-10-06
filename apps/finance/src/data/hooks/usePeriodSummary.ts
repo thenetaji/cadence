@@ -1,4 +1,4 @@
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { readPeriodSummary, type PeriodSummary } from './summary';
 
 export type { PeriodSummary };

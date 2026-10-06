@@ -1,5 +1,5 @@
 import type { DateKey, Period } from '@studio/dates';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { readInsights, type Insights } from './insights';
 
 export type { Insights };

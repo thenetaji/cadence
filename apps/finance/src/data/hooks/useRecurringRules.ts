@@ -1,6 +1,6 @@
 import { countFuturePosted, listRules } from '@/db/repos/recurring';
 import type { RecurringRuleRow } from '@/db/schema';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 /** Every rule, paused ones included, soonest due first. */
 export function useRecurringRules(): RecurringRuleRow[] {

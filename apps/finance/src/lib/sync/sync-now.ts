@@ -1,7 +1,7 @@
 import { exportBackup, localModifiedAt, restoreBackup, serializeBackup, validateBackup } from '@/db/repos/backup';
 import { getSetting, setSetting } from '@/db/repos/settings';
 import type { Db } from '@/db/types';
-import { SyncError, type SyncProvider, type UnavailableReason } from './types';
+import { SyncError, type SyncProvider, type UnavailableReason } from '@studio/data/sync';
 
 export type SyncOutcome =
   | { action: 'unavailable'; reason: UnavailableReason }

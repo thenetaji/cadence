@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { getAllSettings, getSetting, type SettingKey, type SettingsMap } from '@/db/repos/settings';
 import { useActions } from '../actions';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 export function useSettings(): SettingsMap {
   return useLiveData(['settings'], '', getAllSettings);

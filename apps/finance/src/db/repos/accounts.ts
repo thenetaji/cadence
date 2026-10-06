@@ -1,6 +1,6 @@
 import { and, asc, count, eq, isNull, ne, or, sql } from 'drizzle-orm';
 import { ValidationError } from '../errors';
-import { newId } from '../ids';
+import { newId } from '@studio/data';
 import {
   accounts,
   recurringRules,

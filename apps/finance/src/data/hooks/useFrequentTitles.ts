@@ -2,7 +2,7 @@ import { desc, eq, sql } from 'drizzle-orm';
 
 import { titleMemory, type TitleMemoryRow } from '@/db/schema';
 import type { Db } from '@/db/types';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 /** Most used expense titles, ranked by use count then recency. */
 export function frequentTitles(db: Db, limit: number): TitleMemoryRow[] {

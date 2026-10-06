@@ -1,10 +1,9 @@
-import { createContext, useContext } from 'react';
+import { DatabaseContext, useDb as useDbBase } from '@studio/data';
+
 import type { Db } from './types';
 
-export const DatabaseContext = createContext<Db | null>(null);
+export { DatabaseContext };
 
 export function useDb(): Db {
-  const value = useContext(DatabaseContext);
-  if (!value) throw new Error('useDb must be used inside <DatabaseProvider>');
-  return value;
+  return useDbBase<Db>();
 }

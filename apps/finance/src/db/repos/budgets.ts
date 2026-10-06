@@ -2,7 +2,7 @@ import { asc, eq, inArray, isNull } from 'drizzle-orm';
 import { periodFor, weekRange, yearRange, toDateKey, type Period } from '@studio/dates';
 import { sumLines, type ConversionContext } from '@/lib/insights';
 import { ValidationError } from '../errors';
-import { newId } from '../ids';
+import { newId } from '@studio/data';
 import { budgetCategories, budgets, type BudgetPeriod, type BudgetRow, type BudgetScope } from '../schema';
 import type { Db } from '../types';
 import { getRateLookup } from './fx';

@@ -1,7 +1,7 @@
 import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import { categories, transactionSplits, transactions, type CategoryKind, type CategoryRow } from '@/db/schema';
 import type { Db } from '@/db/types';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 /** Most recently used categories of a kind (split lines count); topped up with the first categories when history is short. */
 export function recentCategories(db: Db, kind: CategoryKind, limit: number): CategoryRow[] {

@@ -3,7 +3,7 @@ import { ALL_DATES } from '@studio/dates';
 import { owedDelta } from '@/lib/ledger';
 import { convertWithRates } from '@studio/money';
 import { ValidationError } from '../errors';
-import { newId } from '../ids';
+import { newId } from '@studio/data';
 import { accounts, people, transactions, type PersonRow, type TransactionKind } from '../schema';
 import type { Db } from '../types';
 import { getRateLookup } from './fx';

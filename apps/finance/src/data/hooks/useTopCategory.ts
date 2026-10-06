@@ -1,5 +1,5 @@
 import type { Period } from '@studio/dates';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { readInsights } from './insights';
 
 /** Id of the largest category in a period, or null. Pass `enabled: false` to skip the read. */

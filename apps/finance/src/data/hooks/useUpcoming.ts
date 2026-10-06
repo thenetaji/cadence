@@ -1,5 +1,5 @@
 import { upcoming, type Occurrence } from '@/db/repos/recurring';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { useTodayKey } from './useTodayKey';
 
 export function useUpcoming(days: number): Occurrence[] {

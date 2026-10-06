@@ -2,7 +2,7 @@ import { and, inArray, ne } from 'drizzle-orm';
 
 import { transactions } from '@/db/schema';
 import type { Db } from '@/db/types';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 export interface QuickAddCandidate {
   title: string;

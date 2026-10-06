@@ -1,8 +1,8 @@
 import { backupFileName } from './paths';
 
 /** Web QA fallback: a browser download. */
-export async function shareBackupFile(json: string, date: Date | number = Date.now()): Promise<string> {
-  const name = backupFileName(date);
+export async function shareBackupFile(json: string, date: Date | number = Date.now(), appName?: string): Promise<string> {
+  const name = backupFileName(date, appName);
   const url = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
   const link = document.createElement('a');
   link.href = url;

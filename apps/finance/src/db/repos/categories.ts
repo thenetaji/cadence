@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import { ValidationError } from '../errors';
-import { newId } from '../ids';
+import { newId } from '@studio/data';
 import {
   budgetCategories,
   categories,

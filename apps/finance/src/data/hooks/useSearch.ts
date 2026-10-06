@@ -1,5 +1,5 @@
 import { search, type TransactionListItem } from '@/db/repos/transactions';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 /** Title/memo/amount/tag/person search across all time; at most 200 rows, newest first. */
 export function useSearchTransactions(query: string): TransactionListItem[] {

@@ -1,6 +1,6 @@
 import { Directory, File, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
-import { newId } from '@/db/ids';
+import { newId } from '../ids';
 import { imageExtension, isInsideDirectory } from './paths';
 
 export interface PickedImage {

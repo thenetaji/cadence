@@ -1,5 +1,5 @@
 import type { Period } from '@studio/dates';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 import { readCategoryTrend, type CategoryTrend } from './categoryTrend';
 
 export type { CategoryTrend, TrendPoint } from './categoryTrend';

@@ -8,7 +8,7 @@ import {
   type PersonOutstanding,
 } from '@/db/repos/people';
 import type { PersonRow } from '@/db/schema';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 const LENDING_TABLES = ['people', 'transactions', 'fx_rates', 'settings'] as const;
 

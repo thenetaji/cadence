@@ -1,5 +1,5 @@
 import { getTransaction, listForPeriod, recent, type PeriodFilter, type TransactionListItem } from '@/db/repos/transactions';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 const TX_TABLES = ['transactions', 'transaction_splits', 'accounts', 'categories', 'tags', 'transaction_tags', 'people', 'attachments'] as const;
 

@@ -1,5 +1,5 @@
 import { listSubscriptions, type SubscriptionList } from '@/db/repos/subscriptions';
-import { useLiveData } from '../use-live-data';
+import { useLiveData } from '@/data/use-live-data';
 
 /** Active expense rules with normalised monthly/yearly cost and next charge date, plus totals. */
 export function useSubscriptions(): SubscriptionList {

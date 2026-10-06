@@ -1,5 +1,5 @@
 import { count } from 'drizzle-orm';
-import { newId } from './ids';
+import { newId } from '@studio/data';
 import { categories, type NewCategory } from './schema';
 import type { Db } from './types';
 import { getSetting, insertMissingDefaults, setSetting } from './repos/settings';

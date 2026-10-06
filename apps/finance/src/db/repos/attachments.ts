@@ -1,6 +1,6 @@
 import { asc, eq, inArray } from 'drizzle-orm';
 import { ValidationError } from '../errors';
-import { newId } from '../ids';
+import { newId } from '@studio/data';
 import { attachments, transactions, type AttachmentRow } from '../schema';
 import type { Db } from '../types';
 

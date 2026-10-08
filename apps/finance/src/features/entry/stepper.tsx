@@ -1,15 +1,34 @@
-import { View } from 'react-native';
+import { View } from "react-native";
 
-import { AppIcon } from '@studio/icons';
-import { Pressable , Text } from '@studio/ui';
-import { useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Pressable, Text } from "@studio/ui";
+import { useTokens } from "@studio/theme";
 
-type StepperProps = { value: number; min?: number; max?: number; onChange: (value: number) => void; label?: string; /** Shown after the control, e.g. `month`. */ unit?: string };
+type StepperProps = {
+  value: number;
+  min?: number;
+  max?: number;
+  onChange: (value: number) => void;
+  label?: string /** Shown after the control, e.g. `month`. */;
+  unit?: string;
+};
 
 /** Round minus / value / plus control. */
-function Stepper({ value, min = 1, max = 99, onChange, label = 'Value', unit }: StepperProps) {
+function Stepper({
+  value,
+  min = 1,
+  max = 99,
+  onChange,
+  label = "Value",
+  unit,
+}: StepperProps) {
   const { colors } = useTokens();
-  const button = (symbol: string, name: string, next: number, disabled: boolean) => (
+  const button = (
+    symbol: string,
+    name: string,
+    next: number,
+    disabled: boolean,
+  ) => (
     <Pressable
       role="button"
       accessibilityLabel={name}
@@ -24,11 +43,16 @@ function Stepper({ value, min = 1, max = 99, onChange, label = 'Value', unit }: 
   );
   return (
     <View className="flex-row items-center gap-3">
-      {button('minus', 'Decrease', value - 1, value <= min)}
-      <Text variant="body" numeric className="min-w-8 text-center font-medium" accessibilityLabel={`${label} ${value}`}>
+      {button("minus", "Decrease", value - 1, value <= min)}
+      <Text
+        variant="body"
+        numeric
+        className="min-w-8 text-center font-medium"
+        accessibilityLabel={`${label} ${value}`}
+      >
         {value}
       </Text>
-      {button('plus', 'Increase', value + 1, value >= max)}
+      {button("plus", "Increase", value + 1, value >= max)}
       {unit ? (
         <Text variant="body" tone="secondary" className="min-w-[60px]">
           {unit}

@@ -143,7 +143,12 @@ export function foldOlder<T extends { amount: number }>(
  * Which elapsed day an x position selects on the Tide chart: day i ends at x = (i + 1) / days * width, so the slot
  * under the finger is its day. -1 when there is nothing to select or x is past today's end (the still water).
  */
-export function tideDayAt(x: number, width: number, days: number, elapsed: number): number {
+export function tideDayAt(
+  x: number,
+  width: number,
+  days: number,
+  elapsed: number,
+): number {
   if (width <= 0 || days <= 0 || elapsed <= 0) return -1;
   const count = Math.min(elapsed, days);
   if (x > (count / days) * width) return -1;
@@ -151,7 +156,11 @@ export function tideDayAt(x: number, width: number, days: number, elapsed: numbe
 }
 
 /** Centre x of month bar `index` of `count` equal slots. */
-export function tideBarCenter(index: number, width: number, count: number): number {
+export function tideBarCenter(
+  index: number,
+  width: number,
+  count: number,
+): number {
   return count <= 0 ? 0 : ((index + 0.5) / count) * width;
 }
 

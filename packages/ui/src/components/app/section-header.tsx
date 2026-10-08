@@ -1,10 +1,14 @@
-import { View } from 'react-native';
+import { View } from "react-native";
 
-import { Pressable } from '../ui/pressable';
-import { Text } from '../ui/text';
-import { pressOpacity } from '@studio/theme';
+import { Pressable } from "../ui/pressable";
+import { Text } from "../ui/text";
+import { pressOpacity } from "@studio/theme";
 
-type SectionHeaderProps = { title: string; actionLabel?: string; onAction?: () => void };
+type SectionHeaderProps = {
+  title: string;
+  actionLabel?: string;
+  onAction?: () => void;
+};
 
 function SectionHeader({ title, actionLabel, onAction }: SectionHeaderProps) {
   return (

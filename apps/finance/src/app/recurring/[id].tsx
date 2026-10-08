@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from "expo-router";
 
-import { RuleForm } from '@/features/recurring/rule-form';
+import { RuleForm } from "@/features/recurring/rule-form";
 
 export default function EditRule() {
   const { id } = useLocalSearchParams<{ id: string }>();

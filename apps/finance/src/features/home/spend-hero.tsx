@@ -203,23 +203,23 @@ function SpendHero({
         style={{ marginTop: -6 }}
       >
         <View className="flex-row items-start" style={{ flexShrink: 1 }}>
-        {symbol ? (
-          <Text
+          {symbol ? (
+            <Text
+              variant="display"
+              numeric
+              className="mr-px text-[44px] font-semibold tracking-[-0.9px]"
+              style={{ marginTop: 3 }}
+            >
+              {symbol}
+            </Text>
+          ) : null}
+          <AnimatedNumber
+            value={digits}
             variant="display"
-            numeric
-            className="mr-px text-[44px] font-semibold tracking-[-0.9px]"
-            style={{ marginTop: 3 }}
-          >
-            {symbol}
-          </Text>
-        ) : null}
-        <AnimatedNumber
-          value={digits}
-          variant="display"
-          intro
-          fit
-          accessibilityLabel={formatted}
-        />
+            intro
+            fit
+            accessibilityLabel={formatted}
+          />
         </View>
       </Pressable>
       {hasChart ? (

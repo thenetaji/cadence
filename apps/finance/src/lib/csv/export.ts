@@ -1,30 +1,30 @@
-import { toDateKey } from '@studio/dates';
-import type { TransactionKind } from '@/lib/ledger';
-import { fromMinor } from '@studio/money';
+import { toDateKey } from "@studio/dates";
+import type { TransactionKind } from "@/lib/ledger";
+import { fromMinor } from "@studio/money";
 
-import { BOM, stringifyCsv } from './csv';
+import { BOM, stringifyCsv } from "./csv";
 
 export const EXPORT_COLUMNS = [
-  'date',
-  'time',
-  'kind',
-  'title',
-  'memo',
-  'amount',
-  'currency',
-  'category',
-  'account',
-  'transfer_account',
-  'transfer_amount',
-  'split_index',
-  'split_count',
-  'id',
-  'tags',
-  'person',
+  "date",
+  "time",
+  "kind",
+  "title",
+  "memo",
+  "amount",
+  "currency",
+  "category",
+  "account",
+  "transfer_account",
+  "transfer_amount",
+  "split_index",
+  "split_count",
+  "id",
+  "tags",
+  "person",
 ] as const;
 
 /** Tag names are joined with this in the `tags` column. */
-export const TAG_SEPARATOR = ';';
+export const TAG_SEPARATOR = ";";
 
 export interface ExportRecord {
   id: string;
@@ -48,7 +48,7 @@ export interface ExportRecord {
   person?: string | null;
 }
 
-const pad = (n: number) => String(n).padStart(2, '0');
+const pad = (n: number) => String(n).padStart(2, "0");
 
 export function exportTime(ms: number): string {
   const d = new Date(ms);
@@ -59,7 +59,10 @@ export function exportTime(ms: number): string {
 export function exportRows(records: readonly ExportRecord[]): string[][] {
   const rows: string[][] = [[...EXPORT_COLUMNS]];
   for (const r of records) {
-    const lines = r.splits.length > 0 ? r.splits : [{ category: r.category ?? '', amount: r.amount }];
+    const lines =
+      r.splits.length > 0
+        ? r.splits
+        : [{ category: r.category ?? "", amount: r.amount }];
     lines.forEach((line, index) => {
       rows.push([
         toDateKey(r.occurredAt),
@@ -69,15 +72,19 @@ export function exportRows(records: readonly ExportRecord[]): string[][] {
         r.memo,
         fromMinor(line.amount, r.currency),
         r.currency,
-        r.kind === 'transfer' ? '' : line.category,
+        r.kind === "transfer" ? "" : line.category,
         r.account,
-        r.transferAccount ?? '',
-        r.transferAmount === null ? '' : fromMinor(r.transferAmount, r.transferCurrency ?? r.currency),
+        r.transferAccount ?? "",
+        r.transferAmount === null
+          ? ""
+          : fromMinor(r.transferAmount, r.transferCurrency ?? r.currency),
         String(index + 1),
         String(lines.length),
         r.id,
-        (r.tags ?? []).map((t) => t.replaceAll(TAG_SEPARATOR, ',')).join(TAG_SEPARATOR),
-        r.person ?? '',
+        (r.tags ?? [])
+          .map((t) => t.replaceAll(TAG_SEPARATOR, ","))
+          .join(TAG_SEPARATOR),
+        r.person ?? "",
       ]);
     });
   }

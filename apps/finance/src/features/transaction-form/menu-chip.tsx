@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { ActionSheetIOS, Platform } from 'react-native';
+import * as React from "react";
+import { ActionSheetIOS, Platform } from "react-native";
 
-import { OptionPicker } from '@studio/ui';
-import { FormChip } from '@/features/transaction-form/chips';
-import { useTokens } from '@studio/theme';
+import { OptionPicker } from "@studio/ui";
+import { FormChip } from "@/features/transaction-form/chips";
+import { useTokens } from "@studio/theme";
 
 type MenuOption = { value: string; label: string };
 
@@ -20,13 +20,28 @@ type MenuChipProps = {
 };
 
 /** Chip that opens a native action sheet on iOS and the shared option picker elsewhere. */
-function MenuChip({ label, icon, title, options, selected, onSelect, highlight = false, accessibilityLabel, shrink }: MenuChipProps) {
+function MenuChip({
+  label,
+  icon,
+  title,
+  options,
+  selected,
+  onSelect,
+  highlight = false,
+  accessibilityLabel,
+  shrink,
+}: MenuChipProps) {
   const { scheme } = useTokens();
   const [open, setOpen] = React.useState(false);
   const present = () => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       ActionSheetIOS.showActionSheetWithOptions(
-        { title, options: [...options.map((o) => o.label), 'Cancel'], cancelButtonIndex: options.length, userInterfaceStyle: scheme },
+        {
+          title,
+          options: [...options.map((o) => o.label), "Cancel"],
+          cancelButtonIndex: options.length,
+          userInterfaceStyle: scheme,
+        },
         (index) => {
           const option = options[index];
           if (option) onSelect(option.value);
@@ -38,8 +53,15 @@ function MenuChip({ label, icon, title, options, selected, onSelect, highlight =
   };
   return (
     <>
-      <FormChip label={label} icon={icon} selected={highlight} onPress={present} accessibilityLabel={accessibilityLabel} shrink={shrink} />
-      {Platform.OS === 'ios' ? null : (
+      <FormChip
+        label={label}
+        icon={icon}
+        selected={highlight}
+        onPress={present}
+        accessibilityLabel={accessibilityLabel}
+        shrink={shrink}
+      />
+      {Platform.OS === "ios" ? null : (
         <OptionPicker
           visible={open}
           title={title}

@@ -3,15 +3,20 @@ type Rgba = readonly [number, number, number, number];
 /** Parses `#rgb`, `#rrggbb`, `rgb()` and `rgba()`; anything else reads as opaque black. */
 export function parseColor(color: string): Rgba {
   const value = color.trim();
-  if (value.startsWith('#')) {
+  if (value.startsWith("#")) {
     const hex = value.slice(1);
-    const full = hex.length === 3 ? [...hex].map((c) => c + c).join('') : hex;
+    const full = hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex;
     const n = (i: number) => Number.parseInt(full.slice(i, i + 2), 16);
-    return [n(0) || 0, n(2) || 0, n(4) || 0, full.length >= 8 ? (n(6) || 0) / 255 : 1];
+    return [
+      n(0) || 0,
+      n(2) || 0,
+      n(4) || 0,
+      full.length >= 8 ? (n(6) || 0) / 255 : 1,
+    ];
   }
   const match = /^rgba?\(([^)]+)\)$/.exec(value);
   if (match) {
-    const parts = match[1]!.split(',').map((p) => Number.parseFloat(p));
+    const parts = match[1]!.split(",").map((p) => Number.parseFloat(p));
     return [parts[0] || 0, parts[1] || 0, parts[2] || 0, parts[3] ?? 1];
   }
   return [0, 0, 0, 1];
@@ -35,11 +40,19 @@ const channelLight = (v: number) => {
 /** WCAG relative luminance of a colour. */
 export function luminance(color: string): number {
   const [r, g, b] = parseColor(color);
-  return 0.2126 * channelLight(r) + 0.7152 * channelLight(g) + 0.0722 * channelLight(b);
+  return (
+    0.2126 * channelLight(r) +
+    0.7152 * channelLight(g) +
+    0.0722 * channelLight(b)
+  );
 }
 
 /** Whichever of `dark` or `light` reads better on a `background` fill. */
-export function readableOn(background: string, dark: string, light: string): string {
+export function readableOn(
+  background: string,
+  dark: string,
+  light: string,
+): string {
   const l = luminance(background);
   const contrast = (other: string) => {
     const o = luminance(other);

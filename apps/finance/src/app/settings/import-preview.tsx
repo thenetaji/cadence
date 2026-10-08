@@ -1,3 +1,3 @@
-import { ImportPreviewScreen } from '@/features/data-transfer/preview-screen';
+import { ImportPreviewScreen } from "@/features/data-transfer/preview-screen";
 
 export default ImportPreviewScreen;

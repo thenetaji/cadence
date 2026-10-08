@@ -1,17 +1,17 @@
-import * as React from 'react';
-import { ScrollView } from 'react-native';
+import * as React from "react";
+import { ScrollView } from "react-native";
 
-import { ListGroup, ListRow , OptionPicker , showToast } from '@studio/ui';
-import { useSetting } from '@/data/hooks';
-import { haptic } from '@studio/theme';
+import { ListGroup, ListRow, OptionPicker, showToast } from "@studio/ui";
+import { useSetting } from "@/data/hooks";
+import { haptic } from "@studio/theme";
 
-import { authenticate } from './authenticate';
-import { LOCK_TIMEOUT_OPTIONS, lockTimeoutLabel } from './timeout';
+import { authenticate } from "./authenticate";
+import { LOCK_TIMEOUT_OPTIONS, lockTimeoutLabel } from "./timeout";
 
 /** Enable switch (authenticates once first) and the Require after timeout. */
 export function LockSettingsScreen() {
-  const [enabled, setEnabled] = useSetting('lock_enabled');
-  const [timeoutS, setTimeoutS] = useSetting('lock_timeout_s');
+  const [enabled, setEnabled] = useSetting("lock_enabled");
+  const [timeoutS, setTimeoutS] = useSetting("lock_timeout_s");
   const [picking, setPicking] = React.useState(false);
 
   const toggle = async (next: boolean) => {
@@ -19,16 +19,26 @@ export function LockSettingsScreen() {
       setEnabled(false);
       return;
     }
-    const result = await authenticate('Enable Face ID');
-    if (result === 'success') setEnabled(true);
-    else if (result === 'unavailable') showToast({ message: 'Not available on this device', haptic: 'warning' });
-    else haptic('error');
+    const result = await authenticate("Enable Face ID");
+    if (result === "success") setEnabled(true);
+    else if (result === "unavailable")
+      showToast({ message: "Not available on this device", haptic: "warning" });
+    else haptic("error");
   };
 
   return (
-    <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 py-4">
+    <ScrollView
+      className="flex-1 bg-bg"
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerClassName="gap-6 py-4"
+    >
       <ListGroup>
-        <ListRow label="Face ID" icon={{ name: 'faceid', color: 'green' }} switchValue={enabled} onSwitchChange={(next) => void toggle(next)} />
+        <ListRow
+          label="Face ID"
+          icon={{ name: "faceid", color: "green" }}
+          switchValue={enabled}
+          onSwitchChange={(next) => void toggle(next)}
+        />
       </ListGroup>
       <ListGroup>
         <ListRow

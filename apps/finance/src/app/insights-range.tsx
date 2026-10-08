@@ -1,14 +1,26 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Stack, useRouter } from 'expo-router';
-import * as React from 'react';
-import { View } from 'react-native';
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Stack, useRouter } from "expo-router";
+import * as React from "react";
+import { View } from "react-native";
 
-import { barLeft, barRight , Button , Text } from '@studio/ui';
-import { useRangeStore } from '@/features/insights/range-store';
-import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
-import { useTokens } from '@studio/theme';
+import { barLeft, barRight, Button, Text } from "@studio/ui";
+import { useRangeStore } from "@/features/insights/range-store";
+import { addDays, keyToLocalMs, toDateKey, type DateKey } from "@studio/dates";
+import { useTokens } from "@studio/theme";
 
-function Row({ label, value, onChange, min, max }: { label: string; value: DateKey; onChange: (key: DateKey) => void; min?: DateKey; max?: DateKey }) {
+function Row({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+}: {
+  label: string;
+  value: DateKey;
+  onChange: (key: DateKey) => void;
+  min?: DateKey;
+  max?: DateKey;
+}) {
   const { scheme } = useTokens();
   return (
     <View className="min-h-[52px] flex-row items-center justify-between px-4">
@@ -33,8 +45,12 @@ export default function InsightsRange() {
   const router = useRouter();
   const request = useRangeStore((s) => s.request);
   const close = useRangeStore((s) => s.close);
-  const [from, setFrom] = React.useState<DateKey>(() => request?.initial.from ?? addDays(toDateKey(Date.now()), -29));
-  const [to, setTo] = React.useState<DateKey>(() => request?.initial.to ?? toDateKey(Date.now()));
+  const [from, setFrom] = React.useState<DateKey>(
+    () => request?.initial.from ?? addDays(toDateKey(Date.now()), -29),
+  );
+  const [to, setTo] = React.useState<DateKey>(
+    () => request?.initial.to ?? toDateKey(Date.now()),
+  );
 
   const dismiss = () => {
     close();
@@ -53,12 +69,12 @@ export default function InsightsRange() {
           ...barLeft(
             <Button variant="barSecondary" size="sm" onPress={dismiss}>
               Cancel
-            </Button>
+            </Button>,
           ),
           ...barRight(
             <Button variant="barPrimary" size="sm" onPress={apply}>
               Done
-            </Button>
+            </Button>,
           ),
         }}
       />

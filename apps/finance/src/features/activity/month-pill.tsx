@@ -1,10 +1,14 @@
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
-import { AppIcon } from '@studio/icons';
-import { Pressable , Text } from '@studio/ui';
-import { haptic , useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Pressable, Text } from "@studio/ui";
+import { haptic, useTokens } from "@studio/theme";
 
-type MonthPillProps = { label: string; onPress: () => void; /** Jumps back to the current month. */ onLongPress?: () => void };
+type MonthPillProps = {
+  label: string;
+  onPress: () => void /** Jumps back to the current month. */;
+  onLongPress?: () => void;
+};
 
 /** Leading header control: plain headline text with a chevron, like an iOS title menu: "Oct 2026 ⌄". No pill. */
 function MonthPill({ label, onPress, onLongPress }: MonthPillProps) {
@@ -16,18 +20,18 @@ function MonthPill({ label, onPress, onLongPress }: MonthPillProps) {
       hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
       scale={0.97}
       onPress={() => {
-        haptic('selection');
+        haptic("selection");
         onPress();
       }}
       onLongPress={
         onLongPress
           ? () => {
-              haptic('selection');
+              haptic("selection");
               onLongPress();
             }
           : undefined
       }
-      style={Platform.OS === 'web' ? { marginLeft: 16 } : undefined}
+      style={Platform.OS === "web" ? { marginLeft: 16 } : undefined}
       className="h-9 flex-row items-center gap-1 px-2"
     >
       <Text variant="headline" numeric numberOfLines={1}>

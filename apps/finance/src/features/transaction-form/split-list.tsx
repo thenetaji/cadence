@@ -1,16 +1,28 @@
-import * as React from 'react';
-import { View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import * as React from "react";
+import { View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 
-import { AppIcon } from '@studio/icons';
-import { Button , Pressable , Text } from '@studio/ui';
-import { CategoryPill, FormChip, Hairline } from '@/features/transaction-form/chips';
-import { MAX_SPLIT_LINES, splitRemaining, type SplitDraftLine } from '@/features/transaction-form/logic';
-import { ShakeView } from '@/features/transaction-form/shake-view';
-import type { CategoryRow } from '@/db/schema';
-import { useAnimatedTextColor } from '@studio/motion';
-import { durations, springs, type CategoryColorKey } from '@studio/theme';
-import { useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Button, Pressable, Text } from "@studio/ui";
+import {
+  CategoryPill,
+  FormChip,
+  Hairline,
+} from "@/features/transaction-form/chips";
+import {
+  MAX_SPLIT_LINES,
+  splitRemaining,
+  type SplitDraftLine,
+} from "@/features/transaction-form/logic";
+import { ShakeView } from "@/features/transaction-form/shake-view";
+import type { CategoryRow } from "@/db/schema";
+import { useAnimatedTextColor } from "@studio/motion";
+import { durations, springs, type CategoryColorKey } from "@studio/theme";
+import { useTokens } from "@studio/theme";
 
 type SplitListProps = {
   lines: readonly SplitDraftLine[];
@@ -47,7 +59,11 @@ function SplitList({
   const { colors } = useTokens();
   const remaining = splitRemaining(total, lines);
   // Colour eases to warning when something is left to allocate.
-  const remainingColor = useAnimatedTextColor(colors.textSecondary, colors.warning, remaining !== 0);
+  const remainingColor = useAnimatedTextColor(
+    colors.textSecondary,
+    colors.warning,
+    remaining !== 0,
+  );
   return (
     <ShakeView trigger={shakeTrigger}>
       <View>
@@ -59,7 +75,9 @@ function SplitList({
               key={line.key}
               entering={FadeIn.duration(durations.chip)}
               exiting={FadeOut.duration(durations.press)}
-              layout={LinearTransition.springify().damping(springs.layout.damping).stiffness(springs.layout.stiffness)}
+              layout={LinearTransition.springify()
+                .damping(springs.layout.damping)
+                .stiffness(springs.layout.stiffness)}
             >
               {index > 0 ? <Hairline /> : null}
               <View className="h-12 flex-row items-center gap-3 pl-4 pr-2">
@@ -87,16 +105,28 @@ function SplitList({
                   scale={1}
                   onPress={() => onFocusLine(line.key)}
                   className="h-9 min-w-0 flex-1 items-end justify-center rounded-[10px] px-2"
-                  style={focused ? { backgroundColor: colors.accentSoft } : undefined}
+                  style={
+                    focused ? { backgroundColor: colors.accentSoft } : undefined
+                  }
                 >
                   <Text
                     variant="body"
                     numeric
                     numberOfLines={1}
-                    tone={focused ? 'accent' : line.amount > 0 ? 'default' : 'tertiary'}
+                    tone={
+                      focused
+                        ? "accent"
+                        : line.amount > 0
+                          ? "default"
+                          : "tertiary"
+                    }
                     className="font-medium"
                   >
-                    {focused ? `${symbol}${liveDisplay}` : line.amount > 0 ? formatAmount(line.amount) : `${symbol}0`}
+                    {focused
+                      ? `${symbol}${liveDisplay}`
+                      : line.amount > 0
+                        ? formatAmount(line.amount)
+                        : `${symbol}0`}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -107,7 +137,11 @@ function SplitList({
                   onPress={() => onRemoveLine(line.key)}
                   className="h-9 w-9 items-center justify-center"
                 >
-                  <AppIcon name="minus.circle" size={20} color={colors.textTertiary} />
+                  <AppIcon
+                    name="minus.circle"
+                    size={20}
+                    color={colors.textTertiary}
+                  />
                 </Pressable>
               </View>
             </Animated.View>
@@ -127,9 +161,12 @@ function SplitList({
           <Animated.Text
             numberOfLines={1}
             accessibilityLabel={`Remaining ${formatAmount(Math.abs(remaining))}`}
-            style={[{ fontSize: 13, lineHeight: 18, fontVariant: ['tabular-nums'] }, remainingColor]}
+            style={[
+              { fontSize: 13, lineHeight: 18, fontVariant: ["tabular-nums"] },
+              remainingColor,
+            ]}
           >
-            {`Remaining ${remaining < 0 ? '−' : ''}${formatAmount(Math.abs(remaining))}`}
+            {`Remaining ${remaining < 0 ? "−" : ""}${formatAmount(Math.abs(remaining))}`}
           </Animated.Text>
         </View>
       </View>

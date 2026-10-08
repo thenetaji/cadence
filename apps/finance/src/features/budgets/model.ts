@@ -1,10 +1,18 @@
-import type { BudgetSpent } from '@/db/repos/budgets';
-import type { BudgetPeriod, CategoryRow } from '@/db/schema';
-import type { DateKey } from '@studio/dates';
-import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import type { CategoryColorKey } from '@studio/theme';
+import type { BudgetSpent } from "@/db/repos/budgets";
+import type { BudgetPeriod, CategoryRow } from "@/db/schema";
+import type { DateKey } from "@studio/dates";
+import { formatMoney, formatMoneyForSpeech } from "@studio/money";
+import type { CategoryColorKey } from "@studio/theme";
 
-import { budgetRatio, budgetStatus, displayName, paceMarker, periodCaption, perDayLeft, type BudgetStatus } from './logic';
+import {
+  budgetRatio,
+  budgetStatus,
+  displayName,
+  paceMarker,
+  periodCaption,
+  perDayLeft,
+  type BudgetStatus,
+} from "./logic";
 
 export interface BudgetFormat {
   locale?: string;
@@ -16,7 +24,7 @@ export interface BudgetFormat {
 export interface BudgetView {
   id: string;
   name: string;
-  scope: 'all' | 'categories';
+  scope: "all" | "categories";
   period: BudgetPeriod;
   icon: string;
   color: CategoryColorKey;
@@ -35,21 +43,38 @@ export interface BudgetView {
   accessibilityLabel: string;
 }
 
-const asColor = (value: string | undefined): CategoryColorKey => (value ?? 'gray') as CategoryColorKey;
+const asColor = (value: string | undefined): CategoryColorKey =>
+  (value ?? "gray") as CategoryColorKey;
 
 /** Display strings for one budget over its current period. */
-export function toBudgetView(progress: BudgetSpent, fmt: BudgetFormat, current = true): BudgetView {
+export function toBudgetView(
+  progress: BudgetSpent,
+  fmt: BudgetFormat,
+  current = true,
+): BudgetView {
   const { budget, period, spent, remaining } = progress;
   // Budgets are round targets; whole units keep them calm whatever the list setting.
   const decimals = 0;
-  const money = (minor: number) => formatMoney(minor, budget.currency, { locale: fmt.locale, decimals });
-  const spoken = (minor: number) => formatMoneyForSpeech(minor, budget.currency, { sign: 'none', locale: fmt.locale });
-  const linked = budget.categoryIds.map((id) => fmt.categories.get(id)).filter((c): c is CategoryRow => !!c);
-  const name = displayName(budget, linked.map((c) => c.name));
+  const money = (minor: number) =>
+    formatMoney(minor, budget.currency, { locale: fmt.locale, decimals });
+  const spoken = (minor: number) =>
+    formatMoneyForSpeech(minor, budget.currency, {
+      sign: "none",
+      locale: fmt.locale,
+    });
+  const linked = budget.categoryIds
+    .map((id) => fmt.categories.get(id))
+    .filter((c): c is CategoryRow => !!c);
+  const name = displayName(
+    budget,
+    linked.map((c) => c.name),
+  );
   const status = budgetStatus(spent, budget.amount);
   const over = remaining < 0;
   const perDay = perDayLeft(remaining, period, fmt.todayKey);
-  const headline = over ? `${money(-remaining)} over` : `${money(remaining)} left`;
+  const headline = over
+    ? `${money(-remaining)} over`
+    : `${money(remaining)} left`;
   const detail = over
     ? `${money(spent)} spent of ${money(budget.amount)}`
     : current
@@ -60,8 +85,13 @@ export function toBudgetView(progress: BudgetSpent, fmt: BudgetFormat, current =
     name,
     scope: budget.scope,
     period: budget.period,
-    icon: budget.scope === 'all' ? 'chart.pie.fill' : linked.length === 1 ? (linked[0]?.icon ?? 'tag.fill') : 'square.grid.2x2',
-    color: budget.scope === 'all' ? 'blue' : asColor(linked[0]?.color),
+    icon:
+      budget.scope === "all"
+        ? "chart.pie.fill"
+        : linked.length === 1
+          ? (linked[0]?.icon ?? "tag.fill")
+          : "square.grid.2x2",
+    color: budget.scope === "all" ? "blue" : asColor(linked[0]?.color),
     ratio: budgetRatio(spent, budget.amount),
     marker: current ? paceMarker(period, fmt.todayKey) : undefined,
     caption: periodCaption(budget.period, period, current),

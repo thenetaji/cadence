@@ -1,8 +1,8 @@
-import { Image, View } from 'react-native';
+import { Image, View } from "react-native";
 
-import { AppIcon } from '@studio/icons';
-import { Button , Text } from '@studio/ui';
-import { useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Button, Text } from "@studio/ui";
+import { useTokens } from "@studio/theme";
 
 type LockScreenProps = { onUnlock: () => void };
 
@@ -10,9 +10,12 @@ type LockScreenProps = { onUnlock: () => void };
 export function LockScreen({ onUnlock }: LockScreenProps) {
   const { colors } = useTokens();
   return (
-    <View accessibilityViewIsModal className="flex-1 items-center justify-center gap-10 bg-bg">
+    <View
+      accessibilityViewIsModal
+      className="flex-1 items-center justify-center gap-10 bg-bg"
+    >
       <Image
-        source={require('../../../assets/images/icon.png')}
+        source={require("../../../assets/images/icon.png")}
         style={{ width: 48, height: 48, borderRadius: 11 }}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"

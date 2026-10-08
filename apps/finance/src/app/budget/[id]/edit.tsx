@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from "expo-router";
 
-import { BudgetForm } from '@/features/budgets/form';
+import { BudgetForm } from "@/features/budgets/form";
 
 export default function EditBudget() {
   const { id } = useLocalSearchParams<{ id: string }>();

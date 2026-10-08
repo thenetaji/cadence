@@ -1,11 +1,11 @@
-import { View } from 'react-native';
+import { View } from "react-native";
 
-import { withAlpha } from '@studio/theme';
+import { withAlpha } from "@studio/theme";
 
-import { useTweenedColor } from '../../lib/tint';
-import { Pressable } from '../ui/pressable';
-import { Text } from '../ui/text';
-import { AnimatedNumber } from './animated-number';
+import { useTweenedColor } from "../../lib/tint";
+import { Pressable } from "../ui/pressable";
+import { Text } from "../ui/text";
+import { AnimatedNumber } from "./animated-number";
 
 type AmountReadoutProps = {
   symbol: string;
@@ -17,9 +17,16 @@ type AmountReadoutProps = {
   color?: string;
 };
 
-function AmountReadout({ symbol, value, expression, onPress, accessibilityLabel, color }: AmountReadoutProps) {
-  const empty = value === '0' || value === '';
-  const tint = useTweenedColor(color ?? '#000000');
+function AmountReadout({
+  symbol,
+  value,
+  expression,
+  onPress,
+  accessibilityLabel,
+  color,
+}: AmountReadoutProps) {
+  const empty = value === "0" || value === "";
+  const tint = useTweenedColor(color ?? "#000000");
   return (
     <Pressable
       role="button"
@@ -30,18 +37,29 @@ function AmountReadout({ symbol, value, expression, onPress, accessibilityLabel,
       className="h-[72px] items-center justify-end overflow-hidden px-4"
     >
       {expression ? (
-        <Text variant="footnote" tone="secondary" numeric numberOfLines={1} className="absolute top-0">
+        <Text
+          variant="footnote"
+          tone="secondary"
+          numeric
+          numberOfLines={1}
+          className="absolute top-0"
+        >
           {expression}
         </Text>
       ) : null}
       <View className="h-[52px] max-w-full flex-row items-center justify-center gap-1">
-        <Text variant="title2" tone="secondary" style={color ? { color: withAlpha(tint, 0.6) } : undefined} numberOfLines={1}>
+        <Text
+          variant="title2"
+          tone="secondary"
+          style={color ? { color: withAlpha(tint, 0.6) } : undefined}
+          numberOfLines={1}
+        >
           {symbol}
         </Text>
         <AnimatedNumber
-          value={value === '' ? '0' : value}
+          value={value === "" ? "0" : value}
           variant="amountEntry"
-          tone={empty ? 'tertiary' : 'default'}
+          tone={empty ? "tertiary" : "default"}
           color={color ? (empty ? withAlpha(tint, 0.45) : tint) : undefined}
           align="left"
           dropNew

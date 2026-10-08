@@ -1,9 +1,9 @@
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, ViewStyle } from "react-native";
 
-import { AppIcon } from '@studio/icons';
-import { Pressable } from '../ui/pressable';
-import { Text } from '../ui/text';
-import { pressScale, shadows , useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Pressable } from "../ui/pressable";
+import { Text } from "../ui/text";
+import { pressScale, shadows, useTokens } from "@studio/theme";
 
 type FloatingAddButtonProps = {
   onPress: () => void;
@@ -14,7 +14,12 @@ type FloatingAddButtonProps = {
 };
 
 /** Extended pill: plus and "Add". */
-function FloatingAddButton({ onPress, onLongPress, style, accessibilityLabel = 'Add' }: FloatingAddButtonProps) {
+function FloatingAddButton({
+  onPress,
+  onLongPress,
+  style,
+  accessibilityLabel = "Add",
+}: FloatingAddButtonProps) {
   const { colors } = useTokens();
   return (
     <Pressable

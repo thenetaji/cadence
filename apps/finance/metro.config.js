@@ -1,6 +1,6 @@
-const { createMetroConfig } = require('@studio/config/metro');
+const { createMetroConfig } = require("@studio/config/metro");
 
 module.exports = createMetroConfig(__dirname, {
-  cssEntryFile: './src/global.css',
-  dtsFile: './src/uniwind-types.d.ts',
+  cssEntryFile: "./src/global.css",
+  dtsFile: "./src/uniwind-types.d.ts",
 });

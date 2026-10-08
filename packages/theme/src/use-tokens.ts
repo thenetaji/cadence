@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { useUniwind } from 'uniwind';
+import { useMemo } from "react";
+import { useUniwind } from "uniwind";
 
 import {
   categoryColors,
@@ -14,15 +14,15 @@ import {
   typeScale,
   type CategoryColorKey,
   type Scheme,
-} from './tokens';
+} from "./tokens";
 
 export function useTokens() {
   const { theme } = useUniwind();
-  const scheme: Scheme = theme === 'dark' ? 'dark' : 'light';
+  const scheme: Scheme = theme === "dark" ? "dark" : "light";
   return useMemo(
     () => ({
       scheme,
-      isDark: scheme === 'dark',
+      isDark: scheme === "dark",
       colors: colors[scheme],
       category: categoryColors[scheme],
       incomeSoft: incomeSoft[scheme],

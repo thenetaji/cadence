@@ -1,6 +1,6 @@
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import { StyleSheet, View, type ViewProps } from "react-native";
 
-import { useTokens } from '@studio/theme';
+import { useTokens } from "@studio/theme";
 
 type SeparatorProps = ViewProps & { inset?: number };
 
@@ -9,7 +9,14 @@ function Separator({ inset = 0, style, ...props }: SeparatorProps) {
   return (
     <View
       accessibilityRole="none"
-      style={[{ height: StyleSheet.hairlineWidth, marginLeft: inset, backgroundColor: colors.separator }, style]}
+      style={[
+        {
+          height: StyleSheet.hairlineWidth,
+          marginLeft: inset,
+          backgroundColor: colors.separator,
+        },
+        style,
+      ]}
       {...props}
     />
   );

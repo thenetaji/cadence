@@ -1,14 +1,16 @@
-export type SyncProviderId = 'icloud' | 'gdrive';
+export type SyncProviderId = "icloud" | "gdrive";
 
 export type UnavailableReason =
   /** iCloud Documents needs the iCloud entitlement, which needs a paid Apple developer account. */
-  | 'needs-paid-developer-account'
+  | "needs-paid-developer-account"
   /** Google OAuth redirects need our own bundle id and URL scheme, so Expo Go cannot sign in. */
-  | 'needs-standalone-build'
+  | "needs-standalone-build"
   /** The provider can run but has no way to get a credential yet. */
-  | 'not-configured';
+  | "not-configured";
 
-export type SyncStatus = { status: 'available' } | { status: 'unavailable'; reason: UnavailableReason };
+export type SyncStatus =
+  | { status: "available" }
+  | { status: "unavailable"; reason: UnavailableReason };
 
 /** Where backups are stored remotely: one backup document per provider. */
 export interface SyncProvider {
@@ -26,11 +28,15 @@ export interface SyncProvider {
 }
 
 export class SyncError extends Error {
-  readonly code: 'unavailable' | 'request_failed' | 'invalid_remote' | 'not_connected';
+  readonly code:
+    | "unavailable"
+    | "request_failed"
+    | "invalid_remote"
+    | "not_connected";
   readonly status?: number;
-  constructor(code: SyncError['code'], message?: string, status?: number) {
+  constructor(code: SyncError["code"], message?: string, status?: number) {
     super(message ?? code);
-    this.name = 'SyncError';
+    this.name = "SyncError";
     this.code = code;
     this.status = status;
   }

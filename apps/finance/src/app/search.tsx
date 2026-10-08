@@ -1,14 +1,19 @@
-import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import * as React from 'react';
-import { Platform, ScrollView, TextInput, View } from 'react-native';
+import {
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
+import * as React from "react";
+import { Platform, ScrollView, TextInput, View } from "react-native";
 
-import { EmptyState , ListGroup, ListRow , Button , Text } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import { useSearchTransactions, useSetting } from '@/data/hooks';
-import { pushRecentSearch } from '@/features/search/recent-searches';
-import { TransactionDayList } from '@/features/transactions/transaction-day-list';
-import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { useTokens } from '@studio/theme';
+import { EmptyState, ListGroup, ListRow, Button, Text } from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import { useSearchTransactions, useSetting } from "@/data/hooks";
+import { pushRecentSearch } from "@/features/search/recent-searches";
+import { TransactionDayList } from "@/features/transactions/transaction-day-list";
+import { useMoneyContext } from "@/features/transactions/use-money-context";
+import { useTokens } from "@studio/theme";
 
 const HIDDEN_HEADER = { headerShown: false } as const;
 const DEBOUNCE_MS = 150;
@@ -19,19 +24,19 @@ export default function Search() {
   const { colors } = useTokens();
   const params = useLocalSearchParams<{ q?: string }>();
   const money = useMoneyContext();
-  const [recent, setRecent] = useSetting('recent_searches');
-  const [query, setQuery] = React.useState(params.q ?? '');
-  const [term, setTerm] = React.useState(params.q ?? '');
+  const [recent, setRecent] = useSetting("recent_searches");
+  const [query, setQuery] = React.useState(params.q ?? "");
+  const [term, setTerm] = React.useState(params.q ?? "");
 
   React.useEffect(() => {
     const timer = setTimeout(() => setTerm(query), DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [query]);
 
-  const active = query.trim() === '' ? '' : term;
+  const active = query.trim() === "" ? "" : term;
   const results = useSearchTransactions(active);
 
-  const latest = React.useRef({ term: '', found: false, recent });
+  const latest = React.useRef({ term: "", found: false, recent });
   React.useEffect(() => {
     latest.current = { term: active, found: results.length > 0, recent };
   });
@@ -48,7 +53,7 @@ export default function Search() {
     ),
   );
 
-  const typing = query.trim() !== '';
+  const typing = query.trim() !== "";
   const footer =
     results.length >= LIMIT ? (
       <Text variant="footnote" tone="secondary" className="py-4 text-center">
@@ -61,7 +66,11 @@ export default function Search() {
       <Stack.Screen options={HIDDEN_HEADER} />
       <View className="flex-row items-center gap-2 px-4 pb-2 pt-6">
         <View className="h-10 flex-1 flex-row items-center gap-2 rounded-[12px] bg-fill px-3">
-          <AppIcon name="magnifyingglass" size={16} color={colors.textTertiary} />
+          <AppIcon
+            name="magnifyingglass"
+            size={16}
+            color={colors.textTertiary}
+          />
           <TextInput
             autoFocus
             value={query}
@@ -77,7 +86,11 @@ export default function Search() {
             maxFontSizeMultiplier={2}
             onSubmitEditing={() => remember(query)}
             accessibilityLabel="Search"
-            style={Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : undefined}
+            style={
+              Platform.OS === "web"
+                ? ({ outlineStyle: "none" } as object)
+                : undefined
+            }
             className="h-10 flex-1 text-[17px] text-foreground"
           />
         </View>
@@ -96,7 +109,10 @@ export default function Search() {
           contentContainerStyle={{ paddingBottom: 32 }}
         />
       ) : recent.length > 0 ? (
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pt-4">
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="pt-4"
+        >
           <ListGroup header="Recent searches">
             {recent.slice(0, 5).map((entry) => (
               <ListRow

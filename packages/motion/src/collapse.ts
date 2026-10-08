@@ -15,7 +15,10 @@ export function registerCollapse(id: string, runner: Runner): () => void {
 }
 
 /** Runs `action` after the row for `id` has collapsed, or straight away if none is on screen. */
-export function collapseThen(id: string, action: () => boolean | void): boolean | void {
+export function collapseThen(
+  id: string,
+  action: () => boolean | void,
+): boolean | void {
   const runner = runners.get(id);
   if (!runner) return action();
   runners.delete(id);

@@ -1,16 +1,22 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-import { useTokens } from '@studio/theme';
+import { useTokens } from "@studio/theme";
 
 type DatePickerProps = {
   value: number;
   onChange: (ms: number) => void;
-  mode?: 'date' | 'datetime';
-  display?: 'inline' | 'compact';
+  mode?: "date" | "datetime";
+  display?: "inline" | "compact";
   minimumDate?: number;
 };
 
-function DatePicker({ value, onChange, mode = 'datetime', display = 'inline', minimumDate }: DatePickerProps) {
+function DatePicker({
+  value,
+  onChange,
+  mode = "datetime",
+  display = "inline",
+  minimumDate,
+}: DatePickerProps) {
   const { colors, scheme } = useTokens();
   return (
     <DateTimePicker
@@ -19,7 +25,9 @@ function DatePicker({ value, onChange, mode = 'datetime', display = 'inline', mi
       display={display}
       themeVariant={scheme}
       accentColor={colors.accent}
-      minimumDate={minimumDate === undefined ? undefined : new Date(minimumDate)}
+      minimumDate={
+        minimumDate === undefined ? undefined : new Date(minimumDate)
+      }
       onChange={(_event, date) => {
         if (date) onChange(date.getTime());
       }}

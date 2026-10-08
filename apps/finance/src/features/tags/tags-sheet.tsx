@@ -1,19 +1,19 @@
-import { useRouter } from 'expo-router';
-import * as React from 'react';
-import { View } from 'react-native';
+import { useRouter } from "expo-router";
+import * as React from "react";
+import { View } from "react-native";
 
-import { SheetScroll , Button , Input , Pressable , Text } from '@studio/ui';
-import { useActions } from '@/data/actions';
-import { useTags } from '@/data/hooks';
-import { ValidationError } from '@/db/errors';
-import { toggleId } from '@/features/transaction-form/logic';
-import { useDraftStore } from '@/features/transaction-form/store';
-import { AppIcon } from '@studio/icons';
-import { Pop } from '@studio/motion';
-import { haptic , useTokens } from '@studio/theme';
+import { SheetScroll, Button, Input, Pressable, Text } from "@studio/ui";
+import { useActions } from "@/data/actions";
+import { useTags } from "@/data/hooks";
+import { ValidationError } from "@/db/errors";
+import { toggleId } from "@/features/transaction-form/logic";
+import { useDraftStore } from "@/features/transaction-form/store";
+import { AppIcon } from "@studio/icons";
+import { Pop } from "@studio/motion";
+import { haptic, useTokens } from "@studio/theme";
 
-import { canCreateTag, matchesQuery, nextTagColor, TAG_COLORS } from './model';
-import { TagPill } from './tag-pill';
+import { canCreateTag, matchesQuery, nextTagColor, TAG_COLORS } from "./model";
+import { TagPill } from "./tag-pill";
 
 /** Multi-select of tags as coloured pills, with a field that searches and creates. Writes the draft as you tap. */
 export function TagsSheet() {
@@ -22,26 +22,29 @@ export function TagsSheet() {
   const { colors, category } = useTokens();
   const tags = useTags();
   const tagIds = useDraftStore((s) => s.tagIds);
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState("");
   const [picked, setPicked] = React.useState<string | null>(null);
 
-  const clean = query.trim().replace(/\s+/g, ' ');
+  const clean = query.trim().replace(/\s+/g, " ");
   const creating = canCreateTag(clean, tags);
   const color = picked ?? nextTagColor(tags);
   const shown = clean ? tags.filter((t) => matchesQuery(t.name, clean)) : tags;
 
-  const toggle = (id: string) => useDraftStore.getState().patch({ tagIds: toggleId(useDraftStore.getState().tagIds, id) });
+  const toggle = (id: string) =>
+    useDraftStore
+      .getState()
+      .patch({ tagIds: toggleId(useDraftStore.getState().tagIds, id) });
 
   const create = () => {
     try {
       const tag = actions.tags.create({ name: clean, color });
       const s = useDraftStore.getState();
       s.patch({ tagIds: [...s.tagIds, tag.id] });
-      haptic('success');
-      setQuery('');
+      haptic("success");
+      setQuery("");
       setPicked(null);
     } catch (error) {
-      if (error instanceof ValidationError) haptic('error');
+      if (error instanceof ValidationError) haptic("error");
       else throw error;
     }
   };
@@ -52,11 +55,20 @@ export function TagsSheet() {
         <>
           <View className="h-12 flex-row items-center px-2">
             <View className="w-20" />
-            <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
+            <Text
+              variant="headline"
+              accessibilityRole="header"
+              className="flex-1 text-center"
+            >
               Tags
             </Text>
             <View className="w-20 items-end">
-              <Button variant="barPrimary" size="sm" onPress={() => router.back()} accessibilityLabel="Done">
+              <Button
+                variant="barPrimary"
+                size="sm"
+                onPress={() => router.back()}
+                accessibilityLabel="Done"
+              >
                 <Text variant="headline">Done</Text>
               </Button>
             </View>
@@ -79,7 +91,10 @@ export function TagsSheet() {
       keyboardShouldPersistTaps="handled"
     >
       {creating ? (
-        <View className="gap-3 rounded-[18px] bg-surface p-4" style={{ borderWidth: 1, borderColor: colors.border }}>
+        <View
+          className="gap-3 rounded-[18px] bg-surface p-4"
+          style={{ borderWidth: 1, borderColor: colors.border }}
+        >
           <View className="flex-row flex-wrap gap-3">
             {TAG_COLORS.map((key) => (
               <Pressable
@@ -100,7 +115,7 @@ export function TagsSheet() {
                       borderRadius: 14,
                       padding: 2,
                       borderWidth: 2,
-                      borderColor: key === color ? colors.text : 'transparent',
+                      borderColor: key === color ? colors.text : "transparent",
                     }}
                   >
                     <View
@@ -123,7 +138,11 @@ export function TagsSheet() {
             className="h-11 flex-row items-center justify-center gap-2 rounded-[12px] bg-accent"
           >
             <AppIcon name="add" size={15} color={colors.onAccent} />
-            <Text variant="headline" numberOfLines={1} style={{ color: colors.onAccent }}>
+            <Text
+              variant="headline"
+              numberOfLines={1}
+              style={{ color: colors.onAccent }}
+            >
               Create “{clean}”
             </Text>
           </Pressable>
@@ -132,7 +151,14 @@ export function TagsSheet() {
       {shown.length > 0 ? (
         <View className="flex-row flex-wrap gap-2.5">
           {shown.map((tag) => (
-            <TagPill key={tag.id} name={tag.name} color={tag.color} size="md" selected={tagIds.includes(tag.id)} onPress={() => toggle(tag.id)} />
+            <TagPill
+              key={tag.id}
+              name={tag.name}
+              color={tag.color}
+              size="md"
+              selected={tagIds.includes(tag.id)}
+              onPress={() => toggle(tag.id)}
+            />
           ))}
         </View>
       ) : creating ? null : (

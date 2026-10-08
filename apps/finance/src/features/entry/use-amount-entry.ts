@@ -1,7 +1,13 @@
-import * as React from 'react';
+import * as React from "react";
 
-import type { KeypadKey } from '@studio/ui';
-import { createKeypadState, deriveKeypad, keypadReducer, type KeypadState, type KeypadView } from '@studio/money';
+import type { KeypadKey } from "@studio/ui";
+import {
+  createKeypadState,
+  deriveKeypad,
+  keypadReducer,
+  type KeypadState,
+  type KeypadView,
+} from "@studio/money";
 
 export interface AmountEntry {
   state: KeypadState;
@@ -15,8 +21,14 @@ export interface AmountEntry {
 }
 
 /** Keypad state for one amount field; `onChange` receives the clamped total after every key. */
-export function useAmountEntry(digits: number, initialMinor: number, onChange: (minor: number) => void): AmountEntry {
-  const [state, setState] = React.useState<KeypadState>(() => createKeypadState(digits, initialMinor));
+export function useAmountEntry(
+  digits: number,
+  initialMinor: number,
+  onChange: (minor: number) => void,
+): AmountEntry {
+  const [state, setState] = React.useState<KeypadState>(() =>
+    createKeypadState(digits, initialMinor),
+  );
   const view = deriveKeypad(state);
 
   const apply = (next: KeypadState) => {
@@ -28,8 +40,10 @@ export function useAmountEntry(digits: number, initialMinor: number, onChange: (
     state,
     view,
     total: Math.max(view.total, 0),
-    press: (key) => apply(keypadReducer(state, key === 'backspace' ? 'back' : key)),
-    clear: () => apply(keypadReducer(state, 'clear')),
-    reset: (nextDigits, minor) => setState(createKeypadState(nextDigits, minor)),
+    press: (key) =>
+      apply(keypadReducer(state, key === "backspace" ? "back" : key)),
+    clear: () => apply(keypadReducer(state, "clear")),
+    reset: (nextDigits, minor) =>
+      setState(createKeypadState(nextDigits, minor)),
   };
 }

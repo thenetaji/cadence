@@ -1,31 +1,50 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as React from 'react';
-import { Platform, ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from "expo-router";
+import * as React from "react";
+import { Platform, ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { EmptyState , ListGroup, ListRow , showToast , Button , Text } from '@studio/ui';
-import { useActions } from '@/data/actions';
-import { useImportPlanner, useSettings, useTodayKey } from '@/data/hooks';
-import { ValidationError } from '@/db/errors';
-import { moneyLocale } from '@/features/transactions/use-money-context';
-import { CASHEW_SAMPLE, DIME_SAMPLE, NATIVE_SAMPLE, dimeFixture } from '@/lib/csv/fixtures';
-import { importBreakdown, parseImport, type ImportFormat, type ImportRow } from '@/lib/csv';
-import { dayLabel, toDateKey } from '@studio/dates';
-import { formatMoney } from '@studio/money';
-import { haptic } from '@studio/theme';
+import {
+  EmptyState,
+  ListGroup,
+  ListRow,
+  showToast,
+  Button,
+  Text,
+} from "@studio/ui";
+import { useActions } from "@/data/actions";
+import { useImportPlanner, useSettings, useTodayKey } from "@/data/hooks";
+import { ValidationError } from "@/db/errors";
+import { moneyLocale } from "@/features/transactions/use-money-context";
+import {
+  CASHEW_SAMPLE,
+  DIME_SAMPLE,
+  NATIVE_SAMPLE,
+  dimeFixture,
+} from "@/lib/csv/fixtures";
+import {
+  importBreakdown,
+  parseImport,
+  type ImportFormat,
+  type ImportRow,
+} from "@/lib/csv";
+import { dayLabel, toDateKey } from "@studio/dates";
+import { formatMoney } from "@studio/money";
+import { haptic } from "@studio/theme";
 
-import { useImportStore } from './store';
+import { useImportStore } from "./store";
 
 const PREVIEW_ROWS = 6;
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
-function fixtureRows(name: string | undefined): { rows: ImportRow[]; unreadable: number } | null {
-  if (Platform.OS !== 'web' || !name) return null;
+function fixtureRows(
+  name: string | undefined,
+): { rows: ImportRow[]; unreadable: number } | null {
+  if (Platform.OS !== "web" || !name) return null;
   const sources: Record<string, [ImportFormat, string]> = {
-    dime: ['dime', dimeFixture(312)],
-    'dime-small': ['dime', DIME_SAMPLE],
-    cashew: ['cashew', CASHEW_SAMPLE],
-    native: ['native', NATIVE_SAMPLE],
+    dime: ["dime", dimeFixture(312)],
+    "dime-small": ["dime", DIME_SAMPLE],
+    cashew: ["cashew", CASHEW_SAMPLE],
+    native: ["native", NATIVE_SAMPLE],
   };
   const source = sources[name];
   if (!source) return null;
@@ -46,13 +65,25 @@ export function ImportPreviewScreen() {
   const setPending = useImportStore((s) => s.set);
   const [busy, setBusy] = React.useState(false);
 
-  const source = React.useMemo(() => fixtureRows(fixture) ?? (pending ? { rows: pending.rows, unreadable: pending.unreadable } : null), [fixture, pending]);
-  const planned = React.useMemo(() => (source ? plan(source.rows) : null), [source, plan]);
+  const source = React.useMemo(
+    () =>
+      fixtureRows(fixture) ??
+      (pending ? { rows: pending.rows, unreadable: pending.unreadable } : null),
+    [fixture, pending],
+  );
+  const planned = React.useMemo(
+    () => (source ? plan(source.rows) : null),
+    [source, plan],
+  );
 
   if (!source || !planned) {
     return (
       <View className="flex-1 justify-center bg-bg pb-24">
-        <EmptyState message="Nothing to import" actionLabel="Choose file" onAction={() => router.back()} />
+        <EmptyState
+          message="Nothing to import"
+          actionLabel="Choose file"
+          onAction={() => router.back()}
+        />
       </View>
     );
   }
@@ -65,25 +96,31 @@ export function ImportPreviewScreen() {
     if (busy || stats.transactions === 0) return;
     setBusy(true);
     try {
-      actions.import.run(source.rows, { displayCurrency: settings.display_currency, defaultAccountId: settings.default_account_id });
+      actions.import.run(source.rows, {
+        displayCurrency: settings.display_currency,
+        defaultAccountId: settings.default_account_id,
+      });
     } catch (error) {
       setBusy(false);
-      haptic('error');
+      haptic("error");
       if (error instanceof ValidationError) return;
-      showToast({ message: 'Import failed', haptic: 'error' });
+      showToast({ message: "Import failed", haptic: "error" });
       return;
     }
     setPending(null);
-    showToast({ message: 'Imported' });
-    router.dismissTo('/settings');
+    showToast({ message: "Imported" });
+    router.dismissTo("/settings");
   };
 
   return (
     <View className="flex-1 bg-bg">
-      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 pb-8 pt-4">
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerClassName="gap-6 pb-8 pt-4"
+      >
         <View className="gap-1 px-5">
           <Text variant="headline" accessibilityRole="header">
-            {plural(stats.transactions, 'transaction')}
+            {plural(stats.transactions, "transaction")}
           </Text>
           <Text variant="footnote" tone="secondary">
             {importBreakdown(stats)}
@@ -93,21 +130,36 @@ export function ImportPreviewScreen() {
           {planned.transactions.slice(0, PREVIEW_ROWS).map((t, index) => (
             <ListRow
               key={index}
-              label={t.title || t.categoryName || 'Transfer'}
-              subtitle={`${t.categoryName ?? 'Transfer'} · ${dayLabel(toDateKey(t.occurredAt), today)}`}
-              value={`${t.kind === 'expense' ? '−' : t.kind === 'income' ? '+' : ''}${formatMoney(t.amount, t.currency, { locale })}`}
+              label={t.title || t.categoryName || "Transfer"}
+              subtitle={`${t.categoryName ?? "Transfer"} · ${dayLabel(toDateKey(t.occurredAt), today)}`}
+              value={`${t.kind === "expense" ? "−" : t.kind === "income" ? "+" : ""}${formatMoney(t.amount, t.currency, { locale })}`}
             />
           ))}
         </ListGroup>
         {stats.duplicates > 0 || unreadable > 0 ? (
           <ListGroup>
-            {stats.duplicates > 0 ? <ListRow label="Duplicates skipped" value={String(stats.duplicates)} /> : null}
-            {unreadable > 0 ? <ListRow label="Unreadable rows" value={String(unreadable)} /> : null}
+            {stats.duplicates > 0 ? (
+              <ListRow
+                label="Duplicates skipped"
+                value={String(stats.duplicates)}
+              />
+            ) : null}
+            {unreadable > 0 ? (
+              <ListRow label="Unreadable rows" value={String(unreadable)} />
+            ) : null}
           </ListGroup>
         ) : null}
       </ScrollView>
-      <View className="px-4 pt-2" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
-        <Button size="lg" loading={busy} disabled={stats.transactions === 0} onPress={run}>
+      <View
+        className="px-4 pt-2"
+        style={{ paddingBottom: Math.max(insets.bottom, 16) }}
+      >
+        <Button
+          size="lg"
+          loading={busy}
+          disabled={stats.transactions === 0}
+          onPress={run}
+        >
           Import
         </Button>
       </View>

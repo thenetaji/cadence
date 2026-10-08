@@ -30,22 +30,26 @@ export const NATIVE_SAMPLE = `﻿date,time,kind,title,memo,amount,currency,categ
 /** A larger Dime-style file with deterministic content, for the dev preview screenshot. */
 export function dimeFixture(rows: number): string {
   const sample: readonly (readonly [string, string, string, string])[] = [
-    ['Swiggy', '14.20', 'Food', 'Expense'],
-    ['Uber', '8.75', 'Transport', 'Expense'],
-    ['Whole Foods', '63.10', 'Groceries', 'Expense'],
-    ['Spotify', '9.99', 'Subscriptions', 'Expense'],
-    ['Rent', '1200.00', 'Housing', 'Expense'],
-    ['Pharmacy', '18.40', 'Healthcare', 'Expense'],
-    ['Freelance', '850.00', 'Freelance', 'Income'],
-    ['Cinema', '22.00', 'Fun', 'Expense'],
+    ["Swiggy", "14.20", "Food", "Expense"],
+    ["Uber", "8.75", "Transport", "Expense"],
+    ["Whole Foods", "63.10", "Groceries", "Expense"],
+    ["Spotify", "9.99", "Subscriptions", "Expense"],
+    ["Rent", "1200.00", "Housing", "Expense"],
+    ["Pharmacy", "18.40", "Healthcare", "Expense"],
+    ["Freelance", "850.00", "Freelance", "Income"],
+    ["Cinema", "22.00", "Fun", "Expense"],
   ];
-  const lines = ['Date,Note,Amount,Category,Type'];
+  const lines = ["Date,Note,Amount,Category,Type"];
   for (let i = 0; i < rows; i++) {
-    const [note, amount, category, type] = sample[i % sample.length] as (typeof sample)[number];
-    const day = String(1 + (i % 28)).padStart(2, '0');
-    const month = String(1 + (Math.floor(i / 28) % 12)).padStart(2, '0');
-    const hour = String(8 + (i % 12)).padStart(2, '0');
-    lines.push(`2023-${month}-${day} ${hour}:${String((i * 7) % 60).padStart(2, '0')}:00 +0000,${note},${amount},${category},${type}`);
+    const [note, amount, category, type] = sample[
+      i % sample.length
+    ] as (typeof sample)[number];
+    const day = String(1 + (i % 28)).padStart(2, "0");
+    const month = String(1 + (Math.floor(i / 28) % 12)).padStart(2, "0");
+    const hour = String(8 + (i % 12)).padStart(2, "0");
+    lines.push(
+      `2023-${month}-${day} ${hour}:${String((i * 7) % 60).padStart(2, "0")}:00 +0000,${note},${amount},${category},${type}`,
+    );
   }
-  return `${lines.join('\n')}\n`;
+  return `${lines.join("\n")}\n`;
 }

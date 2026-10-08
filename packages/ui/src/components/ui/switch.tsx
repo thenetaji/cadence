@@ -1,10 +1,15 @@
-import { Platform, Switch as RNSwitch, type SwitchProps } from 'react-native';
+import { Platform, Switch as RNSwitch, type SwitchProps } from "react-native";
 
-import { haptic , useTokens } from '@studio/theme';
+import { haptic, useTokens } from "@studio/theme";
 
-const webThumb: object = Platform.OS === 'web' ? { activeThumbColor: '#FFFFFF' } : {};
+const webThumb: object =
+  Platform.OS === "web" ? { activeThumbColor: "#FFFFFF" } : {};
 
-function Switch({ onValueChange, value, ...props }: Omit<SwitchProps, 'className'>) {
+function Switch({
+  onValueChange,
+  value,
+  ...props
+}: Omit<SwitchProps, "className">) {
   const { colors } = useTokens();
   return (
     <RNSwitch
@@ -15,7 +20,7 @@ function Switch({ onValueChange, value, ...props }: Omit<SwitchProps, 'className
       {...webThumb}
       ios_backgroundColor={colors.fill}
       onValueChange={(next) => {
-        haptic('selection');
+        haptic("selection");
         onValueChange?.(next);
       }}
       {...props}

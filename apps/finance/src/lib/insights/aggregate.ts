@@ -1,22 +1,42 @@
-import { addMonths, diffDays, listDays, makeKey, parseKey, type DateKey, type Period } from '@studio/dates';
-import { convertWithRates, type RateLookup } from '@studio/money';
-import type { FlatLine } from './types';
+import {
+  addMonths,
+  diffDays,
+  listDays,
+  makeKey,
+  parseKey,
+  type DateKey,
+  type Period,
+} from "@studio/dates";
+import { convertWithRates, type RateLookup } from "@studio/money";
+import type { FlatLine } from "./types";
 
 export interface ConversionContext {
   displayCurrency: string;
   rates: RateLookup;
 }
 
-const inRange = (line: FlatLine, from: DateKey, to: DateKey) => line.dateKey >= from && line.dateKey <= to;
+const inRange = (line: FlatLine, from: DateKey, to: DateKey) =>
+  line.dateKey >= from && line.dateKey <= to;
 
 export function convertLine(line: FlatLine, ctx: ConversionContext): number {
-  return convertWithRates(line.amount, line.currency, ctx.displayCurrency, ctx.rates);
+  return convertWithRates(
+    line.amount,
+    line.currency,
+    ctx.displayCurrency,
+    ctx.rates,
+  );
 }
 
-export function sumLines(lines: readonly FlatLine[], kind: FlatLine['kind'], period: Pick<Period, 'from' | 'to'>, ctx: ConversionContext): number {
+export function sumLines(
+  lines: readonly FlatLine[],
+  kind: FlatLine["kind"],
+  period: Pick<Period, "from" | "to">,
+  ctx: ConversionContext,
+): number {
   let total = 0;
   for (const line of lines) {
-    if (line.kind === kind && inRange(line, period.from, period.to)) total += convertLine(line, ctx);
+    if (line.kind === kind && inRange(line, period.from, period.to))
+      total += convertLine(line, ctx);
   }
   return total;
 }
@@ -30,8 +50,8 @@ export interface CategoryTotal {
 
 export function categoryTotals(
   lines: readonly FlatLine[],
-  kind: FlatLine['kind'],
-  period: Pick<Period, 'from' | 'to'>,
+  kind: FlatLine["kind"],
+  period: Pick<Period, "from" | "to">,
   ctx: ConversionContext,
 ): CategoryTotal[] {
   const sums = new Map<string | null, number>();
@@ -43,7 +63,11 @@ export function categoryTotals(
     total += amount;
   }
   return [...sums.entries()]
-    .map(([categoryId, amount]) => ({ categoryId, amount, percent: total === 0 ? 0 : Math.round((amount * 100) / total) }))
+    .map(([categoryId, amount]) => ({
+      categoryId,
+      amount,
+      percent: total === 0 ? 0 : Math.round((amount * 100) / total),
+    }))
     .sort((a, b) => b.amount - a.amount);
 }
 
@@ -52,7 +76,10 @@ export interface GroupedTotal extends CategoryTotal {
 }
 
 /** Top `limit` categories plus one "Other" bucket for the remainder. */
-export function groupTopCategories(totals: readonly CategoryTotal[], limit = 8): GroupedTotal[] {
+export function groupTopCategories(
+  totals: readonly CategoryTotal[],
+  limit = 8,
+): GroupedTotal[] {
   const head = totals.slice(0, limit).map((t) => ({ ...t, isOther: false }));
   const rest = totals.slice(limit);
   if (rest.length === 0) return head;
@@ -67,29 +94,37 @@ export interface SeriesPoint {
   amount: number;
 }
 
-export type Granularity = 'day' | 'month';
+export type Granularity = "day" | "month";
 
 export function granularityFor(period: Period): Granularity {
-  if (period.type === 'year') return 'month';
-  if (period.type === 'custom' && diffDays(period.from, period.to) + 1 > 92) return 'month';
-  return 'day';
+  if (period.type === "year") return "month";
+  if (period.type === "custom" && diffDays(period.from, period.to) + 1 > 92)
+    return "month";
+  return "day";
 }
 
 export function buildSeries(
   lines: readonly FlatLine[],
-  kind: FlatLine['kind'],
+  kind: FlatLine["kind"],
   period: Period,
   ctx: ConversionContext,
   options: { categoryId?: string | null; granularity?: Granularity } = {},
 ): SeriesPoint[] {
   const granularity = options.granularity ?? granularityFor(period);
-  const bucketOf = (key: DateKey) => (granularity === 'day' ? key : monthBucket(key));
+  const bucketOf = (key: DateKey) =>
+    granularity === "day" ? key : monthBucket(key);
   const keys: DateKey[] =
-    granularity === 'day' ? listDays(period.from, period.to) : monthBuckets(period.from, period.to);
+    granularity === "day"
+      ? listDays(period.from, period.to)
+      : monthBuckets(period.from, period.to);
   const sums = new Map<DateKey, number>(keys.map((k) => [k, 0]));
   for (const line of lines) {
     if (line.kind !== kind || !inRange(line, period.from, period.to)) continue;
-    if (options.categoryId !== undefined && line.categoryId !== options.categoryId) continue;
+    if (
+      options.categoryId !== undefined &&
+      line.categoryId !== options.categoryId
+    )
+      continue;
     const bucket = bucketOf(line.dateKey);
     sums.set(bucket, (sums.get(bucket) ?? 0) + convertLine(line, ctx));
   }
@@ -123,7 +158,10 @@ export interface Delta {
 export function deltaVsPrevious(current: number, previous: number): Delta {
   return {
     amount: current - previous,
-    percent: previous === 0 ? null : Math.round(((current - previous) * 100) / previous),
+    percent:
+      previous === 0
+        ? null
+        : Math.round(((current - previous) * 100) / previous),
   };
 }
 
@@ -137,7 +175,7 @@ export interface PacePoint {
 
 export function paceSeries(
   lines: readonly FlatLine[],
-  period: Pick<Period, 'from' | 'to'>,
+  period: Pick<Period, "from" | "to">,
   budget: number,
   todayKey: DateKey,
   ctx: ConversionContext,
@@ -146,8 +184,16 @@ export function paceSeries(
   const days = listDays(period.from, period.to);
   const perDay = new Map<DateKey, number>();
   for (const line of lines) {
-    if (line.kind !== 'expense' || !inRange(line, period.from, period.to) || !matches(line)) continue;
-    perDay.set(line.dateKey, (perDay.get(line.dateKey) ?? 0) + convertLine(line, ctx));
+    if (
+      line.kind !== "expense" ||
+      !inRange(line, period.from, period.to) ||
+      !matches(line)
+    )
+      continue;
+    perDay.set(
+      line.dateKey,
+      (perDay.get(line.dateKey) ?? 0) + convertLine(line, ctx),
+    );
   }
   let running = 0;
   return days.map((key, index) => {

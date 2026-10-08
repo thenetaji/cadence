@@ -1,8 +1,8 @@
-import { and, inArray, ne } from 'drizzle-orm';
+import { and, inArray, ne } from "drizzle-orm";
 
-import { transactions } from '@/db/schema';
-import type { Db } from '@/db/types';
-import { useLiveData } from '@/data/use-live-data';
+import { transactions } from "@/db/schema";
+import type { Db } from "@/db/types";
+import { useLiveData } from "@/data/use-live-data";
 
 export interface QuickAddCandidate {
   title: string;
@@ -17,7 +17,7 @@ export interface QuickAddEntry {
   categoryId: string | null;
   /** Account of the most recent use. */
   accountId: string;
-  kind: 'expense' | 'income';
+  kind: "expense" | "income";
   count: number;
   lastAt: number;
 }
@@ -26,16 +26,26 @@ export interface QuickAddEntry {
  * Pure ranking: group by (title, category), most used first, ties by most recent use, then title.
  * Blank titles, transfers and lending kinds are skipped. Kind and account come from the latest use.
  */
-export function rankQuickAdd(rows: readonly QuickAddCandidate[], limit: number): QuickAddEntry[] {
+export function rankQuickAdd(
+  rows: readonly QuickAddCandidate[],
+  limit: number,
+): QuickAddEntry[] {
   const groups = new Map<string, QuickAddEntry>();
   for (const row of rows) {
-    if (row.kind !== 'expense' && row.kind !== 'income') continue;
+    if (row.kind !== "expense" && row.kind !== "income") continue;
     const title = row.title.trim();
     if (!title) continue;
-    const key = `${title.toLowerCase()}\u0000${row.categoryId ?? ''}`;
+    const key = `${title.toLowerCase()}\u0000${row.categoryId ?? ""}`;
     const found = groups.get(key);
     if (!found) {
-      groups.set(key, { title, categoryId: row.categoryId, accountId: row.accountId, kind: row.kind, count: 1, lastAt: row.occurredAt });
+      groups.set(key, {
+        title,
+        categoryId: row.categoryId,
+        accountId: row.accountId,
+        kind: row.kind,
+        count: 1,
+        lastAt: row.occurredAt,
+      });
       continue;
     }
     found.count += 1;
@@ -47,7 +57,12 @@ export function rankQuickAdd(rows: readonly QuickAddCandidate[], limit: number):
     }
   }
   return [...groups.values()]
-    .sort((a, b) => b.count - a.count || b.lastAt - a.lastAt || a.title.localeCompare(b.title))
+    .sort(
+      (a, b) =>
+        b.count - a.count ||
+        b.lastAt - a.lastAt ||
+        a.title.localeCompare(b.title),
+    )
     .slice(0, Math.max(limit, 0));
 }
 
@@ -61,12 +76,19 @@ export function quickAdd(db: Db, limit: number): QuickAddEntry[] {
       occurredAt: transactions.occurredAt,
     })
     .from(transactions)
-    .where(and(inArray(transactions.kind, ['expense', 'income']), ne(transactions.title, '')))
+    .where(
+      and(
+        inArray(transactions.kind, ["expense", "income"]),
+        ne(transactions.title, ""),
+      ),
+    )
     .all();
   return rankQuickAdd(rows, limit);
 }
 
 /** Home quick-add chips: the most frequent title + category pairs across all transactions. */
 export function useQuickAdd(limit: number): QuickAddEntry[] {
-  return useLiveData(['transactions'], `quickadd:${limit}`, (db) => quickAdd(db, limit));
+  return useLiveData(["transactions"], `quickadd:${limit}`, (db) =>
+    quickAdd(db, limit),
+  );
 }

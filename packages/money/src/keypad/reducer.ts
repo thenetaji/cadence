@@ -1,12 +1,27 @@
-import { groupInteger, resolveNumberLocale } from '../locales';
+import { groupInteger, resolveNumberLocale } from "../locales";
 
 export const MAX_INTEGER_DIGITS = 12;
 
 export type KeypadKey =
-  | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-  | '00' | '.' | 'back' | 'clear' | '+' | '-' | '=';
+  | "0"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "00"
+  | "."
+  | "back"
+  | "clear"
+  | "+"
+  | "-"
+  | "=";
 
-type Operator = '+' | '-';
+type Operator = "+" | "-";
 
 interface Term {
   /** Operator that precedes this term in the expression. */
@@ -27,56 +42,76 @@ export interface KeypadState {
 const pow10 = (n: number) => 10 ** n;
 const maxMinor = (digits: number) => pow10(MAX_INTEGER_DIGITS + digits) - 1;
 
-export function createKeypadState(minorDigits: number, initialMinor = 0): KeypadState {
+export function createKeypadState(
+  minorDigits: number,
+  initialMinor = 0,
+): KeypadState {
   return entryFromMinor(
-    { minorDigits, terms: [], pendingOp: null, int: '', frac: '', dot: false },
+    { minorDigits, terms: [], pendingOp: null, int: "", frac: "", dot: false },
     initialMinor,
   );
 }
 
 function entryFromMinor(state: KeypadState, minor: number): KeypadState {
-  const value = Math.min(Math.max(Math.trunc(minor), 0), maxMinor(state.minorDigits));
-  if (value === 0) return { ...state, int: '', frac: '', dot: false };
+  const value = Math.min(
+    Math.max(Math.trunc(minor), 0),
+    maxMinor(state.minorDigits),
+  );
+  if (value === 0) return { ...state, int: "", frac: "", dot: false };
   const unit = pow10(state.minorDigits);
   const int = String(Math.floor(value / unit));
-  const frac = state.minorDigits > 0 ? String(value % unit).padStart(state.minorDigits, '0').replace(/0+$/, '') : '';
+  const frac =
+    state.minorDigits > 0
+      ? String(value % unit)
+          .padStart(state.minorDigits, "0")
+          .replace(/0+$/, "")
+      : "";
   return { ...state, int, frac, dot: frac.length > 0 };
 }
 
 function entryMinor(state: KeypadState): number {
-  const frac = state.frac.padEnd(state.minorDigits, '0');
-  return Number(`${state.int || '0'}${frac}`);
+  const frac = state.frac.padEnd(state.minorDigits, "0");
+  return Number(`${state.int || "0"}${frac}`);
 }
 
-const isEntryEmpty = (state: KeypadState) => state.int === '' && !state.dot;
+const isEntryEmpty = (state: KeypadState) => state.int === "" && !state.dot;
 
 function evaluate(state: KeypadState): number {
-  const sum = state.terms.reduce((acc, t) => (t.op === '+' ? acc + t.value : acc - t.value), 0);
+  const sum = state.terms.reduce(
+    (acc, t) => (t.op === "+" ? acc + t.value : acc - t.value),
+    0,
+  );
   if (isEntryEmpty(state) && state.pendingOp !== null) return sum;
-  const op = state.pendingOp ?? '+';
-  return op === '+' ? sum + entryMinor(state) : sum - entryMinor(state);
+  const op = state.pendingOp ?? "+";
+  return op === "+" ? sum + entryMinor(state) : sum - entryMinor(state);
 }
 
 function pressDigit(state: KeypadState, digit: string): KeypadState {
   if (state.dot) {
-    return state.frac.length < state.minorDigits ? { ...state, frac: state.frac + digit } : state;
+    return state.frac.length < state.minorDigits
+      ? { ...state, frac: state.frac + digit }
+      : state;
   }
-  if (state.int === '0' || state.int === '') {
-    return digit === '0' ? { ...state, int: '0' } : { ...state, int: digit };
+  if (state.int === "0" || state.int === "") {
+    return digit === "0" ? { ...state, int: "0" } : { ...state, int: digit };
   }
-  return state.int.length < MAX_INTEGER_DIGITS ? { ...state, int: state.int + digit } : state;
+  return state.int.length < MAX_INTEGER_DIGITS
+    ? { ...state, int: state.int + digit }
+    : state;
 }
 
 function pressDot(state: KeypadState): KeypadState {
   if (state.minorDigits === 0 || state.dot) return state;
-  return { ...state, dot: true, int: state.int === '' ? '0' : state.int };
+  return { ...state, dot: true, int: state.int === "" ? "0" : state.int };
 }
 
 function pressBack(state: KeypadState): KeypadState {
   if (state.dot) {
-    return state.frac.length > 0 ? { ...state, frac: state.frac.slice(0, -1) } : { ...state, dot: false };
+    return state.frac.length > 0
+      ? { ...state, frac: state.frac.slice(0, -1) }
+      : { ...state, dot: false };
   }
-  if (state.int !== '') return { ...state, int: state.int.slice(0, -1) };
+  if (state.int !== "") return { ...state, int: state.int.slice(0, -1) };
   const last = state.terms[state.terms.length - 1];
   if (state.pendingOp === null || !last) return state;
   const terms = state.terms.slice(0, -1);
@@ -88,8 +123,15 @@ function pressOperator(state: KeypadState, op: Operator): KeypadState {
   if (isEntryEmpty(state)) {
     return state.terms.length > 0 ? { ...state, pendingOp: op } : state;
   }
-  const term: Term = { op: state.pendingOp ?? '+', value: entryMinor(state) };
-  return { ...state, terms: [...state.terms, term], pendingOp: op, int: '', frac: '', dot: false };
+  const term: Term = { op: state.pendingOp ?? "+", value: entryMinor(state) };
+  return {
+    ...state,
+    terms: [...state.terms, term],
+    pendingOp: op,
+    int: "",
+    frac: "",
+    dot: false,
+  };
 }
 
 function pressEquals(state: KeypadState): KeypadState {
@@ -100,18 +142,18 @@ function pressEquals(state: KeypadState): KeypadState {
 
 export function keypadReducer(state: KeypadState, key: KeypadKey): KeypadState {
   switch (key) {
-    case '00':
-      return pressDigit(pressDigit(state, '0'), '0');
-    case '.':
+    case "00":
+      return pressDigit(pressDigit(state, "0"), "0");
+    case ".":
       return pressDot(state);
-    case 'back':
+    case "back":
       return pressBack(state);
-    case 'clear':
+    case "clear":
       return createKeypadState(state.minorDigits);
-    case '+':
-    case '-':
+    case "+":
+    case "-":
       return pressOperator(state, key);
-    case '=':
+    case "=":
       return pressEquals(state);
     default:
       return pressDigit(state, key);
@@ -131,30 +173,41 @@ export interface KeypadView {
   equalsIsSave: boolean;
 }
 
-function formatMinorPlain(minor: number, digits: number, locale: ReturnType<typeof resolveNumberLocale>): string {
+function formatMinorPlain(
+  minor: number,
+  digits: number,
+  locale: ReturnType<typeof resolveNumberLocale>,
+): string {
   const unit = pow10(digits);
   const int = groupInteger(String(Math.floor(Math.abs(minor) / unit)), locale);
   if (digits === 0) return int;
-  const frac = String(Math.abs(minor) % unit).padStart(digits, '0').replace(/0+$/, '');
+  const frac = String(Math.abs(minor) % unit)
+    .padStart(digits, "0")
+    .replace(/0+$/, "");
   return frac ? `${int}${locale.decimal}${frac}` : int;
 }
 
-export function deriveKeypad(state: KeypadState, localeTag?: string): KeypadView {
+export function deriveKeypad(
+  state: KeypadState,
+  localeTag?: string,
+): KeypadView {
   const locale = resolveNumberLocale(localeTag);
   const empty = isEntryEmpty(state);
   const display =
-    groupInteger(state.int === '' ? '0' : state.int, locale) +
-    (state.dot ? `${locale.decimal}${state.frac}` : '');
-  const operator = (op: Operator) => (op === '+' ? '+' : '−');
+    groupInteger(state.int === "" ? "0" : state.int, locale) +
+    (state.dot ? `${locale.decimal}${state.frac}` : "");
+  const operator = (op: Operator) => (op === "+" ? "+" : "−");
   const parts = state.terms.map((t, i) =>
-    i === 0 ? formatMinorPlain(t.value, state.minorDigits, locale) : `${operator(t.op)} ${formatMinorPlain(t.value, state.minorDigits, locale)}`,
+    i === 0
+      ? formatMinorPlain(t.value, state.minorDigits, locale)
+      : `${operator(t.op)} ${formatMinorPlain(t.value, state.minorDigits, locale)}`,
   );
   if (state.pendingOp !== null) parts.push(operator(state.pendingOp));
   const total = Math.min(evaluate(state), maxMinor(state.minorDigits));
   return {
     display,
     isEmpty: empty,
-    expression: parts.join(' '),
+    expression: parts.join(" "),
     total,
     canSave: total > 0,
     equalsIsSave: state.pendingOp === null,

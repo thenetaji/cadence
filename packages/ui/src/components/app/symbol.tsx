@@ -1,4 +1,4 @@
-import { AppIcon } from '@studio/icons';
+import { AppIcon } from "@studio/icons";
 
 type SymbolIconProps = {
   name: string;
@@ -9,8 +9,20 @@ type SymbolIconProps = {
 };
 
 /** Compatibility wrapper: draws the user's chosen icon style. New code should use `AppIcon` from `@/icons`. */
-function SymbolIcon({ name, size = 20, color, accessibilityLabel }: SymbolIconProps) {
-  return <AppIcon name={name} size={size} color={color} accessibilityLabel={accessibilityLabel} />;
+function SymbolIcon({
+  name,
+  size = 20,
+  color,
+  accessibilityLabel,
+}: SymbolIconProps) {
+  return (
+    <AppIcon
+      name={name}
+      size={size}
+      color={color}
+      accessibilityLabel={accessibilityLabel}
+    />
+  );
 }
 
 export { SymbolIcon };

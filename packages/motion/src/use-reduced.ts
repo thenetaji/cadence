@@ -1,1 +1,1 @@
-export { useReducedMotion } from 'react-native-reanimated';
+export { useReducedMotion } from "react-native-reanimated";

@@ -1,8 +1,8 @@
-import { listCategories } from '@/db/repos/categories';
-import { spendLines } from '@/db/repos/reports';
-import type { CategoryRow } from '@/db/schema';
-import type { Db } from '@/db/types';
-import { previousPeriod, type DateKey, type Period } from '@studio/dates';
+import { listCategories } from "@/db/repos/categories";
+import { spendLines } from "@/db/repos/reports";
+import type { CategoryRow } from "@/db/schema";
+import type { Db } from "@/db/types";
+import { previousPeriod, type DateKey, type Period } from "@studio/dates";
 import {
   averageOf,
   buildSeries,
@@ -16,8 +16,8 @@ import {
   type Granularity,
   type GroupedTotal,
   type SeriesPoint,
-} from '@/lib/insights';
-import { conversionContext } from './summary';
+} from "@/lib/insights";
+import { conversionContext } from "./summary";
 
 export interface InsightCategory extends CategoryTotal {
   category: CategoryRow | null;
@@ -29,7 +29,7 @@ export interface InsightGroup extends GroupedTotal {
 
 export interface Insights {
   currency: string;
-  kind: 'expense' | 'income';
+  kind: "expense" | "income";
   total: number;
   previousTotal: number;
   delta: Delta;
@@ -42,12 +42,22 @@ export interface Insights {
   average: number;
 }
 
-export function readInsights(db: Db, period: Period, kind: 'expense' | 'income', todayKey?: DateKey): Insights {
+export function readInsights(
+  db: Db,
+  period: Period,
+  kind: "expense" | "income",
+  todayKey?: DateKey,
+): Insights {
   const ctx = conversionContext(db);
   const previous = previousPeriod(period);
   const lines = spendLines(db, { from: previous.from, to: period.to });
-  const byId = new Map(listCategories(db, kind, { includeArchived: true }).map((c) => [c.id, c]));
-  const attach = <T extends CategoryTotal>(row: T) => ({ ...row, category: row.categoryId ? (byId.get(row.categoryId) ?? null) : null });
+  const byId = new Map(
+    listCategories(db, kind, { includeArchived: true }).map((c) => [c.id, c]),
+  );
+  const attach = <T extends CategoryTotal>(row: T) => ({
+    ...row,
+    category: row.categoryId ? (byId.get(row.categoryId) ?? null) : null,
+  });
 
   const totals = categoryTotals(lines, kind, period, ctx);
   const series = buildSeries(lines, kind, period, ctx);
@@ -64,6 +74,13 @@ export function readInsights(db: Db, period: Period, kind: 'expense' | 'income',
     series,
     granularity: granularityFor(period),
     // Days that have not happened yet would only drag the daily average down.
-    average: averageOf(granularityFor(period) === 'day' && todayKey && todayKey >= period.from && todayKey < period.to ? series.filter((p) => p.key <= todayKey) : series),
+    average: averageOf(
+      granularityFor(period) === "day" &&
+        todayKey &&
+        todayKey >= period.from &&
+        todayKey < period.to
+        ? series.filter((p) => p.key <= todayKey)
+        : series,
+    ),
   };
 }

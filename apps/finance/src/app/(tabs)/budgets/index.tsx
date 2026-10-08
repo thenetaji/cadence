@@ -1,3 +1,3 @@
-import { BudgetsScreen } from '@/features/budgets/budgets-screen';
+import { BudgetsScreen } from "@/features/budgets/budgets-screen";
 
 export default BudgetsScreen;

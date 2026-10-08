@@ -1,19 +1,19 @@
-import { ScrollView } from 'react-native';
+import { ScrollView } from "react-native";
 
-import { Chip , Pressable , Text } from '@studio/ui';
-import { useAccounts, useCategories } from '@/data/hooks';
-import type { TransactionKind } from '@/db/schema';
+import { Chip, Pressable, Text } from "@studio/ui";
+import { useAccounts, useCategories } from "@/data/hooks";
+import type { TransactionKind } from "@/db/schema";
 
-import { useActivityFilters } from './filter-store';
+import { useActivityFilters } from "./filter-store";
 
 const KIND_LABEL: Record<TransactionKind, string> = {
-  expense: 'Expense',
-  income: 'Income',
-  transfer: 'Transfer',
-  lent: 'Lent',
-  borrowed: 'Borrowed',
-  repaid_to_me: 'Repaid to me',
-  repaid_by_me: 'Repaid by me',
+  expense: "Expense",
+  income: "Income",
+  transfer: "Transfer",
+  lent: "Lent",
+  borrowed: "Borrowed",
+  repaid_to_me: "Repaid to me",
+  repaid_by_me: "Repaid by me",
 };
 
 /** Active filters as removable chips plus Clear. Renders nothing when no filter is set. */
@@ -28,18 +28,53 @@ function FilterChips() {
   const categories = useCategories();
   const accounts = useAccounts({ includeArchived: true });
 
-  const category = categoryId ? categories.find((c) => c.id === categoryId) : undefined;
-  const account = accountId ? accounts.find((a) => a.id === accountId) : undefined;
+  const category = categoryId
+    ? categories.find((c) => c.id === categoryId)
+    : undefined;
+  const account = accountId
+    ? accounts.find((a) => a.id === accountId)
+    : undefined;
   if (kinds.length === 0 && !category && !account) return null;
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="items-center gap-2 px-4 py-1" keyboardShouldPersistTaps="handled">
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerClassName="items-center gap-2 px-4 py-1"
+      keyboardShouldPersistTaps="handled"
+    >
       {kinds.map((kind) => (
-        <Chip key={kind} label={KIND_LABEL[kind]} selected onPress={() => toggleKind(kind)} />
+        <Chip
+          key={kind}
+          label={KIND_LABEL[kind]}
+          selected
+          onPress={() => toggleKind(kind)}
+        />
       ))}
-      {category ? <Chip label={category.name} icon={category.icon} selected onPress={() => setCategory(null)} /> : null}
-      {account ? <Chip label={account.name} icon={account.icon} selected onPress={() => setAccount(null)} /> : null}
-      <Pressable role="button" scale={1} dimTo={0.6} onPress={clear} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} className="h-8 justify-center px-2">
+      {category ? (
+        <Chip
+          label={category.name}
+          icon={category.icon}
+          selected
+          onPress={() => setCategory(null)}
+        />
+      ) : null}
+      {account ? (
+        <Chip
+          label={account.name}
+          icon={account.icon}
+          selected
+          onPress={() => setAccount(null)}
+        />
+      ) : null}
+      <Pressable
+        role="button"
+        scale={1}
+        dimTo={0.6}
+        onPress={clear}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        className="h-8 justify-center px-2"
+      >
         <Text variant="callout" tone="accent">
           Clear
         </Text>

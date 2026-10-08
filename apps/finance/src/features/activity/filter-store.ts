@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import type { TransactionKind } from '@/db/schema';
+import type { TransactionKind } from "@/db/schema";
 
 type ActivityFilterState = {
   kinds: TransactionKind[];
@@ -20,16 +20,30 @@ export const useActivityFilters = create<ActivityFilterState>((set) => ({
   kinds: [],
   categoryId: null,
   accountId: null,
-  period: { from: '0000-01-01', to: '9999-12-31' },
-  setPeriod: (period) => set((s) => (s.period.from === period.from && s.period.to === period.to ? s : { period })),
-  toggleKind: (kind) => set((s) => ({ kinds: s.kinds.includes(kind) ? s.kinds.filter((k) => k !== kind) : [...s.kinds, kind] })),
+  period: { from: "0000-01-01", to: "9999-12-31" },
+  setPeriod: (period) =>
+    set((s) =>
+      s.period.from === period.from && s.period.to === period.to
+        ? s
+        : { period },
+    ),
+  toggleKind: (kind) =>
+    set((s) => ({
+      kinds: s.kinds.includes(kind)
+        ? s.kinds.filter((k) => k !== kind)
+        : [...s.kinds, kind],
+    })),
   setCategory: (categoryId) => set({ categoryId }),
   setAccount: (accountId) => set({ accountId }),
   clear: () => set({ kinds: [], categoryId: null, accountId: null }),
 }));
 
-export function activeFilterCount(state: Pick<ActivityFilterState, 'kinds' | 'categoryId' | 'accountId'>): number {
-  return state.kinds.length + (state.categoryId ? 1 : 0) + (state.accountId ? 1 : 0);
+export function activeFilterCount(
+  state: Pick<ActivityFilterState, "kinds" | "categoryId" | "accountId">,
+): number {
+  return (
+    state.kinds.length + (state.categoryId ? 1 : 0) + (state.accountId ? 1 : 0)
+  );
 }
 
 export function useActiveFilterCount(): number {

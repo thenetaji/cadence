@@ -1,8 +1,12 @@
-import { count } from 'drizzle-orm';
-import { newId } from '@studio/data';
-import { categories, type NewCategory } from './schema';
-import type { Db } from './types';
-import { getSetting, insertMissingDefaults, setSetting } from './repos/settings';
+import { count } from "drizzle-orm";
+import { newId } from "@studio/data";
+import { categories, type NewCategory } from "./schema";
+import type { Db } from "./types";
+import {
+  getSetting,
+  insertMissingDefaults,
+  setSetting,
+} from "./repos/settings";
 
 interface SeedCategory {
   name: string;
@@ -11,46 +15,59 @@ interface SeedCategory {
 }
 
 export const EXPENSE_CATEGORIES: readonly SeedCategory[] = [
-  { name: 'Food & Drink', icon: 'fork.knife', color: 'red' },
-  { name: 'Groceries', icon: 'cart.fill', color: 'green' },
-  { name: 'Transport', icon: 'car.fill', color: 'blue' },
-  { name: 'Shopping', icon: 'bag.fill', color: 'pink' },
-  { name: 'Housing', icon: 'house.fill', color: 'brown' },
-  { name: 'Bills', icon: 'bolt.fill', color: 'amber' },
-  { name: 'Subscriptions', icon: 'arrow.triangle.2.circlepath', color: 'indigo' },
-  { name: 'Health', icon: 'cross.case.fill', color: 'teal' },
-  { name: 'Entertainment', icon: 'play.rectangle.fill', color: 'purple' },
-  { name: 'Travel', icon: 'airplane', color: 'cyan' },
-  { name: 'Education', icon: 'book.fill', color: 'orange' },
-  { name: 'Personal', icon: 'sparkles', color: 'lime' },
-  { name: 'Other', icon: 'ellipsis.circle.fill', color: 'gray' },
+  { name: "Food & Drink", icon: "fork.knife", color: "red" },
+  { name: "Groceries", icon: "cart.fill", color: "green" },
+  { name: "Transport", icon: "car.fill", color: "blue" },
+  { name: "Shopping", icon: "bag.fill", color: "pink" },
+  { name: "Housing", icon: "house.fill", color: "brown" },
+  { name: "Bills", icon: "bolt.fill", color: "amber" },
+  {
+    name: "Subscriptions",
+    icon: "arrow.triangle.2.circlepath",
+    color: "indigo",
+  },
+  { name: "Health", icon: "cross.case.fill", color: "teal" },
+  { name: "Entertainment", icon: "play.rectangle.fill", color: "purple" },
+  { name: "Travel", icon: "airplane", color: "cyan" },
+  { name: "Education", icon: "book.fill", color: "orange" },
+  { name: "Personal", icon: "sparkles", color: "lime" },
+  { name: "Other", icon: "ellipsis.circle.fill", color: "gray" },
 ];
 
 export const INCOME_CATEGORIES: readonly SeedCategory[] = [
-  { name: 'Salary', icon: 'banknote.fill', color: 'green' },
-  { name: 'Freelance', icon: 'laptopcomputer', color: 'blue' },
-  { name: 'Investments', icon: 'chart.line.uptrend.xyaxis', color: 'teal' },
-  { name: 'Refunds', icon: 'arrow.uturn.backward.circle.fill', color: 'cyan' },
-  { name: 'Gifts', icon: 'gift.fill', color: 'pink' },
-  { name: 'Other income', icon: 'plus.circle.fill', color: 'gray' },
+  { name: "Salary", icon: "banknote.fill", color: "green" },
+  { name: "Freelance", icon: "laptopcomputer", color: "blue" },
+  { name: "Investments", icon: "chart.line.uptrend.xyaxis", color: "teal" },
+  { name: "Refunds", icon: "arrow.uturn.backward.circle.fill", color: "cyan" },
+  { name: "Gifts", icon: "gift.fill", color: "pink" },
+  { name: "Other income", icon: "plus.circle.fill", color: "gray" },
 ];
 
 /** Idempotent: categories are inserted once (guarded by `schema_seeded`), missing settings are filled in. */
 export function seedDefaults(db: Db, now = Date.now()): void {
   db.transaction((tx) => {
     insertMissingDefaults(tx);
-    if (getSetting(tx, 'schema_seeded')) return;
+    if (getSetting(tx, "schema_seeded")) return;
     const existing = tx.select({ n: count() }).from(categories).get()?.n ?? 0;
     if (existing === 0) tx.insert(categories).values(seedRows(now)).run();
-    setSetting(tx, 'schema_seeded', true);
+    setSetting(tx, "schema_seeded", true);
   });
 }
 
 function seedRows(now: number): NewCategory[] {
   const rows: NewCategory[] = [];
-  const add = (kind: 'expense' | 'income', list: readonly SeedCategory[]) =>
-    list.forEach((c, sortOrder) => rows.push({ id: newId(), kind, sortOrder, createdAt: now, updatedAt: now, ...c }));
-  add('expense', EXPENSE_CATEGORIES);
-  add('income', INCOME_CATEGORIES);
+  const add = (kind: "expense" | "income", list: readonly SeedCategory[]) =>
+    list.forEach((c, sortOrder) =>
+      rows.push({
+        id: newId(),
+        kind,
+        sortOrder,
+        createdAt: now,
+        updatedAt: now,
+        ...c,
+      }),
+    );
+  add("expense", EXPENSE_CATEGORIES);
+  add("income", INCOME_CATEGORIES);
   return rows;
 }

@@ -1,14 +1,23 @@
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
-import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  type SharedValue,
+} from "react-native-reanimated";
 
-import { Amount , IconTile , Pressable , Text } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import { haptic , useTokens } from '@studio/theme';
-import { pressScale, type CategoryColorKey } from '@studio/theme';
+import { Amount, IconTile, Pressable, Text } from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import { haptic, useTokens } from "@studio/theme";
+import { pressScale, type CategoryColorKey } from "@studio/theme";
 
-type TransactionKind = import('@/lib/ledger').TransactionKind;
+type TransactionKind = import("@/lib/ledger").TransactionKind;
 
 type TransactionRowProps = {
   kind: TransactionKind;
@@ -34,40 +43,84 @@ type TransactionRowProps = {
   leftAction?: SwipeAction;
 };
 
-type SwipeAction = { label: string; symbol: string; tone?: 'accent' | 'destructive' | 'neutral'; onTrigger: () => void };
+type SwipeAction = {
+  label: string;
+  symbol: string;
+  tone?: "accent" | "destructive" | "neutral";
+  onTrigger: () => void;
+};
 
 const ACTION_WIDTH = 72;
 const FULL_SWIPE = 200;
-const tick = () => haptic('selection');
+const tick = () => haptic("selection");
 
 type DeleteActionProps = {
   translation: SharedValue<number>;
   onFull: () => void;
   label?: string;
   symbol?: string;
-  tone?: NonNullable<SwipeAction['tone']>;
+  tone?: NonNullable<SwipeAction["tone"]>;
 };
 
-function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.fill', tone = 'destructive' }: DeleteActionProps) {
+function DeleteAction({
+  translation,
+  onFull,
+  label = "Delete",
+  symbol = "trash.fill",
+  tone = "destructive",
+}: DeleteActionProps) {
   const { colors } = useTokens();
-  const background = tone === 'destructive' ? colors.expense : tone === 'accent' ? colors.accent : colors.textSecondary;
-  const fg = tone === 'accent' ? colors.onAccent : '#FFFFFF';
+  const background =
+    tone === "destructive"
+      ? colors.expense
+      : tone === "accent"
+        ? colors.accent
+        : colors.textSecondary;
+  const fg = tone === "accent" ? colors.onAccent : "#FFFFFF";
   useAnimatedReaction(
     () => translation.value,
     (value, previous) => {
-      if (value < -FULL_SWIPE && (previous ?? 0) >= -FULL_SWIPE) runOnJS(onFull)();
+      if (value < -FULL_SWIPE && (previous ?? 0) >= -FULL_SWIPE)
+        runOnJS(onFull)();
       // Light tick the moment the action is fully revealed.
-      else if (value < -ACTION_WIDTH && (previous ?? 0) >= -ACTION_WIDTH) runOnJS(tick)();
+      else if (value < -ACTION_WIDTH && (previous ?? 0) >= -ACTION_WIDTH)
+        runOnJS(tick)();
     },
   );
   const iconStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(-translation.value, [0, ACTION_WIDTH * 0.5], [0, 1], Extrapolation.CLAMP),
-    transform: [{ scale: interpolate(-translation.value, [0, ACTION_WIDTH, FULL_SWIPE], [0.4, 1, 1.25], Extrapolation.CLAMP) }],
+    opacity: interpolate(
+      -translation.value,
+      [0, ACTION_WIDTH * 0.5],
+      [0, 1],
+      Extrapolation.CLAMP,
+    ),
+    transform: [
+      {
+        scale: interpolate(
+          -translation.value,
+          [0, ACTION_WIDTH, FULL_SWIPE],
+          [0.4, 1, 1.25],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
   }));
-  const style = useAnimatedStyle(() => ({ width: Math.max(ACTION_WIDTH, -translation.value) }));
+  const style = useAnimatedStyle(() => ({
+    width: Math.max(ACTION_WIDTH, -translation.value),
+  }));
   return (
-    <Pressable role="button" accessibilityLabel={label} scale={1} onPress={onFull} className="flex-row justify-end" style={{ width: ACTION_WIDTH }}>
-      <Animated.View style={[{ backgroundColor: background, minWidth: ACTION_WIDTH }, style]} className="items-center justify-center gap-1">
+    <Pressable
+      role="button"
+      accessibilityLabel={label}
+      scale={1}
+      onPress={onFull}
+      className="flex-row justify-end"
+      style={{ width: ACTION_WIDTH }}
+    >
+      <Animated.View
+        style={[{ backgroundColor: background, minWidth: ACTION_WIDTH }, style]}
+        className="items-center justify-center gap-1"
+      >
         <Animated.View style={iconStyle}>
           <AppIcon name={symbol} size={18} color={fg} />
         </Animated.View>
@@ -79,22 +132,55 @@ function DeleteAction({ translation, onFull, label = 'Delete', symbol = 'trash.f
   );
 }
 
-function DuplicateAction({ translation, label = 'Duplicate', symbol = 'doc.on.doc', tone = 'accent' }: { translation: SharedValue<number>; label?: string; symbol?: string; tone?: NonNullable<SwipeAction['tone']> }) {
+function DuplicateAction({
+  translation,
+  label = "Duplicate",
+  symbol = "doc.on.doc",
+  tone = "accent",
+}: {
+  translation: SharedValue<number>;
+  label?: string;
+  symbol?: string;
+  tone?: NonNullable<SwipeAction["tone"]>;
+}) {
   const { colors } = useTokens();
   const iconStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translation.value, [0, ACTION_WIDTH * 0.5], [0, 1], Extrapolation.CLAMP),
-    transform: [{ scale: interpolate(translation.value, [0, ACTION_WIDTH], [0.4, 1], Extrapolation.CLAMP) }],
+    opacity: interpolate(
+      translation.value,
+      [0, ACTION_WIDTH * 0.5],
+      [0, 1],
+      Extrapolation.CLAMP,
+    ),
+    transform: [
+      {
+        scale: interpolate(
+          translation.value,
+          [0, ACTION_WIDTH],
+          [0.4, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
   }));
   useAnimatedReaction(
     () => translation.value,
     (value, previous) => {
-      if (value > ACTION_WIDTH && (previous ?? 0) <= ACTION_WIDTH) runOnJS(tick)();
+      if (value > ACTION_WIDTH && (previous ?? 0) <= ACTION_WIDTH)
+        runOnJS(tick)();
     },
   );
-  const background = tone === 'destructive' ? colors.expense : tone === 'neutral' ? colors.textSecondary : colors.accent;
-  const fg = tone === 'accent' ? colors.onAccent : '#FFFFFF';
+  const background =
+    tone === "destructive"
+      ? colors.expense
+      : tone === "neutral"
+        ? colors.textSecondary
+        : colors.accent;
+  const fg = tone === "accent" ? colors.onAccent : "#FFFFFF";
   return (
-    <View style={{ width: ACTION_WIDTH, backgroundColor: background }} className="items-center justify-center gap-1">
+    <View
+      style={{ width: ACTION_WIDTH, backgroundColor: background }}
+      className="items-center justify-center gap-1"
+    >
       <Animated.View style={iconStyle}>
         <AppIcon name={symbol} size={18} color={fg} />
       </Animated.View>
@@ -126,21 +212,32 @@ function TransactionRow({
 }: TransactionRowProps) {
   const { colors, category } = useTokens();
   const swipeRef = React.useRef<SwipeableMethods>(null);
-  const tone = kind === 'income' || kind === 'borrowed' || kind === 'repaid_to_me' ? 'income' : kind === 'transfer' ? 'secondary' : 'default';
-  const label = accessibilityLabel ?? [title, subtitle, amount, trailing].filter(Boolean).join(', ');
+  const tone =
+    kind === "income" || kind === "borrowed" || kind === "repaid_to_me"
+      ? "income"
+      : kind === "transfer"
+        ? "secondary"
+        : "default";
+  const label =
+    accessibilityLabel ??
+    [title, subtitle, amount, trailing].filter(Boolean).join(", ");
   const triggerRight = rightAction?.onTrigger ?? onDelete;
   const triggerLeft = leftAction?.onTrigger ?? onDuplicate;
 
   const handleFullDelete = React.useCallback(() => {
-    haptic('medium');
+    haptic("medium");
     swipeRef.current?.close();
     triggerRight?.();
   }, [triggerRight]);
 
   const actions = [
-    ...(triggerRight ? [{ name: 'delete', label: rightAction?.label ?? 'Delete' }] : []),
-    ...(triggerLeft ? [{ name: 'duplicate', label: leftAction?.label ?? 'Duplicate' }] : []),
-    ...(onLongPress ? [{ name: 'longpress', label: 'More' }] : []),
+    ...(triggerRight
+      ? [{ name: "delete", label: rightAction?.label ?? "Delete" }]
+      : []),
+    ...(triggerLeft
+      ? [{ name: "duplicate", label: leftAction?.label ?? "Duplicate" }]
+      : []),
+    ...(onLongPress ? [{ name: "longpress", label: "More" }] : []),
   ];
 
   return (
@@ -163,10 +260,21 @@ function TransactionRow({
             )
           : undefined
       }
-      renderLeftActions={triggerLeft ? (_progress, translation) => <DuplicateAction translation={translation} label={leftAction?.label} symbol={leftAction?.symbol} tone={leftAction?.tone} /> : undefined}
+      renderLeftActions={
+        triggerLeft
+          ? (_progress, translation) => (
+              <DuplicateAction
+                translation={translation}
+                label={leftAction?.label}
+                symbol={leftAction?.symbol}
+                tone={leftAction?.tone}
+              />
+            )
+          : undefined
+      }
       onSwipeableOpen={(direction) => {
         // `direction` is the swipe direction: swiping right opens the left (Duplicate) panel.
-        if (direction === 'right') {
+        if (direction === "right") {
           swipeRef.current?.close();
           triggerLeft?.();
         }
@@ -179,9 +287,9 @@ function TransactionRow({
         accessibilityActions={actions}
         onAccessibilityAction={(event) => {
           const name = event.nativeEvent.actionName;
-          if (name === 'delete') triggerRight?.();
-          else if (name === 'duplicate') triggerLeft?.();
-          else if (name === 'longpress') onLongPress?.();
+          if (name === "delete") triggerRight?.();
+          else if (name === "duplicate") triggerLeft?.();
+          else if (name === "longpress") onLongPress?.();
         }}
         onPress={onPress}
         onLongPress={onLongPress}
@@ -194,15 +302,34 @@ function TransactionRow({
             {title}
           </Text>
           <View className="flex-row items-center">
-            <Text variant="subhead" tone="secondary" numberOfLines={1} ellipsizeMode="tail" className="shrink">
+            <Text
+              variant="subhead"
+              tone="secondary"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              className="shrink"
+            >
               {subtitle}
             </Text>
             {badges && (badges.tags.length > 0 || badges.receipts > 0) ? (
-              <View className="ml-2 flex-row items-center gap-1" accessibilityElementsHidden>
+              <View
+                className="ml-2 flex-row items-center gap-1"
+                accessibilityElementsHidden
+              >
                 {badges.tags.map((key, i) => (
-                  <View key={`${key}-${i}`} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: category[key] }} />
+                  <View
+                    key={`${key}-${i}`}
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: category[key],
+                    }}
+                  />
                 ))}
-                {badges.receipts > 0 ? <AppIcon name="photo" size={11} color={colors.textTertiary} /> : null}
+                {badges.receipts > 0 ? (
+                  <AppIcon name="photo" size={11} color={colors.textTertiary} />
+                ) : null}
               </View>
             ) : null}
           </View>
@@ -218,7 +345,11 @@ function TransactionRow({
         {separator ? (
           <View
             pointerEvents="none"
-            style={{ left: 64, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }}
+            style={{
+              left: 64,
+              height: StyleSheet.hairlineWidth,
+              backgroundColor: colors.separator,
+            }}
             className="absolute bottom-0 right-0"
           />
         ) : null}

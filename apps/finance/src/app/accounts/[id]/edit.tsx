@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from "expo-router";
 
-import { AccountForm } from '@/features/accounts/form';
+import { AccountForm } from "@/features/accounts/form";
 
 export default function EditAccount() {
   const { id } = useLocalSearchParams<{ id: string }>();

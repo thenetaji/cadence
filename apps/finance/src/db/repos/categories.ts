@@ -1,6 +1,6 @@
-import { and, asc, eq, isNull, sql } from 'drizzle-orm';
-import { ValidationError } from '../errors';
-import { newId } from '@studio/data';
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { ValidationError } from "../errors";
+import { newId } from "@studio/data";
 import {
   budgetCategories,
   categories,
@@ -10,8 +10,8 @@ import {
   transactions,
   type CategoryKind,
   type CategoryRow,
-} from '../schema';
-import type { Db } from '../types';
+} from "../schema";
+import type { Db } from "../types";
 
 export interface CategoryInput {
   name: string;
@@ -20,13 +20,17 @@ export interface CategoryInput {
   color: string;
 }
 
-export type CategoryPatch = Partial<Omit<CategoryInput, 'kind'>>;
+export type CategoryPatch = Partial<Omit<CategoryInput, "kind">>;
 
 export function getCategory(db: Db, id: string): CategoryRow | undefined {
   return db.select().from(categories).where(eq(categories.id, id)).get();
 }
 
-export function listCategories(db: Db, kind?: CategoryKind, options: { includeArchived?: boolean } = {}): CategoryRow[] {
+export function listCategories(
+  db: Db,
+  kind?: CategoryKind,
+  options: { includeArchived?: boolean } = {},
+): CategoryRow[] {
   const conditions = [
     kind ? eq(categories.kind, kind) : undefined,
     options.includeArchived ? undefined : isNull(categories.archivedAt),
@@ -35,11 +39,19 @@ export function listCategories(db: Db, kind?: CategoryKind, options: { includeAr
     .select()
     .from(categories)
     .where(and(...conditions))
-    .orderBy(asc(categories.kind), asc(categories.sortOrder), asc(categories.createdAt))
+    .orderBy(
+      asc(categories.kind),
+      asc(categories.sortOrder),
+      asc(categories.createdAt),
+    )
     .all();
 }
 
-export function createCategory(db: Db, input: CategoryInput, now = Date.now()): CategoryRow {
+export function createCategory(
+  db: Db,
+  input: CategoryInput,
+  now = Date.now(),
+): CategoryRow {
   const max = db
     .select({ max: sql<number | null>`max(${categories.sortOrder})` })
     .from(categories)
@@ -60,8 +72,13 @@ export function createCategory(db: Db, input: CategoryInput, now = Date.now()): 
   return row;
 }
 
-export function updateCategory(db: Db, id: string, patch: CategoryPatch, now = Date.now()): void {
-  if (!getCategory(db, id)) throw new ValidationError('category_not_found');
+export function updateCategory(
+  db: Db,
+  id: string,
+  patch: CategoryPatch,
+  now = Date.now(),
+): void {
+  if (!getCategory(db, id)) throw new ValidationError("category_not_found");
   db.update(categories)
     .set({
       ...(patch.name !== undefined && { name: patch.name.trim() }),
@@ -76,35 +93,64 @@ export function updateCategory(db: Db, id: string, patch: CategoryPatch, now = D
 export function reorderCategories(db: Db, orderedIds: readonly string[]): void {
   db.transaction((tx) => {
     orderedIds.forEach((id, index) => {
-      tx.update(categories).set({ sortOrder: index }).where(eq(categories.id, id)).run();
+      tx.update(categories)
+        .set({ sortOrder: index })
+        .where(eq(categories.id, id))
+        .run();
     });
   });
 }
 
 export function archiveCategory(db: Db, id: string, now = Date.now()): void {
-  db.update(categories).set({ archivedAt: now, updatedAt: now }).where(eq(categories.id, id)).run();
+  db.update(categories)
+    .set({ archivedAt: now, updatedAt: now })
+    .where(eq(categories.id, id))
+    .run();
 }
 
 /** Reassigns every reference (transactions, splits, rules, title memory, budgets) to `targetId`, then deletes. */
 export function deleteCategory(db: Db, id: string, targetId: string): void {
   db.transaction((tx) => {
     const category = getCategory(tx, id);
-    if (!category) throw new ValidationError('category_not_found');
-    if (!targetId || targetId === id) throw new ValidationError('target_required');
+    if (!category) throw new ValidationError("category_not_found");
+    if (!targetId || targetId === id)
+      throw new ValidationError("target_required");
     const target = getCategory(tx, targetId);
-    if (!target) throw new ValidationError('category_not_found');
-    if (target.kind !== category.kind) throw new ValidationError('target_kind_mismatch');
+    if (!target) throw new ValidationError("category_not_found");
+    if (target.kind !== category.kind)
+      throw new ValidationError("target_kind_mismatch");
 
-    tx.update(transactions).set({ categoryId: targetId }).where(eq(transactions.categoryId, id)).run();
-    tx.update(transactionSplits).set({ categoryId: targetId }).where(eq(transactionSplits.categoryId, id)).run();
-    tx.update(recurringRules).set({ categoryId: targetId }).where(eq(recurringRules.categoryId, id)).run();
-    tx.update(titleMemory).set({ categoryId: targetId }).where(eq(titleMemory.categoryId, id)).run();
+    tx.update(transactions)
+      .set({ categoryId: targetId })
+      .where(eq(transactions.categoryId, id))
+      .run();
+    tx.update(transactionSplits)
+      .set({ categoryId: targetId })
+      .where(eq(transactionSplits.categoryId, id))
+      .run();
+    tx.update(recurringRules)
+      .set({ categoryId: targetId })
+      .where(eq(recurringRules.categoryId, id))
+      .run();
+    tx.update(titleMemory)
+      .set({ categoryId: targetId })
+      .where(eq(titleMemory.categoryId, id))
+      .run();
 
-    const scoped = tx.select().from(budgetCategories).where(eq(budgetCategories.categoryId, id)).all();
+    const scoped = tx
+      .select()
+      .from(budgetCategories)
+      .where(eq(budgetCategories.categoryId, id))
+      .all();
     for (const link of scoped) {
-      tx.insert(budgetCategories).values({ budgetId: link.budgetId, categoryId: targetId }).onConflictDoNothing().run();
+      tx.insert(budgetCategories)
+        .values({ budgetId: link.budgetId, categoryId: targetId })
+        .onConflictDoNothing()
+        .run();
     }
-    tx.delete(budgetCategories).where(eq(budgetCategories.categoryId, id)).run();
+    tx.delete(budgetCategories)
+      .where(eq(budgetCategories.categoryId, id))
+      .run();
     tx.delete(categories).where(eq(categories.id, id)).run();
   });
 }

@@ -1,22 +1,26 @@
-import { useRouter } from 'expo-router';
-import * as React from 'react';
-import { View } from 'react-native';
+import { useRouter } from "expo-router";
+import * as React from "react";
+import { View } from "react-native";
 
-import { SheetScroll , Button , Text } from '@studio/ui';
-import { useCategories } from '@/data/hooks';
-import { CategoryGrid } from '@/features/entry/category-grid';
-import { useCategoryRequest } from '@/features/budgets/category-store';
+import { SheetScroll, Button, Text } from "@studio/ui";
+import { useCategories } from "@/data/hooks";
+import { CategoryGrid } from "@/features/entry/category-grid";
+import { useCategoryRequest } from "@/features/budgets/category-store";
 
 /** Category grid sheet for a budget: multi-select, applied live; stays open until Done. */
 export default function BudgetCategorySheet() {
   const router = useRouter();
   const request = useCategoryRequest((s) => s.request);
   const close = useCategoryRequest((s) => s.close);
-  const categories = useCategories('expense');
-  const [selected, setSelected] = React.useState<string[]>(() => [...(request?.selected ?? [])]);
+  const categories = useCategories("expense");
+  const [selected, setSelected] = React.useState<string[]>(() => [
+    ...(request?.selected ?? []),
+  ]);
 
   const toggle = (id: string) => {
-    const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+    const next = selected.includes(id)
+      ? selected.filter((x) => x !== id)
+      : [...selected, id];
     setSelected(next);
     request?.onChange(next);
   };
@@ -31,11 +35,20 @@ export default function BudgetCategorySheet() {
         <>
           <View className="h-12 flex-row items-center px-2">
             <View className="w-20" />
-            <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
+            <Text
+              variant="headline"
+              accessibilityRole="header"
+              className="flex-1 text-center"
+            >
               Categories
             </Text>
             <View className="w-20 items-end">
-              <Button variant="barPrimary" size="sm" onPress={done} accessibilityLabel="Done">
+              <Button
+                variant="barPrimary"
+                size="sm"
+                onPress={done}
+                accessibilityLabel="Done"
+              >
                 <Text variant="body" className="font-semibold">
                   Done
                 </Text>
@@ -46,7 +59,11 @@ export default function BudgetCategorySheet() {
       }
       bodyClassName="pb-8"
     >
-      <CategoryGrid categories={categories} selected={selected} onToggle={toggle} />
+      <CategoryGrid
+        categories={categories}
+        selected={selected}
+        onToggle={toggle}
+      />
     </SheetScroll>
   );
 }

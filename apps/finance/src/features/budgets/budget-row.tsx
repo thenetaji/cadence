@@ -1,10 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from "react-native";
 
-import { IconTile , ProgressBar , Pressable , Text } from '@studio/ui';
-import { SwipeDelete } from '@/features/entry/swipe-delete';
-import { pressScale , useCategoryColor, useTokens } from '@studio/theme';
+import { IconTile, ProgressBar, Pressable, Text } from "@studio/ui";
+import { SwipeDelete } from "@/features/entry/swipe-delete";
+import { pressScale, useCategoryColor, useTokens } from "@studio/theme";
 
-import type { BudgetView } from './model';
+import type { BudgetView } from "./model";
 
 type BudgetRowProps = {
   view: BudgetView;
@@ -13,10 +13,15 @@ type BudgetRowProps = {
   onDelete: () => void;
 };
 
-const PERIOD_TAG = { weekly: 'Weekly', monthly: '', yearly: 'Yearly' } as const;
+const PERIOD_TAG = { weekly: "Weekly", monthly: "", yearly: "Yearly" } as const;
 
 /** Category budget: tile, name, "₹2,100 of ₹5,000", and a category-coloured bar under the text. */
-function BudgetRow({ view, separator = true, onPress, onDelete }: BudgetRowProps) {
+function BudgetRow({
+  view,
+  separator = true,
+  onPress,
+  onDelete,
+}: BudgetRowProps) {
   const { colors } = useTokens();
   const tint = useCategoryColor(view.color);
   const tag = PERIOD_TAG[view.period];
@@ -25,9 +30,9 @@ function BudgetRow({ view, separator = true, onPress, onDelete }: BudgetRowProps
       <Pressable
         role="button"
         accessibilityLabel={view.accessibilityLabel}
-        accessibilityActions={[{ name: 'delete', label: 'Delete' }]}
+        accessibilityActions={[{ name: "delete", label: "Delete" }]}
         onAccessibilityAction={(event) => {
-          if (event.nativeEvent.actionName === 'delete') onDelete();
+          if (event.nativeEvent.actionName === "delete") onDelete();
         }}
         scale={pressScale.row}
         onPress={onPress}
@@ -46,14 +51,27 @@ function BudgetRow({ view, separator = true, onPress, onDelete }: BudgetRowProps
                 </Text>
               ) : null}
             </View>
-            <Text variant="subhead" tone={view.status === 'over' ? 'expense' : 'secondary'} numeric numberOfLines={1}>
+            <Text
+              variant="subhead"
+              tone={view.status === "over" ? "expense" : "secondary"}
+              numeric
+              numberOfLines={1}
+            >
               {view.progressText}
             </Text>
           </View>
           <ProgressBar value={view.ratio} color={tint} marker={view.marker} />
         </View>
         {separator ? (
-          <View pointerEvents="none" style={{ left: 64, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />
+          <View
+            pointerEvents="none"
+            style={{
+              left: 64,
+              height: StyleSheet.hairlineWidth,
+              backgroundColor: colors.separator,
+            }}
+            className="absolute bottom-0 right-0"
+          />
         ) : null}
       </Pressable>
     </SwipeDelete>

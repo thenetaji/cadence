@@ -1,9 +1,9 @@
-import { Image } from 'expo-image';
-import { View } from 'react-native';
+import { Image } from "expo-image";
+import { View } from "react-native";
 
-import { AppIcon } from '@studio/icons';
-import { Pressable } from '@studio/ui';
-import { useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Pressable } from "@studio/ui";
+import { useTokens } from "@studio/theme";
 
 type ReceiptThumbProps = {
   uri: string;
@@ -14,7 +14,12 @@ type ReceiptThumbProps = {
 };
 
 /** Rounded photo thumbnail with a rim; optional remove badge. */
-export function ReceiptThumb({ uri, size = 56, onPress, onRemove }: ReceiptThumbProps) {
+export function ReceiptThumb({
+  uri,
+  size = 56,
+  onPress,
+  onRemove,
+}: ReceiptThumbProps) {
   const { colors } = useTokens();
   return (
     <View style={{ width: size, height: size }}>
@@ -24,9 +29,22 @@ export function ReceiptThumb({ uri, size = 56, onPress, onRemove }: ReceiptThumb
         haptic="light"
         disabled={!onPress}
         onPress={onPress}
-        style={{ width: size, height: size, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.fill }}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: 12,
+          overflow: "hidden",
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.fill,
+        }}
       >
-        <Image source={{ uri }} style={{ width: size, height: size }} contentFit="cover" transition={150} />
+        <Image
+          source={{ uri }}
+          style={{ width: size, height: size }}
+          contentFit="cover"
+          transition={150}
+        />
       </Pressable>
       {onRemove ? (
         <Pressable
@@ -36,7 +54,7 @@ export function ReceiptThumb({ uri, size = 56, onPress, onRemove }: ReceiptThumb
           hitSlop={8}
           onPress={onRemove}
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: -6,
             right: -6,
             width: 20,
@@ -45,8 +63,8 @@ export function ReceiptThumb({ uri, size = 56, onPress, onRemove }: ReceiptThumb
             backgroundColor: colors.elevated,
             borderWidth: 1,
             borderColor: colors.border,
-            alignItems: 'center',
-            justifyContent: 'center',
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <AppIcon name="close" size={10} color={colors.text} />

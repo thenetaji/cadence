@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { AppState } from 'react-native';
-import { useDb } from '@/db/context';
-import { rescheduleAll, setRemindersActive } from '@/lib/reminders';
+import { useEffect } from "react";
+import { AppState } from "react-native";
+import { useDb } from "@/db/context";
+import { rescheduleAll, setRemindersActive } from "@/lib/reminders";
 
 /**
  * Mount once near the app root. Plans local notifications now and whenever the app returns to the
@@ -13,8 +13,8 @@ export function useReminderSync(): void {
     setRemindersActive(true);
     const run = () => void rescheduleAll(db).catch(() => undefined);
     run();
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') run();
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") run();
     });
     return () => {
       subscription.remove();

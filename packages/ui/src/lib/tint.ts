@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { useReducedMotion } from 'react-native-reanimated';
+import * as React from "react";
+import { useReducedMotion } from "react-native-reanimated";
 
-import { mixColors } from './color-mix';
+import { mixColors } from "./color-mix";
 
-export { luminance, mixColors, parseColor, readableOn } from './color-mix';
+export { luminance, mixColors, parseColor, readableOn } from "./color-mix";
 
 const STEP_MS = 24;
 

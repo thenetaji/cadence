@@ -1,7 +1,7 @@
-import { monthShort } from '@studio/dates';
-import type { UnavailableReason } from '@/lib/sync';
+import { monthShort } from "@studio/dates";
+import type { UnavailableReason } from "@/lib/sync";
 
-const pad = (n: number) => String(n).padStart(2, '0');
+const pad = (n: number) => String(n).padStart(2, "0");
 
 /** "6 Oct, 21:04" in local time. */
 export function backupTimeLabel(ms: number): string {
@@ -12,11 +12,11 @@ export function backupTimeLabel(ms: number): string {
 /** Footnote shown on a sync row that cannot run in this build. */
 export function unavailableNote(reason: UnavailableReason): string {
   switch (reason) {
-    case 'needs-paid-developer-account':
-      return 'Needs App Store build';
-    case 'needs-standalone-build':
-      return 'Needs standalone app';
-    case 'not-configured':
-      return 'Not set up';
+    case "needs-paid-developer-account":
+      return "Needs App Store build";
+    case "needs-standalone-build":
+      return "Needs standalone app";
+    case "not-configured":
+      return "Not set up";
   }
 }

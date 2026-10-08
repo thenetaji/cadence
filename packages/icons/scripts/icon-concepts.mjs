@@ -221,8 +221,8 @@ document|Document|_UI|file-text|doc.text.fill|file-01,file-text,document-text,do
 `;
 
 export const concepts = T.trim()
-  .split('\n')
+  .split("\n")
   .map((line) => {
-    const [id, label, theme, ph, sf, kw] = line.split('|');
-    return { id, label, theme, ph, sf: sf.split(','), kw: kw.split(',') };
+    const [id, label, theme, ph, sf, kw] = line.split("|");
+    return { id, label, theme, ph, sf: sf.split(","), kw: kw.split(",") };
   });

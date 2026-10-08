@@ -1,8 +1,13 @@
-import * as React from 'react';
-import type { ViewProps } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import * as React from "react";
+import type { ViewProps } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
-import { cn } from '../../lib/utils';
+import { cn } from "../../lib/utils";
 
 function Skeleton({ className, style, ...props }: ViewProps) {
   const opacity = useSharedValue(1);
@@ -14,7 +19,7 @@ function Skeleton({ className, style, ...props }: ViewProps) {
     <Animated.View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      className={cn('rounded-lg bg-fill', className)}
+      className={cn("rounded-lg bg-fill", className)}
       style={[animated, style]}
       {...props}
     />

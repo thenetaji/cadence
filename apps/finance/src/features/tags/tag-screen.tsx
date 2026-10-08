@@ -1,19 +1,28 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import * as React from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as React from "react";
+import { Alert, ScrollView, View } from "react-native";
 
-import { Amount , ListGroup, ListRow , showToast , Card , Text } from '@studio/ui';
-import { useActions } from '@/data/actions';
-import { useRateLookup, useTagTotals, useTagTransactions, useTags } from '@/data/hooks';
-import { TransactionListRow } from '@/features/transactions/transaction-list-row';
-import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { ALL_DATES } from '@studio/dates';
-import { convertWithRates, formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { Stagger } from '@studio/motion';
-import { haptic , useTokens } from '@studio/theme';
+import { Amount, ListGroup, ListRow, showToast, Card, Text } from "@studio/ui";
+import { useActions } from "@/data/actions";
+import {
+  useRateLookup,
+  useTagTotals,
+  useTagTransactions,
+  useTags,
+} from "@/data/hooks";
+import { TransactionListRow } from "@/features/transactions/transaction-list-row";
+import { useMoneyContext } from "@/features/transactions/use-money-context";
+import { ALL_DATES } from "@studio/dates";
+import {
+  convertWithRates,
+  formatMoney,
+  formatMoneyForSpeech,
+} from "@studio/money";
+import { Stagger } from "@studio/motion";
+import { haptic, useTokens } from "@studio/theme";
 
-import { categoryBreakdown, tagColorKey } from './model';
-import { TagPill } from './tag-pill';
+import { categoryBreakdown, tagColorKey } from "./model";
+import { TagPill } from "./tag-pill";
 
 const ALL = { from: ALL_DATES.from, to: ALL_DATES.to };
 
@@ -37,7 +46,10 @@ export function TagScreen() {
   }, [tag, router]);
 
   const breakdown = React.useMemo(
-    () => categoryBreakdown(items, (minor, currency) => convertWithRates(minor, currency, money.displayCurrency, rates)),
+    () =>
+      categoryBreakdown(items, (minor, currency) =>
+        convertWithRates(minor, currency, money.displayCurrency, rates),
+      ),
     [items, money.displayCurrency, rates],
   );
 
@@ -45,36 +57,54 @@ export function TagScreen() {
 
   const decimals = money.showDecimals ? undefined : 0;
   const currency = total?.currency ?? money.displayCurrency;
-  const fmt = (minor: number) => formatMoney(minor, currency, { locale: money.locale, sign: 'none', decimals });
+  const fmt = (minor: number) =>
+    formatMoney(minor, currency, {
+      locale: money.locale,
+      sign: "none",
+      decimals,
+    });
   const count = total?.count ?? 0;
 
   const remove = () =>
-    Alert.alert(`Delete ${tag.name}?`, 'Transactions keep everything else.', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(`Delete ${tag.name}?`, "Transactions keep everything else.", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: 'Delete',
-        style: 'destructive',
+        text: "Delete",
+        style: "destructive",
         onPress: () => {
           leaving.current = true;
           actions.tags.delete(tag.id);
-          haptic('success');
-          showToast({ message: 'Tag deleted', haptic: false });
+          haptic("success");
+          showToast({ message: "Tag deleted", haptic: false });
           if (router.canGoBack()) router.back();
         },
       },
     ]);
 
   return (
-    <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-6 pb-12">
-      <Stack.Screen options={{ title: '' }} />
+    <ScrollView
+      className="flex-1 bg-bg"
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerClassName="gap-6 pb-12"
+    >
+      <Stack.Screen options={{ title: "" }} />
       <Stagger index={0} className="items-center gap-1 px-6 pt-4">
         <TagPill name={tag.name} color={tag.color} size="md" />
         <View className="pt-2">
-          <Amount value={fmt(total?.spent ?? 0)} variant="hero" animate="intro" accessibilityLabel={`${tag.name}, spent ${formatMoneyForSpeech(total?.spent ?? 0, currency, { sign: 'none', locale: money.locale })}`} />
+          <Amount
+            value={fmt(total?.spent ?? 0)}
+            variant="hero"
+            animate="intro"
+            accessibilityLabel={`${tag.name}, spent ${formatMoneyForSpeech(total?.spent ?? 0, currency, { sign: "none", locale: money.locale })}`}
+          />
         </View>
         <Text variant="footnote" tone="secondary" numeric>
-          {count === 0 ? 'No transactions' : count === 1 ? '1 transaction' : `${count} transactions`}
-          {total && total.earned > 0 ? ` · ${fmt(total.earned)} earned` : ''}
+          {count === 0
+            ? "No transactions"
+            : count === 1
+              ? "1 transaction"
+              : `${count} transactions`}
+          {total && total.earned > 0 ? ` · ${fmt(total.earned)} earned` : ""}
         </Text>
       </Stagger>
 
@@ -85,17 +115,36 @@ export function TagScreen() {
           </Text>
           <Card className="mx-4 gap-4">
             {breakdown.slice(0, 5).map((row) => (
-              <View key={row.id} className="gap-1.5" accessible accessibilityLabel={`${row.name}, ${fmt(row.amount)}`}>
+              <View
+                key={row.id}
+                className="gap-1.5"
+                accessible
+                accessibilityLabel={`${row.name}, ${fmt(row.amount)}`}
+              >
                 <View className="flex-row items-center justify-between">
-                  <Text variant="subhead" numberOfLines={1} className="mr-3 flex-1">
+                  <Text
+                    variant="subhead"
+                    numberOfLines={1}
+                    className="mr-3 flex-1"
+                  >
                     {row.name}
                   </Text>
                   <Text variant="subhead" numeric tone="secondary">
                     {fmt(row.amount)}
                   </Text>
                 </View>
-                <View style={{ height: 6, borderRadius: 3, overflow: 'hidden' }} className="bg-fill">
-                  <View style={{ height: 6, borderRadius: 3, width: `${Math.max(row.share * 100, 4)}%`, backgroundColor: category[tagColorKey(row.color)] }} />
+                <View
+                  style={{ height: 6, borderRadius: 3, overflow: "hidden" }}
+                  className="bg-fill"
+                >
+                  <View
+                    style={{
+                      height: 6,
+                      borderRadius: 3,
+                      width: `${Math.max(row.share * 100, 4)}%`,
+                      backgroundColor: category[tagColorKey(row.color)],
+                    }}
+                  />
                 </View>
               </View>
             ))}
@@ -110,7 +159,12 @@ export function TagScreen() {
           </Text>
           <Card className="mx-4 p-0">
             {items.slice(0, 100).map((item, i, list) => (
-              <TransactionListRow key={item.id} item={item} context={money} separator={i < list.length - 1} />
+              <TransactionListRow
+                key={item.id}
+                item={item}
+                context={money}
+                separator={i < list.length - 1}
+              />
             ))}
           </Card>
         </Stagger>

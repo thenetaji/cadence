@@ -7,6 +7,12 @@ export {
   configureGoogleDrive,
   getSyncProvider,
   runningInExpoGo,
-} from '@studio/data/sync';
-export type { GoogleDriveOptions, SyncProvider, SyncProviderId, SyncStatus, UnavailableReason } from '@studio/data/sync';
-export * from './sync-now';
+} from "@studio/data/sync";
+export type {
+  GoogleDriveOptions,
+  SyncProvider,
+  SyncProviderId,
+  SyncStatus,
+  UnavailableReason,
+} from "@studio/data/sync";
+export * from "./sync-now";

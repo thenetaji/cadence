@@ -1,20 +1,25 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from "react-native";
 
-import { Pressable , Text } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import { pressScale , useTokens } from '@studio/theme';
+import { Pressable, Text } from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import { pressScale, useTokens } from "@studio/theme";
 
-import { Avatar } from './avatar';
+import { Avatar } from "./avatar";
 
 type PersonRowLineProps = {
   name: string;
-  line: { text: string; tone: 'income' | 'secondary' };
+  line: { text: string; tone: "income" | "secondary" };
   separator?: boolean;
   onPress?: () => void;
 };
 
 /** Avatar, name, and "owes you ₹2,400" (mint) or "you owe ₹800" (neutral). */
-export function PersonRowLine({ name, line, separator = true, onPress }: PersonRowLineProps) {
+export function PersonRowLine({
+  name,
+  line,
+  separator = true,
+  onPress,
+}: PersonRowLineProps) {
   const { colors } = useTokens();
   return (
     <Pressable
@@ -35,7 +40,15 @@ export function PersonRowLine({ name, line, separator = true, onPress }: PersonR
       </View>
       <AppIcon name="chevron-right" size={13} color={colors.textTertiary} />
       {separator ? (
-        <View pointerEvents="none" style={{ left: 68, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />
+        <View
+          pointerEvents="none"
+          style={{
+            left: 68,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.separator,
+          }}
+          className="absolute bottom-0 right-0"
+        />
       ) : null}
     </Pressable>
   );

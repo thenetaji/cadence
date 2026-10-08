@@ -1,12 +1,12 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { IconTile } from './icon-tile';
-import { AppIcon } from '@studio/icons';
-import { Pressable } from '../ui/pressable';
-import { Text } from '../ui/text';
-import { cn } from '../../lib/utils';
-import type { CategoryColorKey } from '@studio/theme';
-import { useTokens } from '@studio/theme';
+import { IconTile } from "./icon-tile";
+import { AppIcon } from "@studio/icons";
+import { Pressable } from "../ui/pressable";
+import { Text } from "../ui/text";
+import { cn } from "../../lib/utils";
+import type { CategoryColorKey } from "@studio/theme";
+import { useTokens } from "@studio/theme";
 
 type ChipProps = {
   label: string;
@@ -18,7 +18,15 @@ type ChipProps = {
   accessibilityLabel?: string;
 };
 
-function Chip({ label, selected = false, icon, trailingIcon, hint, onPress, accessibilityLabel }: ChipProps) {
+function Chip({
+  label,
+  selected = false,
+  icon,
+  trailingIcon,
+  hint,
+  onPress,
+  accessibilityLabel,
+}: ChipProps) {
   const { colors } = useTokens();
   const iconColor = selected ? colors.accentText : colors.textSecondary;
   return (
@@ -30,10 +38,19 @@ function Chip({ label, selected = false, icon, trailingIcon, hint, onPress, acce
       popWhen={selected}
       hitSlop={{ top: 6, bottom: 6 }}
       onPress={onPress}
-      className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full border px-3', selected ? 'border-accent bg-accent-soft' : 'border-transparent bg-fill')}
+      className={cn(
+        "h-8 flex-row items-center gap-1.5 self-start rounded-full border px-3",
+        selected
+          ? "border-accent bg-accent-soft"
+          : "border-transparent bg-fill",
+      )}
     >
       {icon ? <AppIcon name={icon} size={14} color={iconColor} /> : null}
-      <Text variant="callout" tone={selected ? 'accent' : 'default'} numberOfLines={1}>
+      <Text
+        variant="callout"
+        tone={selected ? "accent" : "default"}
+        numberOfLines={1}
+      >
         {label}
       </Text>
       {hint ? (
@@ -41,7 +58,9 @@ function Chip({ label, selected = false, icon, trailingIcon, hint, onPress, acce
           {hint}
         </Text>
       ) : null}
-      {trailingIcon ? <AppIcon name={trailingIcon} size={10} color={iconColor} /> : null}
+      {trailingIcon ? (
+        <AppIcon name={trailingIcon} size={10} color={iconColor} />
+      ) : null}
     </Pressable>
   );
 }
@@ -54,7 +73,13 @@ type CategoryChipProps = {
   onPress?: () => void;
 };
 
-function CategoryChip({ name, icon, color, selected = false, onPress }: CategoryChipProps) {
+function CategoryChip({
+  name,
+  icon,
+  color,
+  selected = false,
+  onPress,
+}: CategoryChipProps) {
   const { colors } = useTokens();
   return (
     <Pressable
@@ -65,10 +90,19 @@ function CategoryChip({ name, icon, color, selected = false, onPress }: Category
       popWhen={selected}
       hitSlop={{ top: 6, bottom: 6 }}
       onPress={onPress}
-      className={cn('h-8 flex-row items-center gap-1.5 self-start rounded-full border pl-1.5 pr-3', selected ? 'border-accent bg-accent-soft' : 'border-transparent bg-fill')}
+      className={cn(
+        "h-8 flex-row items-center gap-1.5 self-start rounded-full border pl-1.5 pr-3",
+        selected
+          ? "border-accent bg-accent-soft"
+          : "border-transparent bg-fill",
+      )}
     >
       <IconTile icon={icon} color={color} size={22} />
-      <Text variant="callout" numberOfLines={1} style={selected ? { color: colors.accentText } : { color: colors.text }}>
+      <Text
+        variant="callout"
+        numberOfLines={1}
+        style={selected ? { color: colors.accentText } : { color: colors.text }}
+      >
         {name}
       </Text>
     </Pressable>

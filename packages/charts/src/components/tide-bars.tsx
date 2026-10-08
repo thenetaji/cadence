@@ -75,7 +75,11 @@ function Bar({
   const reduced = useReducedMotion();
   const op = useSharedValue(lit ? 1 : DIM);
   React.useEffect(() => {
-    op.value = reduced ? (lit ? 1 : DIM) : withTiming(lit ? 1 : DIM, { duration: 200 });
+    op.value = reduced
+      ? lit
+        ? 1
+        : DIM
+      : withTiming(lit ? 1 : DIM, { duration: 200 });
   }, [lit, reduced, op]);
   const h = useDerivedValue(() => {
     const p = Math.min(Math.max((clock.value - index * STAGGER) / GROW, 0), 1);
@@ -166,42 +170,42 @@ function TideBars({
         <Animated.View entering={reduced ? FadeIn.duration(150) : undefined}>
           <GestureDetector gesture={gesture}>
             <View collapsable={false}>
-          <Canvas style={{ width, height: LANE + height }}>
-            <Group>
-              {rects.map((r, i) => (
-                <Bar
-                  key={bars[i]!.label + i}
-                  x={r.x}
-                  width={r.width}
-                  full={r.height}
-                  baseline={LANE + height}
-                  index={i}
-                  clock={clock}
-                  current={bars[i]!.current}
-                  lit={shown === null || shown === i}
-                  fill={past}
-                  accent={colors.accent}
+              <Canvas style={{ width, height: LANE + height }}>
+                <Group>
+                  {rects.map((r, i) => (
+                    <Bar
+                      key={bars[i]!.label + i}
+                      x={r.x}
+                      width={r.width}
+                      full={r.height}
+                      baseline={LANE + height}
+                      index={i}
+                      clock={clock}
+                      current={bars[i]!.current}
+                      lit={shown === null || shown === i}
+                      fill={past}
+                      accent={colors.accent}
+                    />
+                  ))}
+                </Group>
+                <RoundedRect
+                  x={0}
+                  y={LANE + height - 1}
+                  width={width}
+                  height={1}
+                  r={0}
+                  color={colors.separator}
                 />
-              ))}
-            </Group>
-            <RoundedRect
-              x={0}
-              y={LANE + height - 1}
-              width={width}
-              height={1}
-              r={0}
-              color={colors.separator}
-            />
-            {labelFont ? (
-              <FloatingLabel
-                text={shown !== null ? formatLabel(shown) : ""}
-                font={labelFont}
-                centerX={labelX}
-                y={0}
-                totalWidth={width}
-              />
-            ) : null}
-          </Canvas>
+                {labelFont ? (
+                  <FloatingLabel
+                    text={shown !== null ? formatLabel(shown) : ""}
+                    font={labelFont}
+                    centerX={labelX}
+                    y={0}
+                    totalWidth={width}
+                  />
+                ) : null}
+              </Canvas>
             </View>
           </GestureDetector>
           <View

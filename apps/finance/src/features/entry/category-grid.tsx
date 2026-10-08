@@ -1,9 +1,9 @@
-import { View } from 'react-native';
+import { View } from "react-native";
 
-import { IconTile , Pressable , Text } from '@studio/ui';
-import type { CategoryRow } from '@/db/schema';
-import { haptic , useTokens } from '@studio/theme';
-import type { CategoryColorKey } from '@studio/theme';
+import { IconTile, Pressable, Text } from "@studio/ui";
+import type { CategoryRow } from "@/db/schema";
+import { haptic, useTokens } from "@studio/theme";
+import type { CategoryColorKey } from "@studio/theme";
 
 type CategoryGridProps = {
   categories: readonly CategoryRow[];
@@ -25,15 +25,30 @@ function CategoryGrid({ categories, selected, onToggle }: CategoryGridProps) {
               accessibilityLabel={category.name}
               accessibilityState={{ selected: on }}
               onPress={() => {
-                haptic('selection');
+                haptic("selection");
                 onToggle(category.id);
               }}
               className="w-full items-center gap-1.5"
             >
-              <View className="items-center justify-center rounded-full p-[3px]" style={{ borderWidth: 2, borderColor: on ? colors.accent : 'transparent' }}>
-                <IconTile icon={category.icon} color={category.color as CategoryColorKey} size={46} />
+              <View
+                className="items-center justify-center rounded-full p-[3px]"
+                style={{
+                  borderWidth: 2,
+                  borderColor: on ? colors.accent : "transparent",
+                }}
+              >
+                <IconTile
+                  icon={category.icon}
+                  color={category.color as CategoryColorKey}
+                  size={46}
+                />
               </View>
-              <Text variant="caption" tone={on ? 'accent' : 'secondary'} numberOfLines={2} className="text-center">
+              <Text
+                variant="caption"
+                tone={on ? "accent" : "secondary"}
+                numberOfLines={2}
+                className="text-center"
+              >
                 {category.name}
               </Text>
             </Pressable>

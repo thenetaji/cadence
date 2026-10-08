@@ -1,31 +1,56 @@
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
 
-import { ListGroup, ListRow , showToast , Button , SegmentedControl } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import { APP_NAME } from '@/constants/app';
-import { useAccounts, useExportReader, useSettings } from '@/data/hooks';
-import { FormRow } from '@/features/entry/form-row';
-import { DatePicker } from '@/features/transaction-form/date-picker';
-import { buildExportCsv } from '@/lib/csv';
-import { addDays, keyToLocalMs, toDateKey, type DateKey } from '@studio/dates';
-import type { CategoryColorKey } from '@studio/theme';
-import { haptic , useTokens } from '@studio/theme';
+import {
+  ListGroup,
+  ListRow,
+  showToast,
+  Button,
+  SegmentedControl,
+} from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import { APP_NAME } from "@/constants/app";
+import { useAccounts, useExportReader, useSettings } from "@/data/hooks";
+import { FormRow } from "@/features/entry/form-row";
+import { DatePicker } from "@/features/transaction-form/date-picker";
+import { buildExportCsv } from "@/lib/csv";
+import { addDays, keyToLocalMs, toDateKey, type DateKey } from "@studio/dates";
+import type { CategoryColorKey } from "@studio/theme";
+import { haptic, useTokens } from "@studio/theme";
 
-import { exportBounds, type ExportRange } from './range';
-import { shareTextFile } from './share-file';
+import { exportBounds, type ExportRange } from "./range";
+import { shareTextFile } from "./share-file";
 
-const RANGES: readonly ExportRange[] = ['month', 'year', 'all', 'custom'];
-const RANGE_LABELS: Record<ExportRange, string> = { month: 'This month', year: 'This year', all: 'All', custom: 'Custom' };
+const RANGES: readonly ExportRange[] = ["month", "year", "all", "custom"];
+const RANGE_LABELS: Record<ExportRange, string> = {
+  month: "This month",
+  year: "This year",
+  all: "All",
+  custom: "Custom",
+};
 
 /** A label-less grouped-list row holding one control; the group's footnote header names it. */
-function ControlRow({ children, showSeparator = false }: { children: React.ReactNode; showSeparator?: boolean }) {
+function ControlRow({
+  children,
+  showSeparator = false,
+}: {
+  children: React.ReactNode;
+  showSeparator?: boolean;
+}) {
   const { colors } = useTokens();
   return (
     <View className="bg-surface px-4 py-3">
       {children}
       {showSeparator ? (
-        <View pointerEvents="none" style={{ left: 16, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />
+        <View
+          pointerEvents="none"
+          style={{
+            left: 16,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.separator,
+          }}
+          className="absolute bottom-0 right-0"
+        />
       ) : null}
     </View>
   );
@@ -37,15 +62,19 @@ export function ExportSection() {
   const settings = useSettings();
   const accounts = useAccounts({ includeArchived: true });
   const read = useExportReader();
-  const [range, setRange] = React.useState<ExportRange>('month');
-  const [from, setFrom] = React.useState<DateKey>(() => addDays(toDateKey(Date.now()), -29));
+  const [range, setRange] = React.useState<ExportRange>("month");
+  const [from, setFrom] = React.useState<DateKey>(() =>
+    addDays(toDateKey(Date.now()), -29),
+  );
   const [to, setTo] = React.useState<DateKey>(() => toDateKey(Date.now()));
-  const [excluded, setExcluded] = React.useState<ReadonlySet<string>>(new Set());
+  const [excluded, setExcluded] = React.useState<ReadonlySet<string>>(
+    new Set(),
+  );
   const [busy, setBusy] = React.useState(false);
 
   const selected = accounts.filter((a) => !excluded.has(a.id));
   const toggle = (id: string) => {
-    haptic('selection');
+    haptic("selection");
     setExcluded((current) => {
       const next = new Set(current);
       if (next.has(id)) next.delete(id);
@@ -56,18 +85,26 @@ export function ExportSection() {
 
   const run = async () => {
     const today = toDateKey(Date.now());
-    const bounds = exportBounds(range, today, { from, to }, { weekStart: settings.week_start, monthStart: settings.month_start });
+    const bounds = exportBounds(
+      range,
+      today,
+      { from, to },
+      { weekStart: settings.week_start, monthStart: settings.month_start },
+    );
     const records = read({ ...bounds, accountIds: selected.map((a) => a.id) });
     if (records.length === 0) {
-      showToast({ message: 'No transactions', haptic: 'warning' });
+      showToast({ message: "No transactions", haptic: "warning" });
       return;
     }
     setBusy(true);
     try {
-      await shareTextFile(`${APP_NAME.toLowerCase()}-${today}.csv`, buildExportCsv(records));
-      haptic('success');
+      await shareTextFile(
+        `${APP_NAME.toLowerCase()}-${today}.csv`,
+        buildExportCsv(records),
+      );
+      haptic("success");
     } catch {
-      showToast({ message: 'Export failed', haptic: 'error' });
+      showToast({ message: "Export failed", haptic: "error" });
     } finally {
       setBusy(false);
     }
@@ -76,22 +113,32 @@ export function ExportSection() {
   return (
     <>
       <ListGroup header="Export">
-        <ControlRow showSeparator={range === 'custom'}>
+        <ControlRow showSeparator={range === "custom"}>
           <SegmentedControl
             values={RANGES.map((r) => RANGE_LABELS[r])}
             selectedIndex={RANGES.indexOf(range)}
-            onChange={(index) => setRange(RANGES[index] ?? 'all')}
+            onChange={(index) => setRange(RANGES[index] ?? "all")}
             accessibilityLabel="Range"
           />
         </ControlRow>
-        {range === 'custom' ? (
+        {range === "custom" ? (
           <FormRow label="From">
-            <DatePicker mode="date" display="compact" value={keyToLocalMs(from, 12)} onChange={(ms) => setFrom(toDateKey(ms))} />
+            <DatePicker
+              mode="date"
+              display="compact"
+              value={keyToLocalMs(from, 12)}
+              onChange={(ms) => setFrom(toDateKey(ms))}
+            />
           </FormRow>
         ) : null}
-        {range === 'custom' ? (
+        {range === "custom" ? (
           <FormRow label="To">
-            <DatePicker mode="date" display="compact" value={keyToLocalMs(to, 12)} onChange={(ms) => setTo(toDateKey(ms))} />
+            <DatePicker
+              mode="date"
+              display="compact"
+              value={keyToLocalMs(to, 12)}
+              onChange={(ms) => setTo(toDateKey(ms))}
+            />
           </FormRow>
         ) : null}
       </ListGroup>
@@ -101,16 +148,26 @@ export function ExportSection() {
             key={account.id}
             label={account.name}
             subtitle={account.currency}
-            icon={{ name: account.icon, color: account.color as CategoryColorKey }}
+            icon={{
+              name: account.icon,
+              color: account.color as CategoryColorKey,
+            }}
             trailing={
-              excluded.has(account.id) ? undefined : <AppIcon name="checkmark" size={16} color={colors.accent} />
+              excluded.has(account.id) ? undefined : (
+                <AppIcon name="checkmark" size={16} color={colors.accent} />
+              )
             }
             onPress={() => toggle(account.id)}
           />
         ))}
       </ListGroup>
       <View className="px-4">
-        <Button size="lg" loading={busy} disabled={selected.length === 0} onPress={run}>
+        <Button
+          size="lg"
+          loading={busy}
+          disabled={selected.length === 0}
+          onPress={run}
+        >
           Export CSV
         </Button>
       </View>

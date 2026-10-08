@@ -2,7 +2,7 @@
 
 export type DateKey = string;
 
-const pad = (n: number, width = 2) => String(n).padStart(width, '0');
+const pad = (n: number, width = 2) => String(n).padStart(width, "0");
 
 export function makeKey(year: number, month: number, day: number): DateKey {
   return `${pad(year, 4)}-${pad(month)}-${pad(day)}`;
@@ -15,12 +15,12 @@ export interface KeyParts {
 }
 
 export function parseKey(key: DateKey): KeyParts {
-  const [y = '1970', m = '1', d = '1'] = key.split('-');
+  const [y = "1970", m = "1", d = "1"] = key.split("-");
   return { year: Number(y), month: Number(m), day: Number(d) };
 }
 
 export function toDateKey(value: Date | number): DateKey {
-  const date = typeof value === 'number' ? new Date(value) : value;
+  const date = typeof value === "number" ? new Date(value) : value;
   return makeKey(date.getFullYear(), date.getMonth() + 1, date.getDate());
 }
 
@@ -79,4 +79,4 @@ export function keyToLocalMs(key: DateKey, hour = 0, minute = 0): number {
 }
 
 /** Inclusive bounds covering every possible date key, for "all time" queries. */
-export const ALL_DATES = { from: '0000-01-01', to: '9999-12-31' } as const;
+export const ALL_DATES = { from: "0000-01-01", to: "9999-12-31" } as const;

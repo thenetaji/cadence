@@ -1,14 +1,14 @@
-import * as React from 'react';
-import { FlatList, Modal, StyleSheet, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as React from "react";
+import { FlatList, Modal, StyleSheet, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { AppIcon } from '@studio/icons';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Pressable } from '../ui/pressable';
-import { Text } from '../ui/text';
-import { CURRENCIES, type CurrencyInfo } from '@studio/money';
-import { haptic , useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Pressable } from "../ui/pressable";
+import { Text } from "../ui/text";
+import { CURRENCIES, type CurrencyInfo } from "@studio/money";
+import { haptic, useTokens } from "@studio/theme";
 
 type CurrencyPickerProps = {
   visible: boolean;
@@ -17,24 +17,43 @@ type CurrencyPickerProps = {
   onClose: () => void;
 };
 
-const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+const capitalize = (text: string) =>
+  text.charAt(0).toUpperCase() + text.slice(1);
 
 function matches(currency: CurrencyInfo, query: string): boolean {
   const q = query.trim().toLowerCase();
-  if (q === '') return true;
-  return currency.code.toLowerCase().includes(q) || currency.name[0].toLowerCase().includes(q) || currency.symbol.toLowerCase().includes(q);
+  if (q === "") return true;
+  return (
+    currency.code.toLowerCase().includes(q) ||
+    currency.name[0].toLowerCase().includes(q) ||
+    currency.symbol.toLowerCase().includes(q)
+  );
 }
 
-function CurrencyPicker({ visible, selected, onSelect, onClose }: CurrencyPickerProps) {
+function CurrencyPicker({
+  visible,
+  selected,
+  onSelect,
+  onClose,
+}: CurrencyPickerProps) {
   const { colors } = useTokens();
-  const [query, setQuery] = React.useState('');
-  const data = React.useMemo(() => CURRENCIES.filter((c) => matches(c, query)), [query]);
+  const [query, setQuery] = React.useState("");
+  const data = React.useMemo(
+    () => CURRENCIES.filter((c) => matches(c, query)),
+    [query],
+  );
   const close = () => {
-    setQuery('');
+    setQuery("");
     onClose();
   };
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" transparent={false} onRequestClose={close}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      transparent={false}
+      onRequestClose={close}
+    >
       <SafeAreaProvider>
         <View className="flex-1 bg-bg">
           <View className="h-14 flex-row items-center justify-between px-4">
@@ -71,7 +90,7 @@ function CurrencyPicker({ visible, selected, onSelect, onClose }: CurrencyPicker
                 scale={1}
                 accessibilityLabel={`${item.code}, ${capitalize(item.name[0])}`}
                 onPress={() => {
-                  haptic('selection');
+                  haptic("selection");
                   onSelect(item.code);
                   close();
                 }}
@@ -88,10 +107,16 @@ function CurrencyPicker({ visible, selected, onSelect, onClose }: CurrencyPicker
                     {item.code}
                   </Text>
                 </View>
-                {item.code === selected ? <AppIcon name="checkmark" size={16} color={colors.accent} /> : null}
+                {item.code === selected ? (
+                  <AppIcon name="checkmark" size={16} color={colors.accent} />
+                ) : null}
                 <View
                   pointerEvents="none"
-                  style={{ left: 72, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }}
+                  style={{
+                    left: 72,
+                    height: StyleSheet.hairlineWidth,
+                    backgroundColor: colors.separator,
+                  }}
                   className="absolute bottom-0 right-0"
                 />
               </Pressable>

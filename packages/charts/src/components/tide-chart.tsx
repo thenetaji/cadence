@@ -298,83 +298,93 @@ function TideChart({
         <Animated.View entering={reduced ? FadeIn.duration(150) : undefined}>
           <GestureDetector gesture={gesture}>
             <View collapsable={false}>
-          <Canvas style={{ width, height }}>
-            <Path
-              path={back}
-              style="fill"
-              color={withAlpha(accent, isDark ? 0.1 : 0.12)}
-            />
-            <Group opacity={breath}>
-              <Path path={body} style="fill">
-                <LinearGradient
-                  start={vec(0, top)}
-                  end={vec(0, height)}
-                  colors={bodyColors}
-                  positions={[0, 0.2, 0.6, 1]}
+              <Canvas style={{ width, height }}>
+                <Path
+                  path={back}
+                  style="fill"
+                  color={withAlpha(accent, isDark ? 0.1 : 0.12)}
                 />
-              </Path>
-            </Group>
-            <Group clip={body}>
-              <Group transform={causticTransform}>
-                <Circle cx={0} cy={0} r={width * 0.34}>
-                  <RadialGradient
-                    c={vec(0, 0)}
-                    r={width * 0.34}
-                    colors={causticColors}
+                <Group opacity={breath}>
+                  <Path path={body} style="fill">
+                    <LinearGradient
+                      start={vec(0, top)}
+                      end={vec(0, height)}
+                      colors={bodyColors}
+                      positions={[0, 0.2, 0.6, 1]}
+                    />
+                  </Path>
+                </Group>
+                <Group clip={body}>
+                  <Group transform={causticTransform}>
+                    <Circle cx={0} cy={0} r={width * 0.34}>
+                      <RadialGradient
+                        c={vec(0, 0)}
+                        r={width * 0.34}
+                        colors={causticColors}
+                      />
+                    </Circle>
+                  </Group>
+                </Group>
+                {reduced ? null : (
+                  <Path
+                    path={edge}
+                    style="stroke"
+                    strokeWidth={6}
+                    color={withAlpha(accent, 0.5)}
+                    strokeCap="round"
+                    strokeJoin="round"
+                  >
+                    <BlurMask blur={4} style="normal" />
+                  </Path>
+                )}
+                <Path
+                  path={edge}
+                  style="stroke"
+                  strokeWidth={1.75}
+                  strokeCap="round"
+                  strokeJoin="round"
+                >
+                  <LinearGradient
+                    start={vec(0, 0)}
+                    end={vec(width, 0)}
+                    colors={lineColors}
+                    positions={[0, joinFraction, 1]}
                   />
-                </Circle>
-              </Group>
-            </Group>
-            {reduced ? null : (
-              <Path
-                path={edge}
-                style="stroke"
-                strokeWidth={6}
-                color={withAlpha(accent, 0.5)}
-                strokeCap="round"
-                strokeJoin="round"
-              >
-                <BlurMask blur={4} style="normal" />
-              </Path>
-            )}
-            <Path
-              path={edge}
-              style="stroke"
-              strokeWidth={1.75}
-              strokeCap="round"
-              strokeJoin="round"
-            >
-              <LinearGradient
-                start={vec(0, 0)}
-                end={vec(width, 0)}
-                colors={lineColors}
-                positions={[0, joinFraction, 1]}
-              />
-            </Path>
-            <Circle cx={geo.joinX} cy={dotY} r={7} color={colors.bg} />
-            <Circle cx={geo.joinX} cy={dotY} r={4.5} color={accent} />
-            {shownPoint ? (
-              <>
-                <Line
-                  p1={vec(shownPoint[0], 0)}
-                  p2={vec(shownPoint[0], height)}
-                  color={withAlpha(colors.text, 0.28)}
-                  strokeWidth={1}
-                />
-                <Circle cx={shownPoint[0]} cy={shownPoint[1]} r={6.5} color={colors.bg} />
-                <Circle cx={shownPoint[0]} cy={shownPoint[1]} r={4} color={accent} />
-              </>
-            ) : null}
-            {labelFont ? (
-              <FloatingLabel
-                text={shown !== null ? formatLabel(shown) : ""}
-                font={labelFont}
-                centerX={anchorX}
-                y={0}
-                totalWidth={width}
-              />
-            ) : null}
-          </Canvas>
+                </Path>
+                <Circle cx={geo.joinX} cy={dotY} r={7} color={colors.bg} />
+                <Circle cx={geo.joinX} cy={dotY} r={4.5} color={accent} />
+                {shownPoint ? (
+                  <>
+                    <Line
+                      p1={vec(shownPoint[0], 0)}
+                      p2={vec(shownPoint[0], height)}
+                      color={withAlpha(colors.text, 0.28)}
+                      strokeWidth={1}
+                    />
+                    <Circle
+                      cx={shownPoint[0]}
+                      cy={shownPoint[1]}
+                      r={6.5}
+                      color={colors.bg}
+                    />
+                    <Circle
+                      cx={shownPoint[0]}
+                      cy={shownPoint[1]}
+                      r={4}
+                      color={accent}
+                    />
+                  </>
+                ) : null}
+                {labelFont ? (
+                  <FloatingLabel
+                    text={shown !== null ? formatLabel(shown) : ""}
+                    font={labelFont}
+                    centerX={anchorX}
+                    y={0}
+                    totalWidth={width}
+                  />
+                ) : null}
+              </Canvas>
             </View>
           </GestureDetector>
         </Animated.View>

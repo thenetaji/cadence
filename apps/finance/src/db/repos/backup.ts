@@ -70,6 +70,7 @@ export const DEVICE_SETTING_KEYS: readonly SettingKey[] = [
   'theme',
   'icon_style',
   'icon_background',
+  'home_layout',
   'hide_amounts',
   'haptics',
   'lock_enabled',

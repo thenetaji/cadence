@@ -8,7 +8,7 @@ import { seedDefaults } from '../seed';
 describe('settings', () => {
   it('defines a default for every spec key', () => {
     expect(SETTING_KEYS.sort()).toEqual(
-      ['display_currency', 'theme', 'haptics', 'show_decimals', 'week_start', 'month_start', 'default_account_id', 'lock_enabled', 'lock_timeout_s', 'last_kind', 'last_account_id', 'onboarding_done', 'schema_seeded', 'recent_searches', 'icon_style', 'icon_background', 'hide_amounts', 'reminder_daily_enabled', 'reminder_daily_time', 'reminder_bills', 'reminder_budgets', 'reminder_budget_fired', 'sync_provider', 'last_backup_at'].sort(),
+      ['display_currency', 'theme', 'haptics', 'show_decimals', 'week_start', 'month_start', 'default_account_id', 'lock_enabled', 'lock_timeout_s', 'last_kind', 'last_account_id', 'onboarding_done', 'schema_seeded', 'recent_searches', 'icon_style', 'icon_background', 'home_layout', 'hide_amounts', 'reminder_daily_enabled', 'reminder_daily_time', 'reminder_bills', 'reminder_budgets', 'reminder_budget_fired', 'sync_provider', 'last_backup_at'].sort(),
     );
   });
 
@@ -29,6 +29,14 @@ describe('settings', () => {
     const db = createTestDb({ seed: false });
     db.insert(settings).values({ key: 'theme', value: '{oops' }).run();
     expect(getSetting(db, 'theme')).toBe('system');
+  });
+
+  it('repairs a stored Home layout from an older or newer build', () => {
+    const db = createTestDb({ seed: false });
+    db.insert(settings).values({ key: 'home_layout', value: JSON.stringify([{ id: 'recent', visible: false }, { id: 'widgets', visible: true }]) }).run();
+    const layout = getSetting(db, 'home_layout');
+    expect(layout[0]).toEqual({ id: 'recent', visible: false });
+    expect(layout.map((s) => s.id).sort()).toEqual(DEFAULT_SETTINGS.home_layout.map((s) => s.id).sort());
   });
 
   it('seeds idempotently without clobbering user changes', () => {

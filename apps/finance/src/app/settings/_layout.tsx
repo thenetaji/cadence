@@ -27,6 +27,7 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
+      <Stack.Screen name="home" options={{ title: 'Home' }} />
       <Stack.Screen name="currency" options={{ title: 'Display currency' }} />
       <Stack.Screen name="lock" options={{ title: 'Face ID' }} />
       <Stack.Screen name="privacy" options={{ title: 'Privacy' }} />

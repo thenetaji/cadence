@@ -47,3 +47,21 @@ export function dailyTotals(db: Db, month: string, kind: 'expense' | 'income' = 
     firstWeekday: weekday(from),
   };
 }
+
+export interface RangeTotals {
+  from: string;
+  to: string;
+  kind: 'expense' | 'income';
+  currency: string;
+  /** One entry per day from `from` to `to` inclusive, in order. */
+  days: DailyTotal[];
+}
+
+/** Per-day totals for an arbitrary inclusive range (the Home heatmap). Same exclusions as `dailyTotals`. */
+export function rangeDailyTotals(db: Db, from: string, to: string, kind: 'expense' | 'income' = 'expense'): RangeTotals {
+  const ctx: ConversionContext = { displayCurrency: getSetting(db, 'display_currency'), rates: getRateLookup(db) };
+  const lines = spendLines(db, { from, to });
+  const series = buildSeries(lines, kind, { type: 'custom', from, to }, ctx, { granularity: 'day' });
+  const days = listDays(from, to).map((dateKey, i) => ({ dateKey, amount: series[i]?.amount ?? 0 }));
+  return { from, to, kind, currency: ctx.displayCurrency, days };
+}

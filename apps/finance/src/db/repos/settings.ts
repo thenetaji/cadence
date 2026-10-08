@@ -3,6 +3,7 @@ import { settings } from '../schema';
 import type { Db } from '../types';
 
 import { ICON_BACKGROUNDS, ICON_STYLES, type IconBackground, type IconStyle } from '@studio/icons';
+import { DEFAULT_HOME_LAYOUT, normalizeHomeLayout, type HomeSectionPref } from '@/lib/home/layout';
 
 export { ICON_BACKGROUNDS, ICON_STYLES };
 export type { IconBackground, IconStyle };
@@ -27,6 +28,8 @@ export interface SettingsMap {
   recent_searches: string[];
   icon_style: IconStyle;
   icon_background: IconBackground;
+  /** Order and visibility of the Home sections below the hero. */
+  home_layout: HomeSectionPref[];
   /** Mask amounts on screen (Home, lists) until revealed. */
   hide_amounts: boolean;
   reminder_daily_enabled: boolean;
@@ -60,6 +63,7 @@ export const DEFAULT_SETTINGS: Readonly<SettingsMap> = {
   recent_searches: [],
   icon_style: 'phosphor-duotone',
   icon_background: 'graphite-glyph',
+  home_layout: DEFAULT_HOME_LAYOUT.map((s) => ({ ...s })),
   hide_amounts: false,
   reminder_daily_enabled: false,
   reminder_daily_time: '21:00',
@@ -85,6 +89,7 @@ function decode<K extends SettingKey>(key: K, raw: string | undefined): Settings
     const allowed = ENUMS[key];
     // A stored value from an older or newer build that is no longer valid falls back to the default.
     if (allowed && !allowed.includes(value)) return DEFAULT_SETTINGS[key];
+    if (key === 'home_layout') return normalizeHomeLayout(value) as SettingsMap[K];
     if (key === 'reminder_daily_time' && !/^([01]\d|2[0-3]):[0-5]\d$/.test(String(value))) return DEFAULT_SETTINGS[key];
     return value;
   } catch {

@@ -3,8 +3,9 @@ import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { AddFab } from '@/components/app/add-fab';
-import { EmptyState , Card } from '@studio/ui';
+import { Button, EmptyState , Card } from '@studio/ui';
 import { useAccounts, useAllTimeSpend, useBudgets, useHomeSpend, useInsights, useRecentTransactions, useSetting, useTodayKey } from '@/data/hooks';
+import { SpendHeatmap } from '@/features/heatmap/spend-heatmap';
 import { ComingUp } from '@/features/home/coming-up';
 import { useHeroPeriod } from '@/features/home/period-store';
 import { QuickAdd } from '@/features/home/quick-add';
@@ -18,9 +19,19 @@ import { useMoneyContext } from '@/features/transactions/use-money-context';
 import { monthName, parseKey, periodFor } from '@studio/dates';
 import { formatMoney, sumConverted } from '@studio/money';
 import { Stagger } from '@studio/motion';
+import type { HomeSectionId } from '@/lib/home/layout';
 
 const RECENT_COUNT = 5;
 const STAGGER = { base: 200, step: 55 } as const;
+/** Gap above each section; quick add and the stats strip sit closer to the hero. */
+const SPACING: Record<HomeSectionId, string> = {
+  quick_add: 'mt-[22px]',
+  stats: 'mt-5',
+  coming_up: 'mt-[26px]',
+  heatmap: 'mt-[26px]',
+  top_categories: 'mt-[26px]',
+  recent: 'mt-[26px]',
+};
 
 export default function Home() {
   const router = useRouter();
@@ -40,6 +51,7 @@ export default function Home() {
   );
   const insights = useInsights(month, 'expense');
   const recent = useRecentTransactions(RECENT_COUNT);
+  const [layout] = useSetting('home_layout');
 
   const decimals = money.showDecimals ? undefined : 0;
   const balance = React.useMemo(
@@ -52,6 +64,40 @@ export default function Home() {
   const earned = all ? allTime.earned : spend.earned;
   const empty = recent.length === 0;
 
+  const renderSection = (id: HomeSectionId): React.ReactNode => {
+    switch (id) {
+      case 'quick_add':
+        return <QuickAdd />;
+      case 'stats':
+        return (
+          <StatRow
+            earned={fmt(earned, earned > 0 ? 'plus' : 'none')}
+            earnedZero={earned <= 0}
+            perDay={fmt(all ? allTime.perDay : spend.perDay)}
+            balance={fmt(balance, 'auto')}
+            balanceNegative={balance < 0}
+          />
+        );
+      case 'coming_up':
+        return <ComingUp todayKey={today} locale={money.locale} showDecimals={money.showDecimals} />;
+      case 'heatmap':
+        return <SpendHeatmap todayKey={today} locale={money.locale} showDecimals={money.showDecimals} currency={money.displayCurrency} />;
+      case 'top_categories':
+        return <TopCategories insights={insights} locale={money.locale} showDecimals={money.showDecimals} />;
+      case 'recent':
+        return (
+          <>
+            <HomeSectionHeader title="Recent" actionLabel="All" onAction={() => router.navigate('/activity')} />
+            <Card className="rounded-[20px] p-0">
+              {recent.map((item, i) => (
+                <TransactionListRow key={item.id} item={item} context={money} separator={i < recent.length - 1} />
+              ))}
+            </Card>
+          </>
+        );
+    }
+  };
+
   return (
     <View className="flex-1 bg-bg">
       <HomeTopBar />
@@ -61,32 +107,22 @@ export default function Home() {
           <EmptyState message="No transactions yet" actionLabel="Add transaction" onAction={() => router.push('/transaction/new')} />
         ) : (
           <>
-            <Stagger index={0} {...STAGGER} className="mt-[22px]">
-              <QuickAdd />
-            </Stagger>
-            <Stagger index={1} {...STAGGER} className="mt-5">
-              <StatRow
-                earned={fmt(earned, earned > 0 ? 'plus' : 'none')}
-                earnedZero={earned <= 0}
-                perDay={fmt(all ? allTime.perDay : spend.perDay)}
-                balance={fmt(balance, 'auto')}
-                balanceNegative={balance < 0}
-              />
-            </Stagger>
-            <Stagger index={2} {...STAGGER} className="mt-[26px]">
-              <ComingUp todayKey={today} locale={money.locale} showDecimals={money.showDecimals} />
-            </Stagger>
-            <Stagger index={3} {...STAGGER} className="mt-[26px]">
-              <TopCategories insights={insights} locale={money.locale} showDecimals={money.showDecimals} />
-            </Stagger>
-            <Stagger index={4} {...STAGGER} className="mt-[26px]">
-              <HomeSectionHeader title="Recent" actionLabel="All" onAction={() => router.navigate('/activity')} />
-              <Card className="rounded-[20px] p-0">
-                {recent.map((item, index) => (
-                  <TransactionListRow key={item.id} item={item} context={money} separator={index < recent.length - 1} />
-                ))}
-              </Card>
-            </Stagger>
+            {layout
+              .filter((section) => section.visible)
+              .map((section, index) => {
+                const content = renderSection(section.id);
+                if (!content) return null;
+                return (
+                  <Stagger key={section.id} index={index} {...STAGGER} className={SPACING[section.id]}>
+                    {content}
+                  </Stagger>
+                );
+              })}
+            <View className="mt-6 items-center">
+              <Button variant="barSecondary" size="sm" onPress={() => router.push('/settings/home')}>
+                Customize Home
+              </Button>
+            </View>
           </>
         )}
       </ScrollView>

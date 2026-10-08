@@ -1,25 +1,40 @@
-import Constants from 'expo-constants';
-import { useMemo } from 'react';
-import * as accounts from '@/db/repos/accounts';
-import * as attachments from '@/db/repos/attachments';
-import * as backup from '@/db/repos/backup';
-import * as budgets from '@/db/repos/budgets';
-import * as categories from '@/db/repos/categories';
-import * as fx from '@/db/repos/fx';
-import * as importer from '@/db/repos/importer';
-import * as maintenance from '@/db/repos/maintenance';
-import * as people from '@/db/repos/people';
-import * as recurring from '@/db/repos/recurring';
-import * as settings from '@/db/repos/settings';
-import * as tags from '@/db/repos/tags';
-import * as transactions from '@/db/repos/transactions';
-import { useDb } from '@/db/context';
-import { seedDemoData } from '@/db/dev-seed';
-import type { Db } from '@/db/types';
-import { copyIntoAttachments, deleteAttachmentFile, pickBackupFile, shareBackupFile, type PickedImage } from '@/lib/files';
-import { requestReminderPermission, rescheduleAll, scheduleRemindersSoon } from '@/lib/reminders';
-import { getSyncProvider, syncNow, type SyncOutcome, type SyncProvider } from '@/lib/sync';
-import { notifyChange } from './changes';
+import Constants from "expo-constants";
+import { useMemo } from "react";
+import * as accounts from "@/db/repos/accounts";
+import * as attachments from "@/db/repos/attachments";
+import * as backup from "@/db/repos/backup";
+import * as budgets from "@/db/repos/budgets";
+import * as categories from "@/db/repos/categories";
+import * as fx from "@/db/repos/fx";
+import * as importer from "@/db/repos/importer";
+import * as maintenance from "@/db/repos/maintenance";
+import * as people from "@/db/repos/people";
+import * as recurring from "@/db/repos/recurring";
+import * as settings from "@/db/repos/settings";
+import * as tags from "@/db/repos/tags";
+import * as transactions from "@/db/repos/transactions";
+import { useDb } from "@/db/context";
+import { seedDemoData } from "@/db/dev-seed";
+import type { Db } from "@/db/types";
+import {
+  copyIntoAttachments,
+  deleteAttachmentFile,
+  pickBackupFile,
+  shareBackupFile,
+  type PickedImage,
+} from "@/lib/files";
+import {
+  requestReminderPermission,
+  rescheduleAll,
+  scheduleRemindersSoon,
+} from "@/lib/reminders";
+import {
+  getSyncProvider,
+  syncNow,
+  type SyncOutcome,
+  type SyncProvider,
+} from "@/lib/sync";
+import { notifyChange } from "./changes";
 
 type Write<A extends unknown[], R> = (...args: A) => R;
 
@@ -33,12 +48,14 @@ function bind(db: Db) {
     };
 }
 
-const appVersion = (): string => Constants.expoConfig?.version ?? '0.0.0';
+const appVersion = (): string => Constants.expoConfig?.version ?? "0.0.0";
 
 export function createActions(db: Db) {
   const plain = bind(db);
   /** Like `plain`, and re-plans local notifications afterwards (debounced; no-op until `useReminderSync` runs). */
-  const write = <A extends unknown[], R>(fn: (db: Db, ...args: A) => R): Write<A, R> => {
+  const write = <A extends unknown[], R>(
+    fn: (db: Db, ...args: A) => R,
+  ): Write<A, R> => {
     const bound = plain(fn);
     return (...args) => {
       const result = bound(...args);
@@ -89,10 +106,13 @@ export function createActions(db: Db) {
       skip: write(recurring.skip),
     },
     settings: {
-      set: <K extends settings.SettingKey>(key: K, value: settings.SettingsMap[K]): void => {
+      set: <K extends settings.SettingKey>(
+        key: K,
+        value: settings.SettingsMap[K],
+      ): void => {
         settings.setSetting(db, key, value);
         notifyChange();
-        if (key.startsWith('reminder_')) scheduleRemindersSoon(db);
+        if (key.startsWith("reminder_")) scheduleRemindersSoon(db);
       },
     },
     tags: {
@@ -114,7 +134,12 @@ export function createActions(db: Db) {
       add: async (transactionId: string, image: PickedImage) => {
         const uri = await copyIntoAttachments(image.uri);
         try {
-          const row = attachments.addAttachment(db, { transactionId, uri, width: image.width, height: image.height });
+          const row = attachments.addAttachment(db, {
+            transactionId,
+            uri,
+            width: image.width,
+            height: image.height,
+          });
           notifyChange();
           return row;
         } catch (error) {
@@ -133,18 +158,22 @@ export function createActions(db: Db) {
       /** Builds the backup document and records `last_backup_at`. Returns the JSON text. */
       create: (): string => {
         const now = Date.now();
-        const json = backup.serializeBackup(backup.exportBackup(db, { now, appVersion: appVersion() }));
-        settings.setSetting(db, 'last_backup_at', now);
-        notifyChange(['settings']);
+        const json = backup.serializeBackup(
+          backup.exportBackup(db, { now, appVersion: appVersion() }),
+        );
+        settings.setSetting(db, "last_backup_at", now);
+        notifyChange(["settings"]);
         return json;
       },
       /** Writes `<App>-backup-YYYY-MM-DD.json` and opens the share sheet (a download on web). */
       share: async (): Promise<string> => {
         const now = Date.now();
-        const json = backup.serializeBackup(backup.exportBackup(db, { now, appVersion: appVersion() }));
+        const json = backup.serializeBackup(
+          backup.exportBackup(db, { now, appVersion: appVersion() }),
+        );
         const name = await shareBackupFile(json, now);
-        settings.setSetting(db, 'last_backup_at', now);
-        notifyChange(['settings']);
+        settings.setSetting(db, "last_backup_at", now);
+        notifyChange(["settings"]);
         return name;
       },
       /** Opens the file picker; returns the raw text (validate with `validate`) or null when cancelled. */
@@ -155,9 +184,12 @@ export function createActions(db: Db) {
     },
     sync: {
       /** Syncs with the provider (default: the `sync_provider` setting). Resolves with what happened. */
-      now: async (provider?: SyncProvider | null): Promise<SyncOutcome | { action: 'none' }> => {
-        const target = provider ?? getSyncProvider(settings.getSetting(db, 'sync_provider'));
-        if (!target) return { action: 'none' };
+      now: async (
+        provider?: SyncProvider | null,
+      ): Promise<SyncOutcome | { action: "none" }> => {
+        const target =
+          provider ?? getSyncProvider(settings.getSetting(db, "sync_provider"));
+        if (!target) return { action: "none" };
         const outcome = await syncNow(db, target, { appVersion: appVersion() });
         refresh();
         return outcome;

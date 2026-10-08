@@ -1,6 +1,6 @@
 /** Pure geometry for the cash-flow charts: cumulative duo lines, the gap between them, and diverging bars. */
-import { monotoneSegments, type Pt } from './smooth';
-import { barDomain, niceTicks } from './geometry';
+import { monotoneSegments, type Pt } from "./smooth";
+import { barDomain, niceTicks } from "./geometry";
 
 export interface DuoPoint {
   /** Cumulative money in; null after today. */
@@ -10,7 +10,10 @@ export interface DuoPoint {
 }
 
 /** Running sum of `daily`; entries after `todayIndex` are null. */
-export function cumulativeUntil(daily: readonly number[], todayIndex: number): (number | null)[] {
+export function cumulativeUntil(
+  daily: readonly number[],
+  todayIndex: number,
+): (number | null)[] {
   let sum = 0;
   return daily.map((v, i) => {
     sum += v;
@@ -19,9 +22,14 @@ export function cumulativeUntil(daily: readonly number[], todayIndex: number): (
 }
 
 /** Both cumulative series for a period; the future is left empty. */
-export function buildDuo(inDaily: readonly number[], outDaily: readonly number[], todayIndex: number): DuoPoint[] {
+export function buildDuo(
+  inDaily: readonly number[],
+  outDaily: readonly number[],
+  todayIndex: number,
+): DuoPoint[] {
   const days = Math.max(inDaily.length, outDaily.length);
-  const pad = (list: readonly number[]) => Array.from({ length: days }, (_, i) => list[i] ?? 0);
+  const pad = (list: readonly number[]) =>
+    Array.from({ length: days }, (_, i) => list[i] ?? 0);
   const a = cumulativeUntil(pad(inDaily), todayIndex);
   const b = cumulativeUntil(pad(outDaily), todayIndex);
   return a.map((v, i) => ({ in: v, out: b[i] ?? null }));
@@ -53,15 +61,30 @@ export interface DuoOptions {
  * Both lines on ONE shared axis. Each starts at (0, baseline); day i of N sits at x = (i + 1) / N * width. Money in
  * holds flat and climbs steeply on the day a lump lands; money out connects its day points.
  */
-export function duoGeometry(series: readonly DuoPoint[], width: number, height: number, options: DuoOptions = {}): DuoGeometry {
+export function duoGeometry(
+  series: readonly DuoPoint[],
+  width: number,
+  height: number,
+  options: DuoOptions = {},
+): DuoGeometry {
   const { padTop = 6, padBottom = 4, ramp = 5 } = options;
   const days = series.length;
   const peak = series.reduce((m, d) => Math.max(m, d.in ?? 0, d.out ?? 0), 0);
   const max = peak * 1.08;
   const baseline = height - padBottom;
-  const yAt = (v: number) => (max <= 0 ? baseline : padTop + (baseline - padTop) * (1 - v / max));
+  const yAt = (v: number) =>
+    max <= 0 ? baseline : padTop + (baseline - padTop) * (1 - v / max);
   const xAt = (i: number) => (days === 0 ? 0 : ((i + 1) / days) * width);
-  const empty = { inLine: [], outLine: [], inEnd: null, outEnd: null, max, hasIncome: false, xAt, yAt } satisfies DuoGeometry;
+  const empty = {
+    inLine: [],
+    outLine: [],
+    inEnd: null,
+    outEnd: null,
+    max,
+    hasIncome: false,
+    xAt,
+    yAt,
+  } satisfies DuoGeometry;
   if (days === 0 || peak <= 0 || width <= 0) return empty;
 
   const dx = width / days;
@@ -101,8 +124,14 @@ export function sampleSmooth(pts: readonly Pt[], steps = 6): Pt[] {
       const t = s / steps;
       const u = 1 - t;
       out.push([
-        u * u * u * px + 3 * u * u * t * c1x + 3 * u * t * t * c2x + t * t * t * x,
-        u * u * u * py + 3 * u * u * t * c1y + 3 * u * t * t * c2y + t * t * t * y,
+        u * u * u * px +
+          3 * u * u * t * c1x +
+          3 * u * t * t * c2x +
+          t * t * t * x,
+        u * u * u * py +
+          3 * u * u * t * c1y +
+          3 * u * t * t * c2y +
+          t * t * t * y,
       ]);
     }
     px = x;
@@ -127,7 +156,7 @@ export function yOnLine(line: readonly Pt[], x: number): number {
 
 export interface GapSegment {
   /** 'in' where money in is above money out (kept), 'out' where spending leads (overspent). */
-  kind: 'in' | 'out';
+  kind: "in" | "out";
   /** Closed polygon between the two lines. */
   polygon: Pt[];
 }
@@ -136,10 +165,20 @@ export interface GapSegment {
  * Regions between two polylines (pixel y, so smaller y is higher), split wherever they cross. Zero-area slivers are
  * dropped.
  */
-export function gapSegments(inLine: readonly Pt[], outLine: readonly Pt[]): GapSegment[] {
+export function gapSegments(
+  inLine: readonly Pt[],
+  outLine: readonly Pt[],
+): GapSegment[] {
   if (inLine.length < 2 || outLine.length < 2) return [];
-  const end = Math.min(inLine[inLine.length - 1]![0], outLine[outLine.length - 1]![0]);
-  const xs = [...new Set([...inLine.map((p) => p[0]), ...outLine.map((p) => p[0])])].filter((x) => x <= end).sort((a, b) => a - b);
+  const end = Math.min(
+    inLine[inLine.length - 1]![0],
+    outLine[outLine.length - 1]![0],
+  );
+  const xs = [
+    ...new Set([...inLine.map((p) => p[0]), ...outLine.map((p) => p[0])]),
+  ]
+    .filter((x) => x <= end)
+    .sort((a, b) => a - b);
   type Row = { x: number; a: number; b: number; s: number };
   const rows: Row[] = [];
   for (const x of xs) {
@@ -155,12 +194,21 @@ export function gapSegments(inLine: readonly Pt[], outLine: readonly Pt[]): GapS
     rows.push({ x, a, b, s });
   }
   const segments: GapSegment[] = [];
-  let run: { kind: 'in' | 'out'; pts: Row[] } | null = null;
+  let run: { kind: "in" | "out"; pts: Row[] } | null = null;
   const flush = () => {
-    if (run && run.pts.length > 1 && run.pts.some((p) => Math.abs(p.a - p.b) > 0.25)) {
+    if (
+      run &&
+      run.pts.length > 1 &&
+      run.pts.some((p) => Math.abs(p.a - p.b) > 0.25)
+    ) {
       segments.push({
         kind: run.kind,
-        polygon: [...run.pts.map((p) => [p.x, Math.min(p.a, p.b)] as const), ...[...run.pts].reverse().map((p) => [p.x, Math.max(p.a, p.b)] as const)],
+        polygon: [
+          ...run.pts.map((p) => [p.x, Math.min(p.a, p.b)] as const),
+          ...[...run.pts]
+            .reverse()
+            .map((p) => [p.x, Math.max(p.a, p.b)] as const),
+        ],
       });
     }
     run = null;
@@ -173,7 +221,7 @@ export function gapSegments(inLine: readonly Pt[], outLine: readonly Pt[]): GapS
       }
       return;
     }
-    const kind = row.s > 0 ? 'in' : 'out';
+    const kind = row.s > 0 ? "in" : "out";
     if (!run || run.kind !== kind) {
       flush();
       const before = rows[i - 1];
@@ -209,7 +257,10 @@ export interface FlowScale {
  * Diverging domain: income rises above zero, spending drops below, one px-per-unit scale for both. Each side
  * clips its outliers with the shared `barDomain` rule so normal days stay readable.
  */
-export function flowScale(data: readonly FlowDatum[], plotHeight: number): FlowScale {
+export function flowScale(
+  data: readonly FlowDatum[],
+  plotHeight: number,
+): FlowScale {
   const mean = (list: number[]) => {
     const pos = list.filter((v) => v > 0);
     return pos.length === 0 ? 0 : pos.reduce((s, v) => s + v, 0) / pos.length;
@@ -217,10 +268,17 @@ export function flowScale(data: readonly FlowDatum[], plotHeight: number): FlowS
   const incomes = data.map((d) => d.income);
   const spends = data.map((d) => d.spent);
   // One outlier rule over every bar, so a lump salary clips instead of flattening the spending bars.
-  const all = barDomain([...incomes, ...spends], mean([...incomes, ...spends]), 2);
+  const all = barDomain(
+    [...incomes, ...spends],
+    mean([...incomes, ...spends]),
+    2,
+  );
   const ceiling = all.clipped ? all.top : Infinity;
   const side = (values: number[]) => {
-    const max = Math.min(values.reduce((m, v) => Math.max(m, v), 0), ceiling);
+    const max = Math.min(
+      values.reduce((m, v) => Math.max(m, v), 0),
+      ceiling,
+    );
     // The axis ends at the data, not at the next nice tick, so no half of the plot sits empty.
     const ticks = niceTicks(max, 2).ticks.filter((t) => t <= max);
     return { top: max, ticks, clipped: values.some((v) => v > max) };
@@ -234,7 +292,8 @@ export function flowScale(data: readonly FlowDatum[], plotHeight: number): FlowS
   if (downTop <= 0 && upTop > 0) downTop = upTop * 0.3;
   const total = upTop + downTop;
   const pxPerUnit = total > 0 ? plotHeight / total : 0;
-  const keepTicks = (top: number, own: { ticks: number[]; top: number }) => (own.top > 0 ? own.ticks : niceTicks(top, 1).ticks);
+  const keepTicks = (top: number, own: { ticks: number[]; top: number }) =>
+    own.top > 0 ? own.ticks : niceTicks(top, 1).ticks;
   return {
     upTop,
     downTop,
@@ -257,12 +316,20 @@ export function runningNet(data: readonly FlowDatum[]): number[] {
  * Pixel offsets from the zero line (negative = above) for the running net, drawn on its own zero-aligned scale so a
  * lump salary does not flatten the daily bars. Fits inside the plot with `fill` of the room on each side.
  */
-export function netOffsets(net: readonly number[], scale: FlowScale, plotHeight: number, fill = 0.9): number[] {
+export function netOffsets(
+  net: readonly number[],
+  scale: FlowScale,
+  plotHeight: number,
+  fill = 0.9,
+): number[] {
   const maxPos = net.reduce((m, v) => Math.max(m, v), 0);
   const maxNeg = net.reduce((m, v) => Math.max(m, -v), 0);
   const roomUp = scale.zeroY * fill;
   const roomDown = (plotHeight - scale.zeroY) * fill;
-  const factors = [maxPos > 0 ? roomUp / maxPos : Infinity, maxNeg > 0 ? roomDown / maxNeg : Infinity].filter(Number.isFinite);
+  const factors = [
+    maxPos > 0 ? roomUp / maxPos : Infinity,
+    maxNeg > 0 ? roomDown / maxNeg : Infinity,
+  ].filter(Number.isFinite);
   const f = factors.length === 0 ? 0 : Math.min(...factors);
   return net.map((v) => -v * f);
 }

@@ -1,24 +1,31 @@
-import * as React from 'react';
-import { View } from 'react-native';
+import * as React from "react";
+import { View } from "react-native";
 
-import { IconTile , Input , Pressable , Text } from '@studio/ui';
-import { conceptFor, conceptLabel , tileRadius } from '@studio/icons';
-import type { CategoryColorKey } from '@studio/theme';
-import { useTokens } from '@studio/theme';
+import { IconTile, Input, Pressable, Text } from "@studio/ui";
+import { conceptFor, conceptLabel, tileRadius } from "@studio/icons";
+import type { CategoryColorKey } from "@studio/theme";
+import { useTokens } from "@studio/theme";
 
-import { iconSections } from './icons';
+import { iconSections } from "./icons";
 
 const SIZE = 46;
 const RING = 3;
 
-type IconGridProps = { value: string; color: CategoryColorKey; onChange: (icon: string) => void };
+type IconGridProps = {
+  value: string;
+  color: CategoryColorKey;
+  onChange: (icon: string) => void;
+};
 
 /** Searchable, themed grid of every curated icon, drawn in the user's icon style and tile treatment. */
 function IconGrid({ value, color, onChange }: IconGridProps) {
   const { colors } = useTokens();
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState("");
   const [initial] = React.useState(value);
-  const sections = React.useMemo(() => iconSections(query, initial), [query, initial]);
+  const sections = React.useMemo(
+    () => iconSections(query, initial),
+    [query, initial],
+  );
   const selected = conceptFor(value);
   return (
     <View className="gap-3">
@@ -39,7 +46,12 @@ function IconGrid({ value, color, onChange }: IconGridProps) {
       ) : (
         sections.map((section) => (
           <View key={section.title}>
-            <Text variant="footnote" tone="secondary" className="pb-2 pt-1" accessibilityRole="header">
+            <Text
+              variant="footnote"
+              tone="secondary"
+              className="pb-2 pt-1"
+              accessibilityRole="header"
+            >
               {section.title}
             </Text>
             <View className="-mx-1 flex-row flex-wrap">
@@ -54,7 +66,12 @@ function IconGrid({ value, color, onChange }: IconGridProps) {
                       haptic="selection"
                       onPress={() => onChange(id)}
                       className="items-center justify-center"
-                      style={{ padding: RING, borderRadius: tileRadius(SIZE) + RING, borderWidth: 2, borderColor: on ? colors.accent : 'transparent' }}
+                      style={{
+                        padding: RING,
+                        borderRadius: tileRadius(SIZE) + RING,
+                        borderWidth: 2,
+                        borderColor: on ? colors.accent : "transparent",
+                      }}
                     >
                       <IconTile icon={id} color={color} size={SIZE} />
                     </Pressable>

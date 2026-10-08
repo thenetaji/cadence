@@ -1,14 +1,28 @@
-import { Canvas, Circle, Path, Skia, type SkPath } from '@shopify/react-native-skia';
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { Easing, FadeIn, useDerivedValue, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import {
+  Canvas,
+  Circle,
+  Path,
+  Skia,
+  type SkPath,
+} from "@shopify/react-native-skia";
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
+import { GestureDetector, Gesture } from "react-native-gesture-handler";
+import Animated, {
+  Easing,
+  FadeIn,
+  useDerivedValue,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
-import { Pressable, Text } from '@studio/ui';
-import { donutSegments, hitTestDonut } from '../lib';
-import { motion } from '@studio/motion';
-import { haptic , useTokens } from '@studio/theme';
-import { useGrow } from './chart-kit';
+import { Pressable, Text } from "@studio/ui";
+import { donutSegments, hitTestDonut } from "../lib";
+import { motion } from "@studio/motion";
+import { haptic, useTokens } from "@studio/theme";
+import { useGrow } from "./chart-kit";
 
 export type DonutDatum = {
   key: string;
@@ -41,15 +55,39 @@ const GAP_PT = 2;
 const SWEEP_MS = 700;
 const DIM = 0.3;
 
-type SegmentProps = { path: SkPath; color: string; startDeg: number; sweepDeg: number; selected: boolean; dimmed: boolean; grow: ReturnType<typeof useGrow> };
+type SegmentProps = {
+  path: SkPath;
+  color: string;
+  startDeg: number;
+  sweepDeg: number;
+  selected: boolean;
+  dimmed: boolean;
+  grow: ReturnType<typeof useGrow>;
+};
 
-function Segment({ path, color, startDeg, sweepDeg, selected, dimmed, grow }: SegmentProps) {
+function Segment({
+  path,
+  color,
+  startDeg,
+  sweepDeg,
+  selected,
+  dimmed,
+  grow,
+}: SegmentProps) {
   const reduced = useReducedMotion();
   const pop = useSharedValue(0);
   const dim = useSharedValue(0);
   React.useEffect(() => {
-    pop.value = reduced ? (selected ? 1 : 0) : withSpring(selected ? 1 : 0, motion.springs.pop);
-    dim.value = reduced ? (dimmed ? 1 : 0) : withTiming(dimmed ? 1 : 0, { duration: 200 });
+    pop.value = reduced
+      ? selected
+        ? 1
+        : 0
+      : withSpring(selected ? 1 : 0, motion.springs.pop);
+    dim.value = reduced
+      ? dimmed
+        ? 1
+        : 0
+      : withTiming(dimmed ? 1 : 0, { duration: 200 });
   }, [selected, dimmed, reduced, pop, dim]);
   // Reveal clockwise: each segment's trim end follows the global sweep angle.
   const end = useDerivedValue(() => {
@@ -59,22 +97,41 @@ function Segment({ path, color, startDeg, sweepDeg, selected, dimmed, grow }: Se
   });
   const strokeWidth = useDerivedValue(() => STROKE + POP * 2 * pop.value);
   const opacity = useDerivedValue(() => 1 - (1 - DIM) * dim.value);
-  return <Path path={path} style="stroke" strokeWidth={strokeWidth} color={color} opacity={opacity} start={0} end={end} />;
+  return (
+    <Path
+      path={path}
+      style="stroke"
+      strokeWidth={strokeWidth}
+      color={color}
+      opacity={opacity}
+      start={0}
+      end={end}
+    />
+  );
 }
 
-function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, size = 216 }: DonutProps) {
+function Donut({
+  data,
+  selectedKey,
+  onSelect,
+  accessibilityLabel,
+  emptyLabel,
+  size = 216,
+}: DonutProps) {
   const { colors } = useTokens();
   const grow = useGrow(SWEEP_MS);
   const reduced = useReducedMotion();
   // Period change: same ring sweeps in again. Selection changes do not touch `signature`.
-  const signature = data.map((d) => `${d.key}:${d.value}`).join('|');
+  const signature = data.map((d) => `${d.key}:${d.value}`).join("|");
   const seen = React.useRef(signature);
   React.useEffect(() => {
     if (seen.current === signature) return;
     seen.current = signature;
     if (reduced) return;
     grow.set(0.02);
-    grow.set(withTiming(1, { duration: SWEEP_MS, easing: Easing.out(Easing.cubic) }));
+    grow.set(
+      withTiming(1, { duration: SWEEP_MS, easing: Easing.out(Easing.cubic) }),
+    );
   }, [signature, reduced, grow]);
   const half = size / 2;
   const outer = half - POP;
@@ -82,18 +139,43 @@ function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, si
   const inner = radius - STROKE / 2;
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const gapDeg = ((GAP_PT / radius) * 180) / Math.PI;
-  const segments = React.useMemo(() => donutSegments(data.map((d) => d.value), gapDeg), [data, gapDeg]);
-  const selectedIndex = selectedKey === null ? -1 : data.findIndex((d) => d.key === selectedKey);
+  const segments = React.useMemo(
+    () =>
+      donutSegments(
+        data.map((d) => d.value),
+        gapDeg,
+      ),
+    [data, gapDeg],
+  );
+  const selectedIndex =
+    selectedKey === null ? -1 : data.findIndex((d) => d.key === selectedKey);
   const selected = selectedIndex >= 0 ? data[selectedIndex] : undefined;
   // Nothing selected: the centre names the biggest category.
-  const leader = React.useMemo(() => data.reduce<DonutDatum | undefined>((best, d) => (!best || d.value > best.value ? d : best), undefined), [data]);
+  const leader = React.useMemo(
+    () =>
+      data.reduce<DonutDatum | undefined>(
+        (best, d) => (!best || d.value > best.value ? d : best),
+        undefined,
+      ),
+    [data],
+  );
   const shown = selected ?? (total > 0 ? leader : undefined);
 
   const paths = React.useMemo(
     () =>
       segments.map((segment) => {
         const builder = Skia.PathBuilder.Make();
-        if (segment.sweep > 0) builder.addArc({ x: half - radius, y: half - radius, width: radius * 2, height: radius * 2 }, segment.start, segment.sweep);
+        if (segment.sweep > 0)
+          builder.addArc(
+            {
+              x: half - radius,
+              y: half - radius,
+              width: radius * 2,
+              height: radius * 2,
+            },
+            segment.start,
+            segment.sweep,
+          );
         return builder.build();
       }),
     [segments, radius, half],
@@ -103,23 +185,42 @@ function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, si
     .runOnJS(true)
     .onEnd((event, success) => {
       if (!success) return;
-      const hit = hitTestDonut(event.x, event.y, half, half, inner, outer, segments);
+      const hit = hitTestDonut(
+        event.x,
+        event.y,
+        half,
+        half,
+        inner,
+        outer,
+        segments,
+      );
       const next = hit >= 0 ? data[hit]?.key : undefined;
       if (next === undefined || next === selectedKey) {
         if (selectedKey !== null) onSelect(null);
         return;
       }
-      haptic('selection');
+      haptic("selection");
       onSelect(next);
     });
 
   return (
-    <View style={{ width: size, height: size }} accessibilityLabel={accessibilityLabel} accessible={data.length === 0}>
+    <View
+      style={{ width: size, height: size }}
+      accessibilityLabel={accessibilityLabel}
+      accessible={data.length === 0}
+    >
       <GestureDetector gesture={tap}>
         <View collapsable={false}>
           <Canvas style={{ width: size, height: size }}>
             {total === 0 ? (
-              <Circle cx={half} cy={half} r={radius} style="stroke" strokeWidth={StyleSheet.hairlineWidth * 2} color={colors.separator} />
+              <Circle
+                cx={half}
+                cy={half}
+                r={radius}
+                style="stroke"
+                strokeWidth={StyleSheet.hairlineWidth * 2}
+                color={colors.separator}
+              />
             ) : (
               data.map((d, i) => (
                 <Segment
@@ -137,16 +238,41 @@ function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, si
           </Canvas>
         </View>
       </GestureDetector>
-      <View pointerEvents="none" className="absolute inset-0 items-center justify-center" style={{ paddingHorizontal: STROKE + POP + 8 }}>
+      <View
+        pointerEvents="none"
+        className="absolute inset-0 items-center justify-center"
+        style={{ paddingHorizontal: STROKE + POP + 8 }}
+      >
         {shown ? (
-          <Animated.View key={shown.key} entering={reduced ? undefined : FadeIn.duration(180)} className="items-center">
-            <Text variant="footnote" tone="secondary" numberOfLines={1} className="text-center">
+          <Animated.View
+            key={shown.key}
+            entering={reduced ? undefined : FadeIn.duration(180)}
+            className="items-center"
+          >
+            <Text
+              variant="footnote"
+              tone="secondary"
+              numberOfLines={1}
+              className="text-center"
+            >
               {shown.name}
             </Text>
-            <Text variant="title1" numeric numberOfLines={1} style={{ color: shown.color }}>
+            <Text
+              variant="title1"
+              numeric
+              numberOfLines={1}
+              style={{ color: shown.color }}
+            >
               {shown.percentLabel}
             </Text>
-            <Text variant="subhead" numeric numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} className="text-center">
+            <Text
+              variant="subhead"
+              numeric
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+              className="text-center"
+            >
               {shown.amountLabel}
             </Text>
           </Animated.View>
@@ -170,9 +296,17 @@ function Donut({ data, selectedKey, onSelect, accessibilityLabel, emptyLabel, si
             accessibilityRole="button"
             accessibilityLabel={`${d.name}, ${d.amountLabel}, ${d.percentLabel}`}
             accessibilityState={{ selected: d.key === selectedKey }}
-            accessibilityActions={[{ name: 'activate' }]}
-            onAccessibilityAction={() => onSelect(d.key === selectedKey ? null : d.key)}
-            style={{ position: 'absolute', left: cx - 22, top: cy - 22, width: 44, height: 44 }}
+            accessibilityActions={[{ name: "activate" }]}
+            onAccessibilityAction={() =>
+              onSelect(d.key === selectedKey ? null : d.key)
+            }
+            style={{
+              position: "absolute",
+              left: cx - 22,
+              top: cy - 22,
+              width: 44,
+              height: 44,
+            }}
           />
         );
       })}
@@ -207,19 +341,38 @@ function DonutLegend({ data, selectedKey, onSelect }: DonutLegendProps) {
                 scale={0.97}
                 popWhen={selected}
                 onPress={() => {
-                  haptic('selection');
+                  haptic("selection");
                   onSelect(selected ? null : d.key);
                 }}
                 className="min-w-0 flex-1 rounded-[10px] px-2 py-1.5"
-                style={{ opacity: selectedKey !== null && !selected ? 0.45 : 1 }}
+                style={{
+                  opacity: selectedKey !== null && !selected ? 0.45 : 1,
+                }}
               >
                 <View className="flex-row items-center">
-                  <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.color }} />
-                  <Text variant="subhead" numberOfLines={1} className="ml-2 min-w-0 flex-1 font-medium">
+                  <View
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      backgroundColor: d.color,
+                    }}
+                  />
+                  <Text
+                    variant="subhead"
+                    numberOfLines={1}
+                    className="ml-2 min-w-0 flex-1 font-medium"
+                  >
                     {d.name}
                   </Text>
                 </View>
-                <Text variant="footnote" tone="secondary" numeric numberOfLines={1} className="ml-[18px]">
+                <Text
+                  variant="footnote"
+                  tone="secondary"
+                  numeric
+                  numberOfLines={1}
+                  className="ml-[18px]"
+                >
                   {`${d.percentLabel} · ${d.amountLabel}`}
                 </Text>
               </Pressable>

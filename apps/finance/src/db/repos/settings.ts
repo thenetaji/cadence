@@ -1,19 +1,32 @@
-import { eq } from 'drizzle-orm';
-import { settings } from '../schema';
-import type { Db } from '../types';
+import { eq } from "drizzle-orm";
+import { settings } from "../schema";
+import type { Db } from "../types";
 
-import { ICON_BACKGROUNDS, ICON_STYLES, type IconBackground, type IconStyle } from '@studio/icons';
-import { DEFAULT_HOME_LAYOUT, normalizeHomeLayout, type HomeSectionPref } from '@/lib/home/layout';
+import {
+  ICON_BACKGROUNDS,
+  ICON_STYLES,
+  type IconBackground,
+  type IconStyle,
+} from "@studio/icons";
+import {
+  DEFAULT_HOME_LAYOUT,
+  normalizeHomeLayout,
+  type HomeSectionPref,
+} from "@/lib/home/layout";
 
 export { ICON_BACKGROUNDS, ICON_STYLES };
 export type { IconBackground, IconStyle };
-export type SyncProviderId = 'none' | 'icloud' | 'gdrive';
+export type SyncProviderId = "none" | "icloud" | "gdrive";
 
-export const SYNC_PROVIDER_IDS: readonly SyncProviderId[] = ['none', 'icloud', 'gdrive'];
+export const SYNC_PROVIDER_IDS: readonly SyncProviderId[] = [
+  "none",
+  "icloud",
+  "gdrive",
+];
 
 export interface SettingsMap {
   display_currency: string;
-  theme: 'system' | 'light' | 'dark';
+  theme: "system" | "light" | "dark";
   haptics: boolean;
   show_decimals: boolean;
   week_start: 1 | 7;
@@ -21,7 +34,7 @@ export interface SettingsMap {
   default_account_id: string | null;
   lock_enabled: boolean;
   lock_timeout_s: 0 | 60 | 300;
-  last_kind: 'expense' | 'income' | 'transfer';
+  last_kind: "expense" | "income" | "transfer";
   last_account_id: string | null;
   onboarding_done: boolean;
   schema_seeded: boolean;
@@ -47,8 +60,8 @@ export interface SettingsMap {
 export type SettingKey = keyof SettingsMap;
 
 export const DEFAULT_SETTINGS: Readonly<SettingsMap> = {
-  display_currency: 'USD',
-  theme: 'system',
+  display_currency: "USD",
+  theme: "system",
   haptics: true,
   show_decimals: false,
   week_start: 1,
@@ -56,21 +69,21 @@ export const DEFAULT_SETTINGS: Readonly<SettingsMap> = {
   default_account_id: null,
   lock_enabled: false,
   lock_timeout_s: 0,
-  last_kind: 'expense',
+  last_kind: "expense",
   last_account_id: null,
   onboarding_done: false,
   schema_seeded: false,
   recent_searches: [],
-  icon_style: 'phosphor-duotone',
-  icon_background: 'graphite-glyph',
+  icon_style: "phosphor-duotone",
+  icon_background: "graphite-glyph",
   home_layout: DEFAULT_HOME_LAYOUT.map((s) => ({ ...s })),
   hide_amounts: false,
   reminder_daily_enabled: false,
-  reminder_daily_time: '21:00',
+  reminder_daily_time: "21:00",
   reminder_bills: true,
   reminder_budgets: true,
   reminder_budget_fired: [],
-  sync_provider: 'none',
+  sync_provider: "none",
   last_backup_at: null,
 };
 
@@ -82,27 +95,42 @@ const ENUMS: Partial<Record<SettingKey, readonly unknown[]>> = {
 
 export const SETTING_KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];
 
-function decode<K extends SettingKey>(key: K, raw: string | undefined): SettingsMap[K] {
+function decode<K extends SettingKey>(
+  key: K,
+  raw: string | undefined,
+): SettingsMap[K] {
   if (raw === undefined) return DEFAULT_SETTINGS[key];
   try {
     const value = JSON.parse(raw) as SettingsMap[K];
     const allowed = ENUMS[key];
     // A stored value from an older or newer build that is no longer valid falls back to the default.
     if (allowed && !allowed.includes(value)) return DEFAULT_SETTINGS[key];
-    if (key === 'home_layout') return normalizeHomeLayout(value) as SettingsMap[K];
-    if (key === 'reminder_daily_time' && !/^([01]\d|2[0-3]):[0-5]\d$/.test(String(value))) return DEFAULT_SETTINGS[key];
+    if (key === "home_layout")
+      return normalizeHomeLayout(value) as SettingsMap[K];
+    if (
+      key === "reminder_daily_time" &&
+      !/^([01]\d|2[0-3]):[0-5]\d$/.test(String(value))
+    )
+      return DEFAULT_SETTINGS[key];
     return value;
   } catch {
     return DEFAULT_SETTINGS[key];
   }
 }
 
-export function getSetting<K extends SettingKey>(db: Db, key: K): SettingsMap[K] {
+export function getSetting<K extends SettingKey>(
+  db: Db,
+  key: K,
+): SettingsMap[K] {
   const row = db.select().from(settings).where(eq(settings.key, key)).get();
   return decode(key, row?.value);
 }
 
-export function setSetting<K extends SettingKey>(db: Db, key: K, value: SettingsMap[K]): void {
+export function setSetting<K extends SettingKey>(
+  db: Db,
+  key: K,
+  value: SettingsMap[K],
+): void {
   const encoded = JSON.stringify(value);
   db.insert(settings)
     .values({ key, value: encoded })

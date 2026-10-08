@@ -1,7 +1,12 @@
-import { minorDigits } from './currencies';
+import { minorDigits } from "./currencies";
 
 /** Display-only conversion. The result is never persisted. */
-export function convertMinor(minor: number, from: string, to: string, rate: number): number {
+export function convertMinor(
+  minor: number,
+  from: string,
+  to: string,
+  rate: number,
+): number {
   if (from === to) return minor;
   const major = minor / 10 ** minorDigits(from);
   return Math.round(major * rate * 10 ** minorDigits(to));
@@ -29,7 +34,12 @@ export function makeRateLookup(rows: readonly RateRow[]): RateLookup {
 }
 
 /** Converts with a lookup; amounts without a known rate stay unconverted. */
-export function convertWithRates(minor: number, from: string, to: string, lookup: RateLookup): number {
+export function convertWithRates(
+  minor: number,
+  from: string,
+  to: string,
+  lookup: RateLookup,
+): number {
   const rate = lookup(from, to);
   return rate === null ? minor : convertMinor(minor, from, to, rate);
 }

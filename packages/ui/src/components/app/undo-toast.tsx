@@ -1,14 +1,18 @@
-import { View } from 'react-native';
+import { View } from "react-native";
 
-import { Pressable } from '../ui/pressable';
-import { Text } from '../ui/text';
-import { colors, pressOpacity, shadows , useTokens } from '@studio/theme';
+import { Pressable } from "../ui/pressable";
+import { Text } from "../ui/text";
+import { colors, pressOpacity, shadows, useTokens } from "@studio/theme";
 
-type UndoToastProps = { message: string; actionLabel?: string; onAction?: () => void };
+type UndoToastProps = {
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+};
 
 function UndoToast({ message, actionLabel, onAction }: UndoToastProps) {
   const { isDark } = useTokens();
-  const actionColor = colors[isDark ? 'light' : 'dark'].accentText;
+  const actionColor = colors[isDark ? "light" : "dark"].accentText;
   return (
     <View
       accessibilityRole="alert"
@@ -16,7 +20,12 @@ function UndoToast({ message, actionLabel, onAction }: UndoToastProps) {
       style={shadows.toast}
       className="min-h-12 flex-row items-center justify-between rounded-[14px] bg-overlay pl-4"
     >
-      <Text variant="callout" tone="inverted" numberOfLines={1} className="flex-1 pr-2">
+      <Text
+        variant="callout"
+        tone="inverted"
+        numberOfLines={1}
+        className="flex-1 pr-2"
+      >
         {message}
       </Text>
       {actionLabel ? (
@@ -28,7 +37,11 @@ function UndoToast({ message, actionLabel, onAction }: UndoToastProps) {
           onPress={onAction}
           className="h-12 justify-center px-4"
         >
-          <Text variant="callout" className="font-semibold" style={{ color: actionColor }}>
+          <Text
+            variant="callout"
+            className="font-semibold"
+            style={{ color: actionColor }}
+          >
             {actionLabel}
           </Text>
         </Pressable>

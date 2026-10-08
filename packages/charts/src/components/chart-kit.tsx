@@ -1,15 +1,33 @@
-import { Group, RoundedRect, Text as SkText, type SkFont } from '@shopify/react-native-skia';
-import * as React from 'react';
-import { useDerivedValue, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming, Easing, type SharedValue } from 'react-native-reanimated';
-import { Gesture } from 'react-native-gesture-handler';
-import { type LayoutChangeEvent } from 'react-native';
+import {
+  Group,
+  RoundedRect,
+  Text as SkText,
+  type SkFont,
+} from "@shopify/react-native-skia";
+import * as React from "react";
+import {
+  useDerivedValue,
+  useReducedMotion,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withSpring,
+  withTiming,
+  Easing,
+  type SharedValue,
+} from "react-native-reanimated";
+import { Gesture } from "react-native-gesture-handler";
+import { type LayoutChangeEvent } from "react-native";
 
-import { clampLabelX, SELECTION_CLEAR_MS } from '../lib';
-import { haptic , durations , useTokens } from '@studio/theme';
-import { motion } from '@studio/motion';
+import { clampLabelX, SELECTION_CLEAR_MS } from "../lib";
+import { haptic, durations, useTokens } from "@studio/theme";
+import { motion } from "@studio/motion";
 
 /** Width of the container, measured once laid out. */
-export function useChartWidth(): readonly [number, (event: LayoutChangeEvent) => void] {
+export function useChartWidth(): readonly [
+  number,
+  (event: LayoutChangeEvent) => void,
+] {
   const [width, setWidth] = React.useState(0);
   const onLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.width);
@@ -19,11 +37,17 @@ export function useChartWidth(): readonly [number, (event: LayoutChangeEvent) =>
 }
 
 /** 0 -> 1 on first mount only (400 ms by default); already 1 under Reduce Motion. */
-export function useGrow(duration: number = durations.countUp): SharedValue<number> {
+export function useGrow(
+  duration: number = durations.countUp,
+): SharedValue<number> {
   const reduced = useReducedMotion();
   const grow = useSharedValue(reduced ? 1 : 0);
   React.useEffect(() => {
-    if (!reduced) grow.value = withTiming(1, { duration, easing: Easing.out(Easing.cubic) });
+    if (!reduced)
+      grow.value = withTiming(1, {
+        duration,
+        easing: Easing.out(Easing.cubic),
+      });
   }, [grow, reduced, duration]);
   return grow;
 }
@@ -48,7 +72,13 @@ const LABEL_HOLD_MS = 1500;
  * never for the initial selection, and fades out shortly after. Empty text hides it at once, so a caller that keeps
  * it mounted shows it again for the next selection. A label wider than the chart is scaled down to fit.
  */
-export function FloatingLabel({ text, font, centerX, y, totalWidth }: FloatingLabelProps) {
+export function FloatingLabel({
+  text,
+  font,
+  centerX,
+  y,
+  totalWidth,
+}: FloatingLabelProps) {
   const { colors } = useTokens();
   const reduced = useReducedMotion();
   const padX = 10;
@@ -66,19 +96,42 @@ export function FloatingLabel({ text, font, centerX, y, totalWidth }: FloatingLa
   React.useEffect(() => {
     if (shownText.current === text) return;
     shownText.current = text;
-    if (text === '') {
+    if (text === "") {
       opacity.value = 0;
       return;
     }
     opacity.value = reduced
-      ? withSequence(withTiming(1, { duration: 0 }), withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 0 })))
-      : withSequence(withTiming(1, { duration: 120 }), withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 250 })));
+      ? withSequence(
+          withTiming(1, { duration: 0 }),
+          withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 0 })),
+        )
+      : withSequence(
+          withTiming(1, { duration: 120 }),
+          withDelay(LABEL_HOLD_MS, withTiming(0, { duration: 250 })),
+        );
   }, [text, reduced, opacity]);
-  const transform = useDerivedValue(() => [{ translateX: x.value }, { translateY: y }, { scale }]);
+  const transform = useDerivedValue(() => [
+    { translateX: x.value },
+    { translateY: y },
+    { scale },
+  ]);
   return (
     <Group opacity={opacity} transform={transform}>
-      <RoundedRect x={0} y={0} width={width} height={height} r={8} color={colors.overlay} />
-      <SkText x={padX} y={16.5} text={text} font={font} color={colors.overlayText} />
+      <RoundedRect
+        x={0}
+        y={0}
+        width={width}
+        height={height}
+        r={8}
+        color={colors.overlay}
+      />
+      <SkText
+        x={padX}
+        y={16.5}
+        text={text}
+        font={font}
+        color={colors.overlayText}
+      />
     </Group>
   );
 }
@@ -93,11 +146,16 @@ type ScrubOptions = {
 };
 
 /** Pan scrubs and keeps the selection on release; tapping a bar selects it, tapping the selected bar or empty space clears. */
-export function useScrubGesture({ indexAt, selected, onSelect, minY = -Infinity }: ScrubOptions) {
+export function useScrubGesture({
+  indexAt,
+  selected,
+  onSelect,
+  minY = -Infinity,
+}: ScrubOptions) {
   const pick = (x: number) => {
     const index = indexAt(x);
     if (index < 0 || index === selected) return;
-    haptic('selection');
+    haptic("selection");
     onSelect(index);
   };
   const pan = Gesture.Pan()
@@ -116,21 +174,29 @@ export function useScrubGesture({ indexAt, selected, onSelect, minY = -Infinity 
         if (selected !== null) onSelect(null);
         return;
       }
-      haptic('selection');
+      haptic("selection");
       onSelect(index);
     });
   return Gesture.Race(pan, tap);
 }
 
 /** VoiceOver adjustable behaviour: swipe up/down steps through points. */
-export function adjustableProps(count: number, selected: number | null, onSelect: (index: number | null) => void, valueText: string) {
+export function adjustableProps(
+  count: number,
+  selected: number | null,
+  onSelect: (index: number | null) => void,
+  valueText: string,
+) {
   return {
     accessible: true,
-    accessibilityRole: 'adjustable' as const,
+    accessibilityRole: "adjustable" as const,
     accessibilityValue: { text: valueText },
-    accessibilityActions: [{ name: 'increment' as const }, { name: 'decrement' as const }],
+    accessibilityActions: [
+      { name: "increment" as const },
+      { name: "decrement" as const },
+    ],
     onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) => {
-      const step = event.nativeEvent.actionName === 'increment' ? 1 : -1;
+      const step = event.nativeEvent.actionName === "increment" ? 1 : -1;
       const base = selected ?? (step === 1 ? -1 : count);
       onSelect(Math.min(count - 1, Math.max(0, base + step)));
     },
@@ -138,7 +204,10 @@ export function adjustableProps(count: number, selected: number | null, onSelect
 }
 
 /** Clears a selection once its floating label has faded; every new selection restarts the wait. */
-export function useSelectionTimeout(selected: number | null, onSelect: (index: number | null) => void) {
+export function useSelectionTimeout(
+  selected: number | null,
+  onSelect: (index: number | null) => void,
+) {
   React.useEffect(() => {
     if (selected === null) return;
     const timer = setTimeout(() => onSelect(null), SELECTION_CLEAR_MS);

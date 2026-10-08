@@ -1,13 +1,22 @@
-import * as React from 'react';
-import { View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { FadeInDown, FadeOutDown, ReduceMotion, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as React from "react";
+import { View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  FadeInDown,
+  FadeOutDown,
+  ReduceMotion,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { UndoToast } from './undo-toast';
-import { haptic } from '@studio/theme';
-import { useToastStore } from './toast-store';
-import { motion } from '@studio/motion';
+import { UndoToast } from "./undo-toast";
+import { haptic } from "@studio/theme";
+import { useToastStore } from "./toast-store";
+import { motion } from "@studio/motion";
 
 /** Spring up from the bottom with a slight overshoot. */
 const toastEntering = FadeInDown.springify()
@@ -36,7 +45,9 @@ function SwipeToDismiss({ onDismiss, children }: SwipeProps) {
         y.value = withSpring(0, motion.springs.toast);
       }
     });
-  const style = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
+  const style = useAnimatedStyle(() => ({
+    transform: [{ translateY: y.value }],
+  }));
   return (
     <GestureDetector gesture={pan}>
       <Animated.View style={style}>{children}</Animated.View>
@@ -58,15 +69,23 @@ function ToastHost({ bottomOffset = 72 }: ToastHostProps) {
   }, [toast, dismiss]);
 
   return (
-    <View pointerEvents="box-none" style={{ bottom: insets.bottom + bottomOffset }} className="absolute inset-x-0 px-4">
+    <View
+      pointerEvents="box-none"
+      style={{ bottom: insets.bottom + bottomOffset }}
+      className="absolute inset-x-0 px-4"
+    >
       {toast ? (
-        <Animated.View key={toast.id} entering={toastEntering} exiting={FadeOutDown.duration(200)}>
+        <Animated.View
+          key={toast.id}
+          entering={toastEntering}
+          exiting={FadeOutDown.duration(200)}
+        >
           <SwipeToDismiss onDismiss={() => dismiss(toast.id)}>
             <UndoToast
               message={toast.message}
               actionLabel={toast.actionLabel}
               onAction={() => {
-                haptic('light');
+                haptic("light");
                 toast.onAction?.();
                 dismiss(toast.id);
               }}

@@ -1,3 +1,3 @@
-import { SettleSheet } from '@/features/people/settle-sheet';
+import { SettleSheet } from "@/features/people/settle-sheet";
 
 export default SettleSheet;

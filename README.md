@@ -3,7 +3,7 @@
 A monorepo for consumer apps (iOS and Android through Expo) that share code. Each app is a thin product layer over shared packages for UI, theme, motion, charts, money, dates and data plumbing.
 
 ```
-apps/        the apps; each one runs in Expo Go (finance)
+apps/        the apps (finance)
 packages/    TypeScript-source workspace packages (@studio/*), no build step
 services/    backend services shared by the apps (empty for now)
 tooling/     the screenshot and end-to-end harness

@@ -1,4 +1,4 @@
-import { SyncError, type SyncProvider, type SyncStatus } from './types';
+import { SyncError, type SyncProvider, type SyncStatus } from "./types";
 
 /**
  * iCloud backup provider, stubbed until we can ship a real build.
@@ -14,14 +14,17 @@ import { SyncError, type SyncProvider, type SyncStatus } from './types';
  *   `lastRemoteModified` below; the modification time comes from the file's or record's modified date.
  */
 export class ICloudProvider implements SyncProvider {
-  readonly id = 'icloud' as const;
+  readonly id = "icloud" as const;
 
   status(): SyncStatus {
-    return { status: 'unavailable', reason: 'needs-paid-developer-account' };
+    return { status: "unavailable", reason: "needs-paid-developer-account" };
   }
 
   private fail(): never {
-    throw new SyncError('unavailable', 'iCloud sync needs a paid developer account');
+    throw new SyncError(
+      "unavailable",
+      "iCloud sync needs a paid developer account",
+    );
   }
 
   async connect(): Promise<void> {

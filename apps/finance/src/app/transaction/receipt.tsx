@@ -1,3 +1,3 @@
-import { ReceiptViewer } from '@/features/receipts/receipt-viewer';
+import { ReceiptViewer } from "@/features/receipts/receipt-viewer";
 
 export default ReceiptViewer;

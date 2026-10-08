@@ -1,9 +1,9 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from "react-native";
 
-import { IconTile , Pressable , Text } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import type { CategoryColorKey } from '@studio/theme';
-import { useTokens } from '@studio/theme';
+import { IconTile, Pressable, Text } from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import type { CategoryColorKey } from "@studio/theme";
+import { useTokens } from "@studio/theme";
 
 type DetailRowProps = {
   label: string;
@@ -24,31 +24,62 @@ type DetailRowProps = {
 };
 
 /** One line of the transaction detail's grouped list: label left, value right (or stacked). */
-function DetailRow({ label, value, tile, leading, caption, stacked = false, numeric = false, chevron = false, onPress, accessibilityLabel, showSeparator = false }: DetailRowProps) {
+function DetailRow({
+  label,
+  value,
+  tile,
+  leading,
+  caption,
+  stacked = false,
+  numeric = false,
+  chevron = false,
+  onPress,
+  accessibilityLabel,
+  showSeparator = false,
+}: DetailRowProps) {
   const { colors } = useTokens();
   return (
     <Pressable
-      role={onPress ? 'button' : undefined}
+      role={onPress ? "button" : undefined}
       accessible
-      accessibilityLabel={accessibilityLabel ?? [label, value].filter(Boolean).join(', ')}
+      accessibilityLabel={
+        accessibilityLabel ?? [label, value].filter(Boolean).join(", ")
+      }
       disabled={!onPress}
       scale={1}
       onPress={onPress}
-      className={`min-h-[48px] bg-surface px-4 py-3 active:bg-fill ${stacked ? 'gap-1' : 'flex-row items-center gap-3'}`}
+      className={`min-h-[48px] bg-surface px-4 py-3 active:bg-fill ${stacked ? "gap-1" : "flex-row items-center gap-3"}`}
     >
-      {leading ? <IconTile icon={leading.icon} color={leading.color} size={28} /> : null}
+      {leading ? (
+        <IconTile icon={leading.icon} color={leading.color} size={28} />
+      ) : null}
       <Text
-        variant={stacked ? 'footnote' : 'body'}
-        tone={leading ? 'default' : 'secondary'}
+        variant={stacked ? "footnote" : "body"}
+        tone={leading ? "default" : "secondary"}
         numberOfLines={1}
-        className={stacked ? '' : leading ? 'flex-1' : 'shrink-0'}
+        className={stacked ? "" : leading ? "flex-1" : "shrink-0"}
       >
         {label}
       </Text>
-      <View className={stacked ? '' : leading ? 'items-end' : 'flex-1 flex-row items-center justify-end gap-2'}>
-        {tile ? <IconTile icon={tile.icon} color={tile.color} size={24} /> : null}
-        <View className={stacked ? '' : 'shrink items-end'}>
-          <Text variant="body" numeric={numeric} numberOfLines={stacked ? undefined : 1} className={stacked ? '' : 'text-right'}>
+      <View
+        className={
+          stacked
+            ? ""
+            : leading
+              ? "items-end"
+              : "flex-1 flex-row items-center justify-end gap-2"
+        }
+      >
+        {tile ? (
+          <IconTile icon={tile.icon} color={tile.color} size={24} />
+        ) : null}
+        <View className={stacked ? "" : "shrink items-end"}>
+          <Text
+            variant="body"
+            numeric={numeric}
+            numberOfLines={stacked ? undefined : 1}
+            className={stacked ? "" : "text-right"}
+          >
             {value}
           </Text>
           {caption ? (
@@ -57,12 +88,18 @@ function DetailRow({ label, value, tile, leading, caption, stacked = false, nume
             </Text>
           ) : null}
         </View>
-        {chevron ? <AppIcon name="chevron.right" size={13} color={colors.textTertiary} /> : null}
+        {chevron ? (
+          <AppIcon name="chevron.right" size={13} color={colors.textTertiary} />
+        ) : null}
       </View>
       {showSeparator ? (
         <View
           pointerEvents="none"
-          style={{ left: 16, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }}
+          style={{
+            left: 16,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.separator,
+          }}
           className="absolute bottom-0 right-0"
         />
       ) : null}

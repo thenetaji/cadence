@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import type { Draft } from './logic';
+import type { Draft } from "./logic";
 
 /** `amount`, `receives`, or `line:<key>`: the target the keypad is editing. */
 export type FocusTarget = string;
@@ -20,11 +20,11 @@ let sessions = 0;
 
 /** Draft shared by the add/edit sheet and its native sub-sheets (category grid, date, custom repeat). */
 export const useDraftStore = create<DraftState>((set) => ({
-  kind: 'expense',
+  kind: "expense",
   amount: 0,
   receives: null,
-  title: '',
-  memo: '',
+  title: "",
+  memo: "",
   categoryId: null,
   accountId: null,
   transferAccountId: null,
@@ -36,11 +36,11 @@ export const useDraftStore = create<DraftState>((set) => ({
   tagIds: [],
   receipts: [],
   sessionId: 0,
-  focus: 'amount',
+  focus: "amount",
   pickingLine: null,
   init: (draft) => {
     sessions += 1;
-    set({ ...draft, sessionId: sessions, focus: 'amount', pickingLine: null });
+    set({ ...draft, sessionId: sessions, focus: "amount", pickingLine: null });
     return sessions;
   },
   patch: (patch) => set(patch),

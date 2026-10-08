@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import type { IconBackground, IconStyle } from './types';
+import type { IconBackground, IconStyle } from "./types";
 
 type IconPrefsState = {
   style: IconStyle;
@@ -14,8 +14,8 @@ type IconPrefsState = {
  * subscribe to this store instead of each running a settings query.
  */
 export const useIconPrefs = create<IconPrefsState>((set) => ({
-  style: 'phosphor-duotone',
-  background: 'graphite-glyph',
+  style: "phosphor-duotone",
+  background: "graphite-glyph",
   setStyle: (style) => set({ style }),
   setBackground: (background) => set({ background }),
 }));

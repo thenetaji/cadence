@@ -1,15 +1,20 @@
-import * as React from 'react';
-import { View, type LayoutChangeEvent } from 'react-native';
+import * as React from "react";
+import { View, type LayoutChangeEvent } from "react-native";
 
-import Animated from 'react-native-reanimated';
+import Animated from "react-native-reanimated";
 
-import { AppIcon } from '@studio/icons';
-import { Button } from '../ui/button';
-import { Text } from '../ui/text';
-import { fadeIn , Float } from '@studio/motion';
-import { useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { Button } from "../ui/button";
+import { Text } from "../ui/text";
+import { fadeIn, Float } from "@studio/motion";
+import { useTokens } from "@studio/theme";
 
-type EmptyStateProps = { message: string; actionLabel?: string; onAction?: () => void; icon?: string };
+type EmptyStateProps = {
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  icon?: string;
+};
 
 const LIFT = 0.1;
 
@@ -17,10 +22,18 @@ const LIFT = 0.1;
  * Centred in the space below the last fixed element, lifted 10% so it sits above optical centre.
  * The action is always a secondary button; labels are verb + object.
  */
-function EmptyState({ message, actionLabel, onAction, icon = 'tray' }: EmptyStateProps) {
+function EmptyState({
+  message,
+  actionLabel,
+  onAction,
+  icon = "tray",
+}: EmptyStateProps) {
   const { colors } = useTokens();
   const [height, setHeight] = React.useState(0);
-  const onLayout = React.useCallback((event: LayoutChangeEvent) => setHeight(event.nativeEvent.layout.height), []);
+  const onLayout = React.useCallback(
+    (event: LayoutChangeEvent) => setHeight(event.nativeEvent.layout.height),
+    [],
+  );
   return (
     <View
       onLayout={onLayout}
@@ -28,7 +41,10 @@ function EmptyState({ message, actionLabel, onAction, icon = 'tray' }: EmptyStat
       style={{ paddingBottom: height * LIFT * 2 }}
     >
       <Float>
-        <Animated.View entering={fadeIn(0)} className="size-14 items-center justify-center rounded-full bg-fill">
+        <Animated.View
+          entering={fadeIn(0)}
+          className="size-14 items-center justify-center rounded-full bg-fill"
+        >
           <AppIcon name={icon} size={24} color={colors.textTertiary} />
         </Animated.View>
       </Float>

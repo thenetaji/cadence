@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
-import { IconTile , Pressable , Text } from '@studio/ui';
-import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { durations, type CategoryColorKey } from '@studio/theme';
-import { useTokens } from '@studio/theme';
+import { IconTile, Pressable, Text } from "@studio/ui";
+import { formatMoney, formatMoneyForSpeech } from "@studio/money";
+import { durations, type CategoryColorKey } from "@studio/theme";
+import { useTokens } from "@studio/theme";
 
 export type CategoryListItem = {
   /** Category id; null for uncategorised lines (not drillable). */
@@ -25,15 +25,29 @@ type CategoryListProps = {
   onPress: (item: CategoryListItem) => void;
 };
 
-function CategoryRow({ item, currency, locale, showDecimals, last, onPress }: Omit<CategoryListProps, 'items' | 'onPress'> & { item: CategoryListItem; last: boolean; onPress: () => void }) {
+function CategoryRow({
+  item,
+  currency,
+  locale,
+  showDecimals,
+  last,
+  onPress,
+}: Omit<CategoryListProps, "items" | "onPress"> & {
+  item: CategoryListItem;
+  last: boolean;
+  onPress: () => void;
+}) {
   const { colors, category } = useTokens();
-  const amount = formatMoney(item.amount, currency, { locale, decimals: showDecimals ? undefined : 0 });
+  const amount = formatMoney(item.amount, currency, {
+    locale,
+    decimals: showDecimals ? undefined : 0,
+  });
   const share = Math.max(0, Math.min(1, item.percent / 100));
   return (
     <Pressable
       role="button"
       disabled={item.id === null}
-      accessibilityLabel={`${item.name}, ${formatMoneyForSpeech(item.amount, currency, { sign: 'none', locale })}, ${item.percent} percent`}
+      accessibilityLabel={`${item.name}, ${formatMoneyForSpeech(item.amount, currency, { sign: "none", locale })}, ${item.percent} percent`}
       onPress={onPress}
       scale={1}
       className="min-h-[60px] flex-row items-center bg-surface px-4 py-2.5 active:bg-fill"
@@ -43,8 +57,18 @@ function CategoryRow({ item, currency, locale, showDecimals, last, onPress }: Om
         <Text variant="body" numberOfLines={1}>
           {item.name}
         </Text>
-        <View className="mt-1.5 h-1 overflow-hidden rounded-full" style={{ backgroundColor: colors.fill }}>
-          <View style={{ width: `${Math.max(share * 100, share > 0 ? 2 : 0)}%`, backgroundColor: category[item.color], height: 4, borderRadius: 2 }} />
+        <View
+          className="mt-1.5 h-1 overflow-hidden rounded-full"
+          style={{ backgroundColor: colors.fill }}
+        >
+          <View
+            style={{
+              width: `${Math.max(share * 100, share > 0 ? 2 : 0)}%`,
+              backgroundColor: category[item.color],
+              height: 4,
+              borderRadius: 2,
+            }}
+          />
         </View>
       </View>
       <View className="ml-4 items-end" style={{ minWidth: 72 }}>
@@ -56,18 +80,35 @@ function CategoryRow({ item, currency, locale, showDecimals, last, onPress }: Om
         </Text>
       </View>
       {last ? null : (
-        <View pointerEvents="none" style={{ left: 64, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />
+        <View
+          pointerEvents="none"
+          style={{
+            left: 64,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.separator,
+          }}
+          className="absolute bottom-0 right-0"
+        />
       )}
     </Pressable>
   );
 }
 
 /** One row per category: icon, name, share bar, amount and percent. */
-function CategoryList({ items, currency, locale, showDecimals, onPress }: CategoryListProps) {
+function CategoryList({
+  items,
+  currency,
+  locale,
+  showDecimals,
+  onPress,
+}: CategoryListProps) {
   return (
     <>
       {items.map((item, index) => (
-        <Animated.View key={item.id ?? 'none'} layout={LinearTransition.duration(durations.row)}>
+        <Animated.View
+          key={item.id ?? "none"}
+          layout={LinearTransition.duration(durations.row)}
+        >
           <CategoryRow
             item={item}
             currency={currency}

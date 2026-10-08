@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 export interface CategoryRequest {
   selected: readonly string[];
@@ -6,7 +6,11 @@ export interface CategoryRequest {
   onChange: (ids: string[]) => void;
 }
 
-type CategoryState = { request: CategoryRequest | null; open: (request: CategoryRequest) => void; close: () => void };
+type CategoryState = {
+  request: CategoryRequest | null;
+  open: (request: CategoryRequest) => void;
+  close: () => void;
+};
 
 /** In-memory hand-off between the budget form and its category grid sheet. */
 export const useCategoryRequest = create<CategoryState>((set) => ({

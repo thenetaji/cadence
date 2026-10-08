@@ -1,15 +1,27 @@
-import * as React from 'react';
-import { Pressable as RNPressable, type GestureResponderEvent, type PressableProps as RNPressableProps, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import * as React from "react";
+import {
+  Pressable as RNPressable,
+  type GestureResponderEvent,
+  type PressableProps as RNPressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
-import { usePopValue } from '@studio/motion';
+import { usePopValue } from "@studio/motion";
 
-import { haptic, type HapticKind } from '@studio/theme';
-import { durations, pressOpacity, pressScale, springs } from '@studio/theme';
+import { haptic, type HapticKind } from "@studio/theme";
+import { durations, pressOpacity, pressScale, springs } from "@studio/theme";
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 
-type PressableProps = Omit<RNPressableProps, 'style'> & {
+type PressableProps = Omit<RNPressableProps, "style"> & {
   className?: string;
   scale?: number;
   dimTo?: number;
@@ -44,10 +56,23 @@ function Pressable({
   const pop = usePopValue(popWhen);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const target = holdScale !== undefined && hold.value > 0.5 ? holdScale : pressed.value ? scale : 1;
-    const transform = [{ scale: withSpring(target, springs.press) }, { scale: pop.value }];
+    const target =
+      holdScale !== undefined && hold.value > 0.5
+        ? holdScale
+        : pressed.value
+          ? scale
+          : 1;
+    const transform = [
+      { scale: withSpring(target, springs.press) },
+      { scale: pop.value },
+    ];
     if (dimTo === undefined) return { transform };
-    return { transform, opacity: withTiming(pressed.value ? dimTo : 1, { duration: durations.press }) };
+    return {
+      transform,
+      opacity: withTiming(pressed.value ? dimTo : 1, {
+        duration: durations.press,
+      }),
+    };
   });
 
   return (
@@ -57,7 +82,8 @@ function Pressable({
       style={[animatedStyle, style]}
       onPressIn={(event) => {
         pressed.value = 1;
-        if (holdScale !== undefined) hold.value = withDelay(holdDelay, withTiming(1, { duration: 1 }));
+        if (holdScale !== undefined)
+          hold.value = withDelay(holdDelay, withTiming(1, { duration: 1 }));
         onPressIn?.(event);
       }}
       onPressOut={(event) => {

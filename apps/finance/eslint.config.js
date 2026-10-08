@@ -1,3 +1,3 @@
-const { createEslintConfig } = require('@studio/config/eslint');
+const { createEslintConfig } = require("@studio/config/eslint");
 
-module.exports = createEslintConfig(['drizzle/*']);
+module.exports = createEslintConfig(["drizzle/*"]);

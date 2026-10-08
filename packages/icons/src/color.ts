@@ -1,8 +1,14 @@
 /** Small colour helpers for icon tiles. Everything returns `rgba()` / hex so React Native's gradient parser accepts it. */
 
 export function hexToRgb(hex: string): [number, number, number] {
-  const h = hex.replace('#', '');
-  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.slice(0, 6);
+  const h = hex.replace("#", "");
+  const full =
+    h.length === 3
+      ? h
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : h.slice(0, 6);
   const n = Number.parseInt(full, 16);
   if (Number.isNaN(n)) return [128, 128, 128];
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -30,7 +36,11 @@ export function hsl(h: number, s: number, l: number, a = 1): string {
   const sat = s / 100;
   const lig = l / 100;
   const k = (n: number) => (n + h / 30) % 12;
-  const f = (n: number) => lig - sat * Math.min(lig, 1 - lig) * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const f = (n: number) =>
+    lig -
+    sat *
+      Math.min(lig, 1 - lig) *
+      Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
   const to = (v: number) => Math.round(v * 255);
   return `rgba(${to(f(0))}, ${to(f(8))}, ${to(f(4))}, ${Math.round(a * 1000) / 1000})`;
 }
@@ -38,7 +48,7 @@ export function hsl(h: number, s: number, l: number, a = 1): string {
 /** The same colour at zero alpha, so gradients fade without a dark fringe. */
 export function clear(color: string): string {
   const m = /rgba?\(([^)]+)\)/.exec(color);
-  if (!m) return 'rgba(0, 0, 0, 0)';
-  const [r, g, b] = (m[1] as string).split(',').map((p) => p.trim());
+  if (!m) return "rgba(0, 0, 0, 0)";
+  const [r, g, b] = (m[1] as string).split(",").map((p) => p.trim());
   return `rgba(${r}, ${g}, ${b}, 0)`;
 }

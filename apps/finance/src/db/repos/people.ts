@@ -1,30 +1,37 @@
-import { asc, count, eq, sql } from 'drizzle-orm';
-import { ALL_DATES } from '@studio/dates';
-import { owedDelta } from '@/lib/ledger';
-import { convertWithRates } from '@studio/money';
-import { ValidationError } from '../errors';
-import { newId } from '@studio/data';
-import { accounts, people, transactions, type PersonRow, type TransactionKind } from '../schema';
-import type { Db } from '../types';
-import { getRateLookup } from './fx';
-import { getSetting } from './settings';
-import { createTransaction } from './transactions';
-import { listForPeriod, type TransactionListItem } from './transactionQueries';
+import { asc, count, eq, sql } from "drizzle-orm";
+import { ALL_DATES } from "@studio/dates";
+import { owedDelta } from "@/lib/ledger";
+import { convertWithRates } from "@studio/money";
+import { ValidationError } from "../errors";
+import { newId } from "@studio/data";
+import {
+  accounts,
+  people,
+  transactions,
+  type PersonRow,
+  type TransactionKind,
+} from "../schema";
+import type { Db } from "../types";
+import { getRateLookup } from "./fx";
+import { getSetting } from "./settings";
+import { createTransaction } from "./transactions";
+import { listForPeriod, type TransactionListItem } from "./transactionQueries";
 
-export type PersonRef = Pick<PersonRow, 'id' | 'name'>;
+export type PersonRef = Pick<PersonRow, "id" | "name">;
 
-const normName = (name: string) => name.trim().replace(/\s+/g, ' ');
+const normName = (name: string) => name.trim().replace(/\s+/g, " ");
 
 function assertName(db: Db, name: string, excludingId?: string): string {
   const clean = normName(name);
-  if (clean === '') throw new ValidationError('invalid_input', 'name is required');
+  if (clean === "")
+    throw new ValidationError("invalid_input", "name is required");
   const clash = db
     .select({ id: people.id })
     .from(people)
     .where(sql`lower(${people.name}) = ${clean.toLowerCase()}`)
     .all()
     .some((row) => row.id !== excludingId);
-  if (clash) throw new ValidationError('duplicate_name');
+  if (clash) throw new ValidationError("duplicate_name");
   return clean;
 }
 
@@ -41,28 +48,57 @@ export function getPersonByName(db: Db, name: string): PersonRow | undefined {
 }
 
 export function listPeople(db: Db): PersonRow[] {
-  return db.select().from(people).orderBy(sql`lower(${people.name}) asc`, asc(people.createdAt)).all();
+  return db
+    .select()
+    .from(people)
+    .orderBy(sql`lower(${people.name}) asc`, asc(people.createdAt))
+    .all();
 }
 
-export function createPerson(db: Db, input: { name: string }, now = Date.now()): PersonRow {
-  const row: PersonRow = { id: newId(), name: assertName(db, input.name), createdAt: now };
+export function createPerson(
+  db: Db,
+  input: { name: string },
+  now = Date.now(),
+): PersonRow {
+  const row: PersonRow = {
+    id: newId(),
+    name: assertName(db, input.name),
+    createdAt: now,
+  };
   db.insert(people).values(row).run();
   return row;
 }
 
-export function updatePerson(db: Db, id: string, patch: { name: string }): void {
-  if (!getPerson(db, id)) throw new ValidationError('person_not_found');
-  db.update(people).set({ name: assertName(db, patch.name, id) }).where(eq(people.id, id)).run();
+export function updatePerson(
+  db: Db,
+  id: string,
+  patch: { name: string },
+): void {
+  if (!getPerson(db, id)) throw new ValidationError("person_not_found");
+  db.update(people)
+    .set({ name: assertName(db, patch.name, id) })
+    .where(eq(people.id, id))
+    .run();
 }
 
-export function findOrCreatePerson(db: Db, name: string, now = Date.now()): PersonRow {
+export function findOrCreatePerson(
+  db: Db,
+  name: string,
+  now = Date.now(),
+): PersonRow {
   return getPersonByName(db, name) ?? createPerson(db, { name }, now);
 }
 
 /** A person with lending history cannot be deleted; delete or reassign those transactions first. */
 export function deletePerson(db: Db, id: string): void {
-  const used = db.select({ n: count() }).from(transactions).where(eq(transactions.personId, id)).get()?.n ?? 0;
-  if (used > 0) throw new ValidationError('in_use', 'person still has transactions');
+  const used =
+    db
+      .select({ n: count() })
+      .from(transactions)
+      .where(eq(transactions.personId, id))
+      .get()?.n ?? 0;
+  if (used > 0)
+    throw new ValidationError("in_use", "person still has transactions");
   db.delete(people).where(eq(people.id, id)).run();
 }
 
@@ -83,11 +119,23 @@ export interface PersonOutstanding {
   lastActivityAt: number | null;
 }
 
-function balancesFor(db: Db, personId?: string): Map<string, Map<string, number>> {
+function balancesFor(
+  db: Db,
+  personId?: string,
+): Map<string, Map<string, number>> {
   const rows = db
-    .select({ personId: transactions.personId, kind: transactions.kind, currency: transactions.currency, amount: sql<number>`sum(${transactions.amount})` })
+    .select({
+      personId: transactions.personId,
+      kind: transactions.kind,
+      currency: transactions.currency,
+      amount: sql<number>`sum(${transactions.amount})`,
+    })
     .from(transactions)
-    .where(personId ? eq(transactions.personId, personId) : sql`${transactions.personId} is not null`)
+    .where(
+      personId
+        ? eq(transactions.personId, personId)
+        : sql`${transactions.personId} is not null`,
+    )
     .groupBy(transactions.personId, transactions.kind, transactions.currency)
     .all();
   const out = new Map<string, Map<string, number>>();
@@ -96,30 +144,45 @@ function balancesFor(db: Db, personId?: string): Map<string, Map<string, number>
     const delta = owedDelta(row.kind);
     if (delta === 0) continue;
     const byCurrency = out.get(row.personId) ?? new Map<string, number>();
-    byCurrency.set(row.currency, (byCurrency.get(row.currency) ?? 0) + delta * row.amount);
+    byCurrency.set(
+      row.currency,
+      (byCurrency.get(row.currency) ?? 0) + delta * row.amount,
+    );
     out.set(row.personId, byCurrency);
   }
   return out;
 }
 
-function toBalances(byCurrency: Map<string, number> | undefined): CurrencyBalance[] {
+function toBalances(
+  byCurrency: Map<string, number> | undefined,
+): CurrencyBalance[] {
   return [...(byCurrency ?? [])]
     .filter(([, amount]) => amount !== 0)
     .map(([currency, amount]) => ({ currency, amount }))
-    .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount) || a.currency.localeCompare(b.currency));
+    .sort(
+      (a, b) =>
+        Math.abs(b.amount) - Math.abs(a.amount) ||
+        a.currency.localeCompare(b.currency),
+    );
 }
 
 /**
  * Who owes whom: lent and repaid_by_me add to a person's balance, borrowed and repaid_to_me subtract.
  * Settled people (every balance zero) are left out unless `includeSettled`. Largest absolute total first.
  */
-export function outstandingByPerson(db: Db, options: { includeSettled?: boolean } = {}): PersonOutstanding[] {
-  const currency = getSetting(db, 'display_currency');
+export function outstandingByPerson(
+  db: Db,
+  options: { includeSettled?: boolean } = {},
+): PersonOutstanding[] {
+  const currency = getSetting(db, "display_currency");
   const rates = getRateLookup(db);
   const balances = balancesFor(db);
   const last = new Map(
     db
-      .select({ personId: transactions.personId, at: sql<number>`max(${transactions.occurredAt})` })
+      .select({
+        personId: transactions.personId,
+        at: sql<number>`max(${transactions.occurredAt})`,
+      })
       .from(transactions)
       .where(sql`${transactions.personId} is not null`)
       .groupBy(transactions.personId)
@@ -130,10 +193,23 @@ export function outstandingByPerson(db: Db, options: { includeSettled?: boolean 
   for (const person of listPeople(db)) {
     const list = toBalances(balances.get(person.id));
     if (list.length === 0 && !options.includeSettled) continue;
-    const total = list.reduce((sum, b) => sum + convertWithRates(b.amount, b.currency, currency, rates), 0);
-    out.push({ person, balances: list, total, currency, lastActivityAt: last.get(person.id) ?? null });
+    const total = list.reduce(
+      (sum, b) => sum + convertWithRates(b.amount, b.currency, currency, rates),
+      0,
+    );
+    out.push({
+      person,
+      balances: list,
+      total,
+      currency,
+      lastActivityAt: last.get(person.id) ?? null,
+    });
   }
-  return out.sort((a, b) => Math.abs(b.total) - Math.abs(a.total) || a.person.name.localeCompare(b.person.name));
+  return out.sort(
+    (a, b) =>
+      Math.abs(b.total) - Math.abs(a.total) ||
+      a.person.name.localeCompare(b.person.name),
+  );
 }
 
 export interface OutstandingTotals {
@@ -147,7 +223,7 @@ export interface OutstandingTotals {
 export function outstandingTotals(db: Db): OutstandingTotals {
   const rows = outstandingByPerson(db);
   return {
-    currency: getSetting(db, 'display_currency'),
+    currency: getSetting(db, "display_currency"),
     owedToMe: rows.reduce((sum, r) => sum + Math.max(r.total, 0), 0),
     iOwe: rows.reduce((sum, r) => sum + Math.max(-r.total, 0), 0),
   };
@@ -170,12 +246,19 @@ export interface PersonHistory {
   entries: PersonHistoryEntry[];
 }
 
-export function personHistory(db: Db, personId: string): PersonHistory | undefined {
+export function personHistory(
+  db: Db,
+  personId: string,
+): PersonHistory | undefined {
   const person = getPerson(db, personId);
   if (!person) return undefined;
-  const currency = getSetting(db, 'display_currency');
+  const currency = getSetting(db, "display_currency");
   const rates = getRateLookup(db);
-  const items = listForPeriod(db, { from: ALL_DATES.from, to: ALL_DATES.to, personId });
+  const items = listForPeriod(db, {
+    from: ALL_DATES.from,
+    to: ALL_DATES.to,
+    personId,
+  });
   const running = new Map<string, number>();
   const oldestFirst = [...items].reverse();
   const entries = oldestFirst.map((item): PersonHistoryEntry => {
@@ -188,7 +271,10 @@ export function personHistory(db: Db, personId: string): PersonHistory | undefin
   return {
     person,
     balances,
-    total: balances.reduce((sum, b) => sum + convertWithRates(b.amount, b.currency, currency, rates), 0),
+    total: balances.reduce(
+      (sum, b) => sum + convertWithRates(b.amount, b.currency, currency, rates),
+      0,
+    ),
     currency,
     entries: entries.reverse(),
   };
@@ -210,18 +296,37 @@ export interface SettleInput {
 export function settle(db: Db, input: SettleInput, now = Date.now()) {
   return db.transaction((tx) => {
     const person = getPerson(tx, input.personId);
-    if (!person) throw new ValidationError('person_not_found');
-    const account = tx.select().from(accounts).where(eq(accounts.id, input.accountId)).get();
-    if (!account) throw new ValidationError('account_not_found');
-    if (!Number.isInteger(input.amount)) throw new ValidationError('amount_not_integer');
-    if (input.amount <= 0) throw new ValidationError('amount_not_positive');
-    const balance = balancesFor(tx, input.personId).get(input.personId)?.get(account.currency) ?? 0;
-    if (balance === 0) throw new ValidationError('nothing_outstanding');
-    if (input.amount > Math.abs(balance)) throw new ValidationError('invalid_input', 'amount exceeds the outstanding balance');
-    const kind: TransactionKind = balance > 0 ? 'repaid_to_me' : 'repaid_by_me';
+    if (!person) throw new ValidationError("person_not_found");
+    const account = tx
+      .select()
+      .from(accounts)
+      .where(eq(accounts.id, input.accountId))
+      .get();
+    if (!account) throw new ValidationError("account_not_found");
+    if (!Number.isInteger(input.amount))
+      throw new ValidationError("amount_not_integer");
+    if (input.amount <= 0) throw new ValidationError("amount_not_positive");
+    const balance =
+      balancesFor(tx, input.personId)
+        .get(input.personId)
+        ?.get(account.currency) ?? 0;
+    if (balance === 0) throw new ValidationError("nothing_outstanding");
+    if (input.amount > Math.abs(balance))
+      throw new ValidationError(
+        "invalid_input",
+        "amount exceeds the outstanding balance",
+      );
+    const kind: TransactionKind = balance > 0 ? "repaid_to_me" : "repaid_by_me";
     return createTransaction(
       tx,
-      { kind, amount: input.amount, accountId: account.id, personId: person.id, memo: input.memo, occurredAt: input.occurredAt ?? now },
+      {
+        kind,
+        amount: input.amount,
+        accountId: account.id,
+        personId: person.id,
+        memo: input.memo,
+        occurredAt: input.occurredAt ?? now,
+      },
       now,
     );
   });

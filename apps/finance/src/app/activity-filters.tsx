@@ -1,18 +1,33 @@
-import { Stack, useRouter } from 'expo-router';
-import * as React from 'react';
-import { ScrollView, View } from 'react-native';
+import { Stack, useRouter } from "expo-router";
+import * as React from "react";
+import { ScrollView, View } from "react-native";
 
-import { Chip , ListGroup, ListRow , barLeft, barRight , Button , Text } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import { useAccounts, useCategories, usePeriodTransactions } from '@/data/hooks';
-import { activeFilterCount, useActivityFilters } from '@/features/activity/filter-store';
-import { haptic , useTokens } from '@studio/theme';
-import type { CategoryColorKey } from '@studio/theme';
+import {
+  Chip,
+  ListGroup,
+  ListRow,
+  barLeft,
+  barRight,
+  Button,
+  Text,
+} from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import {
+  useAccounts,
+  useCategories,
+  usePeriodTransactions,
+} from "@/data/hooks";
+import {
+  activeFilterCount,
+  useActivityFilters,
+} from "@/features/activity/filter-store";
+import { haptic, useTokens } from "@studio/theme";
+import type { CategoryColorKey } from "@studio/theme";
 
 const KINDS = [
-  { kind: 'expense', label: 'Expense' },
-  { kind: 'income', label: 'Income' },
-  { kind: 'transfer', label: 'Transfer' },
+  { kind: "expense", label: "Expense" },
+  { kind: "income", label: "Income" },
+  { kind: "transfer", label: "Transfer" },
 ] as const;
 
 function Check() {
@@ -44,7 +59,12 @@ export default function ActivityFilters() {
   const headerOptions = React.useMemo(
     () => ({
       ...barLeft(
-        <Button variant="barSecondary" size="sm" disabled={!active} onPress={clear}>
+        <Button
+          variant="barSecondary"
+          size="sm"
+          disabled={!active}
+          onPress={clear}
+        >
           Reset
         </Button>,
       ),
@@ -67,7 +87,12 @@ export default function ActivityFilters() {
     >
       <Stack.Screen options={headerOptions} />
       <View className="px-4">
-        <Text variant="footnote" tone="secondary" className="px-4 pb-2" accessibilityRole="header">
+        <Text
+          variant="footnote"
+          tone="secondary"
+          className="px-4 pb-2"
+          accessibilityRole="header"
+        >
           Type
         </Text>
         <View className="flex-row gap-2 px-4">
@@ -77,7 +102,7 @@ export default function ActivityFilters() {
               label={label}
               selected={kinds.includes(kind)}
               onPress={() => {
-                haptic('selection');
+                haptic("selection");
                 toggleKind(kind);
               }}
             />
@@ -95,7 +120,7 @@ export default function ActivityFilters() {
             }}
             trailing={categoryId === category.id ? <Check /> : undefined}
             onPress={() => {
-              haptic('selection');
+              haptic("selection");
               setCategory(categoryId === category.id ? null : category.id);
             }}
           />
@@ -112,15 +137,19 @@ export default function ActivityFilters() {
             }}
             trailing={accountId === account.id ? <Check /> : undefined}
             onPress={() => {
-              haptic('selection');
+              haptic("selection");
               setAccount(accountId === account.id ? null : account.id);
             }}
           />
         ))}
       </ListGroup>
       <View className="px-4">
-        <Button size="lg" onPress={() => router.back()} accessibilityLabel={`Show ${matches} transactions`}>
-          {`Show ${matches} ${matches === 1 ? 'transaction' : 'transactions'}`}
+        <Button
+          size="lg"
+          onPress={() => router.back()}
+          accessibilityLabel={`Show ${matches} transactions`}
+        >
+          {`Show ${matches} ${matches === 1 ? "transaction" : "transactions"}`}
         </Button>
       </View>
     </ScrollView>

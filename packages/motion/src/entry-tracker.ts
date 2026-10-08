@@ -5,7 +5,7 @@
  *  - a bulk change (filter, period) animates nothing, and neither does scrolling or recycling.
  * Pure and framework-free so it can be unit-tested.
  */
-export type RowEntry = { kind: 'stagger'; index: number } | { kind: 'insert' };
+export type RowEntry = { kind: "stagger"; index: number } | { kind: "insert" };
 
 export class EntryTracker {
   private known: Set<string> | null = null;
@@ -20,10 +20,15 @@ export class EntryTracker {
   sync(ids: readonly string[]): void {
     if (this.known === null || this.known.size === 0) {
       // Also covers data that arrives after an empty first render.
-      ids.slice(0, this.cap).forEach((id, index) => this.pending.set(id, { kind: 'stagger', index }));
+      ids
+        .slice(0, this.cap)
+        .forEach((id, index) =>
+          this.pending.set(id, { kind: "stagger", index }),
+        );
     } else {
       const fresh = ids.filter((id) => !this.known!.has(id));
-      if (fresh.length > 0 && fresh.length <= this.maxInsert) fresh.forEach((id) => this.pending.set(id, { kind: 'insert' }));
+      if (fresh.length > 0 && fresh.length <= this.maxInsert)
+        fresh.forEach((id) => this.pending.set(id, { kind: "insert" }));
     }
     if (ids.length > 0 || this.known !== null) this.known = new Set(ids);
   }

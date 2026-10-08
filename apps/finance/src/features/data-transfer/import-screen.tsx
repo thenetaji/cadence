@@ -1,17 +1,22 @@
-import { useRouter } from 'expo-router';
-import * as React from 'react';
+import { useRouter } from "expo-router";
+import * as React from "react";
 
-import { ListGroup, ListRow , showToast } from '@studio/ui';
-import { CsvFormatError, IMPORT_FORMAT_LABELS, parseImport, type ImportFormat } from '@/lib/csv';
-import type { CategoryColorKey } from '@studio/theme';
+import { ListGroup, ListRow, showToast } from "@studio/ui";
+import {
+  CsvFormatError,
+  IMPORT_FORMAT_LABELS,
+  parseImport,
+  type ImportFormat,
+} from "@/lib/csv";
+import type { CategoryColorKey } from "@studio/theme";
 
-import { pickTextFile } from './pick-text-file';
-import { useImportStore } from './store';
+import { pickTextFile } from "./pick-text-file";
+import { useImportStore } from "./store";
 
 const FORMATS: readonly { format: ImportFormat; color: CategoryColorKey }[] = [
-  { format: 'native', color: 'blue' },
-  { format: 'dime', color: 'green' },
-  { format: 'cashew', color: 'orange' },
+  { format: "native", color: "blue" },
+  { format: "dime", color: "green" },
+  { format: "cashew", color: "orange" },
 ];
 
 /** One row per supported CSV format; picking a file parses it and opens the preview. */
@@ -28,13 +33,19 @@ export function ImportSection() {
       if (text === null) return;
       const { rows, skipped } = parseImport(format, text);
       if (rows.length === 0) {
-        showToast({ message: 'No transactions', haptic: 'warning' });
+        showToast({ message: "No transactions", haptic: "warning" });
         return;
       }
       setPending({ format, rows, unreadable: skipped });
-      router.push('/settings/import-preview');
+      router.push("/settings/import-preview");
     } catch (error) {
-      showToast({ message: error instanceof CsvFormatError ? 'Wrong format' : 'Could not read file', haptic: 'error' });
+      showToast({
+        message:
+          error instanceof CsvFormatError
+            ? "Wrong format"
+            : "Could not read file",
+        haptic: "error",
+      });
     } finally {
       setBusy(false);
     }
@@ -42,15 +53,15 @@ export function ImportSection() {
 
   return (
     <ListGroup header="Import">
-        {FORMATS.map(({ format, color }) => (
-          <ListRow
-            key={format}
-            label={IMPORT_FORMAT_LABELS[format]}
-            icon={{ name: 'doc.text.fill', color }}
-            chevron
-            onPress={() => void choose(format)}
-          />
-        ))}
+      {FORMATS.map(({ format, color }) => (
+        <ListRow
+          key={format}
+          label={IMPORT_FORMAT_LABELS[format]}
+          icon={{ name: "doc.text.fill", color }}
+          chevron
+          onPress={() => void choose(format)}
+        />
+      ))}
     </ListGroup>
   );
 }

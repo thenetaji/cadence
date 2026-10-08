@@ -3,9 +3,9 @@
 No paid Apple Developer account needed. GitHub builds an unsigned IPA; SideStore signs it on your phone with your free Apple ID.
 
 ## 1. Build the IPA
-1. Push this repo to GitHub. Private is fine, but macOS runner minutes count 10x against the free quota (about 200 macOS minutes a month, so a few builds). A public repo has no limit.
-2. Open the repo's **Actions** tab, pick **iOS unsigned IPA**, then **Run workflow**. It takes roughly 20 to 30 minutes.
-3. When it finishes, download **Finance-unsigned-ipa** from the run's Artifacts (unzip it to get `Finance-unsigned.ipa`). Pushing a `v*` tag also attaches the IPA to a GitHub Release.
+1. Push this repo to GitHub. The repo is public, so macOS runner minutes are free.
+2. Open the repo's **Actions** tab, pick **Apps**, then **Run workflow** with app `finance` and platforms `ios`. It takes about 7 minutes.
+3. When it finishes, download **ipa** from the run's Artifacts (unzip it to get `Finance-<version>.ipa`). Pushing a `finance-v1.2.3` tag also publishes the IPA (and an APK) in a GitHub Release.
 4. Move the IPA to your iPhone (AirDrop or iCloud Drive).
 
 ## 2. Install SideStore (one time)
@@ -13,7 +13,7 @@ Follow the official guide: https://docs.sidestore.io/docs/installation/prerequis
 
 ## 3. Install Finance
 1. In SideStore, sign in with your free Apple ID.
-2. On the **My Apps** tab tap **+** and choose `Finance-unsigned.ipa`.
+2. On the **My Apps** tab tap **+** and choose `Finance-<version>.ipa`.
 3. Turn on **Background Refresh** in SideStore so it re-signs the app automatically.
 
 ## Limits of the free Apple ID

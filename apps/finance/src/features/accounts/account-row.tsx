@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
 
-import { IconTile , Pressable , Text } from '@studio/ui';
-import { pressScale , useTokens } from '@studio/theme';
+import { IconTile, Pressable, Text } from "@studio/ui";
+import { pressScale, useTokens } from "@studio/theme";
 
-import type { AccountView } from './model';
+import type { AccountView } from "./model";
 
 export const ACCOUNT_ROW_HEIGHT = 68;
 
@@ -17,7 +17,12 @@ type AccountRowProps = {
 };
 
 /** Icon tile on the account colour, name and type, balance with its converted value below. */
-function AccountRow({ view, separator = true, onPress, trailing }: AccountRowProps) {
+function AccountRow({
+  view,
+  separator = true,
+  onPress,
+  trailing,
+}: AccountRowProps) {
   const { colors } = useTokens();
   return (
     <Pressable
@@ -39,7 +44,13 @@ function AccountRow({ view, separator = true, onPress, trailing }: AccountRowPro
       </View>
       {trailing ?? (
         <View className="items-end">
-          <Text variant="body" numeric numberOfLines={1} tone={view.negative ? 'expense' : 'default'} className="font-medium">
+          <Text
+            variant="body"
+            numeric
+            numberOfLines={1}
+            tone={view.negative ? "expense" : "default"}
+            className="font-medium"
+          >
             {view.balance}
           </Text>
           {view.converted ? (
@@ -50,7 +61,15 @@ function AccountRow({ view, separator = true, onPress, trailing }: AccountRowPro
         </View>
       )}
       {separator ? (
-        <View pointerEvents="none" style={{ left: 68, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />
+        <View
+          pointerEvents="none"
+          style={{
+            left: 68,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.separator,
+          }}
+          className="absolute bottom-0 right-0"
+        />
       ) : null}
     </Pressable>
   );

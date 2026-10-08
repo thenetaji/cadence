@@ -1,3 +1,3 @@
-import { PrivacyScreen } from '@/features/privacy/privacy-screen';
+import { PrivacyScreen } from "@/features/privacy/privacy-screen";
 
 export default PrivacyScreen;

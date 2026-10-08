@@ -1,29 +1,40 @@
-import * as React from 'react';
-import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as React from "react";
+import { ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AmountReadout , CurrencyPicker , ListGroup, ListRow , Button , Input , Text } from '@studio/ui';
-import { Keypad, type KeypadKey } from '@studio/ui';
-import { useActions } from '@/data/actions';
-import { defaultCurrencyCode } from '@/lib/default-currency';
+import {
+  AmountReadout,
+  CurrencyPicker,
+  ListGroup,
+  ListRow,
+  Button,
+  Input,
+  Text,
+} from "@studio/ui";
+import { Keypad, type KeypadKey } from "@studio/ui";
+import { useActions } from "@/data/actions";
+import { defaultCurrencyCode } from "@/lib/default-currency";
 import {
   createKeypadState,
   deriveKeypad,
   keypadReducer,
   type KeypadKey as ReducerKey,
   type KeypadState,
-} from '@studio/money';
-import { currencySymbol, minorDigits } from '@studio/money';
-import { haptic , useTokens } from '@studio/theme';
+} from "@studio/money";
+import { currencySymbol, minorDigits } from "@studio/money";
+import { haptic, useTokens } from "@studio/theme";
 
-type Action = { type: 'key'; key: ReducerKey } | { type: 'reset'; digits: number };
+type Action =
+  | { type: "key"; key: ReducerKey }
+  | { type: "reset"; digits: number };
 
 function reduce(state: KeypadState, action: Action): KeypadState {
-  if (action.type === 'reset') return createKeypadState(action.digits);
+  if (action.type === "reset") return createKeypadState(action.digits);
   return keypadReducer(state, action.key);
 }
 
-const toReducerKey = (key: KeypadKey): ReducerKey => (key === 'backspace' ? 'back' : key);
+const toReducerKey = (key: KeypadKey): ReducerKey =>
+  key === "backspace" ? "back" : key;
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
@@ -31,32 +42,34 @@ export default function Onboarding() {
   const actions = useActions();
   const [currency, setCurrency] = React.useState(defaultCurrencyCode);
   const [pickerOpen, setPickerOpen] = React.useState(false);
-  const [name, setName] = React.useState('Cash');
+  const [name, setName] = React.useState("Cash");
   const [editingName, setEditingName] = React.useState(false);
-  const [keypad, dispatch] = React.useReducer(reduce, undefined, () => createKeypadState(minorDigits(defaultCurrencyCode())));
+  const [keypad, dispatch] = React.useReducer(reduce, undefined, () =>
+    createKeypadState(minorDigits(defaultCurrencyCode())),
+  );
   const view = deriveKeypad(keypad);
   const digits = minorDigits(currency);
   const canStart = name.trim().length > 0;
 
   const selectCurrency = (code: string) => {
     setCurrency(code);
-    dispatch({ type: 'reset', digits: minorDigits(code) });
+    dispatch({ type: "reset", digits: minorDigits(code) });
   };
 
   const start = () => {
     if (!canStart) return;
-    haptic('success');
+    haptic("success");
     const account = actions.accounts.create({
       name,
-      type: 'cash',
+      type: "cash",
       currency,
       openingBalance: view.total,
-      color: 'blue',
+      color: "blue",
       isDefault: true,
     });
-    actions.settings.set('display_currency', currency);
-    actions.settings.set('default_account_id', account.id);
-    actions.settings.set('onboarding_done', true);
+    actions.settings.set("display_currency", currency);
+    actions.settings.set("default_account_id", account.id);
+    actions.settings.set("onboarding_done", true);
   };
 
   return (
@@ -74,10 +87,19 @@ export default function Onboarding() {
           <Text variant="footnote" tone="secondary">
             Opening balance
           </Text>
-          <AmountReadout symbol={currencySymbol(currency)} value={view.display} expression={view.expression || undefined} />
+          <AmountReadout
+            symbol={currencySymbol(currency)}
+            value={view.display}
+            expression={view.expression || undefined}
+          />
         </View>
         <ListGroup>
-          <ListRow label="Currency" value={`${currencySymbol(currency)} ${currency}`} chevron onPress={() => setPickerOpen(true)} />
+          <ListRow
+            label="Currency"
+            value={`${currencySymbol(currency)} ${currency}`}
+            chevron
+            onPress={() => setPickerOpen(true)}
+          />
           <ListRow
             label="Account"
             trailing={
@@ -110,12 +132,17 @@ export default function Onboarding() {
         <View className="bg-bg" style={{ paddingBottom: insets.bottom }}>
           <Keypad
             showDecimal={digits > 0}
-            onKey={(key) => dispatch({ type: 'key', key: toReducerKey(key) })}
-            onLongBackspace={() => dispatch({ type: 'key', key: 'clear' })}
+            onKey={(key) => dispatch({ type: "key", key: toReducerKey(key) })}
+            onLongBackspace={() => dispatch({ type: "key", key: "clear" })}
           />
         </View>
       )}
-      <CurrencyPicker visible={pickerOpen} selected={currency} onSelect={selectCurrency} onClose={() => setPickerOpen(false)} />
+      <CurrencyPicker
+        visible={pickerOpen}
+        selected={currency}
+        onSelect={selectCurrency}
+        onClose={() => setPickerOpen(false)}
+      />
     </View>
   );
 }

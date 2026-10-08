@@ -1,3 +1,3 @@
-import { PersonSheet } from '@/features/people/person-sheet';
+import { PersonSheet } from "@/features/people/person-sheet";
 
 export default PersonSheet;

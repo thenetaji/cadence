@@ -1,13 +1,13 @@
-import { useRouter, type Href } from 'expo-router';
-import { View } from 'react-native';
-import { useShallow } from 'zustand/react/shallow';
+import { useRouter, type Href } from "expo-router";
+import { View } from "react-native";
+import { useShallow } from "zustand/react/shallow";
 
-import { IconTile , SheetScroll , Button , Pressable , Text } from '@studio/ui';
-import { useCategories } from '@/data/hooks';
-import { updateSplitLine } from '@/features/transaction-form/logic';
-import { useDraftStore } from '@/features/transaction-form/store';
-import { haptic , useTokens } from '@studio/theme';
-import type { CategoryColorKey } from '@studio/theme';
+import { IconTile, SheetScroll, Button, Pressable, Text } from "@studio/ui";
+import { useCategories } from "@/data/hooks";
+import { updateSplitLine } from "@/features/transaction-form/logic";
+import { useDraftStore } from "@/features/transaction-form/store";
+import { haptic, useTokens } from "@studio/theme";
+import type { CategoryColorKey } from "@studio/theme";
 
 /** Category grid sheet: 4 columns; writes to the draft (single category or the split line being picked). */
 export default function CategorySheet() {
@@ -21,11 +21,13 @@ export default function CategorySheet() {
       pickingLine: s.pickingLine,
     })),
   );
-  const categories = useCategories(kind === 'income' ? 'income' : 'expense');
-  const current = pickingLine ? splits?.find((l) => l.key === pickingLine)?.categoryId : categoryId;
+  const categories = useCategories(kind === "income" ? "income" : "expense");
+  const current = pickingLine
+    ? splits?.find((l) => l.key === pickingLine)?.categoryId
+    : categoryId;
 
   const choose = (id: string) => {
-    haptic('selection');
+    haptic("selection");
     const s = useDraftStore.getState();
     if (s.pickingLine && s.splits)
       s.patch({
@@ -42,15 +44,29 @@ export default function CategorySheet() {
         <>
           <View className="h-12 flex-row items-center px-2">
             <View className="w-20 items-start">
-              <Button variant="barSecondary" size="sm" onPress={() => router.push('/settings/categories' as Href)} accessibilityLabel="Manage categories">
+              <Button
+                variant="barSecondary"
+                size="sm"
+                onPress={() => router.push("/settings/categories" as Href)}
+                accessibilityLabel="Manage categories"
+              >
                 <Text variant="body">Manage</Text>
               </Button>
             </View>
-            <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
+            <Text
+              variant="headline"
+              accessibilityRole="header"
+              className="flex-1 text-center"
+            >
               Category
             </Text>
             <View className="w-20 items-end">
-              <Button variant="barSecondary" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
+              <Button
+                variant="barSecondary"
+                size="sm"
+                onPress={() => router.back()}
+                accessibilityLabel="Cancel"
+              >
                 <Text variant="body">Cancel</Text>
               </Button>
             </View>
@@ -72,11 +88,24 @@ export default function CategorySheet() {
             >
               <View
                 className="items-center justify-center rounded-full p-[3px]"
-                style={selected ? { borderWidth: 2, borderColor: colors.accent } : { borderWidth: 2, borderColor: 'transparent' }}
+                style={
+                  selected
+                    ? { borderWidth: 2, borderColor: colors.accent }
+                    : { borderWidth: 2, borderColor: "transparent" }
+                }
               >
-                <IconTile icon={category.icon} color={category.color as CategoryColorKey} size={46} />
+                <IconTile
+                  icon={category.icon}
+                  color={category.color as CategoryColorKey}
+                  size={46}
+                />
               </View>
-              <Text variant="caption" tone={selected ? 'accent' : 'secondary'} numberOfLines={2} className="text-center">
+              <Text
+                variant="caption"
+                tone={selected ? "accent" : "secondary"}
+                numberOfLines={2}
+                className="text-center"
+              >
                 {category.name}
               </Text>
             </Pressable>

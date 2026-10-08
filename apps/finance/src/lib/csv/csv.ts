@@ -1,6 +1,6 @@
 /** RFC 4180 reader and writer. Pure; no I/O. */
 
-export const BOM = '﻿';
+export const BOM = "﻿";
 
 const NEEDS_QUOTES = /[",\r\n]/;
 
@@ -10,7 +10,7 @@ function quote(field: string): string {
 
 /** Rows to CSV text with CRLF line ends and no trailing newline. */
 export function stringifyCsv(rows: readonly (readonly string[])[]): string {
-  return rows.map((row) => row.map(quote).join(',')).join('\r\n');
+  return rows.map((row) => row.map(quote).join(",")).join("\r\n");
 }
 
 /**
@@ -21,17 +21,17 @@ export function parseCsv(input: string): string[][] {
   const text = input.charCodeAt(0) === 0xfeff ? input.slice(1) : input;
   const rows: string[][] = [];
   let row: string[] = [];
-  let field = '';
+  let field = "";
   let quoted = false;
   let wasQuoted = false;
 
   const endField = () => {
     row.push(field);
-    field = '';
+    field = "";
     wasQuoted = false;
   };
   const endRow = () => {
-    const blank = row.length === 0 && field === '' && !wasQuoted;
+    const blank = row.length === 0 && field === "" && !wasQuoted;
     endField();
     if (!blank) rows.push(row);
     row = [];
@@ -48,16 +48,16 @@ export function parseCsv(input: string): string[][] {
       } else field += ch;
       continue;
     }
-    if (ch === '"' && field === '') {
+    if (ch === '"' && field === "") {
       quoted = true;
       wasQuoted = true;
-    } else if (ch === ',') endField();
-    else if (ch === '\n') endRow();
-    else if (ch === '\r') {
-      if (text[i + 1] === '\n') i++;
+    } else if (ch === ",") endField();
+    else if (ch === "\n") endRow();
+    else if (ch === "\r") {
+      if (text[i + 1] === "\n") i++;
       endRow();
     } else field += ch;
   }
-  if (field !== '' || row.length > 0 || wasQuoted) endRow();
+  if (field !== "" || row.length > 0 || wasQuoted) endRow();
   return rows;
 }

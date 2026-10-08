@@ -1,14 +1,14 @@
-import { FlashList } from '@shopify/flash-list';
-import * as React from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import { FlashList } from "@shopify/flash-list";
+import * as React from "react";
+import type { StyleProp, ViewStyle } from "react-native";
 
-import { DaySectionHeader } from '@studio/ui';
-import type { TransactionListItem } from '@/data/hooks';
-import { EntryTracker } from '@studio/motion';
+import { DaySectionHeader } from "@studio/ui";
+import type { TransactionListItem } from "@/data/hooks";
+import { EntryTracker } from "@studio/motion";
 
-import { buildDayEntries, headerIndices, type ListEntry } from './day-groups';
-import { TransactionListRow } from './transaction-list-row';
-import type { MoneyContext } from './use-money-context';
+import { buildDayEntries, headerIndices, type ListEntry } from "./day-groups";
+import { TransactionListRow } from "./transaction-list-row";
+import type { MoneyContext } from "./use-money-context";
 
 type TransactionDayListProps = {
   items: readonly TransactionListItem[];
@@ -17,27 +17,49 @@ type TransactionDayListProps = {
   footer?: React.ReactElement | null;
   empty?: React.ReactElement | null;
   contentContainerStyle?: StyleProp<ViewStyle>;
-  keyboardDismissMode?: 'none' | 'on-drag' | 'interactive';
+  keyboardDismissMode?: "none" | "on-drag" | "interactive";
 };
 
 const keyOf = (entry: ListEntry) => entry.key;
 const typeOf = (entry: ListEntry) => entry.type;
 
 /** Day-grouped ledger on FlashList: sticky day headers, memoised rows, stable keys. */
-function TransactionDayList({ items, context: callerContext, header, footer, empty, contentContainerStyle, keyboardDismissMode }: TransactionDayListProps) {
+function TransactionDayList({
+  items,
+  context: callerContext,
+  header,
+  footer,
+  empty,
+  contentContainerStyle,
+  keyboardDismissMode,
+}: TransactionDayListProps) {
   // Day headers already say the date, so rows under them always show the time (C4), whatever the caller passed.
-  const context = React.useMemo(() => (callerContext.relativeTo ? { ...callerContext, relativeTo: undefined } : callerContext), [callerContext]);
-  const entries = React.useMemo(() => buildDayEntries(items, context), [items, context]);
+  const context = React.useMemo(
+    () =>
+      callerContext.relativeTo
+        ? { ...callerContext, relativeTo: undefined }
+        : callerContext,
+    [callerContext],
+  );
+  const entries = React.useMemo(
+    () => buildDayEntries(items, context),
+    [items, context],
+  );
   // One tracker per mounted list: first screenful staggers in, later single inserts spring + shimmer.
   const [tracker] = React.useState(() => new EntryTracker());
   React.useMemo(() => tracker.sync(items.map((i) => i.id)), [tracker, items]);
   const sticky = React.useMemo(() => headerIndices(entries), [entries]);
   const renderItem = React.useCallback(
     ({ item }: { item: ListEntry }) =>
-      item.type === 'header' ? (
+      item.type === "header" ? (
         <DaySectionHeader label={item.label} total={item.total} />
       ) : (
-        <TransactionListRow item={item.item} context={context} separator={!item.last} tracker={tracker} />
+        <TransactionListRow
+          item={item.item}
+          context={context}
+          separator={!item.last}
+          tracker={tracker}
+        />
       ),
     [context, tracker],
   );

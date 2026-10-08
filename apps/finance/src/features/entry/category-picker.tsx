@@ -1,10 +1,10 @@
-import { Modal, ScrollView, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Modal, ScrollView, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { Button , Text } from '@studio/ui';
-import type { CategoryRow } from '@/db/schema';
+import { Button, Text } from "@studio/ui";
+import type { CategoryRow } from "@/db/schema";
 
-import { CategoryGrid } from './category-grid';
+import { CategoryGrid } from "./category-grid";
 
 type CategoryPickerProps = {
   visible: boolean;
@@ -15,9 +15,21 @@ type CategoryPickerProps = {
 };
 
 /** Single-choice category sheet for forms that have no draft store of their own. */
-function CategoryPicker({ visible, categories, selected, onSelect, onClose }: CategoryPickerProps) {
+function CategoryPicker({
+  visible,
+  categories,
+  selected,
+  onSelect,
+  onClose,
+}: CategoryPickerProps) {
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" transparent={false} onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      transparent={false}
+      onRequestClose={onClose}
+    >
       <SafeAreaProvider>
         <View className="flex-1 bg-bg">
           <View className="h-14 flex-row items-center justify-between px-4">
@@ -31,7 +43,10 @@ function CategoryPicker({ visible, categories, selected, onSelect, onClose }: Ca
               </Button>
             </View>
           </View>
-          <ScrollView contentContainerClassName="pb-8" showsVerticalScrollIndicator={false}>
+          <ScrollView
+            contentContainerClassName="pb-8"
+            showsVerticalScrollIndicator={false}
+          >
             <CategoryGrid
               categories={categories}
               selected={selected ? [selected] : []}

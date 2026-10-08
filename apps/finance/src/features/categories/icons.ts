@@ -1,14 +1,14 @@
-import { conceptFor, conceptMeta } from '@studio/icons';
+import { conceptFor, conceptMeta } from "@studio/icons";
 
 export type IconSection = { title: string; ids: string[] };
 
 /** Concepts offered in the picker: everything except bare UI glyphs, in theme order. */
-const PICKABLE = conceptMeta.filter((c) => !c.theme.startsWith('_'));
+const PICKABLE = conceptMeta.filter((c) => !c.theme.startsWith("_"));
 
 /** Search words of a concept id: its label, id and keywords. */
 export function iconWords(id: string): string[] {
   const meta = conceptMeta.find((c) => c.id === id);
-  return meta ? meta.words.split(' ') : id.split('-');
+  return meta ? meta.words.split(" ") : id.split("-");
 }
 
 /**
@@ -21,7 +21,7 @@ export function iconSections(query: string, current?: string): IconSection[] {
   const byTheme = new Map<string, IconSection>();
   for (const c of PICKABLE) {
     if (words.length > 0) {
-      const haystack = c.words.split(' ');
+      const haystack = c.words.split(" ");
       if (!words.every((w) => haystack.some((h) => h.startsWith(w)))) continue;
     }
     let section = byTheme.get(c.theme);
@@ -34,7 +34,8 @@ export function iconSections(query: string, current?: string): IconSection[] {
   }
   if (current && words.length === 0) {
     const id = conceptFor(current);
-    if (!PICKABLE.some((c) => c.id === id)) sections.unshift({ title: 'Current', ids: [id] });
+    if (!PICKABLE.some((c) => c.id === id))
+      sections.unshift({ title: "Current", ids: [id] });
   }
   return sections;
 }

@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { View, type LayoutChangeEvent } from 'react-native';
+import * as React from "react";
+import { View, type LayoutChangeEvent } from "react-native";
 import Animated, {
   FadeInUp,
   ReduceMotion,
@@ -9,13 +9,18 @@ import Animated, {
   withDelay,
   withSpring,
   type SharedValue,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { Text, type TextTone } from '../ui/text';
-import { typeScale, type TypeVariant } from '@studio/theme';
+import { Text, type TextTone } from "../ui/text";
+import { typeScale, type TypeVariant } from "@studio/theme";
 
-import { introDelay, splitNumber, type Align, type NumberToken } from '@studio/motion';
-import { motion } from '@studio/motion';
+import {
+  introDelay,
+  splitNumber,
+  type Align,
+  type NumberToken,
+} from "@studio/motion";
+import { motion } from "@studio/motion";
 
 type AnimatedNumberProps = {
   /** The already-formatted amount ("−₹1,24,500.00"); only the digits roll. */
@@ -35,7 +40,7 @@ type AnimatedNumberProps = {
   accessibilityLabel?: string;
   className?: string;
   /** Right-aligns or centres the row inside its container. */
-  justify?: 'start' | 'center' | 'end';
+  justify?: "start" | "center" | "end";
 };
 
 const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -51,7 +56,16 @@ type ColumnProps = {
   drop: boolean;
 };
 
-const DigitColumn = React.memo(function DigitColumn({ digit, variant, tone, color, intro, delay, reduced, drop }: ColumnProps) {
+const DigitColumn = React.memo(function DigitColumn({
+  digit,
+  variant,
+  tone,
+  color,
+  intro,
+  delay,
+  reduced,
+  drop,
+}: ColumnProps) {
   const [line, setLine] = React.useState<number>(typeScale[variant].line);
   const lineSv = useSharedValue<number>(typeScale[variant].line);
   const position = useSharedValue(intro && !reduced ? 0 : digit);
@@ -61,7 +75,10 @@ const DigitColumn = React.memo(function DigitColumn({ digit, variant, tone, colo
       position.value = digit;
       return;
     }
-    position.value = withDelay(intro ? delay : 0, withSpring(digit, motion.springs.roll));
+    position.value = withDelay(
+      intro ? delay : 0,
+      withSpring(digit, motion.springs.roll),
+    );
     // `intro` and `delay` only matter for the first run.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [digit, reduced, position]);
@@ -77,20 +94,36 @@ const DigitColumn = React.memo(function DigitColumn({ digit, variant, tone, colo
     [lineSv],
   );
 
-  const style = useAnimatedStyle(() => ({ transform: [{ translateY: -position.value * lineSv.value }] }));
+  const style = useAnimatedStyle(() => ({
+    transform: [{ translateY: -position.value * lineSv.value }],
+  }));
   const entering = drop
     ? FadeInUp.springify()
         .damping(motion.springs.drop.damping)
         .stiffness(motion.springs.drop.stiffness)
-        .withInitialValues({ opacity: 0, transform: [{ translateY: -line * 0.6 }] })
+        .withInitialValues({
+          opacity: 0,
+          transform: [{ translateY: -line * 0.6 }],
+        })
         .reduceMotion(ReduceMotion.System)
     : undefined;
 
   return (
-    <Animated.View entering={entering} style={{ height: line, overflow: 'hidden' }}>
+    <Animated.View
+      entering={entering}
+      style={{ height: line, overflow: "hidden" }}
+    >
       <Animated.View style={style}>
         {DIGITS.map((d) => (
-          <Text key={d} variant={variant} tone={tone} style={color ? { color } : undefined} numeric numberOfLines={1} onLayout={d === 0 ? onLayout : undefined}>
+          <Text
+            key={d}
+            variant={variant}
+            tone={tone}
+            style={color ? { color } : undefined}
+            numeric
+            numberOfLines={1}
+            onLayout={d === 0 ? onLayout : undefined}
+          >
             {d}
           </Text>
         ))}
@@ -99,7 +132,12 @@ const DigitColumn = React.memo(function DigitColumn({ digit, variant, tone, colo
   );
 });
 
-function useFit(enabled: boolean): { scale: SharedValue<number>; shift: SharedValue<number>; onOuter: (e: LayoutChangeEvent) => void; onInner: (e: LayoutChangeEvent) => void } {
+function useFit(enabled: boolean): {
+  scale: SharedValue<number>;
+  shift: SharedValue<number>;
+  onOuter: (e: LayoutChangeEvent) => void;
+  onInner: (e: LayoutChangeEvent) => void;
+} {
   const outer = React.useRef(0);
   const inner = React.useRef(0);
   const scale = useSharedValue(1);
@@ -135,26 +173,35 @@ function useFit(enabled: boolean): { scale: SharedValue<number>; shift: SharedVa
  */
 function AnimatedNumber({
   value,
-  variant = 'body',
+  variant = "body",
   tone,
   color,
   intro = false,
-  align = 'right',
+  align = "right",
   dropNew = false,
   fit = false,
   accessibilityLabel,
   className,
-  justify = 'start',
+  justify = "start",
 }: AnimatedNumberProps) {
   const reduced = useReducedMotion();
   const tokens = React.useMemo(() => splitNumber(value, align), [value, align]);
   const { scale, shift, onOuter, onInner } = useFit(fit);
-  const fitStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shift.value }, { scale: scale.value }] }));
+  const fitStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shift.value }, { scale: scale.value }],
+  }));
   // Columns present on the first render never "drop"; only ones added later do.
   const [initialKeys] = React.useState(() => new Set(tokens.map((t) => t.key)));
   const digitOrder = new Map<string, number>();
-  tokens.filter((t) => t.kind === 'digit').forEach((t, i) => digitOrder.set(t.key, i));
-  const alignSelf = justify === 'center' ? 'center' : justify === 'end' ? 'flex-end' : 'flex-start';
+  tokens
+    .filter((t) => t.kind === "digit")
+    .forEach((t, i) => digitOrder.set(t.key, i));
+  const alignSelf =
+    justify === "center"
+      ? "center"
+      : justify === "end"
+        ? "flex-end"
+        : "flex-start";
 
   return (
     <View
@@ -163,16 +210,24 @@ function AnimatedNumber({
       accessibilityLabel={accessibilityLabel ?? value}
       importantForAccessibility="yes"
       className={className}
-      style={{ overflow: fit ? 'hidden' : 'visible', flexShrink: 1 }}
+      style={{ overflow: fit ? "hidden" : "visible", flexShrink: 1 }}
     >
       <Animated.View
         onLayout={onInner}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
-        style={[{ flexDirection: 'row', alignItems: 'flex-start', alignSelf, flexShrink: 0 }, fit ? fitStyle : null]}
+        style={[
+          {
+            flexDirection: "row",
+            alignItems: "flex-start",
+            alignSelf,
+            flexShrink: 0,
+          },
+          fit ? fitStyle : null,
+        ]}
       >
         {tokens.map((token: NumberToken) =>
-          token.kind === 'digit' ? (
+          token.kind === "digit" ? (
             <DigitColumn
               key={token.key}
               digit={token.digit}
@@ -185,7 +240,14 @@ function AnimatedNumber({
               drop={dropNew && !initialKeys.has(token.key)}
             />
           ) : (
-            <Text key={token.key} variant={variant} tone={tone} style={color ? { color } : undefined} numeric numberOfLines={1}>
+            <Text
+              key={token.key}
+              variant={variant}
+              tone={tone}
+              style={color ? { color } : undefined}
+              numeric
+              numberOfLines={1}
+            >
               {token.char}
             </Text>
           ),

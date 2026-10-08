@@ -1,24 +1,35 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import * as React from 'react';
-import { View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as React from "react";
+import { View } from "react-native";
 
-import { EmptyState , barRight , Button , Card , Text } from '@studio/ui';
-import { PaceChart, paceLabel } from '@studio/charts/components';
-import { useBudgetDetail, useCategories, usePeriodTransactions, useTodayKey } from '@/data/hooks';
-import { TransactionDayList } from '@/features/transactions/transaction-day-list';
-import { useMoneyContext } from '@/features/transactions/use-money-context';
-import { nextPeriod, periodLabel, previousPeriod, type Period } from '@studio/dates';
-import { formatMoneyForSpeech } from '@studio/money';
-import { Stagger } from '@studio/motion';
-import { haptic , useTokens } from '@studio/theme';
+import { EmptyState, barRight, Button, Card, Text } from "@studio/ui";
+import { PaceChart, paceLabel } from "@studio/charts/components";
+import {
+  useBudgetDetail,
+  useCategories,
+  usePeriodTransactions,
+  useTodayKey,
+} from "@/data/hooks";
+import { TransactionDayList } from "@/features/transactions/transaction-day-list";
+import { useMoneyContext } from "@/features/transactions/use-money-context";
+import {
+  nextPeriod,
+  periodLabel,
+  previousPeriod,
+  type Period,
+} from "@studio/dates";
+import { formatMoneyForSpeech } from "@studio/money";
+import { Stagger } from "@studio/motion";
+import { haptic, useTokens } from "@studio/theme";
 
-import { BudgetCard } from './budget-card';
-import { toBudgetView } from './model';
-import { PeriodStepper } from './period-stepper';
+import { BudgetCard } from "./budget-card";
+import { toBudgetView } from "./model";
+import { PeriodStepper } from "./period-stepper";
 
 function stepFrom(base: Period, offset: number): Period {
   let period = base;
-  for (let i = 0; i < Math.abs(offset); i++) period = offset < 0 ? previousPeriod(period) : nextPeriod(period);
+  for (let i = 0; i < Math.abs(offset); i++)
+    period = offset < 0 ? previousPeriod(period) : nextPeriod(period);
   return period;
 }
 
@@ -39,21 +50,36 @@ export default function BudgetDetailScreen() {
   const detail = useBudgetDetail(id, wanted?.from);
   const period = detail?.period ?? wanted;
 
-  const items = usePeriodTransactions({ from: period?.from ?? today, to: period?.to ?? today, kinds: ['expense'] });
+  const items = usePeriodTransactions({
+    from: period?.from ?? today,
+    to: period?.to ?? today,
+    kinds: ["expense"],
+  });
   const scoped = React.useMemo(() => {
     const budget = detail?.budget;
     if (!budget) return [];
-    if (budget.scope === 'all') return items;
+    if (budget.scope === "all") return items;
     const ids = new Set(budget.categoryIds);
-    return items.filter((item) => (item.splits.length > 0 ? item.splits.some((s) => ids.has(s.categoryId)) : item.categoryId !== null && ids.has(item.categoryId)));
+    return items.filter((item) =>
+      item.splits.length > 0
+        ? item.splits.some((s) => ids.has(s.categoryId))
+        : item.categoryId !== null && ids.has(item.categoryId),
+    );
   }, [items, detail?.budget]);
 
-  const categoryMap = React.useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
+  const categoryMap = React.useMemo(
+    () => new Map(categories.map((c) => [c.id, c])),
+    [categories],
+  );
   if (!detail || !period) {
     return (
       <View className="flex-1 justify-center bg-bg">
-        <Stack.Screen options={{ title: 'Budget' }} />
-        <EmptyState message="Budget not found" actionLabel="Back" onAction={() => router.back()} />
+        <Stack.Screen options={{ title: "Budget" }} />
+        <EmptyState
+          message="Budget not found"
+          actionLabel="Back"
+          onAction={() => router.back()}
+        />
       </View>
     );
   }
@@ -62,27 +88,47 @@ export default function BudgetDetailScreen() {
   const isCurrent = offset === 0;
   const view = toBudgetView(
     { budget, period, spent: detail.spent, remaining: detail.remaining },
-    { locale: money.locale, showDecimals: money.showDecimals, todayKey: today, categories: categoryMap },
+    {
+      locale: money.locale,
+      showDecimals: money.showDecimals,
+      todayKey: today,
+      categories: categoryMap,
+    },
     isCurrent,
   );
   const last = detail.pace.length - 1;
-  const labels = detail.pace.length > 2 ? [0, Math.floor(last / 2), last].map((index) => ({ index, text: String(Number(detail.pace[index]?.key.slice(8)))})) : [];
-  const tint = view.status === 'over' ? colors.expense : view.scope === 'categories' ? category[view.color] : undefined;
+  const labels =
+    detail.pace.length > 2
+      ? [0, Math.floor(last / 2), last].map((index) => ({
+          index,
+          text: String(Number(detail.pace[index]?.key.slice(8))),
+        }))
+      : [];
+  const tint =
+    view.status === "over"
+      ? colors.expense
+      : view.scope === "categories"
+        ? category[view.color]
+        : undefined;
   const point = selected !== null ? detail.pace[selected] : undefined;
   const chartLabel = point
     ? paceLabel(selected ?? 0, point, budget.currency, money.locale)
-    : `Spending pace, ${formatMoneyForSpeech(detail.spent, budget.currency, { sign: 'none' })} of ${formatMoneyForSpeech(budget.amount, budget.currency, { sign: 'none' })}`;
+    : `Spending pace, ${formatMoneyForSpeech(detail.spent, budget.currency, { sign: "none" })} of ${formatMoneyForSpeech(budget.amount, budget.currency, { sign: "none" })}`;
 
   const header = (
     <View className="gap-4 pt-2">
       <PeriodStepper
         label={periodLabel(period)}
         canForward={!isCurrent}
-        onTitlePress={isCurrent ? undefined : () => {
-          haptic('selection');
-          setSelected(null);
-          setOffset(0);
-        }}
+        onTitlePress={
+          isCurrent
+            ? undefined
+            : () => {
+                haptic("selection");
+                setSelected(null);
+                setOffset(0);
+              }
+        }
         onStep={(direction) => {
           setSelected(null);
           setOffset((n) => Math.min(n + direction, 0));
@@ -92,21 +138,27 @@ export default function BudgetDetailScreen() {
         <BudgetCard view={view} />
       </Stagger>
       <Stagger index={1}>
-      <Card className="mx-4 px-4 pb-1 pt-3">
-        <PaceChart
-          data={detail.pace}
-          currency={budget.currency}
-          locale={money.locale}
-          selectedIndex={selected}
-          onSelect={setSelected}
-          labels={labels}
-          color={tint}
-          accessibilityLabel={chartLabel}
-        />
-      </Card>
+        <Card className="mx-4 px-4 pb-1 pt-3">
+          <PaceChart
+            data={detail.pace}
+            currency={budget.currency}
+            locale={money.locale}
+            selectedIndex={selected}
+            onSelect={setSelected}
+            labels={labels}
+            color={tint}
+            accessibilityLabel={chartLabel}
+          />
+        </Card>
       </Stagger>
-      <Text variant="headline" accessibilityRole="header" className="-mb-2 px-4 pt-2">
-        {scoped.length > 0 ? `${scoped.length} ${scoped.length === 1 ? 'transaction' : 'transactions'}` : 'Transactions'}
+      <Text
+        variant="headline"
+        accessibilityRole="header"
+        className="-mb-2 px-4 pt-2"
+      >
+        {scoped.length > 0
+          ? `${scoped.length} ${scoped.length === 1 ? "transaction" : "transactions"}`
+          : "Transactions"}
       </Text>
     </View>
   );
@@ -117,9 +169,19 @@ export default function BudgetDetailScreen() {
         options={{
           title: view.name,
           ...barRight(
-            <Button variant="barPrimary" size="sm" onPress={() => router.push({ pathname: '/budget/[id]/edit', params: { id: budget.id } })} accessibilityLabel="Edit">
+            <Button
+              variant="barPrimary"
+              size="sm"
+              onPress={() =>
+                router.push({
+                  pathname: "/budget/[id]/edit",
+                  params: { id: budget.id },
+                })
+              }
+              accessibilityLabel="Edit"
+            >
               <Text variant="body">Edit</Text>
-            </Button>
+            </Button>,
           ),
         }}
       />
@@ -127,7 +189,15 @@ export default function BudgetDetailScreen() {
         items={scoped}
         context={money}
         header={header}
-        empty={<Text variant="callout" tone="secondary" className="px-4 py-8 text-center">Nothing spent</Text>}
+        empty={
+          <Text
+            variant="callout"
+            tone="secondary"
+            className="px-4 py-8 text-center"
+          >
+            Nothing spent
+          </Text>
+        }
         contentContainerStyle={{ paddingBottom: 32 }}
       />
     </View>

@@ -1,30 +1,37 @@
-import * as React from 'react';
-import { ActionSheetIOS, Platform, View } from 'react-native';
+import * as React from "react";
+import { ActionSheetIOS, Platform, View } from "react-native";
 
-import { OptionPicker , Pressable , Text } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import { haptic , useTokens } from '@studio/theme';
+import { OptionPicker, Pressable, Text } from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import { haptic, useTokens } from "@studio/theme";
 
-import type { InsightsKind } from './params';
+import type { InsightsKind } from "./params";
 
 const OPTIONS = [
-  { value: 'both' as const, label: 'Both' },
-  { value: 'expense' as const, label: 'Spent' },
-  { value: 'income' as const, label: 'Earned' },
+  { value: "both" as const, label: "Both" },
+  { value: "expense" as const, label: "Spent" },
+  { value: "income" as const, label: "Earned" },
 ];
 
-type KindMenuProps = { kind: InsightsKind; onChange: (kind: InsightsKind) => void };
+type KindMenuProps = {
+  kind: InsightsKind;
+  onChange: (kind: InsightsKind) => void;
+};
 
 /** Hero label as a menu chip: `Spent ▾`. Native action sheet on iOS, the shared option picker elsewhere. */
 function KindMenu({ kind, onChange }: KindMenuProps) {
   const { colors, scheme } = useTokens();
   const [open, setOpen] = React.useState(false);
-  const label = OPTIONS.find((o) => o.value === kind)?.label ?? 'Both';
+  const label = OPTIONS.find((o) => o.value === kind)?.label ?? "Both";
   const present = () => {
-    haptic('selection');
-    if (Platform.OS === 'ios') {
+    haptic("selection");
+    if (Platform.OS === "ios") {
       ActionSheetIOS.showActionSheetWithOptions(
-        { options: [...OPTIONS.map((o) => o.label), 'Cancel'], cancelButtonIndex: OPTIONS.length, userInterfaceStyle: scheme },
+        {
+          options: [...OPTIONS.map((o) => o.label), "Cancel"],
+          cancelButtonIndex: OPTIONS.length,
+          userInterfaceStyle: scheme,
+        },
         (index) => {
           const option = OPTIONS[index];
           if (option) onChange(option.value);
@@ -51,8 +58,15 @@ function KindMenu({ kind, onChange }: KindMenuProps) {
           <AppIcon name="chevron.down" size={11} color={colors.accent} />
         </View>
       </Pressable>
-      {Platform.OS === 'ios' ? null : (
-        <OptionPicker visible={open} title="Show" options={OPTIONS} selected={kind} onSelect={onChange} onClose={() => setOpen(false)} />
+      {Platform.OS === "ios" ? null : (
+        <OptionPicker
+          visible={open}
+          title="Show"
+          options={OPTIONS}
+          selected={kind}
+          onSelect={onChange}
+          onClose={() => setOpen(false)}
+        />
       )}
     </>
   );

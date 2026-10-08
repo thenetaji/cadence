@@ -1,9 +1,9 @@
-import { DatabaseProvider as BaseProvider } from '@studio/data/provider';
-import type { ReactNode } from 'react';
-import migrations from '../../drizzle/migrations';
-import { db } from './client';
-import { useDb } from './context';
-import { seedDefaults } from './seed';
+import { DatabaseProvider as BaseProvider } from "@studio/data/provider";
+import type { ReactNode } from "react";
+import migrations from "../../drizzle/migrations";
+import { db } from "./client";
+import { useDb } from "./context";
+import { seedDefaults } from "./seed";
 
 export interface DatabaseProviderProps {
   children: ReactNode;
@@ -14,7 +14,14 @@ export interface DatabaseProviderProps {
 }
 
 export function DatabaseProvider(props: DatabaseProviderProps) {
-  return <BaseProvider db={db} migrations={migrations} seed={seedDefaults} {...props} />;
+  return (
+    <BaseProvider
+      db={db}
+      migrations={migrations}
+      seed={seedDefaults}
+      {...props}
+    />
+  );
 }
 
 export { useDb };

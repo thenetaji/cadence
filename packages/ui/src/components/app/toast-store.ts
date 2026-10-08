@@ -1,7 +1,7 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import { haptic, type HapticKind } from '@studio/theme';
-import { durations } from '@studio/theme';
+import { haptic, type HapticKind } from "@studio/theme";
+import { durations } from "@studio/theme";
 
 type ToastInput = {
   message: string;
@@ -25,13 +25,16 @@ export const useToastStore = create<ToastState>((set, get) => ({
   toast: null,
   show: (input) => {
     const id = nextId++;
-    set({ toast: { ...input, id, duration: input.duration ?? durations.toast } });
-    if (input.haptic !== false) haptic(input.haptic ?? 'success');
+    set({
+      toast: { ...input, id, duration: input.duration ?? durations.toast },
+    });
+    if (input.haptic !== false) haptic(input.haptic ?? "success");
     return id;
   },
   dismiss: (id) => {
     const current = get().toast;
-    if (current && (id === undefined || current.id === id)) set({ toast: null });
+    if (current && (id === undefined || current.id === id))
+      set({ toast: null });
   },
 }));
 

@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { ScrollView, View } from 'react-native';
+import * as React from "react";
+import { ScrollView, View } from "react-native";
 
-import { EdgeFade } from '@studio/ui';
-import { useTokens } from '@studio/theme';
-import { CategoryPill, FormChip } from '@/features/transaction-form/chips';
-import { ShakeView } from '@/features/transaction-form/shake-view';
-import type { CategoryRow } from '@/db/schema';
-import type { CategoryColorKey } from '@studio/theme';
+import { EdgeFade } from "@studio/ui";
+import { useTokens } from "@studio/theme";
+import { CategoryPill, FormChip } from "@/features/transaction-form/chips";
+import { ShakeView } from "@/features/transaction-form/shake-view";
+import type { CategoryRow } from "@/db/schema";
+import type { CategoryColorKey } from "@studio/theme";
 
 const MAX_RECENTS = 6;
 
@@ -19,9 +19,17 @@ type CategoryRowProps = {
 };
 
 /** Selected category first, then up to 6 recents, then "All". "All" is a fixed icon pill pinned outside the scroller. */
-function CategoryRowView({ recents, selected, shakeTrigger, onSelect, onAll }: CategoryRowProps) {
+function CategoryRowView({
+  recents,
+  selected,
+  shakeTrigger,
+  onSelect,
+  onAll,
+}: CategoryRowProps) {
   const { colors } = useTokens();
-  const others = recents.filter((c) => c.id !== selected?.id).slice(0, MAX_RECENTS);
+  const others = recents
+    .filter((c) => c.id !== selected?.id)
+    .slice(0, MAX_RECENTS);
   const chips = selected ? [selected, ...others] : others;
   return (
     <ShakeView trigger={shakeTrigger}>
@@ -48,7 +56,13 @@ function CategoryRowView({ recents, selected, shakeTrigger, onSelect, onAll }: C
           <EdgeFade color={colors.surface} />
         </View>
         <View className="h-14 items-center justify-center pl-2 pr-4">
-          <FormChip label="All categories" icon="square.grid.2x2" iconOnly onPress={onAll} accessibilityLabel="All categories" />
+          <FormChip
+            label="All categories"
+            icon="square.grid.2x2"
+            iconOnly
+            onPress={onAll}
+            accessibilityLabel="All categories"
+          />
         </View>
       </View>
     </ShakeView>

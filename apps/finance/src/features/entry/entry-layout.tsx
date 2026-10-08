@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import * as React from "react";
+import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 
 type EntryLayoutProps = {
   /** Scrolling content: the readout first, then the grouped fields. */
@@ -12,7 +12,10 @@ type EntryLayoutProps = {
 function EntryLayout({ children, keypad }: EntryLayoutProps) {
   return (
     <View className="flex-1 bg-bg">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        className="flex-1"
+      >
         <ScrollView
           className="flex-1"
           contentContainerClassName="gap-4 pb-6 pt-2"

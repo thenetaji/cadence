@@ -1,8 +1,12 @@
-import { useCallback } from 'react';
-import { useDb } from '@/db/context';
-import { listForExport, loadImportContext, type ExportFilter } from '@/db/repos/importer';
-import { planImport, type ImportPlan, type ImportRow } from '@/lib/csv';
-import { useSettings } from './useSettings';
+import { useCallback } from "react";
+import { useDb } from "@/db/context";
+import {
+  listForExport,
+  loadImportContext,
+  type ExportFilter,
+} from "@/db/repos/importer";
+import { planImport, type ImportPlan, type ImportRow } from "@/lib/csv";
+import { useSettings } from "./useSettings";
 
 /** One-off read of the transactions to export; not live. */
 export function useExportReader() {
@@ -17,7 +21,11 @@ export function useImportPlanner() {
   const displayCurrency = settings.display_currency;
   const defaultAccountId = settings.default_account_id;
   return useCallback(
-    (rows: readonly ImportRow[]): ImportPlan => planImport(rows, loadImportContext(db), { displayCurrency, defaultAccountId }),
+    (rows: readonly ImportRow[]): ImportPlan =>
+      planImport(rows, loadImportContext(db), {
+        displayCurrency,
+        defaultAccountId,
+      }),
     [db, displayCurrency, defaultAccountId],
   );
 }

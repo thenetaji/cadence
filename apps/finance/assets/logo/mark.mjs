@@ -1,14 +1,17 @@
 // Source of the app logo: a brass coin holding a tide of brass water with the "today" dot on its surface,
 // the same story as the Home hero chart. `render.mjs` turns these SVGs into the PNGs app.json points at.
 
-const BRASS = ['#F3DDA6', '#DEC084', '#BA904C', '#8A6630'];
+const BRASS = ["#F3DDA6", "#DEC084", "#BA904C", "#8A6630"];
 
 /** Wave surface across the coin: two summed sines, sampled every 2 units, as an SVG path fragment. */
 function surface(cx, r, level, amp) {
   const pts = [];
   for (let x = cx - r - 4; x <= cx + r + 4; x += 2) {
     const t = (x - (cx - r)) / (2 * r);
-    const y = level + amp * Math.sin(t * Math.PI * 2.1 + 0.6) + amp * 0.45 * Math.sin(t * Math.PI * 4.3 + 1.9);
+    const y =
+      level +
+      amp * Math.sin(t * Math.PI * 2.1 + 0.6) +
+      amp * 0.45 * Math.sin(t * Math.PI * 4.3 + 1.9);
     pts.push(`${x.toFixed(1)} ${y.toFixed(2)}`);
   }
   return pts;
@@ -27,15 +30,18 @@ export function mark({ r = 330, mono = false } = {}) {
   const amp = inner * 0.06;
   const wave = surface(cx, inner, level, amp);
   const back = surface(cx, inner, level - inner * 0.09, amp * 1.3).map((p) => {
-    const [x, y] = p.split(' ').map(Number);
+    const [x, y] = p.split(" ").map(Number);
     return `${x} ${(y + amp * 0.6 * Math.sin(x / 37)).toFixed(2)}`;
   });
-  const body = `M ${wave.join(' L ')} L ${cx + inner + 4} ${cy + inner + 4} L ${cx - inner - 4} ${cy + inner + 4} Z`;
-  const backBody = `M ${back.join(' L ')} L ${cx + inner + 4} ${cy + inner + 4} L ${cx - inner - 4} ${cy + inner + 4} Z`;
+  const body = `M ${wave.join(" L ")} L ${cx + inner + 4} ${cy + inner + 4} L ${cx - inner - 4} ${cy + inner + 4} Z`;
+  const backBody = `M ${back.join(" L ")} L ${cx + inner + 4} ${cy + inner + 4} L ${cx - inner - 4} ${cy + inner + 4} Z`;
   // Today dot sits on the surface a little left of centre.
   const dotX = cx - inner * 0.28;
   const t = (dotX - (cx - inner)) / (2 * inner);
-  const dotY = level + amp * Math.sin(t * Math.PI * 2.1 + 0.6) + amp * 0.45 * Math.sin(t * Math.PI * 4.3 + 1.9);
+  const dotY =
+    level +
+    amp * Math.sin(t * Math.PI * 2.1 + 0.6) +
+    amp * 0.45 * Math.sin(t * Math.PI * 4.3 + 1.9);
   const dotR = r * 0.075;
 
   if (mono) {
@@ -74,8 +80,8 @@ export function mark({ r = 330, mono = false } = {}) {
     <path d="${backBody}" fill="${BRASS[1]}" fill-opacity="0.16"/>
     <path d="${body}" fill="url(#water)"/>
     <ellipse cx="${cx + inner * 0.22}" cy="${level + inner * 0.18}" rx="${inner * 0.55}" ry="${inner * 0.26}" fill="url(#caustic)"/>
-    <path d="M ${wave.join(' L ')}" fill="none" stroke="${BRASS[0]}" stroke-width="${r * 0.04}" stroke-opacity="0.35" filter="url(#glow)"/>
-    <path d="M ${wave.join(' L ')}" fill="none" stroke="#FBEBC4" stroke-width="${r * 0.022}" stroke-linecap="round"/>
+    <path d="M ${wave.join(" L ")}" fill="none" stroke="${BRASS[0]}" stroke-width="${r * 0.04}" stroke-opacity="0.35" filter="url(#glow)"/>
+    <path d="M ${wave.join(" L ")}" fill="none" stroke="#FBEBC4" stroke-width="${r * 0.022}" stroke-linecap="round"/>
   </g>
   <circle cx="${dotX}" cy="${dotY}" r="${dotR + r * 0.03}" fill="#0B0A08"/>
   <circle cx="${dotX}" cy="${dotY}" r="${dotR}" fill="url(#brass)"/>`;

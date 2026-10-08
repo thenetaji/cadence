@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 /** The latest non-null value, kept while `value` is null, so a fading label stays where it was. */
 export function useHeld(value: number | null): number {

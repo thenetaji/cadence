@@ -1,36 +1,68 @@
-import { FlashList } from '@shopify/flash-list';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import * as React from 'react';
-import { View } from 'react-native';
+import { FlashList } from "@shopify/flash-list";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as React from "react";
+import { View } from "react-native";
 
-import { DaySectionHeader , barRight , Button , Card , Text } from '@studio/ui';
-import { TransactionRow } from '@/components/app/transaction-row';
-import { MiniBars } from '@studio/charts/components';
-import { useCategoryTrend, usePeriodTransactions, useSettings, useTodayKey, useTopCategoryId, type TransactionListItem } from '@/data/hooks';
-import { periodFor, periodLabel, previousPeriod, type Period, type PeriodType } from '@studio/dates';
-import { formatMoney, formatMoneyForSpeech } from '@studio/money';
-import { formatTime, toRowModel } from '@/features/transactions/row-model';
-import { useMoneyContext, type MoneyContext } from '@/features/transactions/use-money-context';
-import { useTransactionActions } from '@/features/transactions/use-transaction-actions';
-import { categoryKeys, type CategoryColorKey } from '@studio/theme';
-import { useTokens } from '@studio/theme';
+import { DaySectionHeader, barRight, Button, Card, Text } from "@studio/ui";
+import { TransactionRow } from "@/components/app/transaction-row";
+import { MiniBars } from "@studio/charts/components";
+import {
+  useCategoryTrend,
+  usePeriodTransactions,
+  useSettings,
+  useTodayKey,
+  useTopCategoryId,
+  type TransactionListItem,
+} from "@/data/hooks";
+import {
+  periodFor,
+  periodLabel,
+  previousPeriod,
+  type Period,
+  type PeriodType,
+} from "@studio/dates";
+import { formatMoney, formatMoneyForSpeech } from "@studio/money";
+import { formatTime, toRowModel } from "@/features/transactions/row-model";
+import {
+  useMoneyContext,
+  type MoneyContext,
+} from "@/features/transactions/use-money-context";
+import { useTransactionActions } from "@/features/transactions/use-transaction-actions";
+import { categoryKeys, type CategoryColorKey } from "@studio/theme";
+import { useTokens } from "@studio/theme";
 
-import { buildCategoryEntries, type CategoryEntry } from './category-entries';
-import { periodNoun, trendLabel } from './labels';
-import { firstParam } from './params';
+import { buildCategoryEntries, type CategoryEntry } from "./category-entries";
+import { periodNoun, trendLabel } from "./labels";
+import { firstParam } from "./params";
 
-const TYPES: readonly PeriodType[] = ['week', 'month', 'year', 'custom'];
+const TYPES: readonly PeriodType[] = ["week", "month", "year", "custom"];
 const KEY = /^\d{4}-\d{2}-\d{2}$/;
-const asColor = (value: string | undefined): CategoryColorKey => ((categoryKeys as readonly string[]).includes(value ?? '') ? (value as CategoryColorKey) : 'gray');
+const asColor = (value: string | undefined): CategoryColorKey =>
+  (categoryKeys as readonly string[]).includes(value ?? "")
+    ? (value as CategoryColorKey)
+    : "gray";
 
-function SplitLineRow({ entry, context }: { entry: Extract<CategoryEntry, { type: 'split' }>; context: MoneyContext }) {
+function SplitLineRow({
+  entry,
+  context,
+}: {
+  entry: Extract<CategoryEntry, { type: "split" }>;
+  context: MoneyContext;
+}) {
   const actions = useTransactionActions();
   const { item, line } = entry;
-  const sign = item.kind === 'income' ? 'plus' : 'minus';
-  const amount = formatMoney(line.amount, item.currency, { locale: context.locale, sign, decimals: context.showDecimals ? undefined : 0 });
+  const sign = item.kind === "income" ? "plus" : "minus";
+  const amount = formatMoney(line.amount, item.currency, {
+    locale: context.locale,
+    sign,
+    decimals: context.showDecimals ? undefined : 0,
+  });
   const title = item.title || line.category.name;
   const subtitle = `Split · ${item.account.name}`;
-  const open = React.useCallback(() => actions.open(item.id), [actions, item.id]);
+  const open = React.useCallback(
+    () => actions.open(item.id),
+    [actions, item.id],
+  );
   return (
     <TransactionRow
       kind={item.kind}
@@ -41,7 +73,15 @@ function SplitLineRow({ entry, context }: { entry: Extract<CategoryEntry, { type
       icon={line.category.icon}
       color={asColor(line.category.color)}
       split
-      accessibilityLabel={[title, subtitle, formatMoneyForSpeech(line.amount, item.currency, { sign, locale: context.locale }), formatTime(item.occurredAt)].join(', ')}
+      accessibilityLabel={[
+        title,
+        subtitle,
+        formatMoneyForSpeech(line.amount, item.currency, {
+          sign,
+          locale: context.locale,
+        }),
+        formatTime(item.occurredAt),
+      ].join(", ")}
       separator={!entry.last}
       onPress={open}
     />
@@ -49,7 +89,15 @@ function SplitLineRow({ entry, context }: { entry: Extract<CategoryEntry, { type
 }
 
 /** Ledger row for this screen: the subtitle is the account only, the title already says the category. */
-const CategoryTransactionRow = React.memo(function CategoryTransactionRow({ item, context, separator }: { item: TransactionListItem; context: MoneyContext; separator: boolean }) {
+const CategoryTransactionRow = React.memo(function CategoryTransactionRow({
+  item,
+  context,
+  separator,
+}: {
+  item: TransactionListItem;
+  context: MoneyContext;
+  separator: boolean;
+}) {
   const actions = useTransactionActions();
   const model = React.useMemo(() => toRowModel(item, context), [item, context]);
   const id = item.id;
@@ -76,28 +124,54 @@ const CategoryTransactionRow = React.memo(function CategoryTransactionRow({ item
 export default function CategoryScreen() {
   const router = useRouter();
   const raw = useLocalSearchParams();
-  const rawId = firstParam(raw.id as string | string[] | undefined) ?? '';
-  const kind = firstParam(raw.kind as string | undefined) === 'income' ? 'income' : 'expense';
+  const rawId = firstParam(raw.id as string | string[] | undefined) ?? "";
+  const kind =
+    firstParam(raw.kind as string | undefined) === "income"
+      ? "income"
+      : "expense";
   const settings = useSettings();
   const today = useTodayKey();
   const money = useMoneyContext();
   const { category: palette } = useTokens();
 
   const period = React.useMemo<Period>(() => {
-    const type = TYPES.find((t) => t === firstParam(raw.type as string | undefined));
+    const type = TYPES.find(
+      (t) => t === firstParam(raw.type as string | undefined),
+    );
     const from = firstParam(raw.from as string | undefined);
     const to = firstParam(raw.to as string | undefined);
-    if (type && from && to && KEY.test(from) && KEY.test(to)) return { type, from, to };
+    if (type && from && to && KEY.test(from) && KEY.test(to))
+      return { type, from, to };
     // `?offset=-1` steps back whole months; used by screenshots and harmless otherwise.
-    let current = periodFor('month', today, { weekStart: settings.week_start, monthStart: settings.month_start });
-    const offset = Math.max(-120, Math.min(0, Number.parseInt(firstParam(raw.offset as string | undefined) ?? '0', 10) || 0));
+    let current = periodFor("month", today, {
+      weekStart: settings.week_start,
+      monthStart: settings.month_start,
+    });
+    const offset = Math.max(
+      -120,
+      Math.min(
+        0,
+        Number.parseInt(
+          firstParam(raw.offset as string | undefined) ?? "0",
+          10,
+        ) || 0,
+      ),
+    );
     for (let i = 0; i > offset; i--) current = previousPeriod(current);
     return current;
-  }, [raw.type, raw.from, raw.to, raw.offset, today, settings.week_start, settings.month_start]);
+  }, [
+    raw.type,
+    raw.from,
+    raw.to,
+    raw.offset,
+    today,
+    settings.week_start,
+    settings.month_start,
+  ]);
 
   // `/category/top` resolves to the biggest category of the period (dev and screenshots).
-  const topId = useTopCategoryId(period, kind, rawId === 'top');
-  const id = rawId === 'top' ? (topId ?? '') : rawId;
+  const topId = useTopCategoryId(period, kind, rawId === "top");
+  const id = rawId === "top" ? (topId ?? "") : rawId;
 
   const trend = useCategoryTrend(id, period, kind);
   const last = trend.points.length - 1;
@@ -108,15 +182,32 @@ export default function CategoryScreen() {
   const category = trend.category;
   const tint = palette[asColor(category?.color)];
 
-  const items = usePeriodTransactions({ from: selectedPeriod.from, to: selectedPeriod.to, categoryId: id, kinds: [kind] });
-  const entries = React.useMemo(() => buildCategoryEntries(items, id, today), [items, id, today]);
-  const sticky = React.useMemo(() => entries.flatMap((e, i) => (e.type === 'header' ? [i] : [])), [entries]);
+  const items = usePeriodTransactions({
+    from: selectedPeriod.from,
+    to: selectedPeriod.to,
+    categoryId: id,
+    kinds: [kind],
+  });
+  const entries = React.useMemo(
+    () => buildCategoryEntries(items, id, today),
+    [items, id, today],
+  );
+  const sticky = React.useMemo(
+    () => entries.flatMap((e, i) => (e.type === "header" ? [i] : [])),
+    [entries],
+  );
 
   const { currency } = trend;
   const decimals = money.showDecimals ? undefined : 0;
-  const fmtShort = (value: number) => formatMoney(value, currency, { locale: money.locale, decimals: 0 });
+  const fmtShort = (value: number) =>
+    formatMoney(value, currency, { locale: money.locale, decimals: 0 });
   const bars = React.useMemo(
-    () => trend.points.map((p) => ({ key: p.period.from, label: trendLabel(p.period), value: p.amount })),
+    () =>
+      trend.points.map((p) => ({
+        key: p.period.from,
+        label: trendLabel(p.period),
+        value: p.amount,
+      })),
     [trend.points],
   );
   const noun = periodNoun(period);
@@ -129,14 +220,29 @@ export default function CategoryScreen() {
             <Text variant="footnote" tone="secondary" numberOfLines={1}>
               {periodLabel(selectedPeriod)}
             </Text>
-            <Text variant="title1" numeric numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
-              {formatMoney(point?.amount ?? 0, currency, { locale: money.locale, decimals })}
+            <Text
+              variant="title1"
+              numeric
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+            >
+              {formatMoney(point?.amount ?? 0, currency, {
+                locale: money.locale,
+                decimals,
+              })}
             </Text>
           </View>
           <View className="items-end">
-            <Text variant="footnote" tone="secondary">{`Average per ${noun}`}</Text>
+            <Text
+              variant="footnote"
+              tone="secondary"
+            >{`Average per ${noun}`}</Text>
             <Text variant="title2" tone="secondary" numeric>
-              {formatMoney(trend.average, currency, { locale: money.locale, decimals })}
+              {formatMoney(trend.average, currency, {
+                locale: money.locale,
+                decimals,
+              })}
             </Text>
           </View>
         </View>
@@ -148,7 +254,7 @@ export default function CategoryScreen() {
           average={trend.average}
           formatValue={(index) => fmtShort(trend.points[index]?.amount ?? 0)}
           color={tint}
-          accessibilityLabel={`${category?.name ?? 'Category'} over the last ${bars.length} periods`}
+          accessibilityLabel={`${category?.name ?? "Category"} over the last ${bars.length} periods`}
         />
       </Card>
       {entries.length === 0 ? (
@@ -161,9 +267,17 @@ export default function CategoryScreen() {
 
   const renderItem = React.useCallback(
     ({ item }: { item: CategoryEntry }) => {
-      if (item.type === 'header') return <DaySectionHeader label={item.label} />;
-      if (item.type === 'split') return <SplitLineRow entry={item} context={money} />;
-      return <CategoryTransactionRow item={item.item} context={money} separator={!item.last} />;
+      if (item.type === "header")
+        return <DaySectionHeader label={item.label} />;
+      if (item.type === "split")
+        return <SplitLineRow entry={item} context={money} />;
+      return (
+        <CategoryTransactionRow
+          item={item.item}
+          context={money}
+          separator={!item.last}
+        />
+      );
     },
     [money],
   );
@@ -172,11 +286,21 @@ export default function CategoryScreen() {
     <View className="flex-1 bg-bg">
       <Stack.Screen
         options={{
-          title: category?.name ?? 'Category',
+          title: category?.name ?? "Category",
           ...barRight(
-            <Button variant="barPrimary" size="sm" onPress={() => router.push({ pathname: '/settings/categories/[id]', params: { id } })} accessibilityLabel="Edit category">
+            <Button
+              variant="barPrimary"
+              size="sm"
+              onPress={() =>
+                router.push({
+                  pathname: "/settings/categories/[id]",
+                  params: { id },
+                })
+              }
+              accessibilityLabel="Edit category"
+            >
               <Text variant="body">Edit</Text>
-            </Button>
+            </Button>,
           ),
         }}
       />

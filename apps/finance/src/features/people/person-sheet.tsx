@@ -1,22 +1,32 @@
-import { useRouter } from 'expo-router';
-import * as React from 'react';
-import { View } from 'react-native';
+import { useRouter } from "expo-router";
+import * as React from "react";
+import { View } from "react-native";
 
-import { AppIcon } from '@studio/icons';
-import { SheetScroll , Button , Input , Pressable , Text } from '@studio/ui';
-import { useActions } from '@/data/actions';
-import { useOutstanding, usePeople } from '@/data/hooks';
-import { ValidationError } from '@/db/errors';
-import type { PersonRow } from '@/db/schema';
-import { titleAfterPerson } from '@/features/transaction-form/logic';
-import { useDraftStore } from '@/features/transaction-form/store';
-import { haptic , useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { SheetScroll, Button, Input, Pressable, Text } from "@studio/ui";
+import { useActions } from "@/data/actions";
+import { useOutstanding, usePeople } from "@/data/hooks";
+import { ValidationError } from "@/db/errors";
+import type { PersonRow } from "@/db/schema";
+import { titleAfterPerson } from "@/features/transaction-form/logic";
+import { useDraftStore } from "@/features/transaction-form/store";
+import { haptic, useTokens } from "@studio/theme";
 
-import { Avatar } from './avatar';
+import { Avatar } from "./avatar";
 
 const MAX_RECENT = 4;
 
-function PersonRowView({ person, selected, onPress, last }: { person: PersonRow; selected: boolean; onPress: () => void; last: boolean }) {
+function PersonRowView({
+  person,
+  selected,
+  onPress,
+  last,
+}: {
+  person: PersonRow;
+  selected: boolean;
+  onPress: () => void;
+  last: boolean;
+}) {
   const { colors } = useTokens();
   return (
     <Pressable
@@ -31,8 +41,16 @@ function PersonRowView({ person, selected, onPress, last }: { person: PersonRow;
       <Text variant="body" numberOfLines={1} className="flex-1">
         {person.name}
       </Text>
-      {selected ? <AppIcon name="check" size={16} color={colors.accent} /> : null}
-      {last ? null : <View pointerEvents="none" style={{ left: 64, height: 0.5, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />}
+      {selected ? (
+        <AppIcon name="check" size={16} color={colors.accent} />
+      ) : null}
+      {last ? null : (
+        <View
+          pointerEvents="none"
+          style={{ left: 64, height: 0.5, backgroundColor: colors.separator }}
+          className="absolute bottom-0 right-0"
+        />
+      )}
     </Pressable>
   );
 }
@@ -45,12 +63,18 @@ export function PersonSheet() {
   const people = usePeople();
   const withActivity = useOutstanding({ includeSettled: true });
   const selectedId = useDraftStore((s) => s.personId);
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState("");
 
-  const activity = React.useMemo(() => new Map(withActivity.map((o) => [o.person.id, o.lastActivityAt ?? 0])), [withActivity]);
-  const clean = query.trim().replace(/\s+/g, ' ');
+  const activity = React.useMemo(
+    () =>
+      new Map(withActivity.map((o) => [o.person.id, o.lastActivityAt ?? 0])),
+    [withActivity],
+  );
+  const clean = query.trim().replace(/\s+/g, " ");
   const lower = clean.toLowerCase();
-  const matches = clean ? people.filter((p) => p.name.toLowerCase().includes(lower)) : people;
+  const matches = clean
+    ? people.filter((p) => p.name.toLowerCase().includes(lower))
+    : people;
   const recent = clean
     ? []
     : [...people]
@@ -59,10 +83,11 @@ export function PersonSheet() {
         .slice(0, MAX_RECENT);
   const recentIds = new Set(recent.map((p) => p.id));
   const rest = matches.filter((p) => !recentIds.has(p.id));
-  const canCreate = clean !== '' && !people.some((p) => p.name.toLowerCase() === lower);
+  const canCreate =
+    clean !== "" && !people.some((p) => p.name.toLowerCase() === lower);
 
   const choose = (person: PersonRow) => {
-    haptic('selection');
+    haptic("selection");
     const s = useDraftStore.getState();
     const previous = people.find((p) => p.id === s.personId)?.name;
     s.patch({
@@ -80,7 +105,7 @@ export function PersonSheet() {
       if (!(error instanceof ValidationError)) throw error;
       const existing = people.find((p) => p.name.toLowerCase() === lower);
       if (existing) choose(existing);
-      else haptic('error');
+      else haptic("error");
     }
   };
 
@@ -90,9 +115,18 @@ export function PersonSheet() {
         <Text variant="footnote" tone="secondary" className="px-8 pb-2">
           {title}
         </Text>
-        <View className="mx-4 overflow-hidden rounded-[18px] bg-surface" style={{ borderWidth: 1, borderColor: colors.border }}>
+        <View
+          className="mx-4 overflow-hidden rounded-[18px] bg-surface"
+          style={{ borderWidth: 1, borderColor: colors.border }}
+        >
           {rows.map((p, i) => (
-            <PersonRowView key={p.id} person={p} selected={p.id === selectedId} onPress={() => choose(p)} last={i === rows.length - 1} />
+            <PersonRowView
+              key={p.id}
+              person={p}
+              selected={p.id === selectedId}
+              onPress={() => choose(p)}
+              last={i === rows.length - 1}
+            />
           ))}
         </View>
       </View>
@@ -104,11 +138,20 @@ export function PersonSheet() {
         <>
           <View className="h-12 flex-row items-center px-2">
             <View className="w-20 items-start">
-              <Button variant="barSecondary" size="sm" onPress={() => router.back()} accessibilityLabel="Cancel">
+              <Button
+                variant="barSecondary"
+                size="sm"
+                onPress={() => router.back()}
+                accessibilityLabel="Cancel"
+              >
                 <Text variant="body">Cancel</Text>
               </Button>
             </View>
-            <Text variant="headline" accessibilityRole="header" className="flex-1 text-center">
+            <Text
+              variant="headline"
+              accessibilityRole="header"
+              className="flex-1 text-center"
+            >
               Person
             </Text>
             <View className="w-20" />
@@ -131,7 +174,10 @@ export function PersonSheet() {
       keyboardShouldPersistTaps="handled"
     >
       {canCreate ? (
-        <View className="mx-4 overflow-hidden rounded-[18px] bg-surface" style={{ borderWidth: 1, borderColor: colors.border }}>
+        <View
+          className="mx-4 overflow-hidden rounded-[18px] bg-surface"
+          style={{ borderWidth: 1, borderColor: colors.border }}
+        >
           <Pressable
             role="button"
             accessibilityLabel={`New person ${clean}`}
@@ -150,14 +196,22 @@ export function PersonSheet() {
             >
               <AppIcon name="add" size={16} color={colors.accentText} />
             </View>
-            <Text variant="body" tone="accent" numberOfLines={1} className="flex-1">
+            <Text
+              variant="body"
+              tone="accent"
+              numberOfLines={1}
+              className="flex-1"
+            >
               New person “{clean}”
             </Text>
           </Pressable>
         </View>
       ) : null}
-      {group('Recent', recent)}
-      {group(recent.length > 0 ? 'Everyone' : clean ? 'Matches' : 'People', rest)}
+      {group("Recent", recent)}
+      {group(
+        recent.length > 0 ? "Everyone" : clean ? "Matches" : "People",
+        rest,
+      )}
     </SheetScroll>
   );
 }

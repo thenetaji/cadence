@@ -7,13 +7,13 @@ The build contract is **`SPEC.md`** (scope, navigation, every screen, data model
 ## Stack (fixed)
 
 - Expo SDK 57, React Native 0.86, TypeScript strict, expo-router (file routes in `src/app`, native tabs).
-- Must run in **Expo Go** until the Apple Developer account exists: no custom native modules, widgets or dev-build-only libraries. Expo Go supports only the latest SDK, so upgrade when it moves.
+- Runs in **Expo Go** today (no custom native modules yet). Native modules are allowed; the IPA comes from the iOS workflow and SideStore. Expo Go supports only the latest SDK, so upgrade when it moves.
 - UI: Tailwind 4 via Uniwind + React Native Reusables (components owned in `src/components/ui`). SF Symbols via expo-symbols with a MaterialIcons fallback on Android.
 - Data: local-first, expo-sqlite + Drizzle ORM. Money is integer minor units + ISO currency code. No server, no accounts, no bank linking.
 - Charts: hand-built on @shopify/react-native-skia (donut, bars with scrub and outlier clipping, pace line). Motion: Reanimated 4 + Gesture Handler. Haptics: expo-haptics. Lock: expo-local-authentication. Lists: FlashList.
 - iOS first; Android must render sensibly.
 
-No Mac is needed: Metro runs on Linux, Expo Go loads the app on the iPhone over Wi-Fi or `--tunnel`. A standalone iOS build needs the $99/yr account and `eas build -p ios` on Expo's cloud Macs.
+No Mac is needed: Metro runs on Linux, Expo Go loads the app on the iPhone over Wi-Fi or `--tunnel`. A standalone iOS build comes from the GitHub iOS workflow (unsigned IPA, signed on the phone by SideStore).
 
 ## v1 in one line each
 

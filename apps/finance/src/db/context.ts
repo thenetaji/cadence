@@ -1,6 +1,6 @@
-import { DatabaseContext, useDb as useDbBase } from '@studio/data';
+import { DatabaseContext, useDb as useDbBase } from "@studio/data";
 
-import type { Db } from './types';
+import type { Db } from "./types";
 
 export { DatabaseContext };
 

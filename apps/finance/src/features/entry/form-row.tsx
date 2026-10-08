@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
 
-import { OptionPicker, type Option } from '@studio/ui';
-import { ListRow , Text } from '@studio/ui';
-import { useTokens } from '@studio/theme';
+import { OptionPicker, type Option } from "@studio/ui";
+import { ListRow, Text } from "@studio/ui";
+import { useTokens } from "@studio/theme";
 
 type Injected = { showSeparator?: boolean };
 
@@ -16,14 +16,35 @@ type FormRowProps = Injected & {
 };
 
 /** A grouped-list row holding an arbitrary control; takes part in ListGroup separators. */
-function FormRow({ label, children, stacked = false, minHeight = 52, showSeparator = false }: FormRowProps) {
+function FormRow({
+  label,
+  children,
+  stacked = false,
+  minHeight = 52,
+  showSeparator = false,
+}: FormRowProps) {
   const { colors } = useTokens();
   return (
-    <View className={stacked ? 'gap-2 bg-surface px-4 py-3' : 'flex-row items-center justify-between gap-3 bg-surface px-4'} style={{ minHeight }}>
+    <View
+      className={
+        stacked
+          ? "gap-2 bg-surface px-4 py-3"
+          : "flex-row items-center justify-between gap-3 bg-surface px-4"
+      }
+      style={{ minHeight }}
+    >
       <Text variant="body">{label}</Text>
       {children}
       {showSeparator ? (
-        <View pointerEvents="none" style={{ left: 16, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }} className="absolute bottom-0 right-0" />
+        <View
+          pointerEvents="none"
+          style={{
+            left: 16,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.separator,
+          }}
+          className="absolute bottom-0 right-0"
+        />
       ) : null}
     </View>
   );
@@ -40,12 +61,34 @@ type PickRowProps<T extends string | number | null> = Injected & {
 };
 
 /** Row with a trailing value that opens the shared option picker. */
-function PickRow<T extends string | number | null>({ label, value, title, options, selected, onSelect, disabled = false, showSeparator }: PickRowProps<T>) {
+function PickRow<T extends string | number | null>({
+  label,
+  value,
+  title,
+  options,
+  selected,
+  onSelect,
+  disabled = false,
+  showSeparator,
+}: PickRowProps<T>) {
   const [open, setOpen] = React.useState(false);
   return (
     <>
-      <ListRow label={label} value={value} chevron={!disabled} showSeparator={showSeparator} onPress={disabled ? undefined : () => setOpen(true)} />
-      <OptionPicker visible={open} title={title ?? label} options={options} selected={selected} onSelect={onSelect} onClose={() => setOpen(false)} />
+      <ListRow
+        label={label}
+        value={value}
+        chevron={!disabled}
+        showSeparator={showSeparator}
+        onPress={disabled ? undefined : () => setOpen(true)}
+      />
+      <OptionPicker
+        visible={open}
+        title={title ?? label}
+        options={options}
+        selected={selected}
+        onSelect={onSelect}
+        onClose={() => setOpen(false)}
+      />
     </>
   );
 }

@@ -1,4 +1,4 @@
-const pad = (n: number) => String(n).padStart(2, '0');
+const pad = (n: number) => String(n).padStart(2, "0");
 
 /** `HH:MM` as a Date today at that time. Falls back to 21:00 for bad input. */
 export function fromTime(time: string): Date {

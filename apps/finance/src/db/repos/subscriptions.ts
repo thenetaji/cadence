@@ -1,10 +1,10 @@
-import { and, asc, isNull, eq } from 'drizzle-orm';
-import { convertWithRates } from '@studio/money';
-import { monthlyCost, yearlyCost } from '@/lib/recurring';
-import { recurringRules, type RecurringRuleRow } from '../schema';
-import type { Db } from '../types';
-import { getRateLookup } from './fx';
-import { getSetting } from './settings';
+import { and, asc, isNull, eq } from "drizzle-orm";
+import { convertWithRates } from "@studio/money";
+import { monthlyCost, yearlyCost } from "@/lib/recurring";
+import { recurringRules, type RecurringRuleRow } from "../schema";
+import type { Db } from "../types";
+import { getRateLookup } from "./fx";
+import { getSetting } from "./settings";
 
 export interface Subscription {
   rule: RecurringRuleRow;
@@ -30,12 +30,14 @@ export interface SubscriptionList {
  * Transfers, income and lending-style rules never appear.
  */
 export function listSubscriptions(db: Db): SubscriptionList {
-  const currency = getSetting(db, 'display_currency');
+  const currency = getSetting(db, "display_currency");
   const rates = getRateLookup(db);
   const rules = db
     .select()
     .from(recurringRules)
-    .where(and(eq(recurringRules.kind, 'expense'), isNull(recurringRules.pausedAt)))
+    .where(
+      and(eq(recurringRules.kind, "expense"), isNull(recurringRules.pausedAt)),
+    )
     .orderBy(asc(recurringRules.nextDue), asc(recurringRules.createdAt))
     .all()
     .filter((rule) => rule.endDate === null || rule.nextDue <= rule.endDate);
@@ -47,12 +49,21 @@ export function listSubscriptions(db: Db): SubscriptionList {
         rule,
         monthly,
         yearly,
-        monthlyDisplay: convertWithRates(monthly, rule.currency, currency, rates),
+        monthlyDisplay: convertWithRates(
+          monthly,
+          rule.currency,
+          currency,
+          rates,
+        ),
         yearlyDisplay: convertWithRates(yearly, rule.currency, currency, rates),
         nextCharge: rule.nextDue,
       };
     })
-    .sort((a, b) => b.monthlyDisplay - a.monthlyDisplay || a.nextCharge.localeCompare(b.nextCharge));
+    .sort(
+      (a, b) =>
+        b.monthlyDisplay - a.monthlyDisplay ||
+        a.nextCharge.localeCompare(b.nextCharge),
+    );
   return {
     currency,
     items,

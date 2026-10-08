@@ -1,9 +1,9 @@
-import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Keypad } from '@studio/ui';
+import { Keypad } from "@studio/ui";
 
-import type { AmountEntry } from './use-amount-entry';
+import type { AmountEntry } from "./use-amount-entry";
 
 type AmountKeypadProps = {
   entry: AmountEntry;
@@ -21,7 +21,11 @@ function AmountKeypad({ entry, digits, onSave }: AmountKeypadProps) {
         keyHeight={52}
         showDecimal={digits > 0}
         saveMode={!!onSave && entry.view.equalsIsSave}
-        onKey={(key) => (key === '=' && onSave && entry.view.equalsIsSave ? onSave() : entry.press(key))}
+        onKey={(key) =>
+          key === "=" && onSave && entry.view.equalsIsSave
+            ? onSave()
+            : entry.press(key)
+        }
         onLongBackspace={entry.clear}
       />
     </View>

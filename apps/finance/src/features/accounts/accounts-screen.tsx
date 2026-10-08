@@ -1,18 +1,32 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import * as React from 'react';
-import { ScrollView, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as React from "react";
+import { ScrollView, View } from "react-native";
 
-import { Amount , EmptyState , HeaderButton, barRight , Button , Card , Pressable , Text } from '@studio/ui';
-import { AppIcon } from '@studio/icons';
-import { useActions } from '@/data/actions';
-import { useAccounts, useRateLookup, useSetting } from '@/data/hooks';
-import { moneyLocale } from '@/features/transactions/use-money-context';
-import { formatMoney, formatMoneyForSpeech, maskLocale, minorDigits } from '@studio/money';
-import { useTokens } from '@studio/theme';
+import {
+  Amount,
+  EmptyState,
+  HeaderButton,
+  barRight,
+  Button,
+  Card,
+  Pressable,
+  Text,
+} from "@studio/ui";
+import { AppIcon } from "@studio/icons";
+import { useActions } from "@/data/actions";
+import { useAccounts, useRateLookup, useSetting } from "@/data/hooks";
+import { moneyLocale } from "@/features/transactions/use-money-context";
+import {
+  formatMoney,
+  formatMoneyForSpeech,
+  maskLocale,
+  minorDigits,
+} from "@studio/money";
+import { useTokens } from "@studio/theme";
 
-import { AccountRow, ACCOUNT_ROW_HEIGHT } from './account-row';
-import { toAccountView, totalInDisplay } from './model';
-import { ReorderList } from './reorder-list';
+import { AccountRow, ACCOUNT_ROW_HEIGHT } from "./account-row";
+import { toAccountView, totalInDisplay } from "./model";
+import { ReorderList } from "./reorder-list";
 
 const COMPACT_FROM = 1e7;
 
@@ -22,41 +36,67 @@ export function AccountsScreen() {
   const actions = useActions();
   const { edit } = useLocalSearchParams<{ edit?: string }>();
   const { colors } = useTokens();
-  const [displayCurrency] = useSetting('display_currency');
-  const [showDecimals] = useSetting('show_decimals');
+  const [displayCurrency] = useSetting("display_currency");
+  const [showDecimals] = useSetting("show_decimals");
   const rates = useRateLookup();
   const all = useAccounts({ includeArchived: true });
-  const [editing, setEditing] = React.useState(edit === '1');
+  const [editing, setEditing] = React.useState(edit === "1");
   const [showArchived, setShowArchived] = React.useState(false);
 
   const active = React.useMemo(() => all.filter((a) => !a.archivedAt), [all]);
   const archived = React.useMemo(() => all.filter((a) => a.archivedAt), [all]);
-  const [hidden] = useSetting('hide_amounts');
+  const [hidden] = useSetting("hide_amounts");
   const locale = maskLocale(moneyLocale(displayCurrency), hidden);
-  const fmt = React.useMemo(() => ({ displayCurrency, rates, locale, showDecimals }), [displayCurrency, rates, locale, showDecimals]);
-  const views = React.useMemo(() => active.map((a) => toAccountView(a, fmt)), [active, fmt]);
-  const archivedViews = React.useMemo(() => archived.map((a) => toAccountView(a, fmt)), [archived, fmt]);
+  const fmt = React.useMemo(
+    () => ({ displayCurrency, rates, locale, showDecimals }),
+    [displayCurrency, rates, locale, showDecimals],
+  );
+  const views = React.useMemo(
+    () => active.map((a) => toAccountView(a, fmt)),
+    [active, fmt],
+  );
+  const archivedViews = React.useMemo(
+    () => archived.map((a) => toAccountView(a, fmt)),
+    [archived, fmt],
+  );
   const { total, excluded } = totalInDisplay(active, fmt);
-  const compact = Math.abs(total) / 10 ** minorDigits(displayCurrency) >= COMPACT_FROM;
-  const totalText = formatMoney(total, displayCurrency, { locale, compact, decimals: showDecimals ? undefined : 0 });
+  const compact =
+    Math.abs(total) / 10 ** minorDigits(displayCurrency) >= COMPACT_FROM;
+  const totalText = formatMoney(total, displayCurrency, {
+    locale,
+    compact,
+    decimals: showDecimals ? undefined : 0,
+  });
 
-  const add = () => router.push('/accounts/new');
-  const open = (id: string) => router.push(editing ? { pathname: '/accounts/[id]/edit', params: { id } } : { pathname: '/accounts/[id]', params: { id } });
+  const add = () => router.push("/accounts/new");
+  const open = (id: string) =>
+    router.push(
+      editing
+        ? { pathname: "/accounts/[id]/edit", params: { id } }
+        : { pathname: "/accounts/[id]", params: { id } },
+    );
   const viewById = new Map(views.map((v) => [v.id, v]));
 
   const header = (
     <Stack.Screen
       options={{
-        title: 'Accounts',
+        title: "Accounts",
         ...barRight(
           <View className="flex-row items-center">
             {active.length > 1 ? (
-              <Button variant="barPrimary" size="sm" onPress={() => setEditing((v) => !v)} accessibilityLabel={editing ? 'Done' : 'Edit'}>
-                <Text variant={editing ? 'headline' : 'body'}>{editing ? 'Done' : 'Edit'}</Text>
+              <Button
+                variant="barPrimary"
+                size="sm"
+                onPress={() => setEditing((v) => !v)}
+                accessibilityLabel={editing ? "Done" : "Edit"}
+              >
+                <Text variant={editing ? "headline" : "body"}>
+                  {editing ? "Done" : "Edit"}
+                </Text>
               </Button>
             ) : null}
             <HeaderButton symbol="plus" label="Add account" onPress={add} />
-          </View>
+          </View>,
         ),
       }}
     />
@@ -66,22 +106,36 @@ export function AccountsScreen() {
     return (
       <View className="flex-1 justify-center bg-bg pb-24">
         {header}
-        <EmptyState message="No accounts" actionLabel="Add account" onAction={add} />
+        <EmptyState
+          message="No accounts"
+          actionLabel="Add account"
+          onAction={add}
+        />
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-bg" contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-5 pb-12 pt-2">
+    <ScrollView
+      className="flex-1 bg-bg"
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerClassName="gap-5 pb-12 pt-2"
+    >
       {header}
       <View className="px-4">
         <Text variant="footnote" tone="secondary">
           Total
         </Text>
-        <Amount value={totalText} variant="hero" animate="intro" tone={total < 0 ? 'expense' : 'default'} accessibilityLabel={`Total, ${formatMoneyForSpeech(total, displayCurrency, { locale })}`} />
+        <Amount
+          value={totalText}
+          variant="hero"
+          animate="intro"
+          tone={total < 0 ? "expense" : "default"}
+          accessibilityLabel={`Total, ${formatMoneyForSpeech(total, displayCurrency, { locale })}`}
+        />
         {excluded.length > 0 ? (
           <Text variant="footnote" tone="warning" numberOfLines={2}>
-            Excludes {excluded.map((a) => a.name).join(', ')}: rate needed
+            Excludes {excluded.map((a) => a.name).join(", ")}: rate needed
           </Text>
         ) : null}
       </View>
@@ -90,15 +144,29 @@ export function AccountsScreen() {
           <ReorderList
             ids={active.map((a) => a.id)}
             rowHeight={ACCOUNT_ROW_HEIGHT}
-            labelOf={(id) => viewById.get(id)?.name ?? ''}
+            labelOf={(id) => viewById.get(id)?.name ?? ""}
             onReorder={(ids) => actions.accounts.reorder(ids)}
             renderRow={(id, handle, last) => {
               const view = viewById.get(id);
-              return view ? <AccountRow view={view} separator={!last} onPress={() => open(id)} trailing={handle} /> : null;
+              return view ? (
+                <AccountRow
+                  view={view}
+                  separator={!last}
+                  onPress={() => open(id)}
+                  trailing={handle}
+                />
+              ) : null;
             }}
           />
         ) : (
-          views.map((view, index) => <AccountRow key={view.id} view={view} separator={index < views.length - 1} onPress={() => open(view.id)} />)
+          views.map((view, index) => (
+            <AccountRow
+              key={view.id}
+              view={view}
+              separator={index < views.length - 1}
+              onPress={() => open(view.id)}
+            />
+          ))
         )}
       </Card>
       {archivedViews.length > 0 ? (
@@ -115,12 +183,21 @@ export function AccountsScreen() {
             <Text variant="footnote" tone="secondary">
               Archived · {archivedViews.length}
             </Text>
-            <AppIcon name={showArchived ? 'chevron.up' : 'chevron.down'} size={10} color={colors.textTertiary} />
+            <AppIcon
+              name={showArchived ? "chevron.up" : "chevron.down"}
+              size={10}
+              color={colors.textTertiary}
+            />
           </Pressable>
           {showArchived ? (
             <Card className="mx-4 p-0" style={{ opacity: 0.6 }}>
               {archivedViews.map((view, index) => (
-                <AccountRow key={view.id} view={view} separator={index < archivedViews.length - 1} onPress={() => open(view.id)} />
+                <AccountRow
+                  key={view.id}
+                  view={view}
+                  separator={index < archivedViews.length - 1}
+                  onPress={() => open(view.id)}
+                />
               ))}
             </Card>
           ) : null}

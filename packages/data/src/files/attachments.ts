@@ -1,7 +1,7 @@
-import { Directory, File, Paths } from 'expo-file-system';
-import { Platform } from 'react-native';
-import { newId } from '../ids';
-import { imageExtension, isInsideDirectory } from './paths';
+import { Directory, File, Paths } from "expo-file-system";
+import { Platform } from "react-native";
+import { newId } from "../ids";
+import { imageExtension, isInsideDirectory } from "./paths";
 
 export interface PickedImage {
   uri: string;
@@ -9,7 +9,7 @@ export interface PickedImage {
   height?: number | null;
 }
 
-const FOLDER = 'attachments';
+const FOLDER = "attachments";
 
 function directory(): Directory {
   const dir = new Directory(Paths.document, FOLDER);
@@ -23,7 +23,7 @@ function directory(): Directory {
  * Web has no persistent file system: the uri is returned unchanged.
  */
 export async function copyIntoAttachments(sourceUri: string): Promise<string> {
-  if (Platform.OS === 'web') return sourceUri;
+  if (Platform.OS === "web") return sourceUri;
   const dest = new File(directory(), `${newId()}${imageExtension(sourceUri)}`);
   new File(sourceUri).copy(dest);
   return dest.uri;
@@ -31,9 +31,10 @@ export async function copyIntoAttachments(sourceUri: string): Promise<string> {
 
 /** Deletes an app-owned copy. Anything outside the attachments folder is left alone; missing files are fine. */
 export async function deleteAttachmentFile(uri: string): Promise<void> {
-  if (Platform.OS === 'web') return;
+  if (Platform.OS === "web") return;
   try {
-    if (!isInsideDirectory(uri, new Directory(Paths.document, FOLDER).uri)) return;
+    if (!isInsideDirectory(uri, new Directory(Paths.document, FOLDER).uri))
+      return;
     const file = new File(uri);
     if (file.exists) file.delete();
   } catch {

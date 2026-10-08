@@ -1,9 +1,17 @@
-import { Text } from '../ui/text';
+import { Text } from "../ui/text";
 
-import type { AnimatedNumberProps } from './animated-number';
+import type { AnimatedNumberProps } from "./animated-number";
 
 /** Web exists for screenshots and e2e only: plain text keeps `innerText` and layout identical. */
-function AnimatedNumber({ value, variant = 'body', tone, color, fit = false, accessibilityLabel, className }: AnimatedNumberProps) {
+function AnimatedNumber({
+  value,
+  variant = "body",
+  tone,
+  color,
+  fit = false,
+  accessibilityLabel,
+  className,
+}: AnimatedNumberProps) {
   return (
     <Text
       numeric

@@ -1,11 +1,11 @@
-import { Modal, ScrollView, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Modal, ScrollView, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { ListGroup, ListRow } from './list-group';
-import { AppIcon } from '@studio/icons';
-import { Button } from '../ui/button';
-import { Text } from '../ui/text';
-import { haptic , useTokens } from '@studio/theme';
+import { ListGroup, ListRow } from "./list-group";
+import { AppIcon } from "@studio/icons";
+import { Button } from "../ui/button";
+import { Text } from "../ui/text";
+import { haptic, useTokens } from "@studio/theme";
 
 type Option<T extends string | number | null> = { value: T; label: string };
 
@@ -18,10 +18,23 @@ type OptionPickerProps<T extends string | number | null> = {
   onClose: () => void;
 };
 
-function OptionPicker<T extends string | number | null>({ visible, title, options, selected, onSelect, onClose }: OptionPickerProps<T>) {
+function OptionPicker<T extends string | number | null>({
+  visible,
+  title,
+  options,
+  selected,
+  onSelect,
+  onClose,
+}: OptionPickerProps<T>) {
   const { colors } = useTokens();
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" transparent={false} onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      transparent={false}
+      onRequestClose={onClose}
+    >
       <SafeAreaProvider>
         <View className="flex-1 bg-bg">
           <View className="h-14 flex-row items-center justify-between px-4">
@@ -42,10 +55,16 @@ function OptionPicker<T extends string | number | null>({ visible, title, option
                   key={String(option.value)}
                   label={option.label}
                   trailing={
-                    option.value === selected ? <AppIcon name="checkmark" size={16} color={colors.accent} /> : undefined
+                    option.value === selected ? (
+                      <AppIcon
+                        name="checkmark"
+                        size={16}
+                        color={colors.accent}
+                      />
+                    ) : undefined
                   }
                   onPress={() => {
-                    haptic('selection');
+                    haptic("selection");
                     onSelect(option.value);
                     onClose();
                   }}

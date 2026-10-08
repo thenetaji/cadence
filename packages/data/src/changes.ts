@@ -20,7 +20,8 @@ let scheduled = false;
 
 function flush(): void {
   scheduled = false;
-  for (const table of pending) versions.set(table, (versions.get(table) ?? 0) + 1);
+  for (const table of pending)
+    versions.set(table, (versions.get(table) ?? 0) + 1);
   pending.clear();
   for (const listener of [...listeners]) listener();
 }

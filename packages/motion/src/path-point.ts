@@ -1,7 +1,9 @@
 /** Point at fraction `t` (0-1 of total length) along a polyline. Worklet-safe, pure. */
 export type PolyPath = { xs: number[]; ys: number[]; cum: number[] };
 
-export function buildPolyPath(points: readonly { x: number; y: number }[]): PolyPath {
+export function buildPolyPath(
+  points: readonly { x: number; y: number }[],
+): PolyPath {
   const xs: number[] = [];
   const ys: number[] = [];
   const cum: number[] = [];
@@ -16,7 +18,7 @@ export function buildPolyPath(points: readonly { x: number; y: number }[]): Poly
 }
 
 export function pointAt(path: PolyPath, t: number): { x: number; y: number } {
-  'worklet';
+  "worklet";
   const n = path.xs.length;
   if (n === 0) return { x: 0, y: 0 };
   const total = path.cum[n - 1]!;
@@ -26,5 +28,8 @@ export function pointAt(path: PolyPath, t: number): { x: number; y: number } {
   while (i < n - 1 && path.cum[i]! < d) i++;
   const span = path.cum[i]! - path.cum[i - 1]!;
   const f = span === 0 ? 0 : (d - path.cum[i - 1]!) / span;
-  return { x: path.xs[i - 1]! + (path.xs[i]! - path.xs[i - 1]!) * f, y: path.ys[i - 1]! + (path.ys[i]! - path.ys[i - 1]!) * f };
+  return {
+    x: path.xs[i - 1]! + (path.xs[i]! - path.xs[i - 1]!) * f,
+    y: path.ys[i - 1]! + (path.ys[i]! - path.ys[i - 1]!) * f,
+  };
 }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { AppState } from 'react-native';
-import { toDateKey } from '@studio/dates';
+import { useEffect, useState } from "react";
+import { AppState } from "react-native";
+import { toDateKey } from "@studio/dates";
 
 const MINUTE = 60_000;
 
@@ -10,8 +10,8 @@ export function useTodayKey(): string {
   useEffect(() => {
     const refresh = () => setToday(toDateKey(Date.now()));
     const timer = setInterval(refresh, MINUTE);
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') refresh();
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") refresh();
     });
     return () => {
       clearInterval(timer);

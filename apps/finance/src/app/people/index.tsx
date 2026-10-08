@@ -1,3 +1,3 @@
-import { PeopleScreen } from '@/features/people/people-screen';
+import { PeopleScreen } from "@/features/people/people-screen";
 
 export default PeopleScreen;

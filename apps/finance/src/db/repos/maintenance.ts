@@ -1,4 +1,4 @@
-import { getSetting, insertMissingDefaults, setSetting } from './settings';
+import { getSetting, insertMissingDefaults, setSetting } from "./settings";
 import {
   accounts,
   attachments,
@@ -14,16 +14,16 @@ import {
   titleMemory,
   transactionSplits,
   transactions,
-} from '../schema';
-import { seedDefaults } from '../seed';
-import type { Db } from '../types';
+} from "../schema";
+import { seedDefaults } from "../seed";
+import type { Db } from "../types";
 
 /** Deletes every row, resets settings to their defaults (keeping the theme) and re-seeds the default categories, atomically. */
 export function eraseAllData(db: Db): void {
   db.transaction((tx) => {
-    const theme = getSetting(tx, 'theme');
-    const iconStyle = getSetting(tx, 'icon_style');
-    const iconBackground = getSetting(tx, 'icon_background');
+    const theme = getSetting(tx, "theme");
+    const iconStyle = getSetting(tx, "icon_style");
+    const iconBackground = getSetting(tx, "icon_background");
     tx.delete(transactionSplits).run();
     tx.delete(transactionTags).run();
     tx.delete(attachments).run();
@@ -39,9 +39,9 @@ export function eraseAllData(db: Db): void {
     tx.delete(categories).run();
     tx.delete(settings).run();
     insertMissingDefaults(tx);
-    setSetting(tx, 'theme', theme);
-    setSetting(tx, 'icon_style', iconStyle);
-    setSetting(tx, 'icon_background', iconBackground);
+    setSetting(tx, "theme", theme);
+    setSetting(tx, "icon_style", iconStyle);
+    setSetting(tx, "icon_background", iconBackground);
     seedDefaults(tx);
   });
 }

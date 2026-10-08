@@ -1,6 +1,9 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from "expo-router";
 
-import { TransactionForm, type FormParams } from '@/features/transaction-form/form';
+import {
+  TransactionForm,
+  type FormParams,
+} from "@/features/transaction-form/form";
 
 export default function NewTransaction() {
   const params = useLocalSearchParams<FormParams>();

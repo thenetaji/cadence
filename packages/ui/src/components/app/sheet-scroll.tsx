@@ -1,7 +1,10 @@
-import * as React from 'react';
-import { ScrollView, View, type ScrollViewProps } from 'react-native';
+import * as React from "react";
+import { ScrollView, View, type ScrollViewProps } from "react-native";
 
-type SheetScrollProps = Omit<ScrollViewProps, 'children' | 'stickyHeaderIndices'> & {
+type SheetScrollProps = Omit<
+  ScrollViewProps,
+  "children" | "stickyHeaderIndices"
+> & {
   /** Toolbar (and any search field): pinned to the top of the sheet. */
   header?: React.ReactNode;
   bodyClassName?: string;
@@ -14,7 +17,12 @@ type SheetScrollProps = Omit<ScrollViewProps, 'children' | 'stickyHeaderIndices'
  * the screen's only root: a toolbar View above it, or a footer below, ends up under (or over) it and
  * the content blanks when the detent changes. The toolbar therefore lives inside as a sticky header.
  */
-function SheetScroll({ header, bodyClassName, children, ...props }: SheetScrollProps) {
+function SheetScroll({
+  header,
+  bodyClassName,
+  children,
+  ...props
+}: SheetScrollProps) {
   return (
     <ScrollView
       className="flex-1 bg-bg"

@@ -1,24 +1,30 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import * as React from 'react';
-import { TextInput, type TextInputProps } from 'react-native';
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
+import { TextInput, type TextInputProps } from "react-native";
 
-import { cn } from '../../lib/utils';
-import { useTokens } from '@studio/theme';
+import { cn } from "../../lib/utils";
+import { useTokens } from "@studio/theme";
 
-const inputVariants = cva('text-[17px] text-foreground', {
+const inputVariants = cva("text-[17px] text-foreground", {
   variants: {
     variant: {
-      field: 'h-11 rounded-[12px] bg-fill px-3',
-      inline: 'min-h-11 bg-transparent px-0 py-2',
+      field: "h-11 rounded-[12px] bg-fill px-3",
+      inline: "min-h-11 bg-transparent px-0 py-2",
     },
   },
-  defaultVariants: { variant: 'field' },
+  defaultVariants: { variant: "field" },
 });
 
-type InputProps = Omit<TextInputProps, 'className' | 'placeholderTextColorClassName'> &
+type InputProps = Omit<
+  TextInputProps,
+  "className" | "placeholderTextColorClassName"
+> &
   VariantProps<typeof inputVariants> & { className?: string };
 
-const Input = React.forwardRef<TextInput, InputProps>(function Input({ className, variant, ...props }, ref) {
+const Input = React.forwardRef<TextInput, InputProps>(function Input(
+  { className, variant, ...props },
+  ref,
+) {
   const { colors } = useTokens();
   return (
     <TextInput
@@ -27,7 +33,11 @@ const Input = React.forwardRef<TextInput, InputProps>(function Input({ className
       placeholderTextColor={colors.textTertiary}
       selectionColor={colors.accent}
       cursorColor={colors.accent}
-      className={cn(inputVariants({ variant }), props.editable === false && 'opacity-50', className)}
+      className={cn(
+        inputVariants({ variant }),
+        props.editable === false && "opacity-50",
+        className,
+      )}
       {...props}
     />
   );

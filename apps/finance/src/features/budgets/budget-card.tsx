@@ -1,9 +1,9 @@
-import { View } from 'react-native';
+import { View } from "react-native";
 
-import { Amount , ProgressBar , Card , Pressable , Text } from '@studio/ui';
-import { pressScale } from '@studio/theme';
+import { Amount, ProgressBar, Card, Pressable, Text } from "@studio/ui";
+import { pressScale } from "@studio/theme";
 
-import type { BudgetView } from './model';
+import type { BudgetView } from "./model";
 
 type BudgetCardProps = {
   view: BudgetView;
@@ -20,9 +20,18 @@ function BudgetCard({ view, title, onPress }: BudgetCardProps) {
         <Text variant="footnote" tone="secondary">
           {title ?? view.caption}
         </Text>
-        <Amount value={view.headline} variant="hero" animate tone={view.status === 'over' ? 'expense' : 'default'} />
+        <Amount
+          value={view.headline}
+          variant="hero"
+          animate
+          tone={view.status === "over" ? "expense" : "default"}
+        />
       </View>
-      <ProgressBar value={view.ratio} marker={view.marker} accessibilityLabel={view.accessibilityLabel} />
+      <ProgressBar
+        value={view.ratio}
+        marker={view.marker}
+        accessibilityLabel={view.accessibilityLabel}
+      />
       <Text variant="footnote" tone="secondary" numeric numberOfLines={1}>
         {view.detail}
       </Text>
@@ -30,7 +39,12 @@ function BudgetCard({ view, title, onPress }: BudgetCardProps) {
   );
   if (!onPress) return body;
   return (
-    <Pressable role="button" accessibilityLabel={view.accessibilityLabel} scale={pressScale.card} onPress={onPress}>
+    <Pressable
+      role="button"
+      accessibilityLabel={view.accessibilityLabel}
+      scale={pressScale.card}
+      onPress={onPress}
+    >
       {body}
     </Pressable>
   );

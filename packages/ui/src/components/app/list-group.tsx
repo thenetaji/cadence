@@ -1,13 +1,13 @@
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
 
-import { AppIcon } from '@studio/icons';
-import { IconTile } from './icon-tile';
-import { Pressable } from '../ui/pressable';
-import { Switch } from '../ui/switch';
-import { Text } from '../ui/text';
-import type { CategoryColorKey } from '@studio/theme';
-import { useTokens } from '@studio/theme';
+import { AppIcon } from "@studio/icons";
+import { IconTile } from "./icon-tile";
+import { Pressable } from "../ui/pressable";
+import { Switch } from "../ui/switch";
+import { Text } from "../ui/text";
+import type { CategoryColorKey } from "@studio/theme";
+import { useTokens } from "@studio/theme";
 
 type ListRowInjectedProps = { showSeparator?: boolean };
 
@@ -45,11 +45,13 @@ function ListRow({
   const interactive = !!onPress && !hasSwitch;
   return (
     <Pressable
-      role={hasSwitch ? undefined : 'button'}
+      role={hasSwitch ? undefined : "button"}
       disabled={!interactive}
       scale={1}
       onPress={onPress}
-      accessibilityLabel={hasSwitch ? undefined : [label, value].filter(Boolean).join(', ')}
+      accessibilityLabel={
+        hasSwitch ? undefined : [label, value].filter(Boolean).join(", ")
+      }
       className="min-h-[52px] flex-row items-center bg-surface px-4 py-2 active:bg-fill"
     >
       {icon ? (
@@ -58,7 +60,12 @@ function ListRow({
         </View>
       ) : null}
       <View className="flex-1 py-1">
-        <Text variant="body" tone={destructive ? 'expense' : 'default'} numberOfLines={1} className={centered ? 'text-center' : undefined}>
+        <Text
+          variant="body"
+          tone={destructive ? "expense" : "default"}
+          numberOfLines={1}
+          className={centered ? "text-center" : undefined}
+        >
           {label}
         </Text>
         {subtitle ? (
@@ -68,12 +75,24 @@ function ListRow({
         ) : null}
       </View>
       {value ? (
-        <Text variant="body" tone="secondary" numeric numberOfLines={1} className={hasSwitch ? 'ml-3 mr-3 shrink' : 'ml-3 shrink'}>
+        <Text
+          variant="body"
+          tone="secondary"
+          numeric
+          numberOfLines={1}
+          className={hasSwitch ? "ml-3 mr-3 shrink" : "ml-3 shrink"}
+        >
           {value}
         </Text>
       ) : null}
       {trailing}
-      {hasSwitch ? <Switch value={switchValue} onValueChange={onSwitchChange} accessibilityLabel={label} /> : null}
+      {hasSwitch ? (
+        <Switch
+          value={switchValue}
+          onValueChange={onSwitchChange}
+          accessibilityLabel={label}
+        />
+      ) : null}
       {chevron ? (
         <View className="ml-2">
           <AppIcon name="chevron.right" size={13} color={colors.textTertiary} />
@@ -82,7 +101,11 @@ function ListRow({
       {showSeparator ? (
         <View
           pointerEvents="none"
-          style={{ left: icon ? 66 : 16, height: StyleSheet.hairlineWidth, backgroundColor: colors.separator }}
+          style={{
+            left: icon ? 66 : 16,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.separator,
+          }}
           className="absolute bottom-0 right-0"
         />
       ) : null}
@@ -98,11 +121,18 @@ type ListGroupProps = {
 
 function ListGroup({ header, footer, children }: ListGroupProps) {
   const { colors } = useTokens();
-  const items = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<ListRowInjectedProps>[];
+  const items = React.Children.toArray(children).filter(
+    React.isValidElement,
+  ) as React.ReactElement<ListRowInjectedProps>[];
   return (
     <View className="px-4">
       {header ? (
-        <Text variant="footnote" tone="secondary" className="px-4 pb-2" accessibilityRole="header">
+        <Text
+          variant="footnote"
+          tone="secondary"
+          className="px-4 pb-2"
+          accessibilityRole="header"
+        >
           {header}
         </Text>
       ) : null}
@@ -110,7 +140,9 @@ function ListGroup({ header, footer, children }: ListGroupProps) {
         className="overflow-hidden rounded-[18px] bg-surface"
         style={{ borderWidth: 1, borderColor: colors.border }}
       >
-        {items.map((item, index) => React.cloneElement(item, { showSeparator: index < items.length - 1 }))}
+        {items.map((item, index) =>
+          React.cloneElement(item, { showSeparator: index < items.length - 1 }),
+        )}
       </View>
       {footer ? (
         <Text variant="footnote" tone="secondary" className="px-4 pt-2">

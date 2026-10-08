@@ -1,8 +1,8 @@
-import { randomUUID } from 'expo-crypto';
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import { useMemo, type ReactNode } from 'react';
-import { DatabaseContext } from './context';
-import { setIdGenerator } from './ids';
+import { randomUUID } from "expo-crypto";
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
+import { useMemo, type ReactNode } from "react";
+import { DatabaseContext } from "./context";
+import { setIdGenerator } from "./ids";
 
 setIdGenerator(randomUUID);
 
@@ -23,7 +23,10 @@ export interface DatabaseProviderProps<Db extends MigratableDb> {
   errorFallback?: (error: Error) => ReactNode;
 }
 
-type Seeded = { status: 'pending' } | { status: 'ready' } | { status: 'error'; error: Error };
+type Seeded =
+  | { status: "pending" }
+  | { status: "ready" }
+  | { status: "error"; error: Error };
 
 export function DatabaseProvider<Db extends MigratableDb>({
   db,
@@ -36,19 +39,30 @@ export function DatabaseProvider<Db extends MigratableDb>({
   const { success, error: migrationError } = useMigrations(db, migrations);
   // The seed must be idempotent, so a repeated run (StrictMode) is harmless.
   const seeded = useMemo<Seeded>(() => {
-    if (!success) return { status: 'pending' };
+    if (!success) return { status: "pending" };
     try {
       seed?.(db);
-      return { status: 'ready' };
+      return { status: "ready" };
     } catch (error) {
-      return { status: 'error', error: error instanceof Error ? error : new Error(String(error)) };
+      return {
+        status: "error",
+        error: error instanceof Error ? error : new Error(String(error)),
+      };
     }
   }, [success, db, seed]);
 
-  const value = useMemo<Db | null>(() => (seeded.status === 'ready' ? db : null), [seeded.status, db]);
+  const value = useMemo<Db | null>(
+    () => (seeded.status === "ready" ? db : null),
+    [seeded.status, db],
+  );
 
-  const failure = migrationError ?? (seeded.status === 'error' ? seeded.error : null);
+  const failure =
+    migrationError ?? (seeded.status === "error" ? seeded.error : null);
   if (failure) return <>{errorFallback ? errorFallback(failure) : null}</>;
   if (!value) return <>{fallback}</>;
-  return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
+  return (
+    <DatabaseContext.Provider value={value}>
+      {children}
+    </DatabaseContext.Provider>
+  );
 }

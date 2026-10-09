@@ -2,6 +2,8 @@
 
 A monorepo for consumer apps (iOS and Android through Expo) that share code. Each app is a thin product layer over shared packages for UI, theme, motion, charts, money, dates and data plumbing.
 
+> **Flow**, the music player, now lives in its own open-source repository: [thenetaji/flow-music](https://github.com/thenetaji/flow-music). `sources/innertube-clients.json` and `sources/sidestore.json` stay here so older Flow installs keep working.
+
 ```
 apps/        the apps (finance)
 packages/    TypeScript-source workspace packages (@studio/*), no build step

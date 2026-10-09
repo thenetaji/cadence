@@ -8,7 +8,7 @@ on:
       app:
         description: App folder under apps/
         type: choice
-        options: [finance, flow]
+        options: [finance]
         default: finance
       platforms:
         description: Platforms to build
@@ -16,11 +16,11 @@ on:
         options: [ios, android, both]
         default: both
   push:
-    tags: ['finance-v*', 'flow-v*']
+    tags: ['finance-v*']
     # Builds on main (no release) save the shared caches; tag builds can only read caches from main.
     branches: [main]
     paths:
-      - 'apps/flow/**'
+      - 'apps/finance/**'
       - 'packages/**'
       - 'pnpm-lock.yaml'
       - 'tooling/ci/**'

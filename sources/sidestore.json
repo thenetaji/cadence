@@ -4,12 +4,20 @@
   "subtitle": "Apps by thenetaji",
   "apps": [
     {
-      "name": "Flow",
+      "name": "Pawse",
       "bundleIdentifier": "com.thenetaji.flow",
       "developerName": "thenetaji",
-      "localizedDescription": "Flow",
-      "iconURL": "https://raw.githubusercontent.com/thenetaji/studio/main/apps/flow/assets/images/icon.png",
+      "localizedDescription": "Flow is now Pawse. A free music player for YouTube Music, with a cat in your Dynamic Island. New home: https://github.com/thenetaji/pawse-music",
+      "iconURL": "https://raw.githubusercontent.com/thenetaji/pawse-music/main/apps/pawse/assets/images/icon.png",
       "versions": [
+        {
+          "version": "0.4.0",
+          "buildVersion": "400",
+          "date": "2026-10-09",
+          "downloadURL": "https://github.com/thenetaji/studio/releases/download/flow-v0.4.0/Pawse-0.4.0.ipa",
+          "size": 20330721,
+          "minOSVersion": "16.4"
+        },
         {
           "version": "0.3.0",
           "buildVersion": "300",

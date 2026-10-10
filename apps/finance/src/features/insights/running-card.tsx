@@ -1,7 +1,7 @@
 import * as React from "react";
 import { View } from "react-native";
 
-import { Card, Text } from "@studio/ui";
+import { Card, SegmentedControl, Text } from "@studio/ui";
 import { axisLabels, shortDay } from "@studio/charts/lib";
 import { TrendLine } from "@studio/charts/components";
 import type { Insights } from "@/data/hooks";
@@ -28,10 +28,18 @@ type RunningCardProps = {
 function RunningCard({ insights, period, today, locale }: RunningCardProps) {
   const { colors } = useTokens();
   const [scrub, setScrub] = React.useState<number | null>(null);
-  const { currency, kind, granularity, series, previousSeries } = insights;
+  const [against, setAgainst] = React.useState<"previous" | "year">("previous");
+  const { currency, kind, granularity, series, previousSeries, yearAgoSeries } =
+    insights;
+  const byYear = against === "year" && yearAgoSeries !== null;
   const running = React.useMemo(
-    () => runningComparison(series, previousSeries, today),
-    [series, previousSeries, today],
+    () =>
+      runningComparison(
+        series,
+        byYear && yearAgoSeries ? yearAgoSeries : previousSeries,
+        today,
+      ),
+    [series, previousSeries, yearAgoSeries, byYear, today],
   );
   const labels = React.useMemo(
     () =>
@@ -43,7 +51,7 @@ function RunningCard({ insights, period, today, locale }: RunningCardProps) {
   );
   const money = (value: number) =>
     formatMoney(value, currency, { locale, decimals: 0 });
-  const previous = PREVIOUS[period.type];
+  const previous = byYear ? "last year" : PREVIOUS[period.type];
   const { difference } = running;
   const spending = kind === "expense";
   // Spending less, or earning more, than last time is the good direction.
@@ -132,6 +140,23 @@ function RunningCard({ insights, period, today, locale }: RunningCardProps) {
           </Text>
         </View>
       </View>
+      {yearAgoSeries !== null ? (
+        <View className="pb-2 pt-1">
+          <SegmentedControl
+            values={[
+              PREVIOUS[period.type].charAt(0).toUpperCase() +
+                PREVIOUS[period.type].slice(1),
+              "Last year",
+            ]}
+            selectedIndex={byYear ? 1 : 0}
+            onChange={(index) => {
+              setScrub(null);
+              setAgainst(index === 1 ? "year" : "previous");
+            }}
+            accessibilityLabel="Compare with"
+          />
+        </View>
+      ) : null}
     </Card>
   );
 }

@@ -3,6 +3,7 @@ import { makeRateLookup } from "@studio/money";
 import {
   breakdownKeys,
   breakdownTotals,
+  monthlyStacks,
   parseKey,
   type BreakdownBy,
   type BreakdownLookups,
@@ -119,5 +120,35 @@ describe("parseKey", () => {
       id: "Bills: home",
     });
     expect(parseKey("t:")).toEqual({ prefix: "t", id: "" });
+  });
+});
+
+describe("monthlyStacks", () => {
+  const months = [
+    { from: "2026-09-01", to: "2026-09-30" },
+    { from: "2026-10-01", to: "2026-10-31" },
+  ];
+  const keysOf = (l: DetailedLine) => breakdownKeys("category", l, lookups);
+  const lines = [
+    line("1", 500, { dateKey: "2026-09-03", categoryId: "rent" }),
+    line("2", 300, { dateKey: "2026-10-03", categoryId: "rent" }),
+    line("3", 200, { dateKey: "2026-10-05", categoryId: "food" }),
+    line("4", 50, { dateKey: "2026-10-06", categoryId: "fun" }),
+    line("5", 999, { dateKey: "2026-08-31", categoryId: "fun" }),
+    line("6", 999, { dateKey: "2026-10-06", kind: "income" }),
+  ];
+  it("keeps the largest buckets over the range and folds the rest into Other", () => {
+    const stacks = monthlyStacks(lines, "expense", months, ctx, keysOf, 2);
+    expect(stacks.keys).toEqual(["c:rent", "c:food"]);
+    expect(stacks.hasOther).toBe(true);
+    expect(stacks.months).toEqual([
+      { key: "2026-09-01", values: [500, 0, 0], total: 500 },
+      { key: "2026-10-01", values: [300, 200, 50], total: 550 },
+    ]);
+  });
+  it("needs no Other when everything fits", () => {
+    const stacks = monthlyStacks(lines, "expense", months, ctx, keysOf, 5);
+    expect(stacks.hasOther).toBe(false);
+    expect(stacks.months[1]?.values).toEqual([300, 200, 50]);
   });
 });

@@ -67,6 +67,7 @@ import {
 } from "./params";
 import { PeriodControls } from "./period-controls";
 import { RunningCard } from "./running-card";
+import { TrendCard } from "./trend-card";
 import {
   AccountsCard,
   IncomeSourcesCard,
@@ -548,6 +549,16 @@ export default function InsightsScreen() {
 
           {insights.total > 0 ? (
             <>
+              <TrendCard
+                endRef={
+                  today >= period.from && today < period.to ? today : period.to
+                }
+                kind={kind}
+                by={by}
+                settings={periodSettings}
+                scope={scope}
+                locale={money.locale}
+              />
               {extras.monthly.some((m) => m.income > 0 || m.spent > 0) ? (
                 <MonthlyCard
                   monthly={extras.monthly}

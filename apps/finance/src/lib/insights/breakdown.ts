@@ -1,4 +1,4 @@
-import type { Period } from "@studio/dates";
+import type { DateKey, Period } from "@studio/dates";
 import { convertLine, type ConversionContext } from "./aggregate";
 import { normaliseTitle, type DetailedLine } from "./extras";
 
@@ -147,4 +147,59 @@ export function breakdownTotals(
       (a, b) =>
         b.amount - a.amount || b.count - a.count || a.key.localeCompare(b.key),
     );
+}
+
+export interface StackMonth {
+  /** First day of the month period. */
+  key: DateKey;
+  /** Amount per stacked bucket, in `keys` order, then Other when `hasOther`. */
+  values: number[];
+  /** The kind's real total for the month (tags can overlap, so this may be less than the values' sum). */
+  total: number;
+}
+
+export interface MonthlyStacks {
+  /** The largest buckets over the whole range, largest first. */
+  keys: string[];
+  /** Whether the last value of each month is an Other bucket. */
+  hasOther: boolean;
+  months: StackMonth[];
+}
+
+/** Per-month totals for the `limit` largest buckets across `months`, plus Other for the rest. */
+export function monthlyStacks(
+  lines: readonly DetailedLine[],
+  kind: DetailedLine["kind"],
+  months: readonly Pick<Period, "from" | "to">[],
+  ctx: ConversionContext,
+  keysOf: (line: DetailedLine) => readonly string[],
+  limit = 5,
+): MonthlyStacks {
+  if (months.length === 0) return { keys: [], hasOther: false, months: [] };
+  const range = { from: months[0]!.from, to: months[months.length - 1]!.to };
+  const ranked = breakdownTotals(lines, kind, range, ctx, keysOf);
+  const keys = ranked.slice(0, limit).map((r) => r.key);
+  const hasOther = ranked.length > limit;
+  const slot = new Map(keys.map((k, i) => [k, i]));
+  const width = keys.length + (hasOther ? 1 : 0);
+  const out: StackMonth[] = months.map((m) => ({
+    key: m.from,
+    values: new Array<number>(width).fill(0),
+    total: 0,
+  }));
+  for (const line of lines) {
+    if (line.kind !== kind) continue;
+    const index = months.findIndex(
+      (m) => line.dateKey >= m.from && line.dateKey <= m.to,
+    );
+    if (index < 0) continue;
+    const month = out[index]!;
+    const amount = convertLine(line, ctx);
+    month.total += amount;
+    for (const key of keysOf(line)) {
+      const at = slot.get(key) ?? (hasOther ? width - 1 : -1);
+      if (at >= 0) month.values[at] = (month.values[at] ?? 0) + amount;
+    }
+  }
+  return { keys, hasOther, months: out };
 }

@@ -8,6 +8,11 @@ import {
   type PeriodSettings,
   type PeriodType,
 } from "@studio/dates";
+import {
+  BREAKDOWN_BYS,
+  type BreakdownBy,
+  type InsightsScope,
+} from "@/lib/insights";
 
 /** `both` shows spending and income together; it is the default. */
 export type InsightsKind = "both" | "expense" | "income";
@@ -31,6 +36,12 @@ export interface InsightsParams {
   from?: string;
   to?: string;
   select?: string;
+  /** Breakdown dimension: category, group, tag, account or merchant. */
+  by?: string;
+  /** Account id to narrow to. */
+  account?: string;
+  /** Tag id to narrow to. */
+  tag?: string;
 }
 
 const KEY = /^\d{4}-\d{2}-\d{2}$/;
@@ -112,4 +123,17 @@ export function canStepForward(
   settings: PeriodSettings,
 ): boolean {
   return periodOf(view, settings).to < today;
+}
+
+/** `?by=` as a breakdown dimension; anything else is the category breakdown. */
+export function parseBreakdownBy(value: string | undefined): BreakdownBy {
+  return BREAKDOWN_BYS.find((by) => by === value) ?? "category";
+}
+
+/** `?account=` and `?tag=` as a scope; blank values mean everything. */
+export function parseScope(params: InsightsParams): InsightsScope {
+  return {
+    accountId: firstParam(params.account) || null,
+    tagId: firstParam(params.tag) || null,
+  };
 }

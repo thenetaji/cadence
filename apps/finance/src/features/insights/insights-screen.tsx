@@ -10,10 +10,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { Amount, SectionHeader, Card, Pressable, Text } from "@studio/ui";
+import { Amount, SectionHeader, Card, Chip, Pressable, Text } from "@studio/ui";
 import { axisLabels } from "@studio/charts/lib";
 import { BarChart, Donut, DonutLegend } from "@studio/charts/components";
 import {
+  useBreakdown,
   useCashFlow,
   useInsights,
   useInsightsExtras,
@@ -31,8 +32,22 @@ import { Stagger } from "@studio/motion";
 import { formatMoney, formatMoneyForSpeech } from "@studio/money";
 import { useMoneyContext } from "@/features/transactions/use-money-context";
 import { haptic, useTokens } from "@studio/theme";
+import {
+  BREAKDOWN_BYS,
+  type BreakdownBy,
+  type InsightsScope,
+} from "@/lib/insights";
+import type { BreakdownSlice } from "@/data/hooks";
 
 import { BothHero } from "./both-hero";
+import { BreakdownList } from "./breakdown-list";
+import {
+  BREAKDOWN_LABELS,
+  breakdownDonut,
+  breakdownSummary,
+  breakdownTitle,
+  selectedSlices,
+} from "./breakdown-model";
 import { CashFlowCard } from "./cash-flow-card";
 import { CategoryList, type CategoryListItem } from "./category-list";
 import { barsTitle, deltaLine, scrubLabel } from "./labels";
@@ -40,7 +55,9 @@ import { KindMenu } from "./kind-menu";
 import { donutData, keyForName, listItems, summaryLabel } from "./model";
 import {
   canStepForward,
+  parseBreakdownBy,
   parseInsightsParams,
+  parseScope,
   periodOf,
   singleKind,
   stepView,
@@ -58,6 +75,15 @@ import {
   WeekdayCard,
 } from "./sections";
 import { useRangeStore } from "./range-store";
+import { ScopeBar } from "./scope-bar";
+
+const LIST_TITLES: Record<BreakdownBy, string> = {
+  category: "Categories",
+  group: "Groups",
+  tag: "Tags",
+  account: "Accounts",
+  merchant: "Merchants",
+};
 
 type Selection = { key: string } | { name: string } | null;
 
@@ -85,15 +111,23 @@ export default function InsightsScreen() {
     initial.select ? { name: initial.select } : null,
   );
   const [scrub, setScrub] = React.useState<number | null>(null);
+  const [by, setBy] = React.useState<BreakdownBy>(() =>
+    parseBreakdownBy(params.by),
+  );
+  const [scope, setScope] = React.useState<InsightsScope>(() =>
+    parseScope(params),
+  );
 
   const period = periodOf(view, periodSettings);
   const both = view.kind === "both";
   const kind = singleKind(view.kind);
-  const insights = useInsights(period, kind, today);
+  const insights = useInsights(period, kind, today, scope);
   // Both mode shows where the income came from too.
-  const incomeInsights = useInsights(period, "income", today);
-  const cashFlow = useCashFlow(period);
-  const extras = useInsightsExtras(period, kind, periodSettings, today);
+  const incomeInsights = useInsights(period, "income", today, scope);
+  const cashFlow = useCashFlow(period, scope);
+  const extras = useInsightsExtras(period, kind, periodSettings, today, scope);
+  const breakdown = useBreakdown(period, kind, by, scope);
+  const byCategory = by === "category";
   const { currency } = insights;
   const fmt = React.useMemo(
     () => ({
@@ -105,18 +139,30 @@ export default function InsightsScreen() {
     [currency, money.locale, money.showDecimals, scheme],
   );
 
-  const donut = React.useMemo(() => donutData(insights, fmt), [insights, fmt]);
+  const donut = React.useMemo(
+    () =>
+      byCategory
+        ? donutData(insights, fmt)
+        : breakdownDonut(breakdown.slices, fmt),
+    [byCategory, insights, breakdown.slices, fmt],
+  );
   const rawKey =
     selection === null
       ? null
       : "key" in selection
         ? selection.key
-        : keyForName(insights, selection.name);
+        : byCategory
+          ? keyForName(insights, selection.name)
+          : null;
   const selectedKey =
     rawKey !== null && donut.some((d) => d.key === rawKey) ? rawKey : null;
   const rows = React.useMemo(
     () => listItems(insights, selectedKey),
     [insights, selectedKey],
+  );
+  const slices = React.useMemo(
+    () => selectedSlices(breakdown.slices, selectedKey),
+    [breakdown.slices, selectedKey],
   );
   const selectedColor = donut.find((d) => d.key === selectedKey)?.color;
   const barColor =
@@ -147,7 +193,7 @@ export default function InsightsScreen() {
   // Period change crossfades 200 ms; the charts themselves do not replay their intro.
   const reduced = useReducedMotion();
   const fade = useSharedValue(1);
-  const dataKey = `${period.from}:${period.to}:${kind}`;
+  const dataKey = `${period.from}:${period.to}:${kind}:${scope.accountId ?? ""}:${scope.tagId ?? ""}`;
   React.useEffect(() => {
     if (reduced) return;
     fade.value = 0.3;
@@ -204,6 +250,34 @@ export default function InsightsScreen() {
     if (next === view.kind) return;
     setView((current) => ({ ...current, kind: next }));
     reset();
+  };
+  const changeBy = (next: BreakdownBy) => {
+    if (next === by) return;
+    haptic("selection");
+    setBy(next);
+    setSelection(null);
+  };
+  const changeScope = (next: InsightsScope) => {
+    setScope(next);
+    reset();
+  };
+  const openSlice = (slice: BreakdownSlice) => {
+    const target = slice.target;
+    if (target === null) return;
+    if (target.type === "category")
+      router.push({
+        pathname: "/category/[id]",
+        params: {
+          id: target.id,
+          from: period.from,
+          to: period.to,
+          type: period.type,
+          kind,
+        },
+      });
+    else if (target.type === "tag")
+      router.push({ pathname: "/tags/[id]", params: { id: target.id } });
+    else router.push({ pathname: "/accounts/[id]", params: { id: target.id } });
   };
   const jumpToCurrent = () => {
     haptic("selection");
@@ -262,6 +336,7 @@ export default function InsightsScreen() {
           onEditCustom={editCustom}
           onJumpToCurrent={jumpToCurrent}
         />
+        <ScopeBar scope={scope} onChange={changeScope} />
         <Animated.View style={fadeStyle}>
           <GestureDetector gesture={swipe}>
             <View collapsable={false}>
@@ -342,21 +417,35 @@ export default function InsightsScreen() {
                     : undefined
                 }
               >
-                <SectionHeader
-                  title={
-                    kind === "income"
-                      ? "Income by source"
-                      : "Spending by category"
-                  }
-                />
-                <Card className="mx-4 items-center px-3 pb-2 pt-5">
+                <SectionHeader title={breakdownTitle(by, kind)} />
+                <Card className="mx-4 items-center px-0 pb-2 pt-3">
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    className="self-stretch"
+                    contentContainerClassName="gap-2 px-3 pb-4"
+                    accessibilityLabel="Break down by"
+                  >
+                    {BREAKDOWN_BYS.map((option) => (
+                      <Chip
+                        key={option}
+                        label={BREAKDOWN_LABELS[option]}
+                        selected={option === by}
+                        onPress={() => changeBy(option)}
+                      />
+                    ))}
+                  </ScrollView>
                   <Donut
                     data={donut}
                     selectedKey={selectedKey}
                     onSelect={(key) =>
                       setSelection(key === null ? null : { key })
                     }
-                    accessibilityLabel={summaryLabel(insights, kind)}
+                    accessibilityLabel={
+                      byCategory
+                        ? summaryLabel(insights, kind)
+                        : breakdownSummary(breakdown.slices, by, kind)
+                    }
                     emptyLabel="Nothing yet"
                   />
                   <DonutLegend
@@ -379,12 +468,21 @@ export default function InsightsScreen() {
           </GestureDetector>
 
           <SectionHeader
-            title="Categories"
+            title={LIST_TITLES[by]}
             actionLabel={selectedKey !== null ? "Show all" : undefined}
             onAction={reset}
           />
           <Card className="mx-4 p-0">
-            {rows.length === 0 ? (
+            {!byCategory && slices.length > 0 ? (
+              <BreakdownList
+                key={by}
+                slices={slices}
+                currency={currency}
+                locale={money.locale}
+                showDecimals={money.showDecimals}
+                onOpen={openSlice}
+              />
+            ) : rows.length === 0 || !byCategory ? (
               <Text
                 variant="callout"
                 tone="secondary"
@@ -457,11 +555,13 @@ export default function InsightsScreen() {
                 currency={currency}
                 locale={money.locale}
               />
-              <AccountsCard
-                accounts={extras.accounts}
-                currency={currency}
-                locale={money.locale}
-              />
+              {scope.accountId ? null : (
+                <AccountsCard
+                  accounts={extras.accounts}
+                  currency={currency}
+                  locale={money.locale}
+                />
+              )}
             </>
           ) : null}
         </Animated.View>

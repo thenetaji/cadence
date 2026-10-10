@@ -18,9 +18,28 @@ export interface CategoryInput {
   kind: CategoryKind;
   icon: string;
   color: string;
+  /** Blank or null leaves the category ungrouped. */
+  groupName?: string | null;
 }
 
 export type CategoryPatch = Partial<Omit<CategoryInput, "kind">>;
+
+/** Trims and collapses whitespace; blank means no group. */
+export function normalizeGroupName(
+  value: string | null | undefined,
+): string | null {
+  const trimmed = (value ?? "").trim().replace(/\s+/g, " ");
+  return trimmed.length === 0 ? null : trimmed;
+}
+
+/** Distinct group names in use for `kind`, in category order (archived categories excluded). */
+export function listCategoryGroups(db: Db, kind: CategoryKind): string[] {
+  const seen = new Set<string>();
+  for (const row of listCategories(db, kind)) {
+    if (row.groupName) seen.add(row.groupName);
+  }
+  return [...seen];
+}
 
 export function getCategory(db: Db, id: string): CategoryRow | undefined {
   return db.select().from(categories).where(eq(categories.id, id)).get();
@@ -63,6 +82,7 @@ export function createCategory(
     kind: input.kind,
     icon: input.icon,
     color: input.color,
+    groupName: normalizeGroupName(input.groupName),
     sortOrder: (max?.max ?? -1) + 1,
     archivedAt: null,
     createdAt: now,
@@ -84,6 +104,9 @@ export function updateCategory(
       ...(patch.name !== undefined && { name: patch.name.trim() }),
       ...(patch.icon !== undefined && { icon: patch.icon }),
       ...(patch.color !== undefined && { color: patch.color }),
+      ...(patch.groupName !== undefined && {
+        groupName: normalizeGroupName(patch.groupName),
+      }),
       updatedAt: now,
     })
     .where(eq(categories.id, id))

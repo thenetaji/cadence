@@ -1,7 +1,9 @@
 import { DEFAULT_PERIOD_SETTINGS } from "@studio/dates";
 import {
   canStepForward,
+  parseBreakdownBy,
   parseInsightsParams,
+  parseScope,
   periodOf,
   stepView,
 } from "./params";
@@ -86,6 +88,28 @@ describe("stepView", () => {
     expect(periodOf(stepView(custom, 1, settings), settings)).toMatchObject({
       from: "2026-09-11",
       to: "2026-09-20",
+    });
+  });
+});
+
+describe("parseBreakdownBy", () => {
+  it("accepts known dimensions and falls back to category", () => {
+    expect(parseBreakdownBy("group")).toBe("group");
+    expect(parseBreakdownBy("tag")).toBe("tag");
+    expect(parseBreakdownBy("nope")).toBe("category");
+    expect(parseBreakdownBy(undefined)).toBe("category");
+  });
+});
+
+describe("parseScope", () => {
+  it("reads account and tag, treating blanks as everything", () => {
+    expect(parseScope({ account: "a1", tag: "t1" })).toEqual({
+      accountId: "a1",
+      tagId: "t1",
+    });
+    expect(parseScope({ account: "" })).toEqual({
+      accountId: null,
+      tagId: null,
     });
   });
 });

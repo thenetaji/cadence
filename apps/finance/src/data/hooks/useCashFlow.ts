@@ -1,5 +1,6 @@
 import type { Period } from "@studio/dates";
 import { useLiveData } from "@/data/use-live-data";
+import { scopeKey, type InsightsScope } from "@/lib/insights";
 import {
   readCashFlow,
   readMonthlyTotals,
@@ -12,16 +13,20 @@ export type { CashFlowData, MonthlyTotalsData } from "./cashFlow";
 const TABLES = [
   "transactions",
   "transaction_splits",
+  "transaction_tags",
   "fx_rates",
   "settings",
 ] as const;
 
 /** Income and spending per day or month for the selected period (Insights "Cash flow"). */
-export function useCashFlow(period: Period): CashFlowData {
+export function useCashFlow(
+  period: Period,
+  scope?: InsightsScope,
+): CashFlowData {
   return useLiveData(
     [...TABLES],
-    `${period.type}:${period.from}:${period.to}`,
-    (db) => readCashFlow(db, period),
+    `${period.type}:${period.from}:${period.to}:${scopeKey(scope)}`,
+    (db) => readCashFlow(db, period, scope),
   );
 }
 

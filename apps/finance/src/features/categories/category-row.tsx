@@ -16,7 +16,7 @@ type CategoryRowProps = {
   trailing?: React.ReactNode;
 };
 
-/** Icon tile and name; the separator is inset past the tile. */
+/** Icon tile, name and group; the separator is inset past the tile. */
 function CategoryRow({
   category,
   separator = true,
@@ -27,7 +27,11 @@ function CategoryRow({
   return (
     <Pressable
       role="button"
-      accessibilityLabel={category.name}
+      accessibilityLabel={
+        category.groupName
+          ? `${category.name}, ${category.groupName}`
+          : category.name
+      }
       scale={pressScale.row}
       onPress={onPress}
       className="flex-row items-center bg-surface px-4"
@@ -40,6 +44,16 @@ function CategoryRow({
       <Text variant="body" numberOfLines={1} className="ml-3 flex-1">
         {category.name}
       </Text>
+      {category.groupName ? (
+        <Text
+          variant="callout"
+          tone="tertiary"
+          numberOfLines={1}
+          className="ml-3 max-w-[40%]"
+        >
+          {category.groupName}
+        </Text>
+      ) : null}
       {trailing}
       {separator ? (
         <View

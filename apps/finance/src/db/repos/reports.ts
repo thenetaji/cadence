@@ -1,6 +1,6 @@
-import { and, between, eq, inArray } from "drizzle-orm";
-import type { FlatLine } from "@/lib/insights";
-import { transactionSplits, transactions } from "../schema";
+import { and, between, eq, inArray, sql, type SQL } from "drizzle-orm";
+import type { FlatLine, InsightsScope } from "@/lib/insights";
+import { transactionSplits, transactionTags, transactions } from "../schema";
 import type { Db } from "../types";
 
 /**
@@ -10,6 +10,7 @@ import type { Db } from "../types";
 export function spendLines(
   db: Db,
   range: { from: string; to: string },
+  scope?: InsightsScope,
 ): FlatLine[] {
   const kinds = ["expense", "income"] as const;
   const plain = db
@@ -26,6 +27,7 @@ export function spendLines(
         between(transactions.dateKey, range.from, range.to),
         inArray(transactions.kind, [...kinds]),
         eq(transactions.isSplit, false),
+        ...scopeConditions(scope),
       ),
     )
     .all();
@@ -46,6 +48,7 @@ export function spendLines(
       and(
         between(transactions.dateKey, range.from, range.to),
         inArray(transactions.kind, [...kinds]),
+        ...scopeConditions(scope),
       ),
     )
     .all();
@@ -62,4 +65,38 @@ export function spendLines(
     });
   }
   return lines;
+}
+
+/** Extra WHERE terms on `transactions` for an Insights scope (account, tag). */
+export function scopeConditions(scope: InsightsScope | undefined): SQL[] {
+  const out: SQL[] = [];
+  if (scope?.accountId) out.push(eq(transactions.accountId, scope.accountId));
+  if (scope?.tagId)
+    out.push(
+      sql`exists (select 1 from ${transactionTags} where ${transactionTags.transactionId} = ${transactions.id} and ${transactionTags.tagId} = ${scope.tagId})`,
+    );
+  return out;
+}
+
+/** Tag ids per transaction for transactions dated in `range`. */
+export function tagLinks(
+  db: Db,
+  range: { from: string; to: string },
+): Map<string, string[]> {
+  const rows = db
+    .select({
+      transactionId: transactionTags.transactionId,
+      tagId: transactionTags.tagId,
+    })
+    .from(transactionTags)
+    .innerJoin(transactions, eq(transactionTags.transactionId, transactions.id))
+    .where(between(transactions.dateKey, range.from, range.to))
+    .all();
+  const out = new Map<string, string[]>();
+  for (const row of rows) {
+    const list = out.get(row.transactionId);
+    if (list) list.push(row.tagId);
+    else out.set(row.transactionId, [row.tagId]);
+  }
+  return out;
 }

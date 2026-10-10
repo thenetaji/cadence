@@ -15,6 +15,7 @@ import {
   type Delta,
   type Granularity,
   type GroupedTotal,
+  type InsightsScope,
   type SeriesPoint,
 } from "@/lib/insights";
 import { conversionContext } from "./summary";
@@ -47,10 +48,11 @@ export function readInsights(
   period: Period,
   kind: "expense" | "income",
   todayKey?: DateKey,
+  scope?: InsightsScope,
 ): Insights {
   const ctx = conversionContext(db);
   const previous = previousPeriod(period);
-  const lines = spendLines(db, { from: previous.from, to: period.to });
+  const lines = spendLines(db, { from: previous.from, to: period.to }, scope);
   const byId = new Map(
     listCategories(db, kind, { includeArchived: true }).map((c) => [c.id, c]),
   );

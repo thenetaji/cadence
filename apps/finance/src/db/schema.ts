@@ -46,6 +46,8 @@ export const categories = sqliteTable(
     kind: text("kind").$type<CategoryKind>().notNull(),
     icon: text("icon").notNull(),
     color: text("color").notNull(),
+    /** Optional group name ("Essentials") that Insights can roll categories up into; null stands alone. */
+    groupName: text("group_name"),
     sortOrder: integer("sort_order").notNull().default(0),
     archivedAt: integer("archived_at"),
     createdAt: integer("created_at").notNull(),

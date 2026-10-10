@@ -208,3 +208,45 @@ export function barDomain(
   const { top, ticks } = niceTicks(max, count);
   return { top, ticks, clipped: false };
 }
+
+/**
+ * A rounded [lo, hi] domain with evenly spaced ticks for a line that can dip below zero (balances).
+ * Zero is kept in view when the values sit close to it; a flat line gets one step of headroom.
+ */
+export function niceRange(
+  min: number,
+  max: number,
+  count = 3,
+): { lo: number; hi: number; ticks: number[] } {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || count < 1)
+    return { lo: 0, hi: 0, ticks: [] };
+  let low = Math.min(min, max);
+  let high = Math.max(min, max);
+  // Near zero relative to the spread: show zero so the line's level reads honestly.
+  if (low > 0 && low < (high - low) * 0.5) low = 0;
+  if (high < 0 && -high < (high - low) * 0.5) high = 0;
+  const span = high - low || Math.abs(high) || 1;
+  const rough = span / count;
+  const magnitude = 10 ** Math.floor(Math.log10(rough));
+  const step =
+    [1, 2, 2.5, 5, 10].map((m) => m * magnitude).find((s) => s >= rough) ??
+    10 * magnitude;
+  const lo = Math.floor(low / step) * step;
+  let hi = Math.ceil(high / step) * step;
+  if (hi === lo) hi = lo + step;
+  const ticks: number[] = [];
+  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Math.round(v));
+  return { lo: Math.round(lo), hi: Math.round(hi), ticks };
+}
+
+/** y for `value` in a [lo, hi] domain drawn between `top` and `bottom`. */
+export function rangeToY(
+  value: number,
+  lo: number,
+  hi: number,
+  top: number,
+  bottom: number,
+): number {
+  if (hi <= lo) return bottom;
+  return bottom - ((value - lo) / (hi - lo)) * (bottom - top);
+}

@@ -210,6 +210,10 @@ Purpose: where the money went, and whether that is changing.
 4. **Donut** (Skia, 220 pt): up to 8 segments + "Other"; stroke width 22 pt, gap 2°; centre shows the selected segment's name + amount, else the total. Tap a segment to select it (selection haptic; segment grows 4 pt; the list below filters to it). Tap again to clear.
 5. **Bars**: daily bars for Week/Month, monthly for Year, auto for Custom. Height 160 pt, 4 pt radius tops, bars in accent at 70%, selected bar 100%; a dotted average line with a right-aligned label. Scrub: pan along the chart shows a floating label "Tue 7 · ₹1,240" and highlights the bar; release keeps the selection; tap elsewhere clears. Bar colours switch to the selected category colour when a donut segment is selected.
 6. **Category list**: one row per category: icon, name, bar-under-name showing share, trailing amount and "34%". Sorted by amount. Tap → `/category/[id]?from&to`.
+7. **Scope**: chips under the period stepper, `All accounts ▾` and `All tags ▾`, narrow every figure on the screen to one account and/or one tag (`?account=` / `?tag=`). `Clear` resets both. Hidden with one account and no tags.
+8. **Breakdown**: chips above the donut switch it and the list between Category, Group, Tag, Account and Merchant (`?by=`). Group rolls categories up by their group (ungrouped categories stand alone); a group row expands to its categories. Tag counts a transaction under each of its tags, so tag shares can add past 100%. Category, tag and account rows open their screens.
+9. **Running total**: this period's cumulative amount against the previous period's (dashed), day 1 against day 1, with "₹8,907 more than last month". A `Last month | Last year` switch compares with the same stretch a year earlier (52 weeks for a week); Year compares with last year only.
+10. **Monthly trend**: 6 or 12 months stacked by the five largest buckets of the current breakdown plus Other; tap a legend entry to pick one out; scrub for the month's total and its largest bucket.
 
 States: empty period: donut shows a hairline ring, total ₹0, list "Nothing in this period". Income mode uses income green for the bars.
 
@@ -243,7 +247,9 @@ Rule sheet: same as the add sheet fields minus date, plus "Next due" (date), "En
 
 List: total in display currency at top (hero), then rows: icon tile (type icon on account colour), name, type subtitle, trailing balance in its own currency (and converted below in footnote if different). Reorder by drag handle in an "Edit" mode. Archived accounts in a collapsed section. Trailing `plus` → new.
 
-Detail: hero balance, "Transfer" and "Edit" buttons, then the account's transactions by month (same list component as Activity, with its month pill).
+Net worth card under the total: total balance over 3M (daily), 1Y (weekly) or All (monthly), with the change over the range; scrubbable. Accounts without an exchange rate are left out, as in the total.
+
+Detail: hero balance, "Transfer" and "Edit" buttons, a "Balance over time" card for the account (same ranges), then the account's transactions by month (same list component as Activity, with its month pill).
 
 Add/Edit sheet: Name, Type (segmented Cash/Bank/Card/Other), Currency (searchable list; locked once the account has transactions), Opening balance (keypad; may be negative for cards), Colour (12-swatch row), "Default account" (switch), Archive/Delete at the bottom (Delete only when empty; otherwise "Move transactions to…" menu then delete).
 
@@ -268,7 +274,7 @@ Rows, grouped, 14 total. Values shown on the trailing side.
 | | Erase all data | alert, destructive, requires typing nothing but confirms twice |
 | About | Version | `/settings/about`: name, version, "Rate", "Send feedback" (mailto), licences |
 
-Categories screen: two sections (Expense, Income), rows with icon tile + name, drag to reorder, swipe to delete (delete asks "Move transactions to…" with a menu of same-kind categories; never cascades). Trailing `plus`. Edit sheet: Name, Icon (grid of ~80 curated SF Symbol names, searchable), Colour (12 swatches), Kind (locked after creation).
+Categories screen: two sections (Expense, Income), rows with icon tile + name (+ group, trailing tertiary), drag to reorder, swipe to delete (delete asks "Move transactions to…" with a menu of same-kind categories; never cascades). Trailing `plus`. Edit sheet: Name, Icon (grid of ~80 curated SF Symbol names, searchable), Colour (12 swatches), Kind (locked after creation), Group (free text with chips for the groups already in use; blank = none). Defaults: Essentials (Groceries, Housing, Bills, Transport, Health, Education), Lifestyle (Food & Drink, Shopping, Entertainment, Travel, Personal, Subscriptions), Work (Salary, Freelance).
 
 ### 3.14 Lock overlay
 

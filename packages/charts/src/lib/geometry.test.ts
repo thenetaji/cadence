@@ -1,4 +1,6 @@
 import {
+  niceRange,
+  rangeToY,
   barSlots,
   clampLabelX,
   barDomain,
@@ -127,5 +129,40 @@ describe("barDomain", () => {
   it("handles empty and zero data", () => {
     expect(barDomain([0, 0], 0)).toEqual({ top: 0, ticks: [], clipped: false });
     expect(percentileOf([0, 5, 1], 0.85)).toBe(5);
+  });
+});
+
+describe("niceRange", () => {
+  it("rounds outwards and spaces ticks evenly", () => {
+    expect(niceRange(1200, 9800, 3)).toEqual({
+      lo: 0,
+      hi: 10000,
+      ticks: [0, 5000, 10000],
+    });
+    expect(niceRange(52000, 61000, 3)).toEqual({
+      lo: 50000,
+      hi: 65000,
+      ticks: [50000, 55000, 60000, 65000],
+    });
+  });
+  it("spans zero for negative balances", () => {
+    const r = niceRange(-4000, 6000, 3);
+    expect(r.lo).toBeLessThanOrEqual(-4000);
+    expect(r.hi).toBeGreaterThanOrEqual(6000);
+    expect(r.ticks).toContain(0);
+  });
+  it("gives a flat line headroom", () => {
+    const r = niceRange(5000, 5000, 3);
+    expect(r.hi).toBeGreaterThan(r.lo);
+    expect(r.lo).toBeLessThanOrEqual(5000);
+    expect(r.hi).toBeGreaterThanOrEqual(5000);
+  });
+});
+
+describe("rangeToY", () => {
+  it("maps lo to the bottom and hi to the top", () => {
+    expect(rangeToY(-100, -100, 100, 10, 110)).toBe(110);
+    expect(rangeToY(100, -100, 100, 10, 110)).toBe(10);
+    expect(rangeToY(0, -100, 100, 10, 110)).toBe(60);
   });
 });

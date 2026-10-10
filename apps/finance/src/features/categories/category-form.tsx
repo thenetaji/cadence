@@ -3,6 +3,7 @@ import * as React from "react";
 import { Platform, View } from "react-native";
 
 import {
+  Chip,
   IconTile,
   ListGroup,
   Card,
@@ -31,7 +32,7 @@ const KIND_LABELS: Record<CategoryKind, string> = {
 
 type CategoryFormProps = { id: string };
 
-/** Create (`id` is "new") or edit a category: live preview, name, kind (locked after creation), colour and icon. */
+/** Create (`id` is "new") or edit a category: live preview, name, kind (locked after creation), group, colour and icon. */
 export function CategoryForm({ id }: CategoryFormProps) {
   const router = useRouter();
   const actions = useActions();
@@ -50,6 +51,13 @@ export function CategoryForm({ id }: CategoryFormProps) {
   const [kind, setKind] = React.useState<CategoryKind>(
     source?.kind ?? (params.kind === "income" ? "income" : "expense"),
   );
+  const [group, setGroup] = React.useState(source?.groupName ?? "");
+  const groups = React.useMemo(() => {
+    const seen = new Set<string>();
+    for (const c of all)
+      if (c.kind === kind && c.groupName) seen.add(c.groupName);
+    return [...seen];
+  }, [all, kind]);
   const [icon, setIcon] = React.useState(source?.icon ?? "tag.fill");
   const [color, setColor] = React.useState<CategoryColorKey>(
     () =>
@@ -73,8 +81,21 @@ export function CategoryForm({ id }: CategoryFormProps) {
       return;
     }
     try {
-      if (source) actions.categories.update(source.id, { name, icon, color });
-      else actions.categories.create({ name, kind, icon, color });
+      if (source)
+        actions.categories.update(source.id, {
+          name,
+          icon,
+          color,
+          groupName: group,
+        });
+      else
+        actions.categories.create({
+          name,
+          kind,
+          icon,
+          color,
+          groupName: group,
+        });
     } catch (error) {
       haptic("error");
       if (error instanceof ValidationError) return;
@@ -133,6 +154,32 @@ export function CategoryForm({ id }: CategoryFormProps) {
               disabled={!creating}
               accessibilityLabel="Kind"
             />
+          </FormRow>
+          <FormRow label="Group" stacked>
+            <Input
+              variant="inline"
+              value={group}
+              onChangeText={setGroup}
+              placeholder="None"
+              returnKeyType="done"
+              autoCapitalize="words"
+              autoCorrect={false}
+              maxLength={24}
+              accessibilityLabel="Group"
+              className="h-6 min-h-0 py-0"
+            />
+            {groups.length > 0 ? (
+              <View className="flex-row flex-wrap gap-2">
+                {groups.map((g) => (
+                  <Chip
+                    key={g}
+                    label={g}
+                    selected={g === group.trim()}
+                    onPress={() => setGroup(g === group.trim() ? "" : g)}
+                  />
+                ))}
+              </View>
+            ) : null}
           </FormRow>
           <FormRow label="Colour" stacked>
             <Swatches value={color} onChange={setColor} />

@@ -6,6 +6,7 @@ import {
   monthlyTotals,
   type CashFlow,
   type MonthlyPair,
+  type InsightsScope,
 } from "@/lib/insights";
 import { conversionContext } from "./summary";
 
@@ -19,12 +20,16 @@ export interface MonthlyTotalsData {
   months: MonthlyPair[];
 }
 
-export function readCashFlow(db: Db, period: Period): CashFlowData {
+export function readCashFlow(
+  db: Db,
+  period: Period,
+  scope?: InsightsScope,
+): CashFlowData {
   const ctx = conversionContext(db);
   return {
     currency: ctx.displayCurrency,
     ...cashFlowSeries(
-      spendLines(db, { from: period.from, to: period.to }),
+      spendLines(db, { from: period.from, to: period.to }, scope),
       period,
       ctx,
     ),

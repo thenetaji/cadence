@@ -25,8 +25,11 @@ import {
 import { useTokens } from "@studio/theme";
 
 import { AccountRow, ACCOUNT_ROW_HEIGHT } from "./account-row";
+import { withSkia } from "@studio/charts";
 import { toAccountView, totalInDisplay } from "./model";
 import { ReorderList } from "./reorder-list";
+
+const NetWorthCard = withSkia(() => import("./net-worth-card"));
 
 const COMPACT_FROM = 1e7;
 
@@ -139,6 +142,7 @@ export function AccountsScreen() {
           </Text>
         ) : null}
       </View>
+      {editing ? null : <NetWorthCard locale={locale} />}
       <Card className="mx-4 p-0">
         {editing ? (
           <ReorderList

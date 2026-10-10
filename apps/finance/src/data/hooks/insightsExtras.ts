@@ -21,6 +21,7 @@ import {
   type TitleTotal,
   type TransactionTotal,
   type WeekdayAverage,
+  type InsightsScope,
 } from "@/lib/insights";
 import { conversionContext } from "./summary";
 
@@ -61,6 +62,7 @@ export function readInsightsExtras(
   kind: "expense" | "income",
   settings: PeriodSettings,
   todayKey?: DateKey,
+  scope?: InsightsScope,
 ): InsightsExtras {
   const ctx = conversionContext(db);
   // The trend ends at the period's last month, or the current month when the period is still running.
@@ -68,7 +70,7 @@ export function readInsightsExtras(
     todayKey && todayKey >= period.from && todayKey < period.to
       ? todayKey
       : period.to;
-  const lines = detailedLines(db, extrasRange(period, endRef, settings));
+  const lines = detailedLines(db, extrasRange(period, endRef, settings), scope);
   const categories = new Map(
     listCategories(db, undefined, { includeArchived: true }).map((c) => [
       c.id,

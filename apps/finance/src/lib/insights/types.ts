@@ -8,3 +8,13 @@ export interface FlatLine {
   amount: number;
   currency: string;
 }
+
+/** Narrows Insights to one account and/or one tag; null or absent means everything. */
+export interface InsightsScope {
+  accountId?: string | null;
+  tagId?: string | null;
+}
+
+/** Stable cache key for a scope. */
+export const scopeKey = (scope: InsightsScope | undefined): string =>
+  `${scope?.accountId ?? ""}|${scope?.tagId ?? ""}`;

@@ -311,3 +311,36 @@ export function getAccountBalance(db: Db, id: string): number | undefined {
     (a) => a.id === id,
   )?.balance;
 }
+
+/**
+ * Net balance change per account per day, in each account's own currency, with the same signs as
+ * `listAccountsWithBalances`: inflows add, outflows and transfers out subtract, transfers in add.
+ */
+export function balanceMovements(
+  db: Db,
+): { accountId: string; dateKey: string; delta: number }[] {
+  const own = db
+    .select({
+      accountId: transactions.accountId,
+      dateKey: transactions.dateKey,
+      delta: sql<number>`coalesce(sum(case when ${transactions.kind} in ('income', 'borrowed', 'repaid_to_me') then ${transactions.amount} when ${transactions.kind} in ('expense', 'lent', 'repaid_by_me', 'transfer') then -${transactions.amount} else 0 end), 0)`,
+    })
+    .from(transactions)
+    .groupBy(transactions.accountId, transactions.dateKey)
+    .all();
+  const incoming = db
+    .select({
+      accountId: transactions.transferAccountId,
+      dateKey: transactions.dateKey,
+      delta: sql<number>`coalesce(sum(${transactions.transferAmount}), 0)`,
+    })
+    .from(transactions)
+    .where(eq(transactions.kind, "transfer"))
+    .groupBy(transactions.transferAccountId, transactions.dateKey)
+    .all();
+  const out = own.filter((m) => m.delta !== 0);
+  for (const m of incoming)
+    if (m.accountId !== null && m.delta !== 0)
+      out.push({ accountId: m.accountId, dateKey: m.dateKey, delta: m.delta });
+  return out;
+}

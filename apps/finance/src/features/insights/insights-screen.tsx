@@ -66,6 +66,7 @@ import {
   type InsightsView,
 } from "./params";
 import { PeriodControls } from "./period-controls";
+import { RunningCard } from "./running-card";
 import {
   AccountsCard,
   IncomeSourcesCard,
@@ -534,6 +535,16 @@ export default function InsightsScreen() {
               />
             </Card>
           </Stagger>
+
+          {insights.total > 0 ||
+          insights.previousSeries.some((p) => p.amount > 0) ? (
+            <RunningCard
+              insights={insights}
+              period={period}
+              today={today}
+              locale={money.locale}
+            />
+          ) : null}
 
           {insights.total > 0 ? (
             <>

@@ -39,6 +39,8 @@ export interface Insights {
   /** Top 8 plus Other, for the donut. */
   donut: InsightGroup[];
   series: SeriesPoint[];
+  /** The previous period in the same buckets, for running-total comparisons. */
+  previousSeries: SeriesPoint[];
   granularity: Granularity;
   average: number;
 }
@@ -74,6 +76,9 @@ export function readInsights(
     categories: totals.map(attach),
     donut: groupTopCategories(totals, 8).map(attach),
     series,
+    previousSeries: buildSeries(lines, kind, previous, ctx, {
+      granularity: granularityFor(period),
+    }),
     granularity: granularityFor(period),
     // Days that have not happened yet would only drag the daily average down.
     average: averageOf(

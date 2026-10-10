@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { withSkia } from "@studio/charts";
 import * as React from "react";
 import { Platform, View } from "react-native";
 
@@ -29,7 +30,9 @@ import {
 const ALL = "all";
 const ALL_TIME = { from: "0000-01-01", to: "9999-12-31" };
 
-/** Account detail: hero balance, Transfer and Edit, then the account's transactions one month at a time. */
+const BalanceCard = withSkia(() => import("./net-worth-card"));
+
+/** Account detail: hero balance, Transfer and Edit, balance over time, then the account's transactions one month at a time. */
 export default function AccountDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -120,6 +123,11 @@ export default function AccountDetailScreen() {
           Transfer
         </Button>
       </View>
+      <BalanceCard
+        accountId={account.id}
+        title="Balance over time"
+        locale={money.locale}
+      />
       <View
         className="flex-row items-center px-4 pt-1"
         style={Platform.OS === "web" ? { marginLeft: -16 } : undefined}

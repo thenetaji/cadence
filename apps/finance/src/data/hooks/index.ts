@@ -34,3 +34,4 @@ export * from "./useReminderSync";
 export * from "./useCashFlow";
 export * from "./useRangeDailyTotals";
 export * from "./useBreakdown";
+export * from "./useBalanceHistory";
